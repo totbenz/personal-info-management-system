@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PersonnelController extends Controller
 {
@@ -62,12 +63,24 @@ class PersonnelController extends Controller
 
     public function export($id)
     {
-        $personnel = Personnel::findOrFail($id);
+        Log::info('Export method called with id: ' . $id);
 
-        // Pass the personnel data to the export class
-        $export = new PersonnelDataExport($personnel->id);
+        try {
+            $personnel = Personnel::findOrFail($id);
+            Log::info('Personnel found: ' . $personnel->personnel_id);
 
-        return response()->download($export->getOutputPath(), $personnel->personnel_id . '_pds.xlsm');
+            // Pass the personnel data to the export class
+            $export = new PersonnelDataExport($personnel->id);
+            Log::info('PersonnelDataExport instance created');
+
+            $outputPath = $export->getOutputPath();
+            Log::info('Output path: ' . $outputPath);
+
+            return response()->download($outputPath, $personnel->personnel_id . '_pds.xlsm');
+        } catch (\Exception $e) {
+            Log::error('Error during export: ' . $e->getMessage());
+            return redirect()->route('dashboard')->with('error', 'Failed to export personnel data.');
+        }
     }
 
     public function destroy($id)

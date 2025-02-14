@@ -9,6 +9,11 @@
                     </button>
                 </a>
             </div>
+            <div class="flex justify-between space-x-3">
+                <button wire:click='export' class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
+                    Export
+                </button>
+            </div>
         </div>
 
         <div class="flex w-2/4 items-center rounded-md border border-gray-400 bg-white focus:bg-white focus:border-gray-500">

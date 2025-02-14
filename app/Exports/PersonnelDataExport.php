@@ -10,6 +10,7 @@ use App\Exports\Sheets\PersonnelDataC1Sheet;
 use App\Exports\Sheets\PersonnelDataC2Sheet;
 use App\Exports\Sheets\PersonnelDataC3Sheet;
 use App\Exports\Sheets\PersonnelDataC4Sheet;
+use Illuminate\Support\Facades\Log;
 
 class PersonnelDataExport
 {
@@ -21,33 +22,48 @@ class PersonnelDataExport
 
     public function __construct($id)
     {
+        Log::info('PersonnelDataExport constructor called with id: ' . $id);
+
         $this->personnel = Personnel::findOrFail($id);
+        Log::info('Personnel found: ', ['personnel' => $this->personnel]);
 
         $this->filename = public_path('report/macro_enabled_cs_form_no_212.xlsm');
+        Log::info('Loading spreadsheet from file: ' . $this->filename);
         $this->spreadsheet = IOFactory::load($this->filename);
 
+        Log::info('Populating PersonnelDataC1Sheet');
         $personnelC1Sheet = new PersonnelDataC1Sheet($this->personnel, $this->spreadsheet);
         $personnelC1Sheet->populateSheet();
 
+        Log::info('Populating PersonnelDataC2Sheet');
         $personnelC2Sheet = new PersonnelDataC2Sheet($this->personnel, $this->spreadsheet);
         $personnelC2Sheet->populateSheet();
 
+        Log::info('Populating PersonnelDataC3Sheet');
         $personnelC3Sheet = new PersonnelDataC3Sheet($this->personnel, $this->spreadsheet);
         $personnelC3Sheet->populateSheet();
 
+        Log::info('Populating PersonnelDataC4Sheet');
         $personnelC4Sheet = new PersonnelDataC4Sheet($this->personnel, $this->spreadsheet);
         $personnelC4Sheet->populateSheet();
 
         $this->excelOutputPath = public_path('report/pds_generated.xlsm');
         $this->pdfOutputPath = public_path('report/pds_generated.pdf');
 
-        // Save the Excel file
+        Log::info('Saving Excel file to: ' . $this->excelOutputPath);
         $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
         $writer->save($this->excelOutputPath);
 
         // $writer = IOFactory::createWriter($this->spreadsheet, 'Pdf');
         // $writer->save($this->pdfOutputPath);
     }
+
+    public function getOutputPath()
+    {
+        Log::info('getOutputPath called, returning: ' . $this->excelOutputPath);
+        return $this->excelOutputPath;
+    }
+}
 
 
     // public function convertToPdf()
@@ -101,9 +117,3 @@ class PersonnelDataExport
     //     // Save PDF
     //     file_put_contents($this->pdfOutputPath, $dompdf->output());
     // }
-
-    public function getOutputPath()
-    {
-        return $this->excelOutputPath;
-    }
-}

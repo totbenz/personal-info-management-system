@@ -5,7 +5,9 @@ namespace App\Livewire\Datatable;
 use App\Models\Personnel;
 use App\Models\School;
 use Livewire\Component;
+use Maatwebsite\Excel\Excel;
 use Livewire\WithPagination;
+use App\Exports\PersonnelsIndexExport;
 
 class PersonnelsDatatable extends Component
 {
@@ -57,6 +59,12 @@ class PersonnelsDatatable extends Component
             return;
         }
         $this->sortColumn = $column;
+    }
+
+    public function export()
+    {
+        $excel = app(Excel::class);
+        return $excel->download(new PersonnelsIndexExport, 'personnel.xlsx');
     }
 
     public function render()

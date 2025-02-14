@@ -7,6 +7,9 @@
                     {{ __('New School') }}
                 </x-button>
             </a>
+            <x-button wire:click='export'>
+                Export Excel
+            </x-button>
         </div>
 
         <div class="flex w-2/4 items-center rounded-md border border-gray-400 bg-white focus:bg-white focus:border-gray-500">

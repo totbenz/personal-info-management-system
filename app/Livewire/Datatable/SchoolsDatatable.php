@@ -5,6 +5,8 @@ namespace App\Livewire\Datatable;
 use App\Models\School;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Excel;
+use App\Exports\SchoolsIndexExport;
 
 class SchoolsDatatable extends Component
 {
@@ -19,6 +21,12 @@ class SchoolsDatatable extends Component
             return;
         }
         $this->sortColumn = $column;
+    }
+
+    public function export()
+    {
+        $excel = app(Excel::class);
+        return $excel->download(new SchoolsIndexExport, 'schools.xlsx');
     }
 
     public function render()
