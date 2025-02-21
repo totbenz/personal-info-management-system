@@ -3,8 +3,6 @@
 namespace App\Exports;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use App\Models\Personnel;
 use App\Exports\Sheets\PersonnelDataC1Sheet;
 use App\Exports\Sheets\PersonnelDataC2Sheet;
@@ -22,40 +20,43 @@ class PersonnelDataExport
 
     public function __construct($id)
     {
-        Log::info('PersonnelDataExport constructor called with id: ' . $id);
+        try {
+            Log::info('PersonnelDataExport constructor called with id: ' . $id);
 
-        $this->personnel = Personnel::findOrFail($id);
-        Log::info('Personnel found: ', ['personnel' => $this->personnel]);
+            $this->personnel = Personnel::findOrFail($id);
+            Log::info('Personnel found: ', ['personnel' => $this->personnel]);
 
-        $this->filename = public_path('report/macro_enabled_cs_form_no_212.xlsm');
-        Log::info('Loading spreadsheet from file: ' . $this->filename);
-        $this->spreadsheet = IOFactory::load($this->filename);
+            $this->filename = public_path('report/macro_enabled_cs_form_no_212.xlsm');
+            Log::info('Loading spreadsheet from file: ' . $this->filename);
+            $this->spreadsheet = IOFactory::load($this->filename);
 
-        Log::info('Populating PersonnelDataC1Sheet');
-        $personnelC1Sheet = new PersonnelDataC1Sheet($this->personnel, $this->spreadsheet);
-        $personnelC1Sheet->populateSheet();
+            Log::info('Populating PersonnelDataC1Sheet');
+            $personnelC1Sheet = new PersonnelDataC1Sheet($this->personnel, $this->spreadsheet);
+            $personnelC1Sheet->populateSheet();
 
-        Log::info('Populating PersonnelDataC2Sheet');
-        $personnelC2Sheet = new PersonnelDataC2Sheet($this->personnel, $this->spreadsheet);
-        $personnelC2Sheet->populateSheet();
+            Log::info('Populating PersonnelDataC2Sheet');
+            $personnelC2Sheet = new PersonnelDataC2Sheet($this->personnel, $this->spreadsheet);
+            $personnelC2Sheet->populateSheet();
 
-        Log::info('Populating PersonnelDataC3Sheet');
-        $personnelC3Sheet = new PersonnelDataC3Sheet($this->personnel, $this->spreadsheet);
-        $personnelC3Sheet->populateSheet();
+            Log::info('Populating PersonnelDataC3Sheet');
+            $personnelC3Sheet = new PersonnelDataC3Sheet($this->personnel, $this->spreadsheet);
+            $personnelC3Sheet->populateSheet();
 
-        Log::info('Populating PersonnelDataC4Sheet');
-        $personnelC4Sheet = new PersonnelDataC4Sheet($this->personnel, $this->spreadsheet);
-        $personnelC4Sheet->populateSheet();
+            Log::info('Populating PersonnelDataC4Sheet');
+            $personnelC4Sheet = new PersonnelDataC4Sheet($this->personnel, $this->spreadsheet);
+            $personnelC4Sheet->populateSheet();
 
-        $this->excelOutputPath = public_path('report/pds_generated.xlsm');
-        $this->pdfOutputPath = public_path('report/pds_generated.pdf');
+            $this->excelOutputPath = public_path('report/pds_generated.xlsm');
+            $this->pdfOutputPath = public_path('report/pds_generated.pdf');
 
-        Log::info('Saving Excel file to: ' . $this->excelOutputPath);
-        $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
-        $writer->save($this->excelOutputPath);
+            Log::info('Saving Excel file to: ' . $this->excelOutputPath);
+            $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
+            $writer->save($this->excelOutputPath);
 
-        // $writer = IOFactory::createWriter($this->spreadsheet, 'Pdf');
-        // $writer->save($this->pdfOutputPath);
+            Log::info('Excel file saved successfully');
+        } catch (\Exception $e) {
+            Log::error('Error in PersonnelDataExport constructor: ' . $e->getMessage());
+        }
     }
 
     public function getOutputPath()

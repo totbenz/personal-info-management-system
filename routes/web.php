@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::post('/profile/{personnel}/export', [PersonnelController::class, 'profile'])->name('pds.export');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
-        // Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
+        Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('pds.export');
     });
 
     // SCHOOL HEAD ACCESS
