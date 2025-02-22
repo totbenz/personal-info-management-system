@@ -13,15 +13,14 @@ class PersonnelDataC2Sheet
     public function __construct($personnel, Spreadsheet $spreadsheet)
     {
         $this->personnel = $personnel;
-        // $this->personnel = $this->personnel[0];
         $this->worksheet = $spreadsheet->getSheet(1);
     }
 
     public function populateSheet()
     {
-
         $this->populateCivilServiceEligibilities();
         $this->populateWorkExperiences();
+        $this->populateCurrentDate();
     }
 
     protected function populateCivilServiceEligibilities()
@@ -33,7 +32,6 @@ class PersonnelDataC2Sheet
         $currentRow = $startRow;
 
         if ($this->personnel->civilServiceEligibilities) {
-
             foreach ($this->personnel->civilServiceEligibilities as $civil_service_eligibility) {
                 if ($currentRow > $endRow) {
                     // Copy the current sheet and use the new copy
@@ -45,12 +43,12 @@ class PersonnelDataC2Sheet
                 }
 
                 // Populate the cell values
-                $worksheet->setCellValue('A' . $currentRow, $civil_service_eligibility->title);
-                $worksheet->setCellValue('F' . $currentRow, $civil_service_eligibility->rating);
-                $worksheet->setCellValue('G' . $currentRow, Carbon::parse($civil_service_eligibility->date_of_exam)->format('m/d/Y'));
-                $worksheet->setCellValue('I' . $currentRow, $civil_service_eligibility->place_of_exam);
-                $worksheet->setCellValue('L' . $currentRow, $civil_service_eligibility->license_num);
-                $worksheet->setCellValue('M' . $currentRow, Carbon::parse($civil_service_eligibility->license_date_of_validitym)->format('m/d/Y'));
+                $worksheet->setCellValue('A' . $currentRow, $civil_service_eligibility->title ?? 'N/A');
+                $worksheet->setCellValue('F' . $currentRow, $civil_service_eligibility->rating ?? 'N/A');
+                $worksheet->setCellValue('G' . $currentRow, $civil_service_eligibility->date_of_exam ? Carbon::parse($civil_service_eligibility->date_of_exam)->format('m/d/Y') : 'N/A');
+                $worksheet->setCellValue('I' . $currentRow, $civil_service_eligibility->place_of_exam ?? 'N/A');
+                $worksheet->setCellValue('L' . $currentRow, $civil_service_eligibility->license_num ?? 'N/A');
+                $worksheet->setCellValue('M' . $currentRow, $civil_service_eligibility->license_date_of_validity ? Carbon::parse($civil_service_eligibility->license_date_of_validity)->format('m/d/Y') : 'N/A');
                 $currentRow++;
             }
         } else {
@@ -86,14 +84,14 @@ class PersonnelDataC2Sheet
                 }
 
                 // Populate the cell values
-                $worksheet->setCellValue('A' . $currentRow, Carbon::parse($work_experience->inclusive_from)->format('m/d/Y'));
-                $worksheet->setCellValue('C' . $currentRow, Carbon::parse($work_experience->inclusive_to)->format('m/d/Y'));
-                $worksheet->setCellValue('D' . $currentRow, $work_experience->title);
-                $worksheet->setCellValue('G' . $currentRow, $work_experience->company);
-                $worksheet->setCellValue('J' . $currentRow, $work_experience->monthly_salary);
-                $worksheet->setCellValue('K' . $currentRow, $work_experience->paygrade_step_increment);
-                $worksheet->setCellValue('L' . $currentRow, $work_experience->appointment);
-                $worksheet->setCellValue('M' . $currentRow, $work_experience->is_gov_service);
+                $worksheet->setCellValue('A' . $currentRow, $work_experience->inclusive_from ? Carbon::parse($work_experience->inclusive_from)->format('m/d/Y') : 'N/A');
+                $worksheet->setCellValue('C' . $currentRow, $work_experience->inclusive_to ? Carbon::parse($work_experience->inclusive_to)->format('m/d/Y') : 'N/A');
+                $worksheet->setCellValue('D' . $currentRow, $work_experience->title ?? 'N/A');
+                $worksheet->setCellValue('G' . $currentRow, $work_experience->company ?? 'N/A');
+                $worksheet->setCellValue('J' . $currentRow, $work_experience->monthly_salary ?? 'N/A');
+                $worksheet->setCellValue('K' . $currentRow, $work_experience->paygrade_step_increment ?? 'N/A');
+                $worksheet->setCellValue('L' . $currentRow, $work_experience->appointment ?? 'N/A');
+                $worksheet->setCellValue('M' . $currentRow, $work_experience->is_gov_service ?? 'N/A');
                 $currentRow++;
             }
         } else {
@@ -106,5 +104,11 @@ class PersonnelDataC2Sheet
             $worksheet->setCellValue('L' . $currentRow, 'N/A');
             $worksheet->setCellValue('M' . $currentRow, 'N/A');
         }
+    }
+
+    protected function populateCurrentDate()
+    {
+        $worksheet = $this->worksheet;
+        $worksheet->setCellValue('J47', Carbon::now()->format('m/d/Y'));
     }
 }

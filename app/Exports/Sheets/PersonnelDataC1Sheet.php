@@ -3,6 +3,7 @@
 namespace App\Exports\Sheets;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Carbon\Carbon;
 
 class PersonnelDataC1Sheet
 {
@@ -12,7 +13,6 @@ class PersonnelDataC1Sheet
     public function __construct($personnel, Spreadsheet $spreadsheet)
     {
         $this->personnel = $personnel;
-        // $this->personnel = $this->personnel[0];
         $this->worksheet = $spreadsheet->getSheet(0); // Assuming the first sheet is being used
     }
 
@@ -23,6 +23,7 @@ class PersonnelDataC1Sheet
         $this->populateFamilyInfo();
         $this->populateChildren();
         $this->populateEducation();
+        $this->populateCurrentDate();
     }
 
     protected function populatePersonalInfo()
@@ -36,7 +37,19 @@ class PersonnelDataC1Sheet
         $worksheet->setCellValue('N11', $this->personnel->name_ext ?? 'N/A');
         $worksheet->setCellValue('D13', $this->personnel->date_of_birth ?? 'N/A');
         $worksheet->setCellValue('D15', $this->personnel->place_of_birth ?? 'N/A');
-        $worksheet->setCellValue('D16', $this->personnel->sex ?? 'N/A');
+
+        // Handle sex checkboxes
+        if ($this->personnel->sex === 'male') {
+            $worksheet->setCellValue('D16', '☑'); // Assuming 'D16' is linked to the 'male' checkbox
+            $worksheet->setCellValue('E16', '☐'); // Assuming 'E16' is linked to the 'female' checkbox
+        } elseif ($this->personnel->sex === 'female') {
+            $worksheet->setCellValue('D16', '☐'); // Assuming 'D16' is linked to the 'male' checkbox
+            $worksheet->setCellValue('E16', '☑'); // Assuming 'E16' is linked to the 'female' checkbox
+        } else {
+            $worksheet->setCellValue('D16', '☐'); // Assuming 'D16' is linked to the 'male' checkbox
+            $worksheet->setCellValue('E16', '☐'); // Assuming 'E16' is linked to the 'female' checkbox
+        }
+
         $worksheet->setCellValue('D17', $this->personnel->civil_status ?? 'N/A');
         $worksheet->setCellValue('J13', $this->personnel->citizenship ?? 'N/A');
 
@@ -60,13 +73,13 @@ class PersonnelDataC1Sheet
 
         if ($this->personnel->residentialAddress) {
             // Residential Address
-            $worksheet->setCellValue('I17', $this->personnel->residentialAddress->house_no);
-            $worksheet->setCellValue('L17', $this->personnel->residentialAddress->street);
-            $worksheet->setCellValue('I19', $this->personnel->residentialAddress->subdivision);
-            $worksheet->setCellValue('L19', $this->personnel->residentialAddress->barangay);
-            $worksheet->setCellValue('I22', $this->personnel->residentialAddress->city);
-            $worksheet->setCellValue('L22', $this->personnel->residentialAddress->province);
-            $worksheet->setCellValue('I24', $this->personnel->residentialAddress->zip_code);
+            $worksheet->setCellValue('I17', $this->personnel->residentialAddress->house_no ?? 'N/A');
+            $worksheet->setCellValue('L17', $this->personnel->residentialAddress->street ?? 'N/A');
+            $worksheet->setCellValue('I19', $this->personnel->residentialAddress->subdivision ?? 'N/A');
+            $worksheet->setCellValue('L19', $this->personnel->residentialAddress->barangay ?? 'N/A');
+            $worksheet->setCellValue('I22', $this->personnel->residentialAddress->city ?? 'N/A');
+            $worksheet->setCellValue('L22', $this->personnel->residentialAddress->province ?? 'N/A');
+            $worksheet->setCellValue('I24', $this->personnel->residentialAddress->zip_code ?? 'N/A');
         } else {
             $worksheet->setCellValue('I17', 'N/A');
             $worksheet->setCellValue('L17', 'N/A');
@@ -79,13 +92,13 @@ class PersonnelDataC1Sheet
 
         if ($this->personnel->permanentAddress) {
             // Permanent Address
-            $worksheet->setCellValue('I25', $this->personnel->permanentAddress->house_no);
-            $worksheet->setCellValue('L25', $this->personnel->permanentAddress->street);
-            $worksheet->setCellValue('I27', $this->personnel->permanentAddress->subdivision);
-            $worksheet->setCellValue('L27', $this->personnel->permanentAddress->barangay);
-            $worksheet->setCellValue('I29', $this->personnel->permanentAddress->city);
-            $worksheet->setCellValue('L29', $this->personnel->permanentAddress->province);
-            $worksheet->setCellValue('I31', $this->personnel->permanentAddress->zip_code);
+            $worksheet->setCellValue('I25', $this->personnel->permanentAddress->house_no ?? 'N/A');
+            $worksheet->setCellValue('L25', $this->personnel->permanentAddress->street ?? 'N/A');
+            $worksheet->setCellValue('I27', $this->personnel->permanentAddress->subdivision ?? 'N/A');
+            $worksheet->setCellValue('L27', $this->personnel->permanentAddress->barangay ?? 'N/A');
+            $worksheet->setCellValue('I29', $this->personnel->permanentAddress->city ?? 'N/A');
+            $worksheet->setCellValue('L29', $this->personnel->permanentAddress->province ?? 'N/A');
+            $worksheet->setCellValue('I31', $this->personnel->permanentAddress->zip_code ?? 'N/A');
         } else {
             $worksheet->setCellValue('I25', 'N/A');
             $worksheet->setCellValue('L25', 'N/A');
@@ -103,16 +116,15 @@ class PersonnelDataC1Sheet
 
         if ($this->personnel->spouse) {
             // Spouse Information
-            $worksheet->setCellValue('D36', $this->personnel->spouse->last_name);
-            $worksheet->setCellValue('D37', $this->personnel->spouse->first_name);
-            $worksheet->setCellValue('D38', $this->personnel->spouse->middle_name);
-            $worksheet->setCellValue('H37', $this->personnel->spouse->name_ext);
-            $worksheet->setCellValue('D39', $this->personnel->spouse->occupation);
-            $worksheet->setCellValue('D40', $this->personnel->spouse->employer_business_name);
-            $worksheet->setCellValue('D41', $this->personnel->spouse->telephone_number);
-            $worksheet->setCellValue('D42', $this->personnel->spouse->business_address);
-        }
-        else {
+            $worksheet->setCellValue('D36', $this->personnel->spouse->last_name ?? 'N/A');
+            $worksheet->setCellValue('D37', $this->personnel->spouse->first_name ?? 'N/A');
+            $worksheet->setCellValue('D38', $this->personnel->spouse->middle_name ?? 'N/A');
+            $worksheet->setCellValue('H37', $this->personnel->spouse->name_ext ?? 'N/A');
+            $worksheet->setCellValue('D39', $this->personnel->spouse->occupation ?? 'N/A');
+            $worksheet->setCellValue('D40', $this->personnel->spouse->employer_business_name ?? 'N/A');
+            $worksheet->setCellValue('D41', $this->personnel->spouse->telephone_number ?? 'N/A');
+            $worksheet->setCellValue('D42', $this->personnel->spouse->business_address ?? 'N/A');
+        } else {
             $worksheet->setCellValue('D36', 'N/A');
             $worksheet->setCellValue('D37', 'N/A');
             $worksheet->setCellValue('D38', 'N/A');
@@ -121,13 +133,14 @@ class PersonnelDataC1Sheet
             $worksheet->setCellValue('D40', 'N/A');
             $worksheet->setCellValue('D41', 'N/A');
             $worksheet->setCellValue('D42', 'N/A');
+        }
 
         if ($this->personnel->father) {
             // Father's Information
-            $worksheet->setCellValue('D43', $this->personnel->father->last_name);
-            $worksheet->setCellValue('D44', $this->personnel->father->first_name);
-            $worksheet->setCellValue('D45', $this->personnel->father->middle_name);
-            $worksheet->setCellValue('H44', $this->personnel->father->name_ext);
+            $worksheet->setCellValue('D43', $this->personnel->father->last_name ?? 'N/A');
+            $worksheet->setCellValue('D44', $this->personnel->father->first_name ?? 'N/A');
+            $worksheet->setCellValue('D45', $this->personnel->father->middle_name ?? 'N/A');
+            $worksheet->setCellValue('H44', $this->personnel->father->name_ext ?? 'N/A');
         } else {
             $worksheet->setCellValue('D43', 'N/A');
             $worksheet->setCellValue('D44', 'N/A');
@@ -137,15 +150,20 @@ class PersonnelDataC1Sheet
 
         if ($this->personnel->mother) {
             // Mother's Information
-            $worksheet->setCellValue('D47', $this->personnel->mother->last_name);
-            $worksheet->setCellValue('D48', $this->personnel->mother->first_name);
-            $worksheet->setCellValue('D49', $this->personnel->mother->middle_name);
+            $worksheet->setCellValue('D47', $this->personnel->mother->last_name ?? 'N/A');
+            $worksheet->setCellValue('D48', $this->personnel->mother->first_name ?? 'N/A');
+            $worksheet->setCellValue('D49', $this->personnel->mother->middle_name ?? 'N/A');
         } else {
             $worksheet->setCellValue('D47', 'N/A');
             $worksheet->setCellValue('D48', 'N/A');
             $worksheet->setCellValue('D49', 'N/A');
         }
-        }
+    }
+
+    protected function populateCurrentDate()
+    {
+        $worksheet = $this->worksheet;
+        $worksheet->setCellValue('L60', Carbon::now()->format('m/d/Y'));
     }
 
     protected function populateEducation()
@@ -206,8 +224,7 @@ class PersonnelDataC1Sheet
         $endRow = 49; // Ending row for children info
         $currentRow = $startRow;
 
-        if($this->personnel->children())
-        {
+        if ($this->personnel->children) {
             foreach ($this->personnel->children as $child) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
@@ -222,8 +239,8 @@ class PersonnelDataC1Sheet
                 }
 
                 // Populate the cell values
-                $worksheet->setCellValue('I' . $currentRow, $child->fullName());
-                $worksheet->setCellValue('M' . $currentRow, $child->date_of_birth);
+                $worksheet->setCellValue('I' . $currentRow, $child->fullName() ?? 'N/A');
+                $worksheet->setCellValue('M' . $currentRow, $child->date_of_birth ?? 'N/A');
                 $currentRow++;
             }
         } else {

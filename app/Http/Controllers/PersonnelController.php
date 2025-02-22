@@ -75,7 +75,7 @@ class PersonnelController extends Controller
             $outputPath = $export->getOutputPath();
             Log::info('Output path: ' . $outputPath);
 
-            return response()->download($outputPath, $personnel->personnel_id . '_pds.xlsm');
+            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . $personnel->last_name . '_pds.xlsm');
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
             return redirect()->route('dashboard')->with('error', 'Failed to export personnel data.');
