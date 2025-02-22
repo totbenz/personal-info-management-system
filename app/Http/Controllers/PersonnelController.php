@@ -39,21 +39,20 @@ class PersonnelController extends Controller
                 'school_id' => 'required',
             ]);
 
-                Personnel::create($request->all());
-                session()->flash('flash.banner', 'Personnel Created Successfully');
-                session()->flash('flash.bannerStyle', 'success');
-            } catch (ValidationException $e) {
-                session()->flash('flash.banner', 'Failed to create Personnel');
-                session()->flash('flash.bannerStyle', 'danger');
-            }
-            return redirect()->back();
+            Personnel::create($request->all());
+            session()->flash('flash.banner', 'Personnel Created Successfully');
+            session()->flash('flash.bannerStyle', 'success');
+        } catch (ValidationException $e) {
+            session()->flash('flash.banner', 'Failed to create Personnel');
+            session()->flash('flash.bannerStyle', 'danger');
+        }
+        return redirect()->back();
     }
 
     public function create()
     {
         return view('personnel.create');
     }
-
 
     public function loyaltyAwards()
     {
@@ -87,14 +86,11 @@ class PersonnelController extends Controller
     {
         try {
             $personnel = Personnel::findOrFail($id);
-
-
             $personnel->delete();
 
             session()->flash('flash.banner', 'Personnel Deleted Successfully');
             session()->flash('flash.bannerStyle', 'success');
         } catch (\Exception $e) {
-
             session()->flash('flash.banner', 'Failed To Delete Personnel.' . $e);
             session()->flash('flash.bannerStyle', 'danger');
         }

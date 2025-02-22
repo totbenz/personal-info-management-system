@@ -17,7 +17,7 @@ class PersonnelsIndexExport implements FromCollection, WithHeadings
             DB::raw("CONCAT(first_name, ' ', middle_name, ' ', last_name) as name"),
             'job_status',
             DB::raw("(SELECT title FROM position WHERE position.id = personnels.position_id) as position"),
-            'appointment',
+            DB::raw("(SELECT classification FROM position WHERE position.id = personnels.position_id) as classification"),
             'category',
             DB::raw("(SELECT school_id FROM schools WHERE schools.id = personnels.school_id) as school"),
         )->get();
