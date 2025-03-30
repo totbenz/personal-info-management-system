@@ -1,5 +1,5 @@
 <?php
-
+Barryvdh\DomPDF\ServiceProvider::class;
 /*
 |--------------------------------------------------------------------------
 | Create The Application

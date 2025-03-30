@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ExcelController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ServiceRecordController;
 
 Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function(){
     Route::get('/login', 'login')->name('login');
@@ -65,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+    Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');

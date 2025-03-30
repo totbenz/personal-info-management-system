@@ -8,6 +8,7 @@ use App\Models\School;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Livewire\PersonnelNavigation;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PersonalInformationForm extends PersonnelNavigation
 {
@@ -219,7 +220,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'height' => $this->height,
             'weight' => $this->weight,
             'blood_type' => $this->blood_type,
-            'salary' => $this->salary, // Ensure salary is included here
+            'salary' => $this->salary,
             'tin' => $this->tin,
             'sss_num' => $this->sss_num,
             'gsis_num' => $this->gsis_num,
@@ -246,20 +247,15 @@ class PersonalInformationForm extends PersonnelNavigation
             $this->personnel = Personnel::create($data);
 
             // Create an initial ServiceRecord for the new Personnel
-            $this->personnel->serviceRecords()->create([
-                'personnel_id' => $this->personnel->id,
-                'from_date' => now(),
-                'to_date' => null,
-                'designation' => $this->position_id,
-                'appointment_status' => $this->appointment,
-                'salary_grade' => $this->salary_grade,
-                'station' => $school->district_id,
-                'branch' => $school->id
-            ]);
+            $this->createServiceRecord($school, $this->personnel);
 
             session()->flash('flash.banner', 'Personnel created successfully');
             session()->flash('flash.bannerStyle', 'success');
         } else {
+            // Save the current state of the personnel as a ServiceRecord before updating
+            $this->createServiceRecord($school, $this->personnel);
+
+            // Update the Personnel
             $this->personnel->update($data);
 
             session()->flash('flash.banner', 'Personal Information saved successfully');
@@ -269,17 +265,20 @@ class PersonalInformationForm extends PersonnelNavigation
         $this->updateMode = false;
         $this->storeMode = false;
         $this->showMode = true;
-        // $this->createInitialServiceRecord();
 
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
         }
+    }
+
+    public function generateServiceRecordPDF()
+    {
+        // Redirect to the route for PDF download
+        return redirect()->route('service-record.download', ['personnelId' => $this->personnel->id]);
     }
 
     public function createInitialServiceRecord()
@@ -288,13 +287,28 @@ class PersonalInformationForm extends PersonnelNavigation
             'personnel_id' => $this->personnel->id,
             'from_date' => now(),
             'to_date' => null,
-            'designation' => $this->personnel->position_id,
+            'position_id' => $this->personnel->position_id,
             'appointment_status' => $this->personnel->appointment,
             'salary' => $this->personnel->salary_grade,
             'station' => $this->personnel->school->district_id,
             'branch' => $this->personnel->school_id
         ]);
     }
+
+    public function createServiceRecord($school, $personnel)
+{
+    $personnel->serviceRecords()->create([
+        'personnel_id' => $personnel->id,
+        'from_date' => $personnel->employment_start,
+        'to_date' => now(), // Save the current date as the end date for the previous record
+        'position_id' => $personnel->position_id,
+        'appointment_status' => $personnel->appointment,
+        'salary' => $personnel->salary,
+        'salary_grade' => $personnel->salary_grade,
+        'station' => $school->district_id,
+        'branch' => $school->id
+    ]);
+}
 
 
     public function logAction($action, $description)
