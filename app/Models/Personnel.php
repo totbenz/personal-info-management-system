@@ -44,6 +44,7 @@ class Personnel extends Model
         'classification',
         'employment_start',
         'employment_end',
+        'salary',
 
         // Government Information
         'tin',

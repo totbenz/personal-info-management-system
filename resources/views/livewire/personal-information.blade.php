@@ -38,7 +38,7 @@
                 </x-native-select>
             </span>
             <span class="w-3/12">
-                <label for="sex" class="pb-1 block font-medium text-sm text-gray-700">Seix</label>
+                <label for="sex" class="pb-1 block font-medium text-sm text-gray-700">Sex</label>
                 {{-- <div class="grid w-full grid-cols-2 gap-1 rounded-xl bg-gray-200 p-1">
                     <div>
                         <input id="male"  wire:model="state.sex" type="radio" name="sex" value="male" class="peer hidden"/>

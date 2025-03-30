@@ -82,45 +82,49 @@
                     </div>
                 </div>
                 <div class="my-10">
-                    <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
-                    <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
-                        <span class="w-3/12">
-                            <x-input type="number" class="bg-gray-50 border-gray-300" id="personnel_id" label="Personnel ID" wire:model="personnel_id" readonly/>
-                        </span>
-                        <span class="w-3/12">
-                            <x-input type="number" class="bg-gray-50 border-gray-300" id="school_id" label="School ID" wire:model="school_id" readonly/>
-                        </span>
-                        <span class="w-2/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="job_status" label="Job Position" wire:model="job_status" readonly/>
-                        </span>
-                        <span class="w-3/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="category" label="Category" wire:model="category" readonly/>
-                        </span>
-                    </div>
-                    <div class="mt-2 mb-4 p-0 flex space-x-3 item-center">
-                        <span class="w-3/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="position" label="Position" wire:model="position" readonly/>
-                        </span>
-                        <span class="w-3/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="fund_source" label="Fund Source" wire:model="fund_source" readonly/>
-                        </span>
-                        <span class="w-2/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="appointment" label="Nature of Appointment" wire:model="appointment" readonly/>
-                        </span>
-                        <div class="w-3/12 space-x-1 flex">
-                            <x-input type="text" class="bg-gray-50 border-gray-300" id="step" label="Step" wire:model="step" readonly/>
-                            <x-input type="text" class="bg-gray-50 border-gray-300" id="salary_grade" label="Salary Grade" wire:model="salary_grade" readonly/>
-                        </div>
-                    </div>
-                    <div class="mt-2 mb-4 p-0 flex space-x-5" x-data="{ jobStatus: @entangle('job_status') }">
-                        <span class="w-2/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300" id="employment_start" label="Employment Start Date" wire:model="employment_start" readonly/>
-                        </span>
-                        <span class="w-2/12">
-                            <x-input type="text" class="bg-gray-50 border-gray-300" id="employment_end" label="Employment End Date" wire:model="employment_end" readonly/>
-                        </span>
-                    </div>
-                </div>
+    <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
+    <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
+        <span class="w-3/12">
+            <x-input type="number" class="bg-gray-50 border-gray-300" id="personnel_id" label="Personnel ID" wire:model="personnel_id" readonly/>
+        </span>
+        <span class="w-3/12">
+            <x-input type="number" class="bg-gray-50 border-gray-300" id="school_id" label="School ID" wire:model="school_id" readonly/>
+        </span>
+        <span class="w-2/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="job_status" label="Job Position" wire:model="job_status" readonly/>
+        </span>
+        <span class="w-3/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="category" label="Category" wire:model="category" readonly/>
+        </span>
+    </div>
+    <div class="mt-2 mb-4 p-0 flex space-x-3 item-center">
+        <span class="w-3/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="position" label="Position" wire:model="position" readonly/>
+        </span>
+        <span class="w-3/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="fund_source" label="Fund Source" wire:model="fund_source" readonly/>
+        </span>
+        <span class="w-2/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="appointment" label="Nature of Appointment" wire:model="appointment" readonly/>
+        </span>
+        <div class="w-3/12 space-x-1 flex">
+            <x-input type="text" class="bg-gray-50 border-gray-300" id="step" label="Step" wire:model="step" readonly/>
+            <x-input type="text" class="bg-gray-50 border-gray-300" id="salary_grade" label="Salary Grade" wire:model="salary_grade" readonly/>
+        </div>
+    </div>
+    <div class="mt-2 mb-4 p-0 flex space-x-5" x-data="{ jobStatus: @entangle('job_status') }">
+        <span class="w-2/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300" id="employment_start" label="Employment Start Date" wire:model="employment_start" readonly/>
+        </span>
+        <span class="w-2/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300" id="employment_end" label="Employment End Date" wire:model="employment_end" readonly/>
+        </span>
+        <span class="w-2/12">
+            <x-input type="number" class="bg-gray-50 border-gray-300" id="salary" label="Salary" wire:model="salary" readonly/>
+        </span>
+    </div>
+</div>
+
                 <div class="mt-10">
                     <h5 class="font-bold text-xl text-gray-darkest">Contact Information</h5>
                     <div class="mt-2 mb-4 p-0 flex space-x-5">

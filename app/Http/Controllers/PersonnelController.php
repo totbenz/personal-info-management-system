@@ -82,6 +82,30 @@ class PersonnelController extends Controller
         }
     }
 
+    public function exportTeacherProfile()
+    {
+        Log::info('Export method called for authenticated user.');
+
+        try {
+            // Get the authenticated user's personnel data
+            $personnel = Personnel::findOrFail(Auth::user()->personnel->id);
+            Log::info('Personnel found: ' . $personnel->personnel_id);
+
+            // Pass the personnel data to the export class
+            $export = new PersonnelDataExport($personnel->id);
+            Log::info('PersonnelDataExport instance created');
+
+            $outputPath = $export->getOutputPath();
+            Log::info('Output path: ' . $outputPath);
+
+            // Return the Excel file as a download
+            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . $personnel->last_name . '_pds.xlsm');
+        } catch (\Exception $e) {
+            Log::error('Error during export: ' . $e->getMessage());
+            return redirect()->route('dashboard')->with('error', 'Failed to export personnel data.');
+        }
+    }
+
     public function destroy($id)
     {
         try {

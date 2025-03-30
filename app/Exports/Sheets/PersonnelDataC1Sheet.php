@@ -40,11 +40,11 @@ class PersonnelDataC1Sheet
 
         // Handle sex checkboxes
         if ($this->personnel->sex === 'male') {
-            $worksheet->setCellValue('D16', '☑'); // Assuming 'D16' is linked to the 'male' checkbox
+            $worksheet->setCellValue('D16', '✅'); // Assuming 'D16' is linked to the 'male' checkbox
             $worksheet->setCellValue('E16', '☐'); // Assuming 'E16' is linked to the 'female' checkbox
         } elseif ($this->personnel->sex === 'female') {
             $worksheet->setCellValue('D16', '☐'); // Assuming 'D16' is linked to the 'male' checkbox
-            $worksheet->setCellValue('E16', '☑'); // Assuming 'E16' is linked to the 'female' checkbox
+            $worksheet->setCellValue('E16', '✅'); // Assuming 'E16' is linked to the 'female' checkbox
         } else {
             $worksheet->setCellValue('D16', '☐'); // Assuming 'D16' is linked to the 'male' checkbox
             $worksheet->setCellValue('E16', '☐'); // Assuming 'E16' is linked to the 'female' checkbox

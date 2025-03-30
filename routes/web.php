@@ -34,12 +34,11 @@ Route::middleware(['auth'])->group(function () {
             return redirect()->route('/login');
         }
     });
-
+    Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
     // PERSONNEL ACCESS
     Route::middleware(['user-access:teacher'])->group(function () {
-        // Route::get('profile/{personnel}', [PersonnelController::class, 'profile'])->name('personnel.profile');
+        Route::get('profile/{personnel}', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
-        // Route::post('/profile/{personnel}/export', [PersonnelController::class, 'profile'])->name('pds.export');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
     });
@@ -60,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/', 'index')->name('school_personnels.index');
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
-            Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
+            // Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
             Route::get('/personnel/profile', [PersonnelController::class, 'profile'])->name('personnels.profile');
             Route::get('school/personnels/{personnel}', 'show')->name('school_personnels.show');
         });

@@ -16,7 +16,7 @@ class PersonalInformationForm extends PersonnelNavigation
            $date_of_birth, $place_of_birth, $civil_status, $sex,
            $citizenship, $blood_type, $height, $weight,
            $tin, $sss_num, $gsis_num, $philhealth_num,
-           $pagibig_num,
+           $pagibig_num, $salary,
            $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade, $step, $classification, $position,
            $email, $tel_no, $mobile_no;
     public $showMode = false, $storeMode = false, $updateMode = false;
@@ -34,7 +34,7 @@ class PersonalInformationForm extends PersonnelNavigation
         'height' => 'required',
         'weight' => 'required',
         'blood_type' => 'required',
-
+        'salary' => 'required',
         'personnel_id' => 'required',
         'school_id' => 'required',
         'position_id' => 'required',
@@ -75,7 +75,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->blood_type = $this->personnel->blood_type;
                 $this->height = $this->personnel->height;
                 $this->weight = $this->personnel->weight;
-
+                $this->salary = $this->personnel->salary;
                 $this->tin = $this->personnel->tin;
                 $this->sss_num = $this->personnel->sss_num;
                 $this->gsis_num = $this->personnel->gsis_num;
@@ -97,7 +97,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 {
                     $this->employment_end = $this->personnel->employment_end;
                 }
-
+                $this->salary = $this->personnel->salary;
                 $this->email = $this->personnel->email;
                 $this->tel_no = $this->personnel->tel_no;
                 $this->mobile_no = $this->personnel->mobile_no;
@@ -219,13 +219,12 @@ class PersonalInformationForm extends PersonnelNavigation
             'height' => $this->height,
             'weight' => $this->weight,
             'blood_type' => $this->blood_type,
-
+            'salary' => $this->salary, // Ensure salary is included here
             'tin' => $this->tin,
             'sss_num' => $this->sss_num,
             'gsis_num' => $this->gsis_num,
             'philhealth_num' => $this->philhealth_num,
             'pagibig_num' => $this->pagibig_num,
-
             'personnel_id' => $this->personnel_id,
             'school_id' => $school->id,
             'position_id' => $this->position_id,
@@ -237,7 +236,6 @@ class PersonalInformationForm extends PersonnelNavigation
             'job_status' => $this->job_status,
             'employment_start' => $this->employment_start,
             'employment_end' => $this->employment_end ?? null,
-
             'email' => $this->email,
             'tel_no' => $this->tel_no,
             'mobile_no' => $this->mobile_no
@@ -254,7 +252,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 'to_date' => null,
                 'designation' => $this->position_id,
                 'appointment_status' => $this->appointment,
-                'salary' => $this->salary_grade,
+                'salary_grade' => $this->salary_grade,
                 'station' => $school->district_id,
                 'branch' => $school->id
             ]);
