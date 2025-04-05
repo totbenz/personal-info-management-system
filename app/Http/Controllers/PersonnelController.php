@@ -10,12 +10,37 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PersonnelController extends Controller
 {
     public function index()
     {
+        // Retrieve all personnels
         $personnels = Personnel::all();
+
+        foreach ($personnels as $personnel) {
+            // Check if salary_grade_id or step_increment is null
+            if (is_null($personnel->salary_grade_id) || is_null($personnel->step_increment)) {
+                // Set salary to null if either is null
+                $personnel->update(['salary' => null]);
+                continue;
+            }
+
+            // Compare salary_grade_id and step_increment in the salary_steps table
+            $salaryStep = DB::table('salary_steps')
+                ->where('salary_grade_id', $personnel->salary_grade_id)
+                ->where('step', $personnel->step_increment)
+                ->where('year', now()->year) // Match the current year
+                ->value('salary'); // Get the salary value
+
+            // Update the personnel's salary if a match is found
+            $personnel->update(['salary' => $salaryStep]);
+        }
+
+        // Fetch updated personnels to display in the view
+        $personnels = Personnel::all();
+
         return view('personnel.index', compact('personnels'));
     }
 

@@ -7,6 +7,7 @@ use App\Models\Personnel;
 use App\Models\School;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Livewire\PersonnelNavigation;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -18,7 +19,7 @@ class PersonalInformationForm extends PersonnelNavigation
            $citizenship, $blood_type, $height, $weight,
            $tin, $sss_num, $gsis_num, $philhealth_num,
            $pagibig_num, $salary,
-           $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade, $step, $classification, $position,
+           $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position,
            $email, $tel_no, $mobile_no;
     public $showMode = false, $storeMode = false, $updateMode = false;
 
@@ -41,8 +42,8 @@ class PersonalInformationForm extends PersonnelNavigation
         'position_id' => 'required',
         'appointment' => 'required',
         'fund_source' => 'required',
-        'salary_grade' => 'required',
-        'step' => 'required',
+        'salary_grade_id' => 'required',
+        'step_increment' => 'required',
         'category' => 'required',
         'job_status' => 'required',
         'employment_start' => 'required',
@@ -89,8 +90,9 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->position_id = $this->personnel->position->id;
                 $this->appointment = $this->personnel->appointment;
                 $this->fund_source = $this->personnel->fund_source;
-                $this->salary_grade = $this->personnel->salary_grade;
-                $this->step = $this->personnel->step;
+                // changes in the database table
+                $this->salary_grade_id = $this->personnel->salary_grade_id;
+                $this->step_increment = $this->personnel->step_increment;
                 $this->category = $this->personnel->category;
                 $this->job_status = $this->personnel->job_status;
                 $this->employment_start = $this->personnel->employment_start;
@@ -206,6 +208,22 @@ class PersonalInformationForm extends PersonnelNavigation
         // Find the school
         $school = School::findOrFail($this->school_id);
 
+        // Determine the current year
+        $currentYear = now()->year;
+
+        // Fetch the salary based on the salary grade, step increment, and current year
+        $salaryStep = DB::table('salary_steps')
+            ->where('salary_grade_id', $this->salary_grade_id)
+            ->where('step', $this->step_increment)
+            ->where('year', $currentYear)
+            ->first();
+
+        if (!$salaryStep) {
+            session()->flash('flash.banner', 'Salary information not found for the given grade, step, and year.');
+            session()->flash('flash.bannerStyle', 'danger');
+            return;
+        }
+
         // Prepare data for Personnel
         $data = [
             'first_name' => $this->first_name,
@@ -220,7 +238,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'height' => $this->height,
             'weight' => $this->weight,
             'blood_type' => $this->blood_type,
-            'salary' => $this->salary,
+            'salary' => $salaryStep->salary, // Use the salary from the salary_steps table
             'tin' => $this->tin,
             'sss_num' => $this->sss_num,
             'gsis_num' => $this->gsis_num,
@@ -231,8 +249,8 @@ class PersonalInformationForm extends PersonnelNavigation
             'position_id' => $this->position_id,
             'appointment' => $this->appointment,
             'fund_source' => $this->fund_source,
-            'salary_grade' => $this->salary_grade,
-            'step' => $this->step,
+            'salary_grade_id' => $this->salary_grade_id,
+            'step_increment' => $this->step_increment,
             'category' => $this->category,
             'job_status' => $this->job_status,
             'employment_start' => $this->employment_start,

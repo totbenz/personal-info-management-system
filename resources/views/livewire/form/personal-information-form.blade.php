@@ -108,8 +108,8 @@
             <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="appointment" label="Nature of Appointment" wire:model="appointment" readonly/>
         </span>
         <div class="w-3/12 space-x-1 flex">
-            <x-input type="text" class="bg-gray-50 border-gray-300" id="step" label="Step" wire:model="step" readonly/>
-            <x-input type="text" class="bg-gray-50 border-gray-300" id="salary_grade" label="Salary Grade" wire:model="salary_grade" readonly/>
+            <x-input type="text" class="bg-gray-50 border-gray-300" id="step_increment" label="Step Increment" wire:model="step_increment" readonly/>
+            <x-input type="text" class="bg-gray-50 border-gray-300" id="salary_grade_id" label="Salary Grade" wire:model="salary_grade_id" readonly/>
         </div>
     </div>
     <div class="mt-2 mb-4 p-0 flex space-x-5" x-data="{ jobStatus: @entangle('job_status') }">
