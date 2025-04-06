@@ -34,8 +34,10 @@ class PersonnelFactory extends Factory
             'position_id' => Position::inRandomOrder()->first()->id, // Fetch a random existing position_id
             'appointment' => $this->faker->randomElement(['regular', 'part-time', 'temporary', 'contract']),
             'fund_source' => $this->faker->randomElement(['nationally funded', 'pta']),
-            'salary_grade' => $this->faker->randomElement(range(1, 20)),
-            'step' => $this->faker->optional()->randomElement(range(1, 8)),
+            'salary_grade_id' => $this->faker->numberBetween(1, 32), // Pick a random number between 1 and 32
+            'step_increment' => $this->faker->optional()->randomElement(range(1, 8)),
+            'leave_of_absence_without_pay_count' => $this->faker->numberBetween(0, 30),
+            'step_increment' => $this->faker->optional()->randomElement(range(1, 8)),
             'category' => $this->faker->randomElement(['SDO Personnel', 'School Head', 'Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher', 'School Non-teaching Personnel']),
             'job_status' => $this->faker->randomElement(['active', 'vacation', 'terminated', 'on leave', 'suspended', 'resigned', 'probation']),
             'employment_start' => $this->faker->date,
@@ -45,7 +47,7 @@ class PersonnelFactory extends Factory
             'gsis_num' => $this->faker->optional()->numerify('###########'),
             'philhealth_num' => $this->faker->optional()->numerify('###########'),
             'pagibig_num' => $this->faker->optional()->numerify('###########'),
-            'salary' => $this->faker->numberBetween(20000, 100000), // Add salary attribute
+            // 'salary' => $this->faker->numberBetween(20000, 100000), // Add salary attribute
             'created_at' => now(),
             'updated_at' => now(),
         ];
