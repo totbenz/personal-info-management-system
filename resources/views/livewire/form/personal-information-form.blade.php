@@ -122,6 +122,9 @@
         <span class="w-2/12">
             <x-input type="number" class="bg-gray-50 border-gray-300" id="salary" label="Salary" wire:model="salary" readonly/>
         </span>
+        <span class="w-2/12">
+            <x-input type="number" class="bg-gray-50 border-gray-300" id="leave_of_absence_without_pay_count" label="LOA W/o Pay" wire:model="leave_of_absence_without_pay_count" readonly/>
+        </span>
     </div>
 </div>
 

@@ -355,10 +355,20 @@
                     <x-input type="date" class="form-control" id="employment_end" name="employment_end" label="Employment End Date" wire:model="employment_end" required />
                 </span>
             </div>
-            <div class="mt-2 mb-4 p-0 flex space-x-5">
-                <span class="w-3/12">
-                    <x-input type="number" class="form-control" id="salary" name="salary" label="Salary" wire:model="salary" required />
+            <div class="mt-2 mb-4 p-0 flex space-x-5"">
+                <span class="w-2/12">
+                    <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model="leave_of_absence_without_pay_count" min="0" required />
                 </span>
+                <span class="w-2/12">
+                    <x-input type="date" class="form-control" id="employment_end" name="employment_end" label="Employment End Date" wire:model="employment_end" required />
+                </span>
+            </div>
+            <div class="mt-2 mb-4 p-0 flex justify-center">
+                <div class="w-3/12 bg-gray-100 border border-gray-300 rounded-lg shadow-md p-4">
+                    <p class="text-sm text-gray-700 font-medium">
+                        The personnel's salary is determined by the salary grade and step increment values. It cannot be edited manually.
+                    </p>
+                </div>
             </div>
         </div>
         <div class="mt-10">

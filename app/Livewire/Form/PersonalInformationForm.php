@@ -19,7 +19,7 @@ class PersonalInformationForm extends PersonnelNavigation
            $citizenship, $blood_type, $height, $weight,
            $tin, $sss_num, $gsis_num, $philhealth_num,
            $pagibig_num, $salary,
-           $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position,
+           $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position, $leave_of_absence_without_pay_count,
            $email, $tel_no, $mobile_no;
     public $showMode = false, $storeMode = false, $updateMode = false;
 
@@ -47,6 +47,7 @@ class PersonalInformationForm extends PersonnelNavigation
         'category' => 'required',
         'job_status' => 'required',
         'employment_start' => 'required',
+        'leave_of_absence_without_pay_count' => 'nullable',
 
         'tin' => 'required|min:8|max:12',
         'sss_num' => 'required|size:10',
@@ -96,6 +97,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->category = $this->personnel->category;
                 $this->job_status = $this->personnel->job_status;
                 $this->employment_start = $this->personnel->employment_start;
+                $this->leave_of_absence_without_pay_count = $this->personnel->leave_of_absence_without_pay_count;
                 if ($this->personnel->employment_end)
                 {
                     $this->employment_end = $this->personnel->employment_end;
@@ -257,7 +259,8 @@ class PersonalInformationForm extends PersonnelNavigation
             'employment_end' => $this->employment_end ?? null,
             'email' => $this->email,
             'tel_no' => $this->tel_no,
-            'mobile_no' => $this->mobile_no
+            'mobile_no' => $this->mobile_no,
+            'leave_of_absence_without_pay_count' => $this->leave_of_absence_without_pay_count,
         ];
 
         if ($this->personnel == null) {
