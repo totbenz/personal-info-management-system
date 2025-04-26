@@ -37,18 +37,7 @@ class PersonnelDataC1Sheet
         $worksheet->setCellValue('N11', $this->personnel->name_ext ?? 'N/A');
         $worksheet->setCellValue('D13', $this->personnel->date_of_birth ?? 'N/A');
         $worksheet->setCellValue('D15', $this->personnel->place_of_birth ?? 'N/A');
-
-        // Handle sex checkboxes
-        if ($this->personnel->sex === 'male') {
-            $worksheet->setCellValue('D16', '✅'); // Assuming 'D16' is linked to the 'male' checkbox
-            $worksheet->setCellValue('E16', '☐'); // Assuming 'E16' is linked to the 'female' checkbox
-        } elseif ($this->personnel->sex === 'female') {
-            $worksheet->setCellValue('D16', '☐'); // Assuming 'D16' is linked to the 'male' checkbox
-            $worksheet->setCellValue('E16', '✅'); // Assuming 'E16' is linked to the 'female' checkbox
-        } else {
-            $worksheet->setCellValue('D16', '☐'); // Assuming 'D16' is linked to the 'male' checkbox
-            $worksheet->setCellValue('E16', '☐'); // Assuming 'E16' is linked to the 'female' checkbox
-        }
+        
 
         $worksheet->setCellValue('D17', $this->personnel->civil_status ?? 'N/A');
         $worksheet->setCellValue('J13', $this->personnel->citizenship ?? 'N/A');
@@ -65,6 +54,17 @@ class PersonnelDataC1Sheet
         $worksheet->setCellValue('I32', $this->personnel->tel_no ?? 'N/A');
         $worksheet->setCellValue('I33', $this->personnel->mobile_no ?? 'N/A');
         $worksheet->setCellValue('I34', $this->personnel->email ?? 'N/A');
+
+        // Mark sex checkbox
+        if ($this->personnel->sex === 'male') {
+            $worksheet->setCellValue('D16', '✔');
+            $worksheet->getStyle('D16')->getFont()->setBold(true);
+            $worksheet->setCellValue('E16', '');
+        } else {
+            $worksheet->setCellValue('E16', '✔');
+            $worksheet->getStyle('E16')->getFont()->setBold(true);
+            $worksheet->setCellValue('D16', '');
+        }
     }
 
     protected function populateAddress()

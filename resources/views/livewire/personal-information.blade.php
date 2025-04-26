@@ -1,3 +1,5 @@
+<!-- Display of Personal Information from Personnel -> View -->
+
 <div class="mx-auto pt-3 pb-10 px-5">
     <h4 class="font-bold text-2xl text-gray-darkest">Personal Information</h4>
     <div class="mt-5">

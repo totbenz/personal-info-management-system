@@ -13,8 +13,8 @@ class PersonnelsIndexExport implements FromCollection, WithHeadings
     {
         return Personnel::select(
             'id',
-            'sex',
             DB::raw("CONCAT(first_name, ' ', middle_name, ' ', last_name) as name"),
+            'sex',
             'job_status',
             DB::raw("(SELECT title FROM position WHERE position.id = personnels.position_id) as position"),
             DB::raw("(SELECT classification FROM position WHERE position.id = personnels.position_id) as classification"),
@@ -33,7 +33,7 @@ class PersonnelsIndexExport implements FromCollection, WithHeadings
             'Position',
             'Classification',
             'Category',
-            'School',
+            'School ID',
         ];
     }
 }

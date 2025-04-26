@@ -20,7 +20,17 @@
             </div>
             <div class="mt-4">
                 <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
+                <div class="relative">
+                    <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
+                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-600">
+                        <i id="password-icon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center">
+                <input id="remember_me" type="checkbox" name="remember" class="rounded border-gray-300 text-main shadow-sm focus:ring focus:ring-main focus:ring-opacity-50">
+                <label for="remember_me" class="ml-2 block text-sm text-gray-700">Remember me</label>
             </div>
 
             <div class="mt-4 flex items-center justify-end">
@@ -34,46 +44,45 @@
     </x-authentication-card>
 </x-guest-layout>
 
-{{-- <x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rememberMeCheckbox = document.getElementById('remember_me');
+        const emailInput = document.getElementById('email');
+        const savedRememberMe = localStorage.getItem('remember_me');
+        const savedEmail = localStorage.getItem('email');
 
-        <x-validation-errors class="mb-4" />
+        if (savedRememberMe === 'true') {
+            rememberMeCheckbox.checked = true;
+            if (savedEmail) {
+                emailInput.value = savedEmail;
+            }
+        }
 
-        <form method="POST" action="{{ route('store') }}">
-            @csrf
+        rememberMeCheckbox.addEventListener('change', function () {
+            localStorage.setItem('remember_me', rememberMeCheckbox.checked);
+            if (!rememberMeCheckbox.checked) {
+                localStorage.removeItem('email');
+            }
+        });
 
-            <div>
-                <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            </div>
+        emailInput.addEventListener('input', function () {
+            if (rememberMeCheckbox.checked) {
+                localStorage.setItem('email', emailInput.value);
+            }
+        });
+    });
 
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                    {{ __('Already registered?') }}
-                </a>
-
-                <x-button class="ms-4">
-                    {{ __('Register') }}
-                </x-button>
-            </div>
-        </form>
-    </x-authentication-card>
-</x-guest-layout> --}}
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('password-icon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.classList.remove('fa-eye');
+            passwordIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.classList.remove('fa-eye-slash');
+            passwordIcon.classList.add('fa-eye');
+        }
+    }
+</script>

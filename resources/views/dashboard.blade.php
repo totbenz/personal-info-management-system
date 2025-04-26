@@ -1,11 +1,13 @@
 <x-app-layout>
+    <!-- Header -->
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <!-- Metric Data -->
+    <div class="py-12 mt-[-3rem]">
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="px-5 py-8 ">
                 <section class="flex space-x-5 justify-between">
@@ -44,16 +46,15 @@
                     </div>
                 </section>
 
-                <section class="flex space-x-5 justify-between">
-                </section>
+                <!-- <section class="flex space-x-5 justify-between">
+                </section> -->
             </div>
         </div>
 
-        <div class="mx-auto sm:px-6 lg:px-8">
+        <!-- Loyalty Table -->
+        <div class="mx-auto sm:px-6 lg:px-8 ml-5 mr-5">
             <div class="my-5 px-5 py-8 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <h3 class="font-semibod text-lg text-gray-800 leading-tight">Loyalty Award Recipients - {{ date("Y") }}</h3>
-
-
                 @livewire('datatable.loyalty-datatable')
             </div>
         </div>
