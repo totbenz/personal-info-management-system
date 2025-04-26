@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['user-access:school_head'])->group(function () {
         Route::controller(SchoolController::class)->group(function(){
             Route::get('school/create', 'create')->name('schools.create');
-            Route::post('schools/', 'store')->name('schools.store');
+            Route::post('/add-new-school', 'store')->name('schools.store');
             Route::get('schools/{school}/edit', 'edit')->name('schools.edit');
             // Route::get('school/{school}', 'show')->name('schools.show');
             Route::get('school/{school}', 'show')->name('schools.profile');
@@ -97,7 +97,7 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(SchoolController::class)->group(function(){
             Route::get('schools/', 'index')->name('schools.index');
             Route::get('school/create', 'create')->name('schools.create');
-            Route::post('schools/', 'store')->name('schools.store');
+            Route::post('/add-new-school', 'store')->name('schools.store');
             Route::get('schools/{school}/edit', 'edit')->name('schools.edit');
             Route::get('schools/{school}', 'show')->name('schools.show');
             Route::patch('schools/{school}', 'update')->name('schools.update');

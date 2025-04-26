@@ -1,5 +1,5 @@
 <!--Add New School Modal -->
-<x-modal name="create-school-modal" blur="2xl">
+<x-modal name="create-school-modal" blur="2xl" x-data="{ open: true }">
     <x-card class="rounded-lg shadow-lg">
         <form action="{{ route('schools.store') }}" method="post">
             @csrf
@@ -84,10 +84,7 @@
             </div>
             <div class="my-5 p-0 flex space-x-3 justify-end">
                 <div class="w-2/12">
-                    <x-button wire:click.prevent="cancel" x-on:click="$dispatch('close-modal', { name: 'create-school-modal' })" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"/>
-                </div>
-                <div class="w-2/12">
-                    <x-button type="button" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105" x-on:click="$dispatch('close')"/>
+                    <x-button type="button" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105" x-on:click="data = false"/>
                 </div>
                 <div class="w-2/12">
                     <x-button type="submit" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150"/>
