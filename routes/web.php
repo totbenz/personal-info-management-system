@@ -65,8 +65,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('school/personnels/{personnel}', 'show')->name('school_personnels.show');
         });
     });
-
+    // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
+    Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
