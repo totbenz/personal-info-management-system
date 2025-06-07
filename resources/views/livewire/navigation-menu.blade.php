@@ -49,7 +49,7 @@
                         {{-- <x-nav-link href="{{ route('districts.index') }}" :active="request()->routeIs('districts.index')" wire:navigate>
                             {{ __('Districts') }}
                         </x-nav-link> --}}
-                        <x-nav-link href="{{ route('accounts.index') }}" :active="request()->routeIs('accounts  .index')" wire:navigate>
+                        <x-nav-link href="{{ route('accounts.index') }}" :active="request()->routeIs('accounts.index')" wire:navigate>
                             {{ __('Accounts') }}
                         </x-nav-link>
                     @endif
