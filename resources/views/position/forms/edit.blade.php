@@ -1,27 +1,29 @@
-
-<x-modal name="edit-position-modal">
-    <x-card title="Edit Position">
-        <form action="{{ route('positions.update', ['position' => $position->id]) }}" method="POST">
-            @csrf
-            @method('PUT') <!-- Use PUT or PATCH method for updates -->
-            <div class="mb-4">
-                <x-input type="text" id="title" name="title" value="{{ old('title', $position->title) }}" class="form-control shadow-sm rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
+<x-modal name="edit-position-modal" wire:model="showEditModal">
+    <x-card title="Update Position">
+        <div x-data="{}" class="space-y-4">
+            <div class="flex flex-col w-full space-y-2">
+                <x-input-label for="title" value="Title" />
+                <x-text-input wire:model="editingPosition.title" id="title" type="text" name="title" required />
+                <x-input-error :messages="$errors->get('editingPosition.title')" />
             </div>
-            <div class="mb-4">
-                <x-native-select id="classification" name="classification" class="form-control">
-                    <option value="teaching" {{ $position->classification == 'teaching' ? 'selected' : '' }}>Teaching</option>
-                    <option value="teaching-related" {{ $position->classification == 'teaching-related' ? 'selected' : '' }}>Teaching-related</option>
-                    <option value="non-teaching" {{ $position->classification == 'non-teaching' ? 'selected' : '' }}>Non-teaching</option>
+            <div class="flex flex-col w-full space-y-2">
+                <x-input-label for="classification" value="Classification" />
+                <x-native-select wire:model="editingPosition.classification" id="classification" name="classification">
+                    <option value="">Select classification</option>
+                    <option value="teaching">Teaching</option>
+                    <option value="teaching-related">Teaching-related</option>
+                    <option value="non-teaching">Non-teaching</option>
                 </x-native-select>
+                <x-input-error :messages="$errors->get('editingPosition.classification')" />
             </div>
-            <div class="flex justify-end gap-x-4">
-                <div class="w-1/6">
-                    <x-button x-on:click="close" label="Cancel" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-danger hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-700"/>
-                </div>
-                <div class="w-1/6">
-                    <x-button type="submit" label="Save" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-main hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700"/>
-                </div>
+            <div class="flex justify-end space-x-2">
+                <x-button x-on:click="$wire.set('showEditModal', false); $dispatch('close-modal')" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-danger hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-700">
+                    Cancel
+                </x-button>
+                <x-button wire:click="save" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-main hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700">
+                    Update
+                </x-button>
             </div>
-        </form>
+        </div>
     </x-card>
 </x-modal>
