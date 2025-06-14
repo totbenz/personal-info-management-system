@@ -1,4 +1,3 @@
-
 <nav class="fixed w-full z-10 bg-[#0f152a] shadow-xl">
     {{-- <div class="max-w-7xl mx-3 px-4 sm:px-6 lg:px-3"> --}}
     <div class="mx-2 px-4 sm:px-6 lg:px-3">
@@ -18,45 +17,52 @@
 
                 <div class="flex space-x-3 items-center">
                     @if (Auth::user()->role == "admin")
-                        <x-nav-link href="{{ route('admin.home') }}" :active="request()->routeIs('admin.home')" wire:navigate>
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
+                    <x-nav-link href="{{ route('admin.home') }}" :active="request()->routeIs('admin.home')" wire:navigate>
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
                     @endif
                     @if (Auth::user()->role == "school_head")
-                        <x-nav-link href="{{ route('schools.show', ['school' => Auth::user()->personnel->school]) }}" :active="request()->routeIs('schools.show')" wire:navigate>
-                            {{ Auth::user()->personnel->school->school_name }}
-                        </x-nav-link>
-                        <x-nav-link href="{{ route('personnels.profile', ['personnel' => Auth::user()->personnel->id]) }}" :active="request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])" wire:navigate>
-                            {{ __('Profile') }}
-                        </x-nav-link>
+                    <x-nav-link href="{{ route('schools.show', ['school' => Auth::user()->personnel->school]) }}" :active="request()->routeIs('schools.show')" wire:navigate>
+                        {{ Auth::user()->personnel->school->school_name }}
+                    </x-nav-link>
+                    <x-nav-link href="{{ route('personnels.profile', ['personnel' => Auth::user()->personnel->id]) }}" :active="request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])" wire:navigate>
+                        {{ __('Profile') }}
+                    </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
-                        <x-nav-link href="{{ route('schools.index') }}" :active="request()->routeIs('schools.index')" wire:navigate>
-                            {{ __('School') }}
-                        </x-nav-link>
+                    <x-nav-link href="{{ route('schools.index') }}" :active="request()->routeIs('schools.index')" wire:navigate>
+                        {{ __('School') }}
+                    </x-nav-link>
                     @endif
                     @if (Auth::user()->role == "teacher")
-                        <x-nav-link href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
-                            :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])" wire:navigate>
-                            {{ __('Profile') }}
-                        </x-nav-link>
+                    <x-nav-link href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
+                        :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])" wire:navigate>
+                        {{ __('Profile') }}
+                    </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
-                        <x-nav-link href="{{ route('personnels.index') }}" :active="request()->routeIs('personnels.index')" wire:navigate>
-                            {{ __('Personnel') }}
-                        </x-nav-link>
-                        <x-nav-link href="{{ route('positions.index') }}" :active="request()->routeIs('positions.index')" wire:navigate>
-                            {{ __('Positions') }}
-                        </x-nav-link>
-                        {{-- <x-nav-link href="{{ route('districts.index') }}" :active="request()->routeIs('districts.index')" wire:navigate>
-                            {{ __('Districts') }}
-                        </x-nav-link> --}}
-                        <x-nav-link href="{{ route('accounts.index') }}" :active="request()->routeIs('accounts.index')" wire:navigate>
-                            {{ __('Accounts') }}
-                        </x-nav-link>
+                    <x-nav-link href="{{ route('personnels.index') }}" :active="request()->routeIs('personnels.index')" wire:navigate>
+                        {{ __('Personnel') }}
+                    </x-nav-link>
+                    <x-nav-link href="{{ route('positions.index') }}" :active="request()->routeIs('positions.index')" wire:navigate>
+                        {{ __('Positions') }}
+                    </x-nav-link>
+                    {{-- <x-nav-link href="{{ route('districts.index') }}" :active="request()->routeIs('districts.index')" wire:navigate>
+                    {{ __('Districts') }}
+                    </x-nav-link> --}}
+                    <x-nav-link href="{{ route('accounts.index') }}" :active="request()->routeIs('accounts.index')" wire:navigate>
+                        {{ __('Accounts') }}
+                    </x-nav-link>
+                    <x-nav-link href="{{ route('salary_grades.index') }}" :active="request()->routeIs('salary_grades.index')" wire:navigate>
+                        {{ __('Salary Grades') }}
+                    </x-nav-link>
+                    <x-nav-link href="{{ route('salary_steps.index') }}" :active="request()->routeIs('salary_steps.index')" wire:navigate>
+                        {{ __('Salary Steps') }}
+                    </x-nav-link>
+
                     @endif
                 </div>
-           </div>
+            </div>
 
-           <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2">
                 {{-- notification --}}
                 {{-- <div class="relative" x-data="{ open: false}">
                     <button @click="open = !open" class="flex items-center p-1 hover:scale-110 hover:bg-[#18203b9e] hover:rounded-full duration-200">
@@ -115,7 +121,7 @@
                         </li>
                     </ul>
                 </div>
-           </div>
+            </div>
         </div>
     </div>
 </nav>
