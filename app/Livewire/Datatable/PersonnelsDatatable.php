@@ -53,8 +53,16 @@ class PersonnelsDatatable extends Component
         'mobile_no' => 'required',
     ];
 
-    public function doSort($column){
-        if($this->sortColumn == $column){
+    public function mount()
+    {
+        if (auth()->user()->role === 'school_head') {
+            $this->selectedSchool = auth()->user()->personnel->school_id;
+        }
+    }
+
+    public function doSort($column)
+    {
+        if ($this->sortColumn == $column) {
             $this->sortDirection = $this->sortDirection ? 'DESC' : 'ASC';
             return;
         }
@@ -69,22 +77,31 @@ class PersonnelsDatatable extends Component
 
     public function render()
     {
-        $personnels = Personnel::with('school')
-                    ->when($this->selectedSchool, function ($query) {
-                        $query->where('school_id', $this->selectedSchool);
-                    })
-                    ->when($this->selectedCategory, function ($query) {
-                        $query->where('category', $this->selectedCategory);
-                    })
-                    ->when($this->selectedPosition, function ($query) {
-                        $query->where('position_id', $this->selectedPosition);
-                    })
-                    ->when($this->selectedJobStatus, function ($query) {
-                        $query->where('job_status', $this->selectedJobStatus);
-                    })
-                    ->search($this->search)
-                    ->orderBy($this->sortColumn, $this->sortDirection)
-                    ->paginate(10);
+        $query = Personnel::with(['school', 'position']);
+
+        // For school head, always filter by their school
+        if (auth()->user()->role === 'school_head') {
+            $query->where('school_id', auth()->user()->personnel->school_id);
+        } else {
+            // For admin, apply school filter only if selected
+            if ($this->selectedSchool) {
+                $query->where('school_id', $this->selectedSchool);
+            }
+        }
+
+        $personnels = $query
+            ->when($this->selectedCategory, function ($query) {
+                $query->where('category', $this->selectedCategory);
+            })
+            ->when($this->selectedPosition, function ($query) {
+                $query->where('position_id', $this->selectedPosition);
+            })
+            ->when($this->selectedJobStatus, function ($query) {
+                $query->where('job_status', $this->selectedJobStatus);
+            })
+            ->search($this->search)
+            ->orderBy($this->sortColumn, $this->sortDirection)
+            ->paginate(10);
 
         return view('livewire.datatable.personnels-datatable', [
             'personnels' => $personnels

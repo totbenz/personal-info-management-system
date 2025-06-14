@@ -24,8 +24,8 @@
                 </svg>
             </div>
             <input type="text" wire:model.live.debounce.300ms="search"
-                   placeholder="Search"
-                   class="appearance-none rounded-md border-none block pl-2 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700">
+                placeholder="Search"
+                class="appearance-none rounded-md border-none block pl-2 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700">
         </div>
     </div>
     <div class="mt-5 overflow-x-auto">
@@ -50,8 +50,7 @@
                     placeholder="Select a position"
                     :async-data="route('api.positions.index')"
                     option-label="title"
-                    option-value="id"
-                />
+                    option-value="id" />
             </div>
             <div class="w-[16rem] px-0.5 text-xs">
                 <x-native-select wire:model.live.debounce.300ms="selectedCategory">
@@ -64,6 +63,7 @@
                     <option value="School Non-teaching Personnel">School Non-teaching Personnel</option>
                 </x-native-select>
             </div>
+            @if(auth()->user()->role !== 'school_head')
             <div class="w-[11rem] px-0.5 text-xs">
                 <x-select
                     wire:model.live.debounce.300ms="selectedSchool"
@@ -71,9 +71,9 @@
                     :async-data="route('api.schools.index')"
                     option-label="school_id"
                     option-value="id"
-                    option-description="school_name"
-                />
+                    option-description="school_name" />
             </div>
+            @endif
         </div>
         <table class="table-auto w-full">
             <thead class="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
@@ -183,19 +183,27 @@
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex justify-between space-x-3">
+                            @if(auth()->user()->role === 'school_head')
+                            <a href="{{ route('school_personnels.show', ['personnel' => $personnel->id]) }}">
+                                <button class="py-1 px-2 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
+                                    View
+                                </button>
+                            </a>
+                            @else
                             <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
                                 <button class="py-1 px-2 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
                                     View
                                 </button>
                             </a>
+                            @endif
                         </div>
                     </td>
                 </tr>
                 @endforeach
                 @if ($personnels->isEmpty())
-                    <tr wire:loading.class="opacity-75">
-                        <td colspan="5" class="p-2 w-full text-center">No School Found</td>
-                    </tr>
+                <tr wire:loading.class="opacity-75">
+                    <td colspan="5" class="p-2 w-full text-center">No School Found</td>
+                </tr>
                 @endif
             </tbody>
         </table>
