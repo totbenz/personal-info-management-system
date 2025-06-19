@@ -4,7 +4,7 @@
             <div class="flex flex-col w-full space-y-2">
                 <x-input-label for="title" value="Title" />
                 <x-text-input wire:model="editingPosition.title" id="title" type="text" name="title" required />
-                <x-input-error :messages="$errors->get('editingPosition.title')" />
+                <x-input-error for="editingPosition.title" class="mt-2" />
             </div>
             <div class="flex flex-col w-full space-y-2">
                 <x-input-label for="classification" value="Classification" />
@@ -14,10 +14,10 @@
                     <option value="teaching-related">Teaching-related</option>
                     <option value="non-teaching">Non-teaching</option>
                 </x-native-select>
-                <x-input-error :messages="$errors->get('editingPosition.classification')" />
+                <x-input-error for="editingPosition.classification" class="mt-2" />
             </div>
             <div class="flex justify-end space-x-2">
-                <x-button x-on:click="$wire.set('showEditModal', false); $dispatch('close-modal')" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-danger hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-700">
+                <x-button x-on:click="$wire.set('showEditModal', false)" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-danger hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-700">
                     Cancel
                 </x-button>
                 <x-button wire:click="save" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-main hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700">
