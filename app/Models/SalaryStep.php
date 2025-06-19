@@ -17,6 +17,10 @@ class SalaryStep extends Model
         'salary',
     ];
 
+    protected $casts = [
+        'salary' => 'decimal:2'
+    ];
+
     /**
      * Define the relationship with the SalaryGrade model.
      * A SalaryStep belongs to a SalaryGrade.
@@ -27,12 +31,11 @@ class SalaryStep extends Model
     }
 
     /**
-     * Accessor for the 'salary' attribute.
-     * Formats the salary value to two decimal places.
+     * Get the formatted salary value with peso sign and thousand separators
      */
-    public function getSalaryAttribute($value)
+    public function getFormattedSalaryAttribute()
     {
-        return number_format($value, 2);
+        return '₱' . number_format($this->attributes['salary'], 2, '.', ',');
     }
 
     /**

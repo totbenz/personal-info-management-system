@@ -16,8 +16,8 @@
                 </svg>
             </div>
             <input type="text" wire:model.live.debounce.300ms="search"
-                   placeholder="Search"
-                   class="appearance-none rounded-md border-none block pl-2 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700">
+                placeholder="Search"
+                class="appearance-none rounded-md border-none block pl-2 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700">
         </div>
     </div>
     <div class="mt-5 overflow-x-auto">
@@ -88,19 +88,17 @@
                     <td class="p-2 whitespace-nowrap w-2/12">
                         {{-- @livewire('modal') --}}@include('position.forms.edit')
                         <div class="flex justify-between space-x-3">
-                            <a href="#" x-on:click="$openModal('edit-position-modal', { id: '{{ $position->id }}' })">
-                                <button class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
-                                    View
-                                </button>
-                            </a>
+                            <button wire:click="editPosition({{ $position->id }})" class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
+                                View
+                            </button>
                         </div>
                     </td>
                 </tr>
                 @endforeach
                 @if ($positions->isEmpty())
-                    <tr wire:loading.class="opacity-75">
-                        <td colspan="5" class="p-2 w-full text-center">No Positions Found</td>
-                    </tr>
+                <tr wire:loading.class="opacity-75">
+                    <td colspan="5" class="p-2 w-full text-center">No Positions Found</td>
+                </tr>
                 @endif
             </tbody>
         </table>

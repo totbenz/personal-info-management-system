@@ -7,6 +7,8 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\SalaryGradeController;
+use App\Http\Controllers\SalaryStepController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceRecordController;
@@ -104,6 +106,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('accounts/', 'store')->name('accounts.store');
             Route::patch('accounts/{account}', 'update')->name('accounts.update');
             Route::delete('accounts/{account}', 'destroy')->name('accounts.destroy');
+        });
+
+        Route::controller(SalaryGradeController::class)->group(function()
+        {
+            Route::get('salary-grades/', 'index')->name('salary_grades.index');
+        });
+
+        Route::controller(SalaryStepController::class)->group(function()
+        {
+            Route::get('salary-steps/', 'index')->name('salary_steps.index');
         });
     });
 
