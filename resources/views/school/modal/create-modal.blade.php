@@ -90,7 +90,7 @@
                         class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"
                         x-on:click="
                             $dispatch('close');
-                            setTimeout(() => { window.location.href = '{{ route('schools.index') }}'; }, 100);
+                            $nextTick(() => setTimeout(() => { window.location.href = '{{ route('schools.index') }}'; }, 100));
                         "
                     />
                 </div>
