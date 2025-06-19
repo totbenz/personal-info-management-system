@@ -44,7 +44,7 @@
             <input 
                 type="text" 
                 wire:model.live.debounce.150ms="search" 
-                placeholder="Search ..." 
+                placeholder="Search ID..." 
                 class="w-[16rem] px-2 py-1 border rounded text-sm pl-10"
             />
             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-1 top-1/2 transform -translate-y-1/2 h-4 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">

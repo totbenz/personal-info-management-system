@@ -63,8 +63,9 @@ class SchoolInformation extends Component
     {
         $this->storeMode = false;
         $this->updateMode = false;
-
-        return redirect()->back();
+        $this->showMode = true;
+        // Optionally, you can redirect or just update the modes
+        // return redirect()->back();
     }
 
     public function store()

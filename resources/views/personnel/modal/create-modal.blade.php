@@ -6,7 +6,7 @@
                 <div>
                     <div class="mt-2 mb-4 p-0 flex space-x-5">
                         <span class="w-4/12">
-                            <x-input type="text" class="form-control" id="first_name" label="First Name" wire:model="first_name" required/>
+                            <x-input type="text" class="form-control" id="first_name" label="First Name " wire:model="first_name" required/>
                         </span>
                         <span class="w-4/12">
                             <x-input type="text" class="form-control" id="middle_name" label="Middle Name" wire:model="middle_name" required/>
@@ -189,7 +189,15 @@
 
                 <div class="my-5 p-0 flex space-x-3 justify-end">
                     <div class="w-2/12">
-                        <x-button wire:click.prevent="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105 duration-150"/>
+                        <x-button
+                        type="button"
+                        label="Cancel"
+                        class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"
+                        x-on:click="
+                            $dispatch('close');
+                            $nextTick(() => setTimeout(() => { window.location.href = '{{ route('personnels.index') }}'; }, 100));
+                        "
+                        />
                     </div>
                     <div class="w-2/12">
                         <x-button type="submit" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150"/>
