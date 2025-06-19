@@ -222,25 +222,36 @@
     </x-dialog-modal>
 
     <!-- Delete Confirmation Modal -->
-    <x-dialog-modal wire:model.live="showDeleteModal">
-        <x-slot name="title">
-            Delete Salary Step
-        </x-slot>
+    <x-modal name="delete-salary-step-modal" wire:model.live="showDeleteModal">
+        <x-card title="Delete Salary Step">
+            <div class="px-8 py-5">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="rounded-full bg-red-100 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Delete Confirmation</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Are you sure you want to delete this salary step? This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
 
-        <x-slot name="content">
-            Are you sure you want to delete this salary step? This action cannot be undone.
-        </x-slot>
-
-        <x-slot name="footer">
-            <x-secondary-button wire:click="$set('showDeleteModal', false)" class="mr-2">
-                {{ __('Cancel') }}
-            </x-secondary-button>
-
-            <x-button wire:click="delete" class="bg-red-600 hover:bg-red-700">
-                {{ __('Delete') }}
-            </x-button>
-        </x-slot>
-    </x-dialog-modal>
+                    <div class="mt-5 flex justify-end space-x-3">
+                        <x-button wire:click="$set('showDeleteModal', false)" type="button" class="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
+                            Cancel
+                        </x-button>
+                        <x-button wire:click="delete" type="button" class="bg-red-600 hover:bg-red-700 focus:ring-red-500">
+                            Delete
+                        </x-button>
+                    </div>
+                </div>
+            </div>
+        </x-card>
+    </x-modal>
 
     <!-- Create Modal -->
     <x-modal name="create-salary-step-modal" wire:model="showCreateModal">
