@@ -11,7 +11,7 @@
                         type="number"
                         name="personnel_id"
                         required />
-                    <x-input-error :messages="$errors->get('editingAccount.personnel.personnel_id')" />
+                    <x-input-error for="editingAccount.personnel.personnel_id" class="mt-2" />
                 </div>
 
                 <div class="mt-4">
@@ -24,7 +24,7 @@
                         name="email"
                         required
                         autocomplete="username" />
-                    <x-input-error :messages="$errors->get('editingAccount.email')" />
+                    <x-input-error for="editingAccount.email" class="mt-2" />
                 </div>
 
                 <div class="mt-4">
@@ -39,7 +39,7 @@
                         <option value="school_head">School Head</option>
                         <option value="admin">Admin</option>
                     </x-native-select>
-                    <x-input-error :messages="$errors->get('editingAccount.role')" />
+                    <x-input-error for="editingAccount.role" class="mt-2" />
                 </div>
 
                 <div class="mt-5 flex justify-end gap-x-4">
