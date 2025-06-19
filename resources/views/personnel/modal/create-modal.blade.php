@@ -189,15 +189,7 @@
 
                 <div class="my-5 p-0 flex space-x-3 justify-end">
                     <div class="w-2/12">
-                        <x-button
-                        type="button"
-                        label="Cancel"
-                        class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"
-                        x-on:click="
-                            $dispatch('close');
-                            $nextTick(() => setTimeout(() => { window.location.href = '{{ route('personnels.index') }}'; }, 100));
-                        "
-                        />
+                        <x-button type="button" x-on:click="close" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"/>
                     </div>
                     <div class="w-2/12">
                         <x-button type="submit" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150"/>

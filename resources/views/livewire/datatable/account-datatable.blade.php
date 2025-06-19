@@ -8,8 +8,21 @@
                 </button>
             </a>
         </div>
+        <!-- Search Input -->
+        <div class="flex space-x-2 relative">
+            <input
+                type="text"
+                wire:model.live.debounce.150ms="search"
+                placeholder="Search ..."
+                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10"
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-1 top-1/2 transform -translate-y-1/2 h-4 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
+                </path>
+            </svg>
 
-        <div class="flex w-2/4 items-center rounded-md border border-gray-400 bg-white focus:bg-white focus:border-gray-500">
+        </div>
+        <!-- <div class="flex w-2/4 items-center rounded-md border border-gray-400 bg-white focus:bg-white focus:border-gray-500">
             <div class="pl-2">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
                     <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
@@ -19,7 +32,7 @@
             <input type="text" wire:model.live.debounce.300ms="search"
                 placeholder="Search"
                 class="appearance-none rounded-md border-none block pl-2 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700">
-        </div>
+        </div> -->
     </div>
     <div class="mt-5 overflow-x-auto">
         <div class="my-2 flex space-x-2">
