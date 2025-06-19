@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
     <div class="py-0 max-w-8xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg mt-2">
             @include('position.forms.create')
             @livewire('datatable.position-datatable')
 
