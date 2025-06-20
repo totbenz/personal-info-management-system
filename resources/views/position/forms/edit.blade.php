@@ -17,10 +17,10 @@
                 <x-input-error for="editingPosition.classification" class="mt-2" />
             </div>
             <div class="flex justify-end space-x-2">
-                <x-button x-on:click="$wire.set('showEditModal', false)" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-danger hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-700">
+                <x-button x-on:click="$wire.set('showEditModal', false)" type="button" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105">
                     Cancel
                 </x-button>
-                <x-button wire:click="save" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-main hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700">
+                <x-button wire:click="save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150">
                     Update
                 </x-button>
             </div>

@@ -15,9 +15,8 @@
 
             <div class="flex justify-end gap-x-4">
                 <div class="w-1/6">
-                    <x-button type="button" x-on:click="close" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"/>
-
-                    <!-- <x-button
+                    <!-- <x-button type="button" x-on:click="close" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"/> -->
+                    <x-button
                         type="button"
                         label="Cancel"
                         class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105"
@@ -25,7 +24,7 @@
                             $dispatch('close');
                             $nextTick(() => setTimeout(() => { window.location.href = '{{ route('positions.index') }}'; }, 100));
                         "
-                    /> -->
+                    />
                 </div>
                 <div class="w-1/6">
                     <x-button type="submit" label="Create" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150"/>

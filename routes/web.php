@@ -76,6 +76,8 @@ Route::middleware(['auth'])->group(function () {
 
         // essential school and personnel-related routes
         Route::resource('positions', PositionController::class)->only('index', 'store', 'update', 'destroy');
+        Route::delete('positions/{position}', [PositionController::class, 'deletePosition'])->name('positions.deletePosition');
+       
         Route::resource('districts', DistrictController::class)->only('index', 'store', 'update', 'destroy');
 
         // personnel routes

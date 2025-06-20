@@ -118,7 +118,10 @@
                             <button wire:click="editAccount({{ $account->id }})" class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
                                 View
                             </button>
-                            <button wire:click="deleteAccount({{ $account->id }})" class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300" onclick="return confirm('Are you sure you want to delete this account?')">
+                            <button 
+                                x-data 
+                                @click.prevent="if (confirm('Are you sure you want to delete this account?')) { deleteAccount ({{ $account->id }}) }"
+                                class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300">
                                 Delete
                             </button>
                         </div>

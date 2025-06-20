@@ -62,6 +62,17 @@ class PositionDatatable extends Component
         session()->flash('message', 'Position updated successfully.');
     }
 
+    public function deletePosition($id)
+    {
+        $position = Position::find($id);
+        if ($position) {
+            $position->delete();
+            session()->flash('message', 'Position deleted successfully.');
+        } else {
+            session()->flash('error', 'Position not found.');
+        }
+    }
+
     public function render()
     {
         $positions = Position::search($this->search)

@@ -100,9 +100,16 @@
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
                         {{-- @livewire('modal') --}}@include('position.forms.edit')
-                        <div class="flex justify-between space-x-3">
+
+                        <div class="flex space-x-2">
                             <button wire:click="editPosition({{ $position->id }})" class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
                                 View
+                            </button>
+                            <button 
+                                x-data 
+                                @click.prevent="if (confirm('Are you sure you want to delete this account?')) { $wire.deletePosition({{ $position->id }}) }"
+                                class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300">
+                                Delete
                             </button>
                         </div>
                     </td>

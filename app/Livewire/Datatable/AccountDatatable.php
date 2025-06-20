@@ -116,4 +116,32 @@ class AccountDatatable extends Component
         // Optionally, reset pagination or editing state if needed
         $this->resetPage();
     }
+    public function store()
+    {
+        $this->validate([
+            'editingAccount.email' => 'required|email|unique:users,email',
+            'editingAccount.role' => 'required|in:admin,school_head,teacher',
+            'editingAccount.personnel.personnel_id' => 'required|exists:personnels,personnel_id',
+        ]);
+
+        // Find the Personnel by personnel_id
+        $personnel = \App\Models\Personnel::where('personnel_id', $this->editingAccount['personnel']['personnel_id'])->first();
+        if (!$personnel) {
+            session()->flash('message', 'Personnel not found.');
+            return;
+        }
+
+        // Create the User and associate with Personnel
+        $user = \App\Models\User::create([
+            'email' => $this->editingAccount['email'],
+            'role' => $this->editingAccount['role'],
+            'personnel_id' => $personnel->id,
+            // Set a default password or handle password input as needed
+            'password' => bcrypt('password123'),
+        ]);
+
+        $this->showEditModal = false;
+        $this->resetEditingAccount();
+        session()->flash('message', 'Account created successfully.');
+    }
 }
