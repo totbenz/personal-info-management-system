@@ -36,7 +36,7 @@ return new class extends Migration
             $table->unsignedBigInteger('position_id');
             $table->enum('appointment', ['regular', 'part-time', 'temporary', 'contract']);
             $table->string('fund_source');
-            $table->unsignedBigInteger('salary_grade_id');
+            $table->unsignedBigInteger('salary_grade_id')->default(1);
             $table->foreign('salary_grade_id')->references('id')->on('salary_grades')->onDelete('cascade');
 
             $table->enum('step_increment', ['1', '2', '3', '4', '5', '6', '7', '8'])->nullable();
