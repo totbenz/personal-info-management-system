@@ -120,4 +120,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('salary-steps/', 'index')->name('salary_steps.index');
         });
     });
+    // SETTINGS ROUTE
+    Route::get('/settings', function () {
+        return view('settings');
+    })->name('settings');
+    Route::post('/settings/change-password', [UserController::class, 'changePassword'])->name('settings.changePassword');
 });
