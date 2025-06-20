@@ -120,7 +120,7 @@
                             </button>
                             <button 
                                 x-data 
-                                @click.prevent="if (confirm('Are you sure you want to delete this account?')) { deleteAccount ({{ $account->id }}) }"
+                                @click.prevent="if (confirm('Are you sure you want to delete this account?')) { $wire.deleteAccount({{ $account->id }}) }"
                                 class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300">
                                 Delete
                             </button>
