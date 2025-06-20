@@ -91,7 +91,7 @@
                     <th class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2">
-                                <span class="font-semibold text-left">Action</span>
+                                <span class="font-semibold text-left">Actions</span>
                             </button>
                         </div>
                     </th>
@@ -99,7 +99,7 @@
             </thead>
             <tbody>
                 @foreach ( $accounts as $account)
-                <tr wire:loading.class="opacity-75">
+                <tr wire:key="account-{{ $account->id }}" wire:loading.class="opacity-75">
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $account->id }}</div>
                     </td>
@@ -114,9 +114,12 @@
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
                         @include('user.forms.edit')
-                        <div class="flex justify-between space-x-3">
+                        <div class="flex space-x-2">
                             <button wire:click="editAccount({{ $account->id }})" class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
                                 View
+                            </button>
+                            <button wire:click="deleteAccount({{ $account->id }})" class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300" onclick="return confirm('Are you sure you want to delete this account?')">
+                                Delete
                             </button>
                         </div>
                     </td>

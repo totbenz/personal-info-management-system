@@ -103,4 +103,17 @@ class AccountDatatable extends Component
         $this->resetEditingAccount();
         session()->flash('message', 'Account updated successfully.');
     }
+
+    public function deleteAccount($id)
+    {
+        $account = User::find($id);
+        if ($account) {
+            $account->delete();
+            session()->flash('message', 'Account deleted successfully.');
+        } else {
+            session()->flash('message', 'Account not found.');
+        }
+        // Optionally, reset pagination or editing state if needed
+        $this->resetPage();
+    }
 }

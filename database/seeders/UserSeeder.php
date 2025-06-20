@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'admin@mailinator.com',
                 'role' => 'admin',
-                'password' => Hash::make('Pa$$w0rd!'),
+                'password' => Hash::make('P@ssw0rd'),
                 'personnel_id' => 1
             ],
             [
