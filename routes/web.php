@@ -102,7 +102,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/schools/export/{school}', 'export')->name('schools.export');
             Route::delete('schools/{school}', 'destroy')->name('schools.destroy');
         });
-
+        
         Route::controller(UserController::class)->group(function(){
             Route::get('accounts/', 'index')->name('accounts.index');
             Route::post('accounts/', 'store')->name('accounts.store');
@@ -120,5 +120,4 @@ Route::middleware(['auth'])->group(function () {
             Route::get('salary-steps/', 'index')->name('salary_steps.index');
         });
     });
-
 });

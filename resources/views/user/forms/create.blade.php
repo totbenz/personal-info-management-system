@@ -3,7 +3,16 @@
         <form action="{{ route('accounts.store') }}" method="POST">
             @csrf
             <div>
-                <x-input id="personnel_id" label="Personnel ID" class="block mt-1 w-full" type="number" name="personnel_id" :value="old('personnel_id')" required/>
+                <label for="personnel_id" class="block font-medium text-sm text-gray-700 mb-1">Personnel ID</label>
+                <x-select
+                    name="personnel_id"
+                    wire:model.live.debounce.300ms="selectedPersonnelId"
+                    placeholder="Select a Personnel ID"
+                    :async-data="route('api.personnel_list.index')"
+                    option-label="personnel_id"
+                    option-value="personnel_id"
+                    option-description="full_name" 
+                />
             </div>
 
             <div class="mt-4">

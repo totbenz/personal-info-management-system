@@ -62,3 +62,21 @@ Route::get('/positions', function () {
 
     return $query->get(['id','title']);
 })->name('api.positions.index');
+
+Route::get('/personnel-ids', function () {
+    // Get all personnel_id values from the Personnel model
+    return \App\Models\Personnel::pluck('personnel_id');
+})->name('api.personnel_ids.index');
+
+Route::get('/personnel-list', function () {
+    return \App\Models\Personnel::select('personnel_id', 'first_name', 'last_name')
+        ->get()
+        ->map(function ($personnel) {
+            return [
+                'personnel_id' => $personnel->personnel_id,
+                'full_name' => $personnel->last_name . ', ' . $personnel->first_name,
+            ];
+        });
+})->name('api.personnel_list.index');
+
+

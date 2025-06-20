@@ -56,7 +56,7 @@ class PersonnelController extends Controller
         return view('personnel.show', compact('personnel'));
     }
 
-    public function save(Request $request)
+    public function store(Request $request)
     {
         try {
             $request->validate([
