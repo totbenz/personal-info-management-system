@@ -12,6 +12,7 @@ use App\Exports\PersonnelsIndexExport;
 class PersonnelsDatatable extends Component
 {
     use WithPagination;
+    public $schoolId = null;
     public $selectedSchool = null, $selectedCategory = null, $selectedClassification = null, $selectedPosition = null, $selectedJobStatus = null;
     public $search = '';
     public $sortDirection = 'ASC';
@@ -53,10 +54,15 @@ class PersonnelsDatatable extends Component
         'mobile_no' => 'required',
     ];
 
-    public function mount()
+    public function mount($schoolId = null)
     {
-        if (auth()->user()->role === 'school_head') {
+        // Set the school ID from parameter if provided
+        if ($schoolId !== null) {
+            $this->schoolId = $schoolId;
+            $this->selectedSchool = $schoolId;
+        } elseif (auth()->user()->role === 'school_head') {
             $this->selectedSchool = auth()->user()->personnel->school_id;
+            $this->schoolId = auth()->user()->personnel->school_id;
         }
     }
 
@@ -75,19 +81,46 @@ class PersonnelsDatatable extends Component
         return $excel->download(new PersonnelsIndexExport, 'personnel.xlsx');
     }
 
-    public function render()
+    /**
+     * Filter personnel by school ID
+     * 
+     * @param int|null $schoolId The school ID to filter by. If null, uses component's schoolId or current user's school
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function filterPersonnelsBySchool($schoolId = null)
     {
         $query = Personnel::with(['school', 'position']);
-
-        // For school head, always filter by their school
-        if (auth()->user()->role === 'school_head') {
-            $query->where('school_id', auth()->user()->personnel->school_id);
+        
+        // Priority order: parameter schoolId > component schoolId > user role-based schoolId
+        if ($schoolId !== null) {
+            $targetSchoolId = $schoolId;
+        } elseif ($this->schoolId !== null) {
+            $targetSchoolId = $this->schoolId;
+        } elseif (auth()->user()->role === 'school_head') {
+            $targetSchoolId = auth()->user()->personnel->school_id;
+        } elseif ($this->selectedSchool) {
+            $targetSchoolId = $this->selectedSchool;
         } else {
-            // For admin, apply school filter only if selected
-            if ($this->selectedSchool) {
-                $query->where('school_id', $this->selectedSchool);
-            }
+            $targetSchoolId = null;
         }
+        
+        // Apply school filter if we have a school ID
+        if ($targetSchoolId) {
+            $query->where('school_id', $targetSchoolId);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Get personnel filtered by school ID and return a Livewire view
+     * 
+     * @param int|null $schoolId The school ID to filter by. If null, uses current user's school
+     * @return \Illuminate\View\View
+     */
+    public function getPersonnelsBySchoolView($schoolId = null)
+    {
+        $query = $this->filterPersonnelsBySchool($schoolId);
 
         $personnels = $query
             ->when($this->selectedCategory, function ($query) {
@@ -106,6 +139,12 @@ class PersonnelsDatatable extends Component
         return view('livewire.datatable.personnels-datatable', [
             'personnels' => $personnels
         ]);
+    }
+
+    public function render()
+    {
+        // Use the component's schoolId to filter personnel
+        return $this->getPersonnelsBySchoolView($this->schoolId);
     }
 
     // public function save()

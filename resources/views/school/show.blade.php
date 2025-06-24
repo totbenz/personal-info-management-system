@@ -44,7 +44,7 @@
                                     @livewire('form.school-information', ['showMode' => true, 'id' => $school->id])
                                 </section>
                                 <section x-show="formNav === 'school_personnels'" id="school_personnels">
-                                    @livewire('datatable.personnels-datatable', ['schoolId' => $school->id])
+                                    @livewire('datatable.selected-school-personnels', ['schoolId' => $school->id])
                                 </section>
                             </div>
                         </div>

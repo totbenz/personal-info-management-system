@@ -52,11 +52,11 @@
             text-align: center;
         }
         .service-table th:nth-child(6) {
-            width: 80px; /* Make DepEd/Division Station/Place column smaller */
+            width: 80px;
         }
         .service-table th:nth-child(2),
         .service-table th:nth-child(3) {
-            width: 120px; /* Make 'From' and 'To' columns wider */
+            width: 120px; 
         }
         .footer {
             margin-top: 30px;
@@ -240,11 +240,6 @@
         </tbody> -->
     </table>
     <br>
-
-    <!-- Footer -->
-    <!-- <div style="font-size: 12px; text-align: left; margin-top: 10px;">
-        <b>Purpose:</b> For Claims / Employment / File Copy / Loans / Ranking / Reclassification / Scholarship / Transfer / Others
-    </div> -->
 
     <div style="font-size: 14px; text-align: left;">
         <span style="margin-left:10%">Issued in compliance with Executive Order No. 54, dated August 10, 1954 and in accordance  with</span><br>
