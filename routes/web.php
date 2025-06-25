@@ -70,6 +70,15 @@ Route::middleware(['auth'])->group(function () {
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
+
+    //SERVICE
+    Route::get('/nosa', function () {
+        return view('pdf/nosa');
+    })->name('nosa');
+    // NOSA
+    Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download');
+    Route::get('/nosa/{personnelId}/preview', [NosaController::class, 'preview'])->name('nosa.preview');
+
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
