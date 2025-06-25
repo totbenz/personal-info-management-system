@@ -85,7 +85,7 @@
         </p>
     </div>
 
-    <div class="mt-10 text-right">
+    <div class="mt-10 text-right mb-8">
         <p class="text-center">Very truly yours,</p>
         <div class="mt-10 text-center" style="margin-left: 40%;">
             <p class="font-bold underline">MANUEL T. ALBARO, Ph.D., CESO V</p>
@@ -93,7 +93,7 @@
         </div>
     </div>
 
-    <div class="mt-26">
+    <div class="mt-24">
         <p class="text-sm">Position: Master Teacher II</p>
         <p class="text-sm">Salary Grade: 19</p>
         <p class="text-sm">Item No./Unique Item No. Fy 2024 Personnel  Services Itemization</p>
