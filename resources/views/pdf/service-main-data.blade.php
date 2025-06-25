@@ -81,7 +81,7 @@
         </div>
         <img src="{{ public_path('image/division-logo.png') }}" alt="division Logo" style="width: 100px; height: auto; position: absolute; right: 7%; top: 7%; transform: translateY(-50%);">
         <div style="font-size: 14px; position: absolute; right: 0;">
-            Employee No. <span style="text-decoration: underline;">Jason rey</span>
+            Employee No. <span style="text-decoration: underline;">{{$personnel->personnel_id}}</span>
         </div>
     </div>
     <br><br>
@@ -89,9 +89,9 @@
         <span style="margin-right: 10px;">Name:</span>
         <table style="border-collapse: collapse; display: inline-table; margin-bottom: -2px;">
             <tr style="border-bottom: 1px solid black;">
-                <td style="width: 116px; text-align: center;">jason rey</td>
-                <td style="width: 116px; text-align: center;">jason rey</td>
-                <td style="width: 116px; text-align: center;">jason rey</td>
+                <td style="width: 116px; text-align: center;">{{$personnel->last_name}}</td>
+                <td style="width: 116px; text-align: center;">{{$personnel->first_name}}</td>
+                <td style="width: 116px; text-align: center;">{{$personnel->middle_name}}</td>
             </tr>
         </table>
         <span style="margin-left: 20px;">(If married woman, give also maiden name)</span>
@@ -108,8 +108,8 @@
         <span style="margin-right: 10px;">Birth:</span>
         <table style="border-collapse: collapse; display: inline-table; margin-bottom: -2px;">
             <tr style="border-bottom: 1px solid black;">
-                <td style="width: 144px; text-align: center;">Carbon</td>
-                <td style="width: 214px; text-align: center;">carbon</td>
+                <td style="width: 144px; text-align: center;">{{ \Carbon\Carbon::parse($personnel->date_of_birth)->format('F d, Y') }}</td>
+                <td style="width: 214px; text-align: center;">{{$personnel->place_of_birth}}</td>
             </tr>
         </table>
         <span style="margin-left: 20px;">
@@ -225,7 +225,19 @@
             </td>
         </tr>
     </tbody>
-
+        <!-- <tbody>
+            @foreach ($serviceRecords as $record)
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($record->from_date)->format('F d, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($record->to_date)->format('F d, Y') }}</td>
+                    <td>{{ $record->position_id }}</td>
+                    <td>{{ $record->appointment_status }}</td>
+                    <td>{{ $record->salary }}</td>
+                    <td>{{ $record->station }}</td>
+                    <td>{{ $record->branch }}</td>
+                </tr>
+            @endforeach
+        </tbody> -->
     </table>
     <br>
 

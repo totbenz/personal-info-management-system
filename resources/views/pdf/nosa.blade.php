@@ -1,4 +1,3 @@
-{{-- resources/views/nosa.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +7,7 @@
     <style>
         @page {
             size: legal;
-            margin: 0.5in 0.5in 0 0.5in;
+            margin: 0.25in 0.5in 0 0.5in;
         }
         body {
             margin: 0;
@@ -94,22 +93,22 @@
         </div>
     </div>
 
-    <div class="mt-20">
+    <div class="mt-26">
         <p class="text-sm">Position: Master Teacher II</p>
         <p class="text-sm">Salary Grade: 19</p>
         <p class="text-sm">Item No./Unique Item No. Fy 2024 Personnel  Services Itemization</p>
         <p class="text-sm">and/or Plantilla of Personnel:  <span class="ml-14 uppercase underline">OSEC-decsbmtchr2-540459-1998</span></p>
     </div>
-    <hr class="border-gray-300 mt-3 border-t-2 mb-2">
+    <hr class="border-gray-300 mt-1 border-t-2 mb-2">
 
     <!-- Logo Section -->
-    <div style="width: 35%; float: left;">
+    <div style="width: 30%; float: left;">
         <img src="{{ public_path('image/deped-matatag.png') }}" alt="DepEd Matatag Logo" style="height: 70px;">
         <img src="{{ public_path('image/division-logo.png') }}" alt="Division Logo" style="height: 62px;">
     </div>
 
     <!-- Contact Information -->
-    <div style="width: 65%; float: right; font-size: 13px; line-height: 1.5; color: #1f2937;">
+    <div style="width: 70%; float: right; font-size: 13px; line-height: 1.5; color: #1f2937;">
         <p><strong>Address:</strong> Diversion Road, Barangay Gaas, Baybay City, Leyte</p>
         <p><strong>Telephone #:</strong> (53) 563-7615</p>
         <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>

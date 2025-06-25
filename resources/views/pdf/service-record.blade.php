@@ -1,118 +1,267 @@
-{{-- resources/views/nosa.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Notice of Salary Adjustment</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Service Record</title>
+    <link rel="stylesheet" href="{{ asset('resources/css/fonts.css') }}">
+
     <style>
-        @page {
-            size: legal;
-            margin: 0.5in 0.5in 0 0.5in;
-        }
         body {
-            margin: 0;
-            padding: 0;
-            min-height: 14in; 
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        h4 {
+            text-align: center;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        h3 {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: -15px;
+            letter-spacing: .75px;
+        }
+        h3 span {
+            font-size: 14px;
+            font-weight: normal;
+        }
+        .service-record {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1865a6;
+            margin-top: -12px;
+            letter-spacing: 1.5px;
+        }
+        .service-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 11px;
+        }
+        .service-table, .service-table th {
+            border: 0.5px solid black; 
+        }
+        .service-table td {
+            border-left: 0.5px dashed black; 
+            border-right: 0.5px dashed black; 
+        }
+        .service-table th, .service-table td {
+            padding: 5px;
+            text-align: center;
+        }
+        .service-table th:nth-child(6) {
+            width: 80px; /* Make DepEd/Division Station/Place column smaller */
+        }
+        .service-table th:nth-child(2),
+        .service-table th:nth-child(3) {
+            width: 120px; /* Make 'From' and 'To' columns wider */
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 11px;
         }
     </style>
 </head>
-<body class="text-gray-900">
-    <div class="text-center mb-6 ">
-        <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
-        <h2 class="font-bold text-lg">Republic of the Philippines</h2>
-        <h3 class="font-semibold text-md">Department of Education</h3>
-        <p>REGION VIII</p>
-        <p class="text-sm">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
-        <hr class="border-gray-300 mt-3 border-t-2">
-        <p class="mt-2 text-left text-xs">Office of the Schools Division Superintendent</p>
-    </div>
-
-    <div class="text-center mb-6">
-        <h1 class="font-bold text-xl uppercase">Notice of Salary Adjustment (NOSA)</h1>
-        <div>
-            <p class="mt-7 mr-5 text-right">October 24, 2024</p>
-            <p class="mr-16 text-right">Date</p>
+<body>
+    <div class="headers" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+        <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 100px; height: auto; position: absolute; left: 7%; top: 7%; transform: translateY(-50%);">
+        <div style="text-align: center; flex-grow: 1;">
+            <h4>
+                Republic of the Philippines <br>
+                Department of Education<br>
+                Region VIII - Eastern Visayas
+            </h4>
+            <h3>
+                SCHOOLS DIVISION OF BAYBAY CITY<br>
+                <span>Brgy. Gaas, Baybay City, Leyte</span>
+            </h3>
+            <h3 class="service-record">SERVICE RECORD</h3>
+        </div>
+        <img src="{{ public_path('image/division-logo.png') }}" alt="division Logo" style="width: 100px; height: auto; position: absolute; right: 7%; top: 7%; transform: translateY(-50%);">
+        <div style="font-size: 14px; position: absolute; right: 0;">
+            Employee No. <span style="text-decoration: underline;">{{$personnel->personnel_id}}</span>
         </div>
     </div>
-
-    <div class="mb-6">
-        <p><strong>Jason Rey Manlangit</strong></p>
-        <p>Full Stack Developer</p>
-        <p>VSU lang malakas</p>
-    </div>
-
-    <div class="mb-6">
-        <p class="font-bold">Sir/Madame:</p>
-        <p class="mt-4 text-justify">
-           <span class="ml-14">Pursuant</span> to National Budget Circular No. 594 dated August 12, 2024, implementing Executive Order No. 64 dated August 2, 2024, your salary is hereby adjusted effective <strong class="underline">January 24, 2024</strong>, as follows:
-        </p>
-    </div>
-
-    <div class="mb-6">
-        <table class="table-auto w-full">
-            <tbody>
-                <tr class="column-1">
-                    <td class="px-4 py-2" style="width: 55%;">1. Adjusted monthly basic salary effective under the New Salary Schedule:
-                        <br><span>SG <strong  class="mr-10">19</strong></span>
-                        <span>Step <strong>1</strong></span>
-                    </td>
-                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline">January 24, 2024</strong></td>
-                    <td class="px-4 py-2" style="width: 5%;">P</td>
-                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">53,873.00</td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-2" style="width: 40%;">2. Actual monthly basic salary as of
-                        <br><span>SG <strong  class="mr-10">18</strong></span>
-                        <span>Step <strong>1</strong></span>
-                    </td>
-                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline ">January 23, 2024</strong></td>
-                    <td class="px-4 py-2" style="width: 5%;">P</td>
-                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">49,015.00</td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-2" style="width: 40%;">3. Monthly salary adjustment effective </td>
-                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline ">January 24, 2024</strong></td>
-                    <td class="px-4 py-2" style="width: 5%;">P</td>
-                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">4,858.00</td>
-                </tr>
-            </tbody>
+    <br><br>
+    <div style="font-size: 14px; width: 100%; text-align: left; margin-top: 20px; display: flex; align-items: center;">
+        <span style="margin-right: 10px;">Name:</span>
+        <table style="border-collapse: collapse; display: inline-table; margin-bottom: -2px;">
+            <tr style="border-bottom: 1px solid black;">
+                <td style="width: 116px; text-align: center;">{{$personnel->last_name}}</td>
+                <td style="width: 116px; text-align: center;">{{$personnel->first_name}}</td>
+                <td style="width: 116px; text-align: center;">{{$personnel->middle_name}}</td>
+            </tr>
         </table>
+        <span style="margin-left: 20px;">(If married woman, give also maiden name)</span>
     </div>
-
-    <div class="mb-6 text-justify">
+    <table style="display: inline-table; margin-left: 50px; font-size: 12px;">
+        <tr>
+            <td style="width: 116px; text-align: center;">(Family Name)</td>
+            <td style="width: 116px; text-align: center;">(First Name)</td>
+            <td style="width: 116px; text-align: center;">(Middle Name)</td>
+        </tr>
+    </table>
+    <br>
+    <div style="font-size: 14px; width: 100%; text-align: left; margin-top: 20px; display: flex; align-items: center;">
+        <span style="margin-right: 10px;">Birth:</span>
+        <table style="border-collapse: collapse; display: inline-table; margin-bottom: -2px;">
+            <tr style="border-bottom: 1px solid black;">
+                <td style="width: 144px; text-align: center;">{{ \Carbon\Carbon::parse($personnel->date_of_birth)->format('F d, Y') }}</td>
+                <td style="width: 214px; text-align: center;">{{$personnel->place_of_birth}}</td>
+            </tr>
+        </table>
+        <span style="margin-left: 20px;">
+            (<span style="white-space: nowrap;">Date herein should be checked from birth</span>
+            <br>
+            <span style="margin-left: 63%;">or baptismal certificate or other reliable</span>
+            <br>
+            <span style="margin-left: 63%;">documents)</span>
+        </span>
+    </div>
+    <table style="display: inline-table; margin-left: 42px; font-size: 12px; margin-top: -34px;">
+        <tr>
+            <td style="width: 144px; text-align: center;">(Date)</td>
+            <td style="width: 214px; text-align: center;">(Place)</td>
+        </tr>
+    </table>
+    <br>
+    <div  style="font-size: 14px; width: 100%; text-align: left; margin-top: 10px; display: flex; align-items: center;">
         <p>
-            <span class="ml-14">It</span> is understood that this salary adjustment is subject to review and post-audit, and to appropriate re-adjustment and refund if found not in order.
+            <span style="margin-left:10%;">THIS IS TO CERTIFY that the employee named above rendered service in this Office as shown by</span> <br>
+            the service records below its line in which is supported by appointment and the other papers actually issued by this Office and approved
+            by the authorities concerned.
         </p>
     </div>
 
-    <div class="mt-10 text-right">
-        <p class="text-center">Very truly yours,</p>
-        <div class="mt-10 text-center" style="margin-left: 40%;">
-            <p class="font-bold underline">MANUEL T. ALBARO, Ph.D., CESO V</p>
-            <p>Schools Division Superintendent</p>
-        </div>
+    <!-- Service Table -->
+    <table class="service-table">
+    <thead>
+        <tr>
+            <th colspan="2">Inclusive Dates of Service<br>(mm-dd-yy)</th>
+            <th colspan="3">Record of Appointment</th>
+            <th rowspan="2" style="width: 80px;">DepEd/Division Station/Place</th> 
+            <th rowspan="2">Branch</th>
+            <th rowspan="2" style="width: 70px;">Leave of absence w/o pay</th>
+            <th colspan="2">Separation</th>
+        </tr>
+        <tr>
+            <th style="width: 50px;">From</th> 
+            <th style="width: 50px;">To</th> 
+            <th style="width: 70px;">Designation</th>
+            <th>Status</th>
+            <th>Salary p.a. (Php)</th>
+            <th>Date</th>
+            <th>Cause</th>
+        </tr>
+    </thead>
+
+    <!-- Table Body -->
+    <tbody>
+
+        <!-- The data used are for testing purposes only -->
+        <tr>
+            <td>08-04-93</td>
+            <td>12-31-93</td>
+            <td>Teacher I</td>
+            <td>R/Perm</td>
+            <td>37,224</td>
+            <td>Baybay N.</td>
+            <td>N/M</td>
+            <td>None</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>01-01-94</td>
+            <td>12-31-94</td>
+            <td>"</td>
+            <td>"</td>
+            <td>46,824</td>
+            <td>"</td>
+            <td>"</td>
+            <td>"</td>
+            <td></td>
+            <td></td>
+        </tr>
+       
+            <td>01-01-22</td>
+            <td>12-31-22</td>
+            <td>School Principal III</td>
+            <td>"</td><td>730,812</td>
+            <td>Bitanhuan ES</td>
+            <td>"</td>
+            <td>"</td>
+            <td></td>
+            <td><i>(Promotion)</i></td>
+        </tr>
+        <tr>
+            <td>08-23-21</td>
+            <td>12-31-22</td>
+            <td>"</td><td>"</td>
+            <td>730,812</td>
+            <td>Plaridel CS</td>
+            <td>"</td>
+            <td>"</td>
+            <td></td>
+            <td><i>(S.O. 085, s.2021: Transfer of Station)</i></td>
+        </tr>
+        <tr>
+            <td>01-01-23</td>
+            <td>Present</td>
+            <td>"</td>
+            <td>"</td>
+            <td>767,964</td>
+            <td>"</td>
+            <td>"</td>
+            <td>"</td>
+            <td></td>
+            <td><i>(NBC 589)</i></td>
+        </tr>
+        <tr style="border-top: none;">
+            <td colspan="10" style="text-align: left; font-weight: bold; padding: 8px; font-size: 12px;">
+                Purpose: For Claims / Employment / File Copy / Loans / Ranking / Reclassification / Scholarship / Transfer / Others
+            </td>
+        </tr>
+    </tbody>
+        <!-- <tbody>
+            @foreach ($serviceRecords as $record)
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($record->from_date)->format('F d, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($record->to_date)->format('F d, Y') }}</td>
+                    <td>{{ $record->position_id }}</td>
+                    <td>{{ $record->appointment_status }}</td>
+                    <td>{{ $record->salary }}</td>
+                    <td>{{ $record->station }}</td>
+                    <td>{{ $record->branch }}</td>
+                </tr>
+            @endforeach
+        </tbody> -->
+    </table>
+    <br>
+
+    <div style="font-size: 14px; text-align: left;">
+        <span style="margin-left:10%">Issued in compliance with Executive Order No. 54, dated August 10, 1954 and in accordance  with</span><br>
+       Circular No. 58, dated August 10, 1954 of the System.
     </div>
 
-    <div class="mt-20">
-        <p class="text-sm">Position: Master Teacher II</p>
-        <p class="text-sm">Salary Grade: 19</p>
-        <p class="text-sm">Item No./Unique Item No. Fy 2024 Personnel  Services Itemization</p>
-        <p class="text-sm">and/or Plantilla of Personnel:  <span class="ml-14 uppercase underline">OSEC-decsbmtchr2-540459-1998</span></p>
-    </div>
-    <hr class="border-gray-300 mt-3 border-t-2 mb-2">
+    <br><br>
 
-    <!-- Logo Section -->
-    <div style="width: 35%; float: left;">
-        <img src="{{ public_path('image/deped-matatag.png') }}" alt="DepEd Matatag Logo" style="height: 70px;">
-        <img src="{{ public_path('image/division-logo.png') }}" alt="Division Logo" style="height: 62px;">
-    </div>
-
-    <!-- Contact Information -->
-    <div style="width: 65%; float: right; font-size: 13px; line-height: 1.5; color: #1f2937;">
-        <p><strong>Address:</strong> Diversion Road, Barangay Gaas, Baybay City, Leyte</p>
-        <p><strong>Telephone #:</strong> (53) 563-7615</p>
-        <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>
-    </div>
+    <table style="width: 100%; font-size: 14px; margin-top: 20px;">
+        <tr>
+            <td style="width: 50%; text-align: center;">
+                <br><br><br>
+                April 12, 2024<br>
+                <span style="border-top: 1px solid black; display: inline-block; width: 150px;">Date</span>
+            </td>
+            <td style="width: 50%;"> 
+            <span>CERTIFIED CORRECT:</span>
+                <br><br><br>
+                <u style="margin-left:10%;">JULIUS CAESAR C. DE LA CERNA</u><br>
+                <span style="margin-left:10%;">Administrative Officer VI (HRMO II)</span><br>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
