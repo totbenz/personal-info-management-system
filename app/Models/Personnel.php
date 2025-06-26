@@ -295,13 +295,14 @@ class Personnel extends Model
     }
 
 
-    public function scopeSearch($query, $value){
+    public function scopeSearch($query, $value)
+    {
         $query->where('personnel_id', "like", "%{$value}%")
-              ->orWhere(function ($query) use ($value) {
-                    $query->whereRaw("CONCAT(first_name, ' ', SUBSTRING(middle_name, 1, 1), '. ', last_name) LIKE ?", ["%{$value}%"]);
-                })
-               ->orWhere('school_id', "like", "%{$value}%")
-               ->orWhere('category', "like", "%{$value}%");
+            ->orWhere(function ($query) use ($value) {
+                $query->whereRaw("CONCAT(first_name, ' ', SUBSTRING(middle_name, 1, 1), '. ', last_name) LIKE ?", ["%{$value}%"]);
+            })
+            ->orWhere('school_id', "like", "%{$value}%")
+            ->orWhere('category', "like", "%{$value}%");
     }
 
     public static function getLoyaltyAwardees()
@@ -316,16 +317,27 @@ class Personnel extends Model
     protected function abbreviateTitle($title)
     {
         $abbreviations = [
-            'Teacher I' => 'T-I', 'Teacher II' => 'T-II', 'Teacher III' => 'T-III',
-            'Master Teacher I' => 'MT-I', 'Master Teacher II' => 'MT-II',
-            'Master Teacher III' => 'MT-III', 'Master Teacher IV' => 'MT-IV',
-            'Head Teacher I' => 'HT-I', 'Head Teacher II' => 'HT-II',
-            'Head Teacher III' => 'HT-III', 'Head Teacher IV' => 'HT-IV',
-            'Head Teacher V' => 'HT-V', 'Head Teacher VI' => 'HT-VI',
-            'Special Education Teacher I' => 'SET-I', 'Special Education Teacher II' => 'SET-II',
-            'Special Education Teacher III' => 'SET-III', 'Special Education Teacher IV' => 'SET-IV',
-            'Special Education Teacher V' => 'SET-V', 'School Principal I' => 'P-I',
-            'School Principal II' => 'P-II', 'School Principal III' => 'P-III',
+            'Teacher I' => 'T-I',
+            'Teacher II' => 'T-II',
+            'Teacher III' => 'T-III',
+            'Master Teacher I' => 'MT-I',
+            'Master Teacher II' => 'MT-II',
+            'Master Teacher III' => 'MT-III',
+            'Master Teacher IV' => 'MT-IV',
+            'Head Teacher I' => 'HT-I',
+            'Head Teacher II' => 'HT-II',
+            'Head Teacher III' => 'HT-III',
+            'Head Teacher IV' => 'HT-IV',
+            'Head Teacher V' => 'HT-V',
+            'Head Teacher VI' => 'HT-VI',
+            'Special Education Teacher I' => 'SET-I',
+            'Special Education Teacher II' => 'SET-II',
+            'Special Education Teacher III' => 'SET-III',
+            'Special Education Teacher IV' => 'SET-IV',
+            'Special Education Teacher V' => 'SET-V',
+            'School Principal I' => 'P-I',
+            'School Principal II' => 'P-II',
+            'School Principal III' => 'P-III',
             'School Principal IV' => 'P-IV',
         ];
 
@@ -382,10 +394,17 @@ class Personnel extends Model
     public function fullName()
     {
         return $this->first_name . ' '
-                . ($this->middle_name ? $this->middle_name[0] . '. ' : '')
-                . $this->last_name . ' '
-                . $this->name_ext;
+            . ($this->middle_name ? $this->middle_name[0] . '. ' : '')
+            . $this->last_name . ' '
+            . $this->name_ext;
     }
 
-
+    public function getSalaryStepAmountAttribute()
+    {
+        $salaryStep = \App\Models\SalaryStep::where('salary_grade_id', $this->salary_grade_id)
+            ->where('step', $this->step_increment)
+            ->orderByDesc('year')
+            ->first();
+        return $salaryStep ? $salaryStep->salary : null;
+    }
 }
