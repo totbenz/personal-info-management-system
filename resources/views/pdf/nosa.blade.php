@@ -46,9 +46,9 @@
     </div>
 
     <div class="mb-6">
-        <p><strong>Jason Rey Manlangit</strong></p>
-        <p>Full Stack Developer</p>
-        <p>VSU lang malakas</p>
+        <p><strong>{{$personnel->first_name}} {{$personnel->last_name}}</strong></p>
+        <p>{{$personnel->position->title}}</p>
+        <p>{{$personnel->school->school_name}}</p>
     </div>
 
     <div class="mb-6">

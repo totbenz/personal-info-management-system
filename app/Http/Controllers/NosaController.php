@@ -20,7 +20,7 @@ class NosaController extends Controller
         ]);
 
         // Return the PDF as a download response
-        return $pdf->download('nosa_' . $personnel->id . '.pdf');
+        return $pdf->download($personnel->last_name . ' ' . $personnel->first_name . ' - NOSA' . '.pdf');
     }
 
     public function preview($personnelId)
@@ -36,6 +36,6 @@ class NosaController extends Controller
         ]);
 
         // Return the PDF as an inline response for preview
-        return $pdf->stream('nosa_' . $personnel->id . '.pdf');
+        return $pdf->stream($personnel->last_name . ' ' . $personnel->first_name . ' - NOSA' . '.pdf');
     }
 }
