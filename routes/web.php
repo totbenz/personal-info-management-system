@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceRecordController;
 use App\Http\Controllers\NosaController;
 use App\Http\Controllers\NosiController;
+use App\Http\Controllers\DownloadController;
 
 Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function(){
     Route::get('/login', 'login')->name('login');
@@ -80,6 +81,12 @@ Route::middleware(['auth'])->group(function () {
     //NOSI
     Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download');
     Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview');
+
+    //DOWNLOAD ALL
+    Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download');
+    
+    //DOWNLOAD SPECIFIC TYPE
+    Route::get('/personnels/{personnelId}/download/{type}', [DownloadController::class, 'downloadSpecific'])->name('download-specific.download');
 
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
