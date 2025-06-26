@@ -6,25 +6,26 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         @page {
-            size: legal;
+            size: A4;
             margin: 0.25in 0.5in 0 0.5in;
         }
         body {
             margin: 0;
             padding: 0;
-            min-height: 14in; 
+            min-height: 11.69in; 
+            font-size: 12px;
         }
     </style>
 </head>
 <body class="text-gray-900">
     <div class="text-center mb-6 ">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
-        <h2 class="font-bold text-lg">Republic of the Philippines</h2>
-        <h3 class="font-semibold text-md">Department of Education</h3>
-        <p>REGION VIII</p>
-        <p class="text-sm">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
+        <h2 class="font-bold">Republic of the Philippines</h2>
+        <h3 class="font-semibold" style="font-size: 18px;">Department of Education</h3>
+        <p style="font-size: 10px;">REGION VIII</p>
+        <p style="font-size: 10px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
         <hr class="border-gray-300 mt-3 border-t-2">
-        <p class="mt-2 text-left text-xs">Office of the Schools Division Superintendent</p>
+        <p class="mt-2 text-left" style="font-size: 11px;">Office of the Schools Division Superintendent</p>
     </div>
 
     <div class="text-center mb-6">
