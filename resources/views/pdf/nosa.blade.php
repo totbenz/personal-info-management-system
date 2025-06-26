@@ -4,32 +4,41 @@
     <meta charset="UTF-8">
     <title>Notice of Salary Adjustment</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+        
         @page {
-            size: A4;
+            size: legal;
             margin: 0.25in 0.5in 0 0.5in;
         }
         body {
             margin: 0;
             padding: 0;
-            min-height: 11.69in; 
-            font-size: 12px;
+            min-height: 13in; 
+            font-size: 16px;
+            font-family: Times New Roman, serif;
+        }
+        .unifraktur-font {
+            font-family: 'UnifrakturCook'!important;
+            font-weight: 700;
         }
     </style>
 </head>
 <body class="text-gray-900">
     <div class="text-center mb-6 ">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
-        <h2 class="font-bold">Republic of the Philippines</h2>
-        <h3 class="font-semibold" style="font-size: 18px;">Department of Education</h3>
-        <p style="font-size: 10px;">REGION VIII</p>
-        <p style="font-size: 10px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
+        <h2 class="unifraktur-font">Republic of the Philippines</h2>
+        <h1 class="font-semibold unifraktur-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px;">Department of Education</h1>
+        <p style="font-size: 13px;">REGION VIII</p>
+        <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
         <hr class="border-gray-300 mt-3 border-t-2">
-        <p class="mt-2 text-left" style="font-size: 11px;">Office of the Schools Division Superintendent</p>
+        <p class="mt-2 text-left" style="font-size: 15px;">Office of the Schools Division Superintendent</p>
     </div>
 
     <div class="text-center mb-6">
-        <h1 class="font-bold text-xl uppercase">Notice of Salary Adjustment (NOSA)</h1>
+        <h1 class="font-bold uppercase" style="font-size: 24px;">Notice of Salary Adjustment (NOSA)</h1>
         <div>
             <p class="mt-7 mr-5 text-right">October 24, 2024</p>
             <p class="mr-16 text-right">Date</p>

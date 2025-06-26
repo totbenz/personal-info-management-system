@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>Notice of Step Increment</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+        
         @page {
             size: legal;
             margin: 0.25in 0.5in 0 0.5in;
@@ -13,23 +17,29 @@
             margin: 0;
             padding: 0;
             min-height: 14in; 
+            font-size: 16px;
+            font-family: Times New Roman, serif;
+        }
+        .unifraktur-font {
+            font-family: 'UnifrakturCook'!important;
+            font-weight: 700;
         }
     </style>
 </head>
 <body class="text-gray-900">
     <div class="text-center mb-6 ">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
-        <h2 class="font-bold text-lg">Republic of the Philippines</h2>
-        <h3 class="font-semibold text-md">Department of Education</h3>
-        <p>REGION VIII</p>
-        <p class="text-sm">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
+        <h2 class="unifraktur-font">Republic of the Philippines</h2>
+        <h1 class="font-semibold unifraktur-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px;">Department of Education</h1>
+        <p style="font-size: 13px; margin-top: -5px;">REGION VIII</p>
+        <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
         <hr class="border-gray-300 mt-3 border-t-2">
-        <p class="mt-2 text-left text-xs font-semibold">Office of the Schools Division Superintendent</p>
+        <p class="mt-2 text-left" style="font-size: 15px;">Office of the Schools Division Superintendent</p>
     </div>
 
     <div class="text-center mb-5">
-        <h1 class="font-bold text-l uppercase">Notice of Step Increment (NOSI)</h1>
-        <h1 class="font-bold text-l uppercase" style="margin-top: -3px;">Due to Length of Service</h1>
+        <h1 class="font-bold uppercase" style="font-size: 24px;">Notice of Step Increment (NOSI)</h1>
+        <h1 class="font-bold uppercase" style="margin-top: -5px; font-size: 24px;">Due to Length of Service</h1>
 
         <div>
             <p class="mt-7 mr-5 text-right">October 30, 2024</p>
@@ -112,12 +122,12 @@
 
     <!-- Logo Section -->
     <div style="width: 30%; float: left;">
-        <img src="{{ public_path('image/deped-matatag.png') }}" alt="DepEd Matatag Logo" style="height: 70px;">
-        <img src="{{ public_path('image/division-logo.png') }}" alt="Division Logo" style="height: 62px;">
+        <img src="{{ public_path('image/deped-matatag.png') }}" alt="DepEd Matatag Logo" style="height: 67px;">
+        <img src="{{ public_path('image/division-logo.png') }}" alt="Division Logo" style="height: 59px;">
     </div>
 
     <!-- Contact Information -->
-    <div style="width: 70%; float: right; font-size: 13px; line-height: 1.5; color: #1f2937;">
+    <div style="width: 70%; float: right; font-size: 12px; line-height: 1.5; color: #1f2937;">
         <p><strong>Address:</strong> Diversion Road, Barangay Gaas, Baybay City, Leyte</p>
         <p><strong>Telephone #:</strong> (53) 563-7615</p>
         <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>
