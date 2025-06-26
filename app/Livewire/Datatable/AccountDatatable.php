@@ -23,7 +23,9 @@ class AccountDatatable extends Component
             'personnel_id' => ''
         ]
     ];
-
+    public $showDeleteModal = false;
+    public $deleteId = null;
+    public $deleteError = null;
 
     public function mount()
     {
@@ -104,18 +106,41 @@ class AccountDatatable extends Component
         session()->flash('message', 'Account updated successfully.');
     }
 
-    public function deleteAccount($id)
+    public function setDeleteId($id)
     {
-        $account = User::find($id);
-        if ($account) {
-            $account->delete();
-            session()->flash('message', 'Account deleted successfully.');
-        } else {
-            session()->flash('message', 'Account not found.');
-        }
-        // Optionally, reset pagination or editing state if needed
-        $this->resetPage();
+        $this->deleteId = $id;
+        $this->deleteError = null;
     }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->deleteId = null;
+        $this->deleteError = null;
+    }
+
+    public function deleteAccount()
+    {
+        $this->deleteError = null;
+        try {
+            $account = User::find($this->deleteId);
+            if ($account) {
+                $account->delete();
+                session()->flash('message', 'Account deleted successfully.');
+                $this->showDeleteModal = false;
+                $this->deleteId = null;
+            } else {
+                $this->deleteError = 'Account not found.';
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                $this->deleteError = 'Cannot delete this account because it is referenced by other records.';
+            } else {
+                $this->deleteError = 'An error occurred while deleting the account.';
+            }
+        }
+    }
+
     public function store()
     {
         $this->validate([

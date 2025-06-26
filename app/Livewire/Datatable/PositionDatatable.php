@@ -16,6 +16,9 @@ class PositionDatatable extends Component
     public $selectedClassification = null;
     public $showEditModal = false;
     public $editingPosition;
+    public $showDeleteModal = false;
+    public $deleteId = null;
+    public $deleteError = null;
 
     public function mount()
     {
@@ -62,15 +65,38 @@ class PositionDatatable extends Component
         session()->flash('message', 'Position updated successfully.');
     }
 
-    public function deletePosition($id)
+    public function deletePosition()
     {
-        $position = Position::find($id);
-        if ($position) {
-            $position->delete();
-            session()->flash('message', 'Position deleted successfully.');
-        } else {
-            session()->flash('error', 'Position not found.');
+        $this->deleteError = null;
+        try {
+            $position = Position::find($this->deleteId);
+            if ($position) {
+                $position->delete();
+                session()->flash('message', 'Position deleted successfully.');
+                $this->showDeleteModal = false;
+                $this->deleteId = null;
+            } else {
+                $this->deleteError = 'Position not found.';
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                $this->deleteError = 'Cannot delete this position because it is referenced by other records.';
+            } else {
+                $this->deleteError = 'An error occurred while deleting the position.';
+            }
         }
+    }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->deleteId = null;
+        $this->deleteError = null;
+    }
+
+    public function setDeleteId($id)
+    {
+        $this->deleteId = $id;
     }
 
     public function render()

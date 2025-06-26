@@ -13,8 +13,7 @@
                 type="text"
                 wire:model.live.debounce.150ms="search"
                 placeholder="Search Position..."
-                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10"
-            />
+                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10" />
             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-1 top-1/2 transform -translate-y-1/2 h-4 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                 <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
                 </path>
@@ -105,9 +104,7 @@
                             <button wire:click="editPosition({{ $position->id }})" class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
                                 View
                             </button>
-                            <button 
-                                x-data 
-                                @click.prevent="if (confirm('Are you sure you want to delete this account?')) { $wire.deletePosition({{ $position->id }}) }"
+                            <button wire:click="setDeleteId({{ $position->id }})" x-on:click="$openModal('delete-position-modal')"
                                 class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300">
                                 Delete
                             </button>
@@ -127,4 +124,40 @@
         {{ $positions->links() }}
     </div>
     @include('position.forms.create')
+    <!-- Delete Confirmation Modal -->
+    <x-modal name="delete-position-modal" wire:model.live="showDeleteModal">
+        <x-card title="Delete Position">
+            <div class="px-8 py-5">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="rounded-full bg-red-100 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Delete Confirmation</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Are you sure you want to delete this position? This action cannot be undone.
+                            </p>
+                            @if ($deleteError)
+                            <div class="mt-3 p-2 bg-red-100 text-red-700 rounded text-sm border border-red-300">
+                                {{ $deleteError }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex justify-end space-x-3">
+                        <x-button wire:click="cancelDelete()" type="button" class="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
+                            Cancel
+                        </x-button>
+                        <x-button wire:click="deletePosition()" type="button" class="bg-red-600 hover:bg-red-700 focus:ring-red-500">
+                            Delete
+                        </x-button>
+                    </div>
+                </div>
+            </div>
+        </x-card>
+    </x-modal>
 </div>
