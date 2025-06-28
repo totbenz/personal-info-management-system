@@ -49,13 +49,14 @@ class PersonalInformationForm extends PersonnelNavigation
         'category' => 'required',
         'job_status' => 'required',
         'employment_start' => 'required',
+        'employment_end' => 'required',
         'leave_of_absence_without_pay_count' => 'nullable',
 
         'tin' => 'required|min:8|max:12',
-        'sss_num' => 'required|size:10',
-        'gsis_num' => 'required|min:8',
-        'philhealth_num' => 'required|min:11',
-        'pagibig_num' => 'required|min:11',
+        'sss_num' => 'nullable|size:10',
+        'gsis_num' => 'nullable|min:8',
+        'philhealth_num' => 'nullable|min:11',
+        'pagibig_num' => 'nullable|min:11',
 
         'email' => 'required',
         'tel_no' => 'nullable',

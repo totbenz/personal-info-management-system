@@ -159,8 +159,8 @@
             <span class="w-2/12">
                 <x-input type="date" class="form-control" id="employment_start" label="Employment Start Date" wire:model="employment_start" />
             </span>
-            <span class="w-2/12">
-                <x-input type="date" class="form-control" id="employment_end" label="Employment End Date" wire:model="employment_end" />
+            <!-- <span class="w-2/12">
+                <x-input type="date" class="form-control" id="employment_end" label="Employment End Date" wire:model="employment_end" /> -->
             </span>
         </div>
     </div>
@@ -359,9 +359,9 @@
                 <span class=" w-2/12">
                 <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model="leave_of_absence_without_pay_count" min="0" required />
                 </span>
-                <span class="w-2/12">
+                <!-- <span class="w-2/12">
                     <x-input type="date" class="form-control" id="employment_end" name="employment_end" label="Employment End Date" wire:model="employment_end" required />
-                </span>
+                </span> -->
             </div>
             <div class="mt-2 mb-4 p-0 flex space-x-5">
                 <span class="w-2/12">
