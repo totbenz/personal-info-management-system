@@ -229,7 +229,7 @@
                 @endforeach
                 @if ($personnels->isEmpty())
                 <tr wire:loading.class="opacity-75">
-                    <td colspan="5" class="p-2 w-full text-center">No School Found</td>
+                    <td colspan="9" class="p-2 w-full text-center">No School Found</td>
                 </tr>
                 @endif
             </tbody>

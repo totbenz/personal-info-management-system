@@ -5,6 +5,7 @@ namespace App\Livewire\Form;
 use App\Models\Log;
 use App\Models\Personnel;
 use App\Models\School;
+use App\Models\SalaryStep;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Livewire\PersonnelNavigation;
@@ -79,7 +80,6 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->blood_type = $this->personnel->blood_type;
                 $this->height = $this->personnel->height;
                 $this->weight = $this->personnel->weight;
-                $this->salary = $this->personnel->salary;
                 $this->tin = $this->personnel->tin;
                 $this->sss_num = $this->personnel->sss_num;
                 $this->gsis_num = $this->personnel->gsis_num;
@@ -102,10 +102,12 @@ class PersonalInformationForm extends PersonnelNavigation
                 if ($this->personnel->employment_end) {
                     $this->employment_end = $this->personnel->employment_end;
                 }
-                $this->salary = $this->personnel->salary;
                 $this->email = $this->personnel->email;
                 $this->tel_no = $this->personnel->tel_no;
                 $this->mobile_no = $this->personnel->mobile_no;
+
+                // Calculate salary based on current salary_grade_id and step_increment
+                $this->calculateSalary();
             }
         }
     }
@@ -137,6 +139,66 @@ class PersonalInformationForm extends PersonnelNavigation
         }
     }
 
+    /**
+     * Calculate salary based on salary grade and step increment
+     */
+    public function calculateSalary()
+    {
+        try {
+            if ($this->salary_grade_id && $this->step_increment) {
+                $salaryStep = \App\Models\SalaryStep::where('salary_grade_id', $this->salary_grade_id)
+                    ->where('step', $this->step_increment)
+                    ->orderByDesc('year')
+                    ->first();
+
+                if ($salaryStep) {
+                    $this->salary = $salaryStep->salary;
+                    LaravelLog::info('Salary calculated successfully', [
+                        'salary_grade_id' => $this->salary_grade_id,
+                        'step_increment' => $this->step_increment,
+                        'calculated_salary' => $this->salary,
+                        'year' => $salaryStep->year
+                    ]);
+                } else {
+                    $this->salary = null;
+                    LaravelLog::warning('No salary step found for the given parameters', [
+                        'salary_grade_id' => $this->salary_grade_id,
+                        'step_increment' => $this->step_increment
+                    ]);
+                }
+            } else {
+                $this->salary = null;
+                LaravelLog::info('Salary calculation skipped - missing required parameters', [
+                    'salary_grade_id' => $this->salary_grade_id,
+                    'step_increment' => $this->step_increment
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->salary = null;
+            LaravelLog::error('Error calculating salary', [
+                'error' => $e->getMessage(),
+                'salary_grade_id' => $this->salary_grade_id,
+                'step_increment' => $this->step_increment
+            ]);
+        }
+    }
+
+    /**
+     * Updated when salary grade changes
+     */
+    public function updatedSalaryGradeId()
+    {
+        $this->calculateSalary();
+    }
+
+    /**
+     * Updated when step increment changes
+     */
+    public function updatedStepIncrement()
+    {
+        $this->calculateSalary();
+    }
+
     public function save()
     {
         LaravelLog::info('Save method called in PersonalInformationForm', [
@@ -147,6 +209,8 @@ class PersonalInformationForm extends PersonnelNavigation
             'input_salary' => $this->salary,
         ]);
 
+        // Calculate salary before validation
+        $this->calculateSalary();
 
         try {
             $this->validate();
@@ -192,7 +256,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'height' => $this->height,
             'weight' => $this->weight,
             'blood_type' => $this->blood_type,
-            'salary' => $this->salary, // Use the salary from the form input
+            'salary' => $this->salary, // Use the calculated salary
             'tin' => $this->tin,
             'sss_num' => $this->sss_num,
             'gsis_num' => $this->gsis_num,

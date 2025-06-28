@@ -27,15 +27,16 @@ class PersonnelController extends Controller
                 continue;
             }
 
-            // Compare salary_grade_id and step_increment in the salary_steps table
+            // Use the same logic as getSalaryStepAmountAttribute for consistency
             $salaryStep = DB::table('salary_steps')
                 ->where('salary_grade_id', $personnel->salary_grade_id)
                 ->where('step', $personnel->step_increment)
-                ->where('year', now()->year) // Match the current year
-                ->value('salary'); // Get the salary value
+                ->orderByDesc('year') // Get the latest year instead of current year
+                ->first();
 
             // Update the personnel's salary if a match is found
-            $personnel->update(['salary' => $salaryStep]);
+            $salary = $salaryStep ? $salaryStep->salary : null;
+            $personnel->update(['salary' => $salary]);
         }
 
         // Fetch updated personnels to display in the view
