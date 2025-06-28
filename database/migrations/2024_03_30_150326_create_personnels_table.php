@@ -37,9 +37,9 @@ return new class extends Migration
             $table->enum('appointment', ['regular', 'part-time', 'temporary', 'contract']);
             $table->string('fund_source');
             $table->unsignedBigInteger('salary_grade_id')->default(1);
-            $table->foreign('salary_grade_id')->references('id')->on('salary_grades')->onDelete('cascade');
+            $table->foreign('salary_grade_id')->references('id')->on('salary_grades')->onDelete('cascade')->default(1);
 
-            $table->enum('step_increment', ['1', '2', '3', '4', '5', '6', '7', '8'])->nullable();
+            $table->enum('step_increment', ['1', '2', '3', '4', '5', '6', '7', '8'])->nullable()->default(1);
             $table->enum('category', ['SDO Personnel','School Head', 'Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher', 'School Non-teaching Personnel']);
             $table->enum('job_status', ['active','vacation', 'terminated', 'on leave', 'suspended', 'resigned', 'probation']);
             $table->integer('leave_of_absence_without_pay_count')->default(0)->nullable();
