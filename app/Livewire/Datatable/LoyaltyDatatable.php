@@ -6,6 +6,7 @@ use App\Models\Personnel;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LoyaltyDatatable extends Component
 {
@@ -23,6 +24,69 @@ class LoyaltyDatatable extends Component
             return;
         }
         $this->sortColumn = $column;
+    }
+
+
+    private function getEligiblePersonnels($paginated = true)
+    {
+        $query = Personnel::with(['school', 'position'])
+            ->whereNotNull('employment_start')
+            ->when($this->selectedSchool, function ($query) {
+                $query->where('school_id', $this->selectedSchool);
+            })
+            ->when($this->selectedCategory, function ($query) {
+                $query->where('category', $this->selectedCategory);
+            })
+            ->when($this->selectedPosition, function ($query) {
+                $query->where('position_id', $this->selectedPosition);
+            })
+            ->when($this->selectedJobStatus, function ($query) {
+                $query->where('job_status', $this->selectedJobStatus);
+            })
+            ->search($this->search)
+            ->orderBy($this->sortColumn, $this->sortDirection);
+
+        $personnels = $paginated ? $query->paginate(10) : $query->get();
+
+        // Calculate loyalty award eligibility for each personnel
+        $collection = $paginated ? $personnels->getCollection() : $personnels;
+
+        $eligiblePersonnels = $collection->map(function ($personnel) {
+            $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
+            $personnel->years_of_service = $yearsOfService;
+            $personnel->can_claim = $this->canClaimLoyaltyAward($yearsOfService);
+            $personnel->next_award_year = $this->getNextAwardYear($yearsOfService);
+
+            // Sanitize fields to prevent malformed UTF-8
+            $personnel->first_name = $this->sanitizeUtf8($personnel->first_name);
+            $personnel->middle_name = $this->sanitizeUtf8($personnel->middle_name);
+            $personnel->last_name = $this->sanitizeUtf8($personnel->last_name);
+            $personnel->name_ext = $this->sanitizeUtf8($personnel->name_ext);
+
+            if (optional($personnel->position)->title) {
+                $personnel->position->title = $this->sanitizeUtf8($personnel->position->title);
+            }
+
+            if (optional($personnel->school)->school_name) {
+                $personnel->school->school_name = $this->sanitizeUtf8($personnel->school->school_name);
+            }
+
+            return $personnel;
+        })->filter(function ($personnel) {
+            return $personnel->can_claim;
+        });
+
+        if ($paginated) {
+            $personnels->setCollection($eligiblePersonnels);
+            return $personnels;
+        }
+
+        return $eligiblePersonnels;
+    }
+
+    private function sanitizeUtf8($string)
+    {
+        return mb_convert_encoding($string ?? '', 'UTF-8', 'UTF-8');
     }
 
     public function calculateYearsOfService($employmentStart)
@@ -70,41 +134,7 @@ class LoyaltyDatatable extends Component
 
     public function render()
     {
-        $currentYear = Carbon::now()->year;
-        $personnels = Personnel::with(['school', 'position'])
-            ->whereNotNull('employment_start')
-            ->when($this->selectedSchool, function ($query) {
-                $query->where('school_id', $this->selectedSchool);
-            })
-            ->when($this->selectedCategory, function ($query) {
-                $query->where('category', $this->selectedCategory);
-            })
-            ->when($this->selectedPosition, function ($query) {
-                $query->where('position_id', $this->selectedPosition);
-            })
-            ->when($this->selectedJobStatus, function ($query) {
-                $query->where('job_status', $this->selectedJobStatus);
-            })
-            ->search($this->search)
-            ->orderBy($this->sortColumn, $this->sortDirection)
-            ->paginate(10);
-
-        // Calculate loyalty award eligibility for each personnel
-        $personnels->getCollection()->transform(function ($personnel) {
-            $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
-            $personnel->years_of_service = $yearsOfService;
-            $personnel->can_claim = $this->canClaimLoyaltyAward($yearsOfService);
-            $personnel->next_award_year = $this->getNextAwardYear($yearsOfService);
-            return $personnel;
-        });
-
-        // Filter to show only eligible personnel
-        $eligiblePersonnels = $personnels->getCollection()->filter(function ($personnel) {
-            return $personnel->can_claim;
-        });
-
-        // Create a new paginated collection with only eligible personnel
-        $personnels->setCollection($eligiblePersonnels);
+        $personnels = $this->getEligiblePersonnels(true);
 
         return view('livewire.datatable.loyalty-datatable', [
             'personnels' => $personnels

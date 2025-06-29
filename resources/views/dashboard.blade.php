@@ -40,7 +40,7 @@
                                 <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">Personnel</span>
                             </div>
                             <div class="text-2xl font-bold text-gray-900 mb-1" wire:poll>{{ $personnelCount }}</div>
-                            <div class="text-xs text-gray-500">Active personnel members</div>
+                            <div class="text-xs text-gray-500">Total personnel members</div>
                         </div>
                         <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
