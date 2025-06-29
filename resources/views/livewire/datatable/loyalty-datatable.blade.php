@@ -12,20 +12,6 @@
                     option-label="title"
                     option-value="id" />
             </div>
-
-            <!-- Category Dropdown -->
-            <div class="w-[16rem] px-0.5 text-xs">
-                <x-native-select wire:model.live.debounce.300ms="selectedCategory">
-                    <option value="">Select category</option>
-                    <option value="SDO Personnel">SDO Personnel</option>
-                    <option value="School Head">School Head</option>
-                    <option value="Elementary School Teacher">Elementary School Teacher</option>
-                    <option value="Junior High School Teacher">Junior High School Teacher</option>
-                    <option value="Senior High School Teacher">Senior High School Teacher</option>
-                    <option value="School Non-teaching Personnel">School Non-teaching Personnel</option>
-                </x-native-select>
-            </div>
-
             <!-- School Dropdown -->
             <div class="w-[11rem] px-0.5 text-xs">
                 <x-select
@@ -105,26 +91,6 @@
                             </button>
                         </div>
                     </th>
-                    <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('classification')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="school_id">
-                                <span class="font-semibold text-left">Classification</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('category')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="category">
-                                <span class="font-semibold text-left">Category</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                </svg>
-                            </button>
-                        </div>
-                    </th>
                     <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('school_id')">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="school_id">
@@ -183,12 +149,6 @@
                    
                     <td class="p-2 whitespace-nowrap w-2/12">
                         <div class="text-left capitalize">{{ $personnel->position->title ?? 'N/A' }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->position->classification ?? 'N/A' }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->category }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $personnel->school->school_name ?? 'N/A' }}</div>

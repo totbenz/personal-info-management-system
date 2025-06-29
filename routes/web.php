@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\SalaryGradeController;
 use App\Http\Controllers\SalaryStepController;
+use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceRecordController;
@@ -137,6 +138,9 @@ Route::middleware(['auth'])->group(function () {
         {
             Route::get('salary-steps/', 'index')->name('salary_steps.index');
         });
+
+        // Events routes
+        Route::resource('events', EventController::class);
     });
     // SETTINGS ROUTE
     Route::get('/settings', function () {
