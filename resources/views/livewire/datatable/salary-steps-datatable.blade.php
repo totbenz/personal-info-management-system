@@ -19,6 +19,7 @@
         <div class="flex gap-2 items-center">
             <input type="number" min="2000" max="2100" placeholder="Add Year" wire:model.defer="newYear" class="border rounded px-2 py-1 w-24" @if($isAddingYear) disabled @endif>
             <button wire:click="addYear" class="bg-blue-500 text-white px-3 py-1 rounded" @if($isAddingYear) disabled @endif>Add Year</button>
+            <button wire:click="showDeleteYearModal" class="bg-red-500 text-white px-3 py-1 rounded ml-2">Delete Year</button>
             @if($isAddingYear)
             <svg class="animate-spin h-5 w-5 text-blue-600 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -112,6 +113,24 @@
             <div class="flex justify-end gap-2">
                 <button wire:click="cancelDeleteStep" class="px-4 py-1 rounded bg-gray-200 hover:bg-gray-300">Cancel</button>
                 <button wire:click="deleteSalaryStepConfirmed" class="px-4 py-1 rounded bg-red-600 text-white hover:bg-red-700">Delete</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($confirmDeleteYearModal)
+    <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 transition-opacity">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-96 max-w-full border border-gray-200">
+            <div class="flex items-center mb-4">
+                <svg class="w-7 h-7 text-red-500 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+                </svg>
+                <h2 class="text-xl font-bold text-gray-800">Delete Year</h2>
+            </div>
+            <p class="mb-6 text-gray-700">Are you sure you want to delete all salary steps for year <span class="font-semibold text-red-600">{{ $selectedYear }}</span>? <span class="font-semibold text-red-600">This action cannot be undone.</span></p>
+            <div class="flex justify-end gap-3">
+                <button wire:click="cancelDeleteYearModal" class="px-5 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Cancel</button>
+                <button wire:click="deleteSelectedYear" class="px-5 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow">Delete</button>
             </div>
         </div>
     </div>

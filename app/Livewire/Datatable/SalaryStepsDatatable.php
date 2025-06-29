@@ -50,6 +50,8 @@ class SalaryStepsDatatable extends Component
     public $addYearError = '';
     public $isAddingYear = false;
 
+    public $confirmDeleteYearModal = false;
+
     public function mount()
     {
         $this->salaryGrades = SalaryGrade::orderBy('grade')->get();
@@ -327,6 +329,27 @@ class SalaryStepsDatatable extends Component
         $this->updateSalaryMatrix();
         $this->newYear = '';
         $this->isAddingYear = false;
+    }
+
+    public function showDeleteYearModal()
+    {
+        $this->confirmDeleteYearModal = true;
+    }
+
+    public function cancelDeleteYearModal()
+    {
+        $this->confirmDeleteYearModal = false;
+    }
+
+    public function deleteSelectedYear()
+    {
+        if ($this->selectedYear) {
+            SalaryStep::where('year', $this->selectedYear)->delete();
+            $this->years = SalaryStep::distinct()->orderBy('year', 'desc')->pluck('year')->toArray();
+            $this->selectedYear = $this->years[0] ?? date('Y');
+            $this->updateSalaryMatrix();
+        }
+        $this->confirmDeleteYearModal = false;
     }
 
     public function render()
