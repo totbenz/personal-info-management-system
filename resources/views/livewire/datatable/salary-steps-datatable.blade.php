@@ -1,4 +1,48 @@
 <div class="mx-5 my-8 p-3">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div class="flex items-center mb-4">
+            <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <h1 class="text-2xl font-bold text-gray-800">Salary Grade Management System</h1>
+        </div>
+        <p class="text-gray-600 mb-4">Manage salary grades and steps across different years. Create, edit, and maintain your organization's salary structure with ease.</p>
+
+        <!-- Quick Tutorial -->
+        <div class="bg-white rounded-lg p-4 border border-blue-100">
+            <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                How to Use
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div class="space-y-2">
+                    <div class="flex items-start">
+                        <span class="bg-blue-100 text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-2 mt-0.5">1</span>
+                        <span><strong>Select Year:</strong> Choose the year you want to work with from the dropdown</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-100 text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-2 mt-0.5">2</span>
+                        <span><strong>Add Grade:</strong> Enter a grade number and click "Add Grade" to create new salary grades</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-start">
+                        <span class="bg-blue-100 text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-2 mt-0.5">3</span>
+                        <span><strong>Edit Salaries:</strong> Double-click any salary cell to edit values directly</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-100 text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-2 mt-0.5">4</span>
+                        <span><strong>Manage Data:</strong> Add new years or delete existing grades and years as needed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Year and Grade Management Controls -->
     <div class="flex items-center gap-4">
         <div>
             <label for="year-select" class="font-semibold mr-2 text-gray-700">Year:</label>
