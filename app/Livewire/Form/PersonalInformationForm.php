@@ -147,11 +147,18 @@ class PersonalInformationForm extends PersonnelNavigation
     {
         try {
             if ($this->salary_grade_id && $this->step_increment) {
+                $currentYear = date('Y');
                 $salaryStep = \App\Models\SalaryStep::where('salary_grade_id', $this->salary_grade_id)
                     ->where('step', $this->step_increment)
-                    ->orderByDesc('year')
+                    ->where('year', $currentYear)
                     ->first();
-
+                if (!$salaryStep) {
+                    // Fallback: get the latest available year for this grade/step
+                    $salaryStep = \App\Models\SalaryStep::where('salary_grade_id', $this->salary_grade_id)
+                        ->where('step', $this->step_increment)
+                        ->orderByDesc('year')
+                        ->first();
+                }
                 if ($salaryStep) {
                     $this->salary = $salaryStep->salary;
                     LaravelLog::info('Salary calculated successfully', [

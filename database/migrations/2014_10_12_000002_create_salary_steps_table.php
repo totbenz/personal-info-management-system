@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('salary_steps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('salary_grade_id')->constrained('salary_grades')->onDelete('cascade');
-            $table->integer('step');
-            $table->year('year');
-            $table->decimal('salary', 10, 2);
+            $table->foreignId('salary_grade_id')->constrained('salary_grades')->onDelete('cascade')->nullable();
+            $table->integer('step')->nullable();
+            $table->year('year')->nullable();
+            $table->decimal('salary', 10, 2)->nullable();
             $table->timestamps();
 
             $table->unique(['salary_grade_id', 'step', 'year']); // Ensures unique combination of salary_grade_id, step, and year

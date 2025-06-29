@@ -163,11 +163,6 @@
                     </th>
                     <th class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex items-center gap-x-3">
-                            <span class="font-semibold text-left">Salary</span>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-1/12">
-                        <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2">
                                 <span class="font-semibold text-left">Action</span>
                             </button>
@@ -198,15 +193,6 @@
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $personnel->school->school_id }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left">
-                            @if($personnel->salary_step_amount !== null)
-                            ₱{{ number_format($personnel->salary_step_amount, 2) }}
-                            @else
-                            -
-                            @endif
-                        </div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex justify-between space-x-3">
