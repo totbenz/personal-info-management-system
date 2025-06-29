@@ -47,7 +47,7 @@ return new class extends Migration
             $table->date('employment_end')->nullable();
 
             // Government Information
-            $table->string('tin', 12)->nullable();
+            $table->string('tin', 12);
             $table->string('sss_num', 10)->nullable();
             $table->string('gsis_num', 11)->nullable();
             $table->string('philhealth_num', 12)->nullable();

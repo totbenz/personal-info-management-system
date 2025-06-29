@@ -77,6 +77,30 @@
                             </button>
                         </div>
                     </th>
+                    <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('years_of_service')">
+                        <div class="flex items-center gap-x-3">
+                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="years_of_service">
+                                <span class="font-semibold text-left">Years of Service</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                </svg>
+                            </button>
+                        </div>
+                    </th>
+                    <th class="p-2 whitespace-nowrap w-1/12">
+                        <div class="flex items-center gap-x-3">
+                            <button class="flex items-center gap-x-2">
+                                <span class="font-semibold text-left">Eligibility Status</span>
+                            </button>
+                        </div>
+                    </th>
+                    <th class="p-2 whitespace-nowrap w-1/12">
+                        <div class="flex items-center gap-x-3">
+                            <button class="flex items-center gap-x-2">
+                                <span class="font-semibold text-left">Next Award Year</span>
+                            </button>
+                        </div>
+                    </th>
                     <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('job_status')">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="job_status">
@@ -109,7 +133,7 @@
                     </th>
                     <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('category')">
                         <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="email">
+                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="category">
                                 <span class="font-semibold text-left">Category</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
@@ -119,31 +143,26 @@
                     </th>
                     <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('school_id')">
                         <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="phone">
-                                <span class="font-semibold text-left">School ID</span>
+                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="school_id">
+                                <span class="font-semibold text-left">School Name</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
                             </button>
                         </div>
                     </th>
-                    <th class="p-2 whitespace-nowrap w-1/12">
-                        <div class="flex items-center gap-x-3">
-                            <span class="font-semibold text-left">Salary</span>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-1/12">
+                    <!-- <th class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2">
                                 <span class="font-semibold text-left">Action</span>
                             </button>
                         </div>
-                    </th>
+                    </th> -->
                 </tr>
             </thead>
             <tbody>
-                @foreach ( $personnels as $index => $personnel)
-                <tr wire:loading.class="opacity-75" class="text-sm">
+                @foreach ($personnels as $index => $personnel)
+                <tr wire:loading.class="opacity-75" class="text-sm hover:bg-indigo-50 cursor-pointer" onclick="window.location='{{ route('personnels.show', ['personnel' => $personnel->id]) }}';">
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $personnel->personnel_id }}</div>
                     </td>
@@ -151,30 +170,46 @@
                         <div class="text-left capitalize">{{ $personnel->fullName() }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
+                        <div class="text-left font-medium">{{ $personnel->years_of_service }} years</div>
+                    </td>
+                    <td class="p-2 whitespace-nowrap w-1/12">
+                        @if($personnel->can_claim)
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-700 font-medium text-xs">CAN CLAIM</span>
+                        </div>
+                        @else
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                            <span class="text-gray-600 font-medium text-xs">NOT ELIGIBLE</span>
+                        </div>
+                        @endif
+                    </td>
+                    <td class="p-2 whitespace-nowrap w-1/12">
+                        <div class="text-left text-sm">
+                            @if($personnel->years_of_service < 10)
+                                <span class="text-gray-600">In {{ $personnel->next_award_year - $personnel->years_of_service }} years</span>
+                                @else
+                                <span class="text-blue-600 font-medium">{{ $personnel->next_award_year }} years</span>
+                                @endif
+                        </div>
+                    </td>
+                    <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left capitalize">{{ $personnel->job_status }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->position->title }}</div>
+                        <div class="text-left capitalize">{{ $personnel->position->title ?? 'N/A' }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->position->classification }}</div>
+                        <div class="text-left capitalize">{{ $personnel->position->classification ?? 'N/A' }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
                         <div class="text-left capitalize">{{ $personnel->category }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left">{{ $personnel->school->school_id }}</div>
+                        <div class="text-left">{{ $personnel->school->school_name ?? 'N/A' }}</div>
                     </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left">
-                            @if($personnel->salary_step_amount !== null)
-                            ₱{{ number_format($personnel->salary_step_amount, 2) }}
-                            @else
-                            -
-                            @endif
-                        </div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
+                    <!-- <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex justify-between space-x-3">
                             <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
                                 <button class="py-1 px-2 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
@@ -182,12 +217,12 @@
                                 </button>
                             </a>
                         </div>
-                    </td>
+                    </td> -->
                 </tr>
                 @endforeach
                 @if ($personnels->isEmpty())
                 <tr wire:loading.class="opacity-75">
-                    <td colspan="9" class="p-2 w-full text-center">No Loyalty Awardees for {{ now()->year }} found</td>
+                    <td colspan="11" class="p-2 w-full text-center">No personnel found</td>
                 </tr>
                 @endif
             </tbody>

@@ -55,7 +55,7 @@ class AccountDatatable extends Component
 
     public function render()
     {
-        $accounts = User::when($this->selectedRole, function ($query) {
+        $accounts = User::with('personnel')->when($this->selectedRole, function ($query) {
             $query->where('role', $this->selectedRole);
         })
             ->search($this->search)
@@ -75,7 +75,8 @@ class AccountDatatable extends Component
             'email' => $account->email,
             'role' => $account->role,
             'personnel' => [
-                'personnel_id' => $account->personnel->personnel_id
+                'personnel_id' => $account->personnel->personnel_id,
+                'full_name' => $account->personnel->fullName()
             ]
         ];
         $this->showEditModal = true;

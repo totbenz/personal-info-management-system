@@ -60,6 +60,16 @@
                     <th wire:click="doSort('id')" class="w-1/12 p-2 whitespace-nowrap">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="school_is">
+                                <span class="font-semibold text-left">Personnel Name</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                </svg>
+                            </button>
+                        </div>
+                    </th>
+                    <th wire:click="doSort('id')" class="w-1/12 p-2 whitespace-nowrap">
+                        <div class="flex items-center gap-x-3">
+                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="school_is">
                                 <span class="font-semibold text-left">Personnel ID</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
@@ -103,6 +113,9 @@
                         <div class="text-left">{{ $account->id }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
+                        <div class="text-left">{{ $account->personnel->fullName() }}</div>
+                    </td>
+                    <td class="p-2 whitespace-nowrap w-2/12">
                         <div class="text-left">{{ $account->personnel->personnel_id }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-2/12">
@@ -127,7 +140,7 @@
                 @endforeach
                 @if ($accounts->isEmpty())
                 <tr wire:loading.class="opacity-75">
-                    <td colspan="5" class="p-2 w-full text-center">No Accounts Found</td>
+                    <td colspan="6" class="p-2 w-full text-center">No Accounts Found</td>
                 </tr>
                 @endif
             </tbody>

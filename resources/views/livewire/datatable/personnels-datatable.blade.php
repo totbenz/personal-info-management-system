@@ -154,7 +154,7 @@
                     <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('school_id')">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="phone">
-                                <span class="font-semibold text-left">School ID</span>
+                                <span class="font-semibold text-left">School Name</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
@@ -192,7 +192,7 @@
                         <div class="text-left capitalize">{{ $personnel->category }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left">{{ $personnel->school->school_id }}</div>
+                        <div class="text-left">{{ $personnel->school->school_name }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex justify-between space-x-3">
