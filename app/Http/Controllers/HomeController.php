@@ -25,9 +25,32 @@ class HomeController extends Controller
         $personnelCount = Personnel::count();
         $schoolCount = School::count();
         $userCount = User::count();
+        $activePersonnels = Personnel::where('job_status', 'Active')->get(['first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
 
-        return view('dashboard', compact('personnelCount', 'schoolCount', 'userCount'));
-        return view('dashboard');
+        // Job status counts
+        $jobStatusCounts = Personnel::selectRaw('job_status, COUNT(*) as count')
+            ->groupBy('job_status')
+            ->pluck('count', 'job_status');
+
+        // Schools per district
+        $schoolsPerDistrict = School::selectRaw('district_id, COUNT(*) as count')
+            ->groupBy('district_id')
+            ->pluck('count', 'district_id');
+
+        // Schools per division
+        $schoolsPerDivision = School::selectRaw('division, COUNT(*) as count')
+            ->groupBy('division')
+            ->pluck('count', 'division');
+
+        return view('dashboard', compact(
+            'personnelCount',
+            'schoolCount',
+            'userCount',
+            'activePersonnels',
+            'jobStatusCounts',
+            'schoolsPerDistrict',
+            'schoolsPerDivision',
+        ));
     }
 
     public function schoolHeadHome()
