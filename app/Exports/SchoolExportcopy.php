@@ -6,7 +6,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Personnel;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SchoolExport
+class SchoolExportcopy
 {
     protected $personnel;
     protected $school;

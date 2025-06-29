@@ -6,7 +6,7 @@ use App\Models\Personnel;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-class PersonalInformation extends Component
+class PersonalInformationcopy extends Component
 {
     public $personnel, $first_name, $middle_name, $last_name, $name_ext, $date_of_birth, $place_of_birth, $civil_status, $sex, $citizenship, $blood_type, $height, $weight, $tin, $sss_num, $gsis_num, $philhealth_num, $pagibig_num, $personnel_id, $email, $tel_no, $mobile_no, $updateMode = false;
 

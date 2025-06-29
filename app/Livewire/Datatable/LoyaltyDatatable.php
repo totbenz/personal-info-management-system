@@ -98,6 +98,14 @@ class LoyaltyDatatable extends Component
             return $personnel;
         });
 
+        // Filter to show only eligible personnel
+        $eligiblePersonnels = $personnels->getCollection()->filter(function ($personnel) {
+            return $personnel->can_claim;
+        });
+
+        // Create a new paginated collection with only eligible personnel
+        $personnels->setCollection($eligiblePersonnels);
+
         return view('livewire.datatable.loyalty-datatable', [
             'personnels' => $personnels
         ]);

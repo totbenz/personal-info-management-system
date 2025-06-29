@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Style;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 
-class SchoolsExport implements FromView, WithDefaultStyles, WithHeadings, WithStyles, WithEvents
+class SchoolsExportcopy1 implements FromView, WithDefaultStyles, WithHeadings, WithStyles, WithEvents
 {
     use Exportable;
     public $school_id;

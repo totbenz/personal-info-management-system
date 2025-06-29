@@ -94,23 +94,7 @@
                             </button>
                         </div>
                     </th>
-                    <th class="p-2 whitespace-nowrap w-1/12">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2">
-                                <span class="font-semibold text-left">Next Award Year</span>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('job_status')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="job_status">
-                                <span class="font-semibold text-left">Job Status</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                </svg>
-                            </button>
-                        </div>
-                    </th>
+                    
                     <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('position_id')">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="position_id">
@@ -173,10 +157,20 @@
                         <div class="text-left font-medium">{{ $personnel->years_of_service }} years</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
-                        @if($personnel->can_claim)
+                        @php
+                            $yearsOfService = $personnel->years_of_service;
+                            $isEligible = false;
+                            
+                            if ($yearsOfService >= 10) {
+                                // Eligible at 10 years, then every 5 years after (15, 20, 25, etc.)
+                                $isEligible = ($yearsOfService == 10) || (($yearsOfService - 10) % 5 == 0);
+                            }
+                        @endphp
+                        
+                        @if($isEligible)
                         <div class="flex items-center">
                             <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                            <span class="text-green-700 font-medium text-xs">CAN CLAIM</span>
+                            <span class="text-green-700 font-medium text-xs">ELIGIBLE</span>
                         </div>
                         @else
                         <div class="flex items-center">
@@ -185,18 +179,8 @@
                         </div>
                         @endif
                     </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left text-sm">
-                            @if($personnel->years_of_service < 10)
-                                <span class="text-gray-600">In {{ $personnel->next_award_year - $personnel->years_of_service }} years</span>
-                                @else
-                                <span class="text-blue-600 font-medium">{{ $personnel->next_award_year }} years</span>
-                                @endif
-                        </div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left capitalize">{{ $personnel->job_status }}</div>
-                    </td>
+                 
+                   
                     <td class="p-2 whitespace-nowrap w-2/12">
                         <div class="text-left capitalize">{{ $personnel->position->title ?? 'N/A' }}</div>
                     </td>
