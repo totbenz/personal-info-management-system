@@ -152,37 +152,73 @@
     @include('position.forms.create')
     <!-- Delete Confirmation Modal -->
     <x-modal name="delete-account-modal" wire:model.live="showDeleteModal">
-        <x-card title="Delete Account">
-            <div class="px-8 py-5">
-                <div class="space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <div class="rounded-full bg-red-100 p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md mx-auto overflow-hidden">
+            <!-- Header with gradient background -->
+            <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-medium text-gray-900">Delete Confirmation</h3>
-                            <p class="mt-1 text-sm text-gray-500">
-                                Are you sure you want to delete this account? This action cannot be undone.
-                            </p>
-                            @if ($deleteError)
-                            <div class="mt-3 p-2 bg-red-100 text-red-700 rounded text-sm border border-red-300">
-                                {{ $deleteError }}
-                            </div>
-                            @endif
-                        </div>
                     </div>
-                    <div class="mt-5 flex justify-end space-x-3">
-                        <x-button wire:click="cancelDelete()" type="button" class="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
-                            Cancel
-                        </x-button>
-                        <x-button wire:click="deleteAccount()" type="button" class="bg-red-600 hover:bg-red-700 focus:ring-red-500">
-                            Delete
-                        </x-button>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Delete Confirmation</h3>
                     </div>
                 </div>
             </div>
-        </x-card>
+
+            <!-- Content -->
+            <div class="px-6 py-6">
+                <div class="text-center mb-6">
+                    <div class="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">Are you sure want to delete this account?</h4>
+                    <p class="text-gray-600 text-xs leading-relaxed">
+                        This will permanently delete the account from the system. 
+                        <span class="font-medium">This action cannot be undone.</span>
+                    </p>
+                </div>
+
+                @if ($deleteError)
+                <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-red-700 text-sm">{{ $deleteError }}</p>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-3">
+                    <x-button 
+                        wire:click="cancelDelete()" 
+                        type="button" 
+                        class="flex-1 bg-blue-100 text-blue-700 border-0 hover:bg-blue-200 focus:ring-blue-300 py-3 font-medium transition-all duration-200"
+                    >
+                        Cancel
+                    </x-button>
+                    <x-button 
+                        wire:click="deleteAccount()" 
+                        type="button" 
+                        class="flex-1 bg-red-600 text-white border-0 hover:bg-red-800 hover:border-red-600 border-2 py-3 font-medium transition-all duration-200"
+
+                    >
+                        <span class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Delete</span>
+                        </span>
+                    </x-button>
+                </div>
+            </div>
+        </div>
     </x-modal>
 </div>
