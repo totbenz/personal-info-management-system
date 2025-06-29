@@ -78,19 +78,32 @@ class PersonnelsDatatable extends Component
     public function export()
     {
         $excel = app(Excel::class);
-        return $excel->download(new PersonnelsIndexExport, 'personnel.xlsx');
+
+        // Prepare filters to pass to export
+        $filters = [
+            'schoolId' => $this->schoolId,
+            'selectedSchool' => $this->selectedSchool,
+            'selectedCategory' => $this->selectedCategory,
+            'selectedPosition' => $this->selectedPosition,
+            'selectedJobStatus' => $this->selectedJobStatus,
+            'search' => $this->search,
+            'sortColumn' => $this->sortColumn,
+            'sortDirection' => $this->sortDirection,
+        ];
+
+        return $excel->download(new PersonnelsIndexExport($filters), 'personnel.xlsx');
     }
 
     /**
      * Filter personnel by school ID
-     * 
+     *
      * @param int|null $schoolId The school ID to filter by. If null, uses component's schoolId or current user's school
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function filterPersonnelsBySchool($schoolId = null)
     {
         $query = Personnel::with(['school', 'position']);
-        
+
         // Priority order: parameter schoolId > component schoolId > user role-based schoolId
         if ($schoolId !== null) {
             $targetSchoolId = $schoolId;
@@ -103,18 +116,18 @@ class PersonnelsDatatable extends Component
         } else {
             $targetSchoolId = null;
         }
-        
+
         // Apply school filter if we have a school ID
         if ($targetSchoolId) {
             $query->where('school_id', $targetSchoolId);
         }
-        
+
         return $query;
     }
 
     /**
      * Get personnel filtered by school ID and return a Livewire view
-     * 
+     *
      * @param int|null $schoolId The school ID to filter by. If null, uses current user's school
      * @return \Illuminate\View\View
      */

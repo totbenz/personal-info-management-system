@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Personnel;
 use App\Models\ServiceRecord;
+use App\Models\SalaryChange;
 
 class PersonnelObserver
 {
@@ -60,4 +61,27 @@ class PersonnelObserver
     {
         //
     }
+
+    // public function updating(Personnel $personnel)
+    // {
+    //     // Only log if salary grade or step or salary is changing
+    //     if (
+    //         $personnel->isDirty('salary_grade_id') ||
+    //         $personnel->isDirty('step_increment') ||
+    //         $personnel->isDirty('salary')
+    //     ) {
+    //         SalaryChange::create([
+    //             'personnel_id' => $personnel->id,
+    //             'type' => 'NOSI', // or 'NOSA', set your logic here
+    //             'previous_salary_grade' => $personnel->getOriginal('salary_grade_id'),
+    //             'current_salary_grade' => $personnel->salary_grade_id,
+    //             'previous_salary_step' => $personnel->getOriginal('step_increment'),
+    //             'current_salary_step' => $personnel->step_increment,
+    //             'previous_salary' => $personnel->getOriginal('salary'),
+    //             'current_salary' => $personnel->salary,
+    //             'actual_monthly_salary_as_of_date' => now(),
+    //             'adjusted_monthly_salary_date' => now(),
+    //         ]);
+    //     }
+    // }
 }

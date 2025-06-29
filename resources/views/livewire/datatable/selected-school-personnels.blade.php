@@ -21,8 +21,7 @@
                 type="text"
                 wire:model.live.debounce.150ms="search"
                 placeholder="Search Position..."
-                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10"
-            />
+                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10" />
             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-1 top-1/2 transform -translate-y-1/2 h-4 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                 <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
                 </path>
@@ -164,6 +163,11 @@
                     </th>
                     <th class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex items-center gap-x-3">
+                            <span class="font-semibold text-left">Salary</span>
+                        </div>
+                    </th>
+                    <th class="p-2 whitespace-nowrap w-1/12">
+                        <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2">
                                 <span class="font-semibold text-left">Action</span>
                             </button>
@@ -196,6 +200,15 @@
                         <div class="text-left">{{ $personnel->school->school_id }}</div>
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
+                        <div class="text-left">
+                            @if($personnel->salary_step_amount !== null)
+                            ₱{{ number_format($personnel->salary_step_amount, 2) }}
+                            @else
+                            -
+                            @endif
+                        </div>
+                    </td>
+                    <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex justify-between space-x-3">
                             @if(auth()->user()->role === 'school_head')
                             <a href="{{ route('school_personnels.show', ['personnel' => $personnel->id]) }}">
@@ -216,7 +229,7 @@
                 @endforeach
                 @if ($personnels->isEmpty())
                 <tr wire:loading.class="opacity-75">
-                    <td colspan="5" class="p-2 w-full text-center">No School Found</td>
+                    <td colspan="9" class="p-2 w-full text-center">No School Found</td>
                 </tr>
                 @endif
             </tbody>

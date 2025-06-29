@@ -30,7 +30,7 @@
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
                     <x-nav-link href="{{ route('schools.index') }}" :active="request()->routeIs('schools.index')" wire:navigate>
-                        {{ __('School') }}
+                        {{ __('Schools') }}
                     </x-nav-link>
                     @endif
                     @if (Auth::user()->role == "teacher")
@@ -40,7 +40,7 @@
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
                     <x-nav-link href="{{ route('personnels.index') }}" :active="request()->routeIs('personnels.index')" wire:navigate>
-                        {{ __('Personnel') }}
+                        {{ __('Personnels') }}
                     </x-nav-link>
                     <x-nav-link href="{{ route('positions.index') }}" :active="request()->routeIs('positions.index')" wire:navigate>
                         {{ __('Positions') }}
@@ -51,11 +51,11 @@
                     <x-nav-link href="{{ route('accounts.index') }}" :active="request()->routeIs('accounts.index')" wire:navigate>
                         {{ __('Accounts') }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('salary_grades.index') }}" :active="request()->routeIs('salary_grades.index')" wire:navigate>
+                    <!-- <x-nav-link href="{{ route('salary_grades.index') }}" :active="request()->routeIs('salary_grades.index')" wire:navigate>
                         {{ __('Salary Grades') }}
-                    </x-nav-link>
+                    </x-nav-link> -->
                     <x-nav-link href="{{ route('salary_steps.index') }}" :active="request()->routeIs('salary_steps.index')" wire:navigate>
-                        {{ __('Salary Steps') }}
+                        {{ __('SSL Table') }}
                     </x-nav-link>
 
                     @endif
@@ -86,7 +86,7 @@
                             </a>
                         </li>
                     </ul>
-                </div> 
+                </div>
                 {{-- profile  --}}
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="flex items-center rounded-full">
