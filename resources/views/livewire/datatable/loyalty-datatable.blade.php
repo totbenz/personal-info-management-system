@@ -34,14 +34,24 @@
                 <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
                 </path>
             </svg>
-            <a href="{{ route('loyalty-awards.export-pdf') }}" target="_blank">
-                <button class="ml-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white flex items-center gap-2 rounded shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                    <span class="font-semibold tracking-wide">Export PDF</span>
-                </button>
-            </a>
+            @php
+                // Count eligible personnels
+                $eligibleCount = $personnels->filter(function($personnel) {
+                    $yearsOfService = $personnel->years_of_service;
+                    return $yearsOfService >= 10 && ($yearsOfService == 10 || (($yearsOfService - 10) % 5 == 0));
+                })->count();
+            @endphp
+
+            @if($eligibleCount > 0)
+                <a href="{{ route('loyalty-awards.export-pdf') }}" target="_blank">
+                    <button class="ml-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white flex items-center gap-2 rounded shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        <span class="font-semibold tracking-wide">Export PDF</span>
+                    </button>
+                </a>
+            @endif
         </div>
     </div>
 
