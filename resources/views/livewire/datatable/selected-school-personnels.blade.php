@@ -2,16 +2,16 @@
     <div class="flex justify-between">
         <div class="w-1/4 inline-flex space-x-4">
             @include('personnel.modal.create-modal')
-            <div class="flex justify-between space-x-3">
+            <!-- <div class="flex justify-between space-x-3">
                 <a href="#" x-on:click="$openModal('create-personnel-modal')">
                     <button class="py-2 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
                         New Personnel
                     </button>
                 </a>
-            </div>
+            </div> -->
             <div class="flex justify-between space-x-3">
                 <button wire:click='export' class="py-2 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
-                    Export
+                    Export Excel
                 </button>
             </div>
         </div>
@@ -88,125 +88,101 @@
             </div>
             @endif
         </div>
-        <table class="table-auto w-full">
-            <thead class="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
-                <tr>
-                    <th wire:click="doSort('personnel_id')" class="w-1/12 p-2 whitespace-nowrap">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="personnel_id">
-                                <span class="font-semibold text-left">ID</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+        <div class="overflow-hidden rounded-lg shadow border border-gray-200 bg-white">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th wire:click="doSort('personnel_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                            <div class="flex items-center gap-x-1">
+                                ID
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th wire:click="doSort('personnel_id')" class="w-2/12 p-2 whitespace-nowrap">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="personnel_id">
-                                <span class="font-semibold text-left">Name</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                            </div>
+                        </th>
+                        <th wire:click="doSort('personnel_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                            <div class="flex items-center gap-x-1">
+                                Name
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('job_status')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="job_status">
-                                <span class="font-semibold text-left">Job Status</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                            </div>
+                        </th>
+                        <th wire:click="doSort('job_status')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                            <div class="flex items-center gap-x-1">
+                                Job Status
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('position_id')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="position_id">
-                                <span class="font-semibold text-left">Position</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                            </div>
+                        </th>
+                        <th wire:click="doSort('position_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                            <div class="flex items-center gap-x-1">
+                                Position
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('category')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="email">
-                                <span class="font-semibold text-left">Category</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                            </div>
+                        </th>
+                        <th wire:click="doSort('category')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                            <div class="flex items-center gap-x-1">
+                                Category
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('school_id')">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="phone">
-                                <span class="font-semibold text-left">School Name</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
+                            </div>
+                        </th>
+                        <th wire:click="doSort('school_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                            <div class="flex items-center gap-x-1">
+                                School Name
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
-                            </button>
-                        </div>
-                    </th>
-                    <th class="p-2 whitespace-nowrap w-1/12">
-                        <div class="flex items-center gap-x-3">
-                            <button class="flex items-center gap-x-2">
-                                <span class="font-semibold text-left">Action</span>
-                            </button>
-                        </div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ( $personnels as $index => $personnel)
-                <tr wire:loading.class="opacity-75" class="text-sm">
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left">{{ $personnel->personnel_id }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->fullName() }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left capitalize">{{ $personnel->job_status }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->position->title }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-2/12">
-                        <div class="text-left capitalize">{{ $personnel->category }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="text-left">{{ $personnel->school->school_name }}</div>
-                    </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="flex justify-between space-x-3">
-                            @if(auth()->user()->role === 'school_head')
-                            <a href="{{ route('school_personnels.show', ['personnel' => $personnel->id]) }}">
-                                <button class="py-1 px-2 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
-                                    View
-                                </button>
-                            </a>
-                            @else
-                            <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
-                                <button class="py-1 px-2 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
-                                    View
-                                </button>
-                            </a>
-                            @endif
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-                @if ($personnels->isEmpty())
-                <tr wire:loading.class="opacity-75">
-                    <td colspan="9" class="p-2 w-full text-center">No Personnel Found</td>
-                </tr>
-                @endif
-            </tbody>
-        </table>
+                            </div>
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach ($personnels as $index => $personnel)
+                    <tr wire:loading.class="opacity-60 hover:bg-gray-50 transition" class="text-sm">
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->personnel_id }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-900 font-medium capitalize">{{ $personnel->fullName() }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">
+                            <span class="inline-block rounded px-2 py-0.5 text-xs bg-gray-100 text-gray-600">{{ $personnel->job_status }}</span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->position->title }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->category }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->school->school_name }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex items-center space-x-2">
+                                @if(auth()->user()->role === 'school_head')
+                                <a href="{{ route('school_personnels.show', ['personnel' => $personnel->id]) }}">
+                                    <button class="inline-flex items-center px-3 py-1.5 rounded bg-main text-white text-xs font-semibold hover:bg-main/90 transition focus:outline-none">
+                                        View
+                                    </button>
+                                </a>
+                                @else
+                                <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
+                                    <button class="inline-flex items-center px-3 py-1.5 rounded bg-main text-white text-xs font-semibold hover:bg-main/90 transition focus:outline-none">
+                                        View
+                                    </button>
+                                </a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                    @if ($personnels->isEmpty())
+                    <tr wire:loading.class="opacity-60">
+                        <td colspan="7" class="px-4 py-6 text-center text-gray-400 text-sm">No Personnel Found</td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="mt-5">
         {{ $personnels->links() }}
