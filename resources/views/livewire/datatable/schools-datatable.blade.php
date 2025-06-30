@@ -138,9 +138,8 @@
                     </td>
 
                     <td class="p-2 whitespace-nowrap w-2/12">
-                        {{-- @livewire('modal') --}}
                         <div class="flex justify-between space-x-3">
-                            <a href="{{ route('schools.show', ['school' => $school->id]) }}">
+                            <a wire:navigate href="{{ route('schools.show', ['school' => $school->id]) }}">
                                 <button class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
                                     View
                                 </button>
