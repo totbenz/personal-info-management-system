@@ -41,7 +41,7 @@ return new class extends Migration
 
             $table->enum('step_increment', ['1', '2', '3', '4', '5', '6', '7', '8'])->nullable()->default(1);
             $table->enum('category', ['SDO Personnel','School Head', 'Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher', 'School Non-teaching Personnel']);
-            $table->enum('job_status', ['active','vacation', 'terminated', 'on leave', 'suspended', 'resigned', 'probation']);
+            $table->string('job_status');
             $table->integer('leave_of_absence_without_pay_count')->default(0)->nullable();
             $table->date('employment_start');
             $table->date('employment_end')->nullable();
