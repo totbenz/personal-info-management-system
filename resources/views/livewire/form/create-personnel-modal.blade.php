@@ -1,6 +1,13 @@
 <x-modal name="create-personnel-modal" blur="2xl">
     <x-card>
         <div class="px-5 py-5">
+            @if (session()->has('flash.banner'))
+            <div class="mb-4">
+                <div class="px-4 py-3 rounded text-white font-semibold text-center {{ session('flash.bannerStyle') === 'success' ? 'bg-green-600' : 'bg-red-600' }}">
+                    {{ session('flash.banner') }}
+                </div>
+            </div>
+            @endif
             <div>
                 <div class="mt-2 mb-4 p-0 flex space-x-5">
                     <span class="w-4/12">
@@ -150,12 +157,35 @@
                         <x-input type="number" class="form-control bg-gray-50 border-gray-300" id="salary" name="salary" label="Calculated Salary" wire:model="salary" readonly />
                     </span>
                 </div>
+
                 <div class="mt-2 mb-4 p-0 flex justify-center">
                     <div class="w-3/6 bg-gray-100 border border-gray-300 rounded-lg shadow-md p-4">
                         <p class="text-sm text-gray-700 font-medium">
                             The personnel's salary is automatically calculated based on the salary grade and step increment values. It cannot be edited manually.
                         </p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Government Information Section -->
+            <div class="my-10">
+                <h5 class="font-bold text-xl text-gray-darkest mb-2">Government Information</h5>
+                <div class="mt-2 mb-4 p-0 flex space-x-5">
+                    <span class="w-2/12">
+                        <x-input type="text" class="form-control" id="tin" label="TIN" wire:model="tin" required maxlength="12" />
+                    </span>
+                    <span class="w-2/12">
+                        <x-input type="text" class="form-control" id="sss_num" label="SSS No." wire:model="sss_num" maxlength="10" />
+                    </span>
+                    <span class="w-2/12">
+                        <x-input type="text" class="form-control" id="gsis_num" label="GSIS No." wire:model="gsis_num" maxlength="11" />
+                    </span>
+                    <span class="w-3/12">
+                        <x-input type="text" class="form-control" id="philhealth_num" label="PhilHealth No." wire:model="philhealth_num" maxlength="12" />
+                    </span>
+                    <span class="w-3/12">
+                        <x-input type="text" class="form-control" id="pagibig_num" label="PAG-IBIG No." wire:model="pagibig_num" maxlength="12" />
+                    </span>
                 </div>
             </div>
 

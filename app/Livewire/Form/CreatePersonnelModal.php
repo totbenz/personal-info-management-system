@@ -10,13 +10,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log as LaravelLog;
 use Illuminate\Support\Facades\DB;
 
+
 class CreatePersonnelModal extends Component
 {
     public $first_name, $middle_name, $last_name, $name_ext,
         $date_of_birth, $place_of_birth, $civil_status, $sex,
         $citizenship, $blood_type, $height, $weight,
         $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $salary,
-        $email, $tel_no, $mobile_no;
+        $email, $tel_no, $mobile_no,
+        $tin, $sss_num, $gsis_num, $philhealth_num, $pagibig_num;
 
     protected $rules = [
         'first_name' => 'required|string|max:255',
@@ -33,7 +35,7 @@ class CreatePersonnelModal extends Component
         'weight' => 'required|numeric|min:0',
         'personnel_id' => 'required|string|unique:personnels,personnel_id',
         'school_id' => 'required|exists:schools,id',
-        'position_id' => 'required|exists:positions,id',
+        'position_id' => 'required|exists:position,id',
         'appointment' => 'required|in:regular,part-time,temporary,contract',
         'fund_source' => 'required|string|max:255',
         'salary_grade_id' => 'required|integer|min:1|max:32',
@@ -45,6 +47,11 @@ class CreatePersonnelModal extends Component
         'email' => 'nullable|email|max:255',
         'tel_no' => 'nullable|string|max:255',
         'mobile_no' => 'nullable|string|max:255',
+        'tin' => 'required|string|max:12',
+        'sss_num' => 'nullable|string|max:10',
+        'gsis_num' => 'nullable|string|max:11',
+        'philhealth_num' => 'nullable|string|max:12',
+        'pagibig_num' => 'nullable|string|max:12',
     ];
 
     public function mount()
@@ -59,6 +66,11 @@ class CreatePersonnelModal extends Component
         $this->fund_source = 'nationally funded';
         $this->salary_grade_id = 1;
         $this->step_increment = 1;
+        $this->tin = '';
+        $this->sss_num = '';
+        $this->gsis_num = '';
+        $this->philhealth_num = '';
+        $this->pagibig_num = '';
     }
 
     public function render()
@@ -128,11 +140,9 @@ class CreatePersonnelModal extends Component
 
     public function save()
     {
-        LaravelLog::info('Save method called in CreatePersonnelModal', [
-            'user_id' => Auth::id(),
-            'input_salary_grade_id' => $this->salary_grade_id,
-            'input_step_increment' => $this->step_increment,
-            'input_salary' => $this->salary,
+        // Debug: log all input values
+        LaravelLog::debug('CreatePersonnelModal save() called', [
+            'all_inputs' => $this->allInputsForDebug()
         ]);
 
         // Calculate salary before validation
@@ -141,22 +151,17 @@ class CreatePersonnelModal extends Component
         try {
             $this->validate();
             LaravelLog::info('Validation passed in create modal save()', [
-                'validated_data' => [
-                    'salary_grade_id' => $this->salary_grade_id,
-                    'step_increment' => $this->step_increment,
-                    'salary' => $this->salary,
-                ]
+                'validated_data' => $this->allInputsForDebug()
             ]);
         } catch (\Exception $e) {
             LaravelLog::error('Validation failed in create modal save()', [
                 'error' => $e->getMessage(),
-                'input' => [
-                    'salary_grade_id' => $this->salary_grade_id,
-                    'step_increment' => $this->step_increment,
-                    'salary' => $this->salary,
-                ]
+                'input' => $this->allInputsForDebug(),
+                'trace' => $e->getTraceAsString(),
             ]);
-            throw $e;
+            session()->flash('flash.banner', 'Validation failed: ' . $e->getMessage());
+            session()->flash('flash.bannerStyle', 'danger');
+            return;
         }
 
         // Find the school
@@ -164,25 +169,29 @@ class CreatePersonnelModal extends Component
             $school = School::findOrFail($this->school_id);
             LaravelLog::info('School found in create modal', ['school_id' => $school->id]);
         } catch (\Exception $e) {
-            LaravelLog::error('School not found in create modal', ['school_id' => $this->school_id, 'error' => $e->getMessage()]);
-            throw $e;
+            LaravelLog::error('School not found in create modal', ['school_id' => $this->school_id, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            session()->flash('flash.banner', 'School not found: ' . $e->getMessage());
+            session()->flash('flash.bannerStyle', 'danger');
+            return;
         }
 
-        // Prepare data for Personnel
+        // Prepare data for Personnel (match migration exactly)
         $data = [
             'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
             'middle_name' => $this->middle_name,
+            'last_name' => $this->last_name,
             'name_ext' => $this->name_ext,
-            'date_of_birth' => $this->date_of_birth,
-            'place_of_birth' => $this->place_of_birth,
             'sex' => $this->sex,
             'civil_status' => $this->civil_status,
             'citizenship' => $this->citizenship,
+            'blood_type' => $this->blood_type,
             'height' => $this->height,
             'weight' => $this->weight,
-            'blood_type' => $this->blood_type,
-            'salary' => $this->salary, // Use the calculated salary
+            'date_of_birth' => $this->date_of_birth,
+            'place_of_birth' => $this->place_of_birth,
+            'email' => $this->email,
+            'tel_no' => $this->tel_no,
+            'mobile_no' => $this->mobile_no,
             'personnel_id' => $this->personnel_id,
             'school_id' => $school->id,
             'position_id' => $this->position_id,
@@ -194,9 +203,12 @@ class CreatePersonnelModal extends Component
             'job_status' => $this->job_status,
             'employment_start' => $this->employment_start,
             'employment_end' => $this->employment_end ?? null,
-            'email' => $this->email,
-            'tel_no' => $this->tel_no,
-            'mobile_no' => $this->mobile_no,
+            'tin' => $this->tin,
+            'sss_num' => $this->sss_num,
+            'gsis_num' => $this->gsis_num,
+            'philhealth_num' => $this->philhealth_num,
+            'pagibig_num' => $this->pagibig_num,
+            'salary' => $this->salary,
         ];
         LaravelLog::info('Prepared data for Personnel in create modal', $data);
 
@@ -221,11 +233,53 @@ class CreatePersonnelModal extends Component
         } catch (\Exception $e) {
             LaravelLog::error('Error creating personnel from modal', [
                 'error' => $e->getMessage(),
-                'data' => $data
+                'data' => $data,
+                'trace' => $e->getTraceAsString(),
             ]);
             session()->flash('flash.banner', 'Failed to create personnel: ' . $e->getMessage());
             session()->flash('flash.bannerStyle', 'danger');
         }
+    }
+
+    /**
+     * Gather all input values for debugging
+     */
+    private function allInputsForDebug()
+    {
+        return [
+            'first_name' => $this->first_name,
+            'middle_name' => $this->middle_name,
+            'last_name' => $this->last_name,
+            'name_ext' => $this->name_ext,
+            'sex' => $this->sex,
+            'civil_status' => $this->civil_status,
+            'citizenship' => $this->citizenship,
+            'blood_type' => $this->blood_type,
+            'height' => $this->height,
+            'weight' => $this->weight,
+            'date_of_birth' => $this->date_of_birth,
+            'place_of_birth' => $this->place_of_birth,
+            'email' => $this->email,
+            'tel_no' => $this->tel_no,
+            'mobile_no' => $this->mobile_no,
+            'personnel_id' => $this->personnel_id,
+            'school_id' => $this->school_id,
+            'position_id' => $this->position_id,
+            'appointment' => $this->appointment,
+            'fund_source' => $this->fund_source,
+            'salary_grade_id' => $this->salary_grade_id,
+            'step_increment' => $this->step_increment,
+            'category' => $this->category,
+            'job_status' => $this->job_status,
+            'employment_start' => $this->employment_start,
+            'employment_end' => $this->employment_end,
+            'tin' => $this->tin,
+            'sss_num' => $this->sss_num,
+            'gsis_num' => $this->gsis_num,
+            'philhealth_num' => $this->philhealth_num,
+            'pagibig_num' => $this->pagibig_num,
+            'salary' => $this->salary,
+        ];
     }
 
     /**

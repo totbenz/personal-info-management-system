@@ -134,7 +134,7 @@
                 @endforeach
                 @if ($appointment_fundings->isEmpty())
                     <tr wire:loading.class="opacity-75">
-                        <td colspan="5" class="p-2 w-full text-center">No School Found</td>
+                        <td colspan="5" class="p-2 w-full text-center">No Appointment Findings Found</td>
                     </tr>
                 @endif
             </tbody>
