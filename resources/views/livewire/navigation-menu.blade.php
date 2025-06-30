@@ -11,8 +11,8 @@
                     </span>
                 </div> --}}
 
-                <span class="m-0 p-0">
-                    <img src="{{ asset('image/sd-pms-logo.png') }}" alt="sd-pmis-logo" class="h-10 w-[10rem] my-1 text-xs">
+                <span class="m-0 p-0 rounded-full">
+                    <img src="{{ asset('image/sd-pms-logo.png') }}" alt="sd-pmis-logo" class="h-10 w-[10rem] my-1 text-xs rounded-xl">
                 </span>
 
                 <div class="flex space-x-3 items-center">
