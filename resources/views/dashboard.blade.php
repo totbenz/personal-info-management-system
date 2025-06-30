@@ -7,13 +7,13 @@
     </x-slot>
 
     <!-- Dashboard Content -->
-    <div class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pr-80">
+    <div x-data="{ showSchools: false, showPersonnels: false, showUsers: false, showJobStatus: false, showDistrict: false, showDivision: false, selectedStatus: '', selectedDistrict: '', selectedDivision: '' }" class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pr-80">
         <div class="mx-4 px-4 sm:px-6">
-            
+
             <!-- Key Metrics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <!-- Schools Card -->
-                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div @click="showSchools = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
@@ -32,7 +32,7 @@
                 </div>
 
                 <!-- Personnel Card -->
-                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div @click="showPersonnels = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
@@ -51,7 +51,7 @@
                 </div>
 
                 <!-- Users Card -->
-                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div @click="showUsers = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
@@ -70,6 +70,152 @@
                 </div>
             </div>
 
+            <!-- Schools Modal -->
+            <div x-show="showSchools" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                    <button @click="showSchools = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+                    <h2 class="text-xl font-semibold mb-4">Registered Schools</h2>
+                    <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        @foreach($schools as $school)
+                        <li class="py-2 flex items-center justify-between">
+                            <div>
+                                <span class="font-medium text-gray-800">{{ $school->school_name ?? $school->name ?? 'School' }}</span>
+                                <span class="ml-2 text-xs text-gray-500">ID: {{ $school->school_id ?? $school->id }}</span>
+                            </div>
+                            <a href="{{ route('schools.show', ['school' => $school->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Personnels Modal -->
+            <div x-show="showPersonnels" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                    <button @click="showPersonnels = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+                    <h2 class="text-xl font-semibold mb-4">Active Personnels</h2>
+                    <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        @foreach($activePersonnels as $personnel)
+                        <li class="py-2 flex items-center justify-between">
+                            <div>
+                                <span class="font-medium text-gray-800">
+                                    {{ $personnel->first_name }} {{ $personnel->middle_name }} {{ $personnel->last_name }} {{ $personnel->name_ext }}
+                                </span>
+                                <span class="ml-2 text-xs text-green-600">({{ $personnel->job_status }})</span>
+                            </div>
+                            <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Users Modal -->
+            <div x-show="showUsers" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                    <button @click="showUsers = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+                    <h2 class="text-xl font-semibold mb-4">System Users</h2>
+                    <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        @foreach($users as $user)
+                        <li class="py-2 flex items-center justify-between">
+                            <div>
+                                <span class="font-medium text-gray-800">
+                                    @if($user->personnel)
+                                    {{ $user->personnel->first_name }} {{ $user->personnel->middle_name }} {{ $user->personnel->last_name }} {{ $user->personnel->name_ext }}
+                                    @else
+                                    (No Personnel Info)
+                                    @endif
+                                </span>
+                                <span class="ml-2 text-xs text-gray-500">{{ $user->email }}</span>
+                                <span class="ml-2 text-xs text-gray-400">Joined: {{ $user->created_at ? $user->created_at->format('Y-m-d') : 'N/A' }}</span>
+                            </div>
+                            @if($user->personnel)
+                            <a href="{{ route('personnels.show', ['personnel' => $user->personnel->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
+                            @endif
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Job Status Modal -->
+            <div x-show="showJobStatus" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+                    <button @click="showJobStatus = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+                    <h2 class="text-xl font-semibold mb-4">Personnel by Job Status</h2>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        @foreach(array_keys($jobStatusCounts->toArray()) as $status)
+                        <button @click="selectedStatus = '{{ $status }}'" class="px-3 py-1 rounded bg-indigo-100 text-indigo-700 text-xs font-semibold" :class="selectedStatus === '{{ $status }}' ? 'bg-indigo-600 text-white' : ''">{{ ucfirst($status) }}</button>
+                        @endforeach
+                    </div>
+                    <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        @foreach($allPersonnels as $personnel)
+                        <template x-if="selectedStatus === '' || selectedStatus === '{{ $personnel->job_status }}'">
+                            <li class="py-2 flex items-center justify-between">
+                                <div>
+                                    <span class="font-medium text-gray-800">{{ $personnel->first_name }} {{ $personnel->middle_name }} {{ $personnel->last_name }} {{ $personnel->name_ext }}</span>
+                                    <span class="ml-2 text-xs text-gray-500">({{ ucfirst($personnel->job_status) }})</span>
+                                </div>
+                                <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
+                            </li>
+                        </template>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <!-- District Modal -->
+            <div x-show="showDistrict" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+                    <button @click="showDistrict = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+                    <h2 class="text-xl font-semibold mb-4">Schools by District</h2>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        @foreach($schoolsPerDistrict as $districtId => $count)
+                        <button @click="selectedDistrict = '{{ $districtId }}'" class="px-3 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold" :class="selectedDistrict === '{{ $districtId }}' ? 'bg-blue-600 text-white' : ''">District {{ $districtId }}</button>
+                        @endforeach
+                    </div>
+                    <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        @foreach($schools as $school)
+                        <template x-if="selectedDistrict === '' || selectedDistrict === '{{ $school->district_id }}'">
+                            <li class="py-2 flex items-center justify-between">
+                                <div>
+                                    <span class="font-medium text-gray-800">{{ $school->school_name }}</span>
+                                    <span class="ml-2 text-xs text-gray-500">District: {{ $school->district_id }}</span>
+                                </div>
+                                <a href="{{ route('schools.show', ['school' => $school->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
+                            </li>
+                        </template>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Division Modal -->
+            <div x-show="showDivision" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+                    <button @click="showDivision = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+                    <h2 class="text-xl font-semibold mb-4">Schools by Division</h2>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        @foreach($schoolsPerDivision as $division => $count)
+                        <button @click="selectedDivision = '{{ $division }}'" class="px-3 py-1 rounded bg-pink-100 text-white-700 text-xs font-semibold" :class="selectedDivision === '{{ $division }}' ? 'bg-pink-600 text-white' : ''">{{ $division }}</button>
+                        @endforeach
+                    </div>
+                    <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        @foreach($schools as $school)
+                        <template x-if="selectedDivision === '' || selectedDivision === '{{ $school->division }}'">
+                            <li class="py-2 flex items-center justify-between">
+                                <div>
+                                    <span class="font-medium text-gray-800">{{ $school->school_name }}</span>
+                                    <span class="ml-2 text-xs text-gray-500">Division: {{ $school->division }}</span>
+                                </div>
+                                <a href="{{ route('schools.show', ['school' => $school->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
+                            </li>
+                        </template>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
             <!-- Analytics Cards -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                 <!-- Job Status Card -->
@@ -85,27 +231,12 @@
                             <p class="text-xs text-gray-500">Personnel distribution</p>
                         </div>
                     </div>
-                    <div class="space-y-2 max-h-48 overflow-y-auto">
-                        @forelse($jobStatusCounts as $status => $count)
-                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors duration-200">
-                            <span class="text-sm font-medium text-gray-700 capitalize">{{ $status }}</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                    {{ $count }}
-                                </span>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center py-6">
-                            <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p class="text-gray-500 text-sm mt-1">No job status data available</p>
-                        </div>
-                        @endforelse
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        @foreach($jobStatusCounts as $status => $count)
+                        <button @click="showJobStatus = true; selectedStatus = '{{ $status }}'" class="px-3 py-1 rounded bg-indigo-100 text-indigo-700 text-xs font-semibold hover:bg-indigo-600 hover:text-white transition">{{ ucfirst($status) }} ({{ $count }})</button>
+                        @endforeach
                     </div>
                 </div>
-
                 <!-- Schools per District Card -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center space-x-3 mb-4">
@@ -120,27 +251,12 @@
                             <p class="text-xs text-gray-500">Schools per district</p>
                         </div>
                     </div>
-                    <div class="space-y-2 max-h-48 overflow-y-auto">
-                        @forelse($schoolsPerDistrict as $districtId => $count)
-                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                            <span class="text-sm font-medium text-gray-700">District {{ $districtId }}</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                    {{ $count }}
-                                </span>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center py-6">
-                            <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                            </svg>
-                            <p class="text-gray-500 text-sm mt-1">No district data available</p>
-                        </div>
-                        @endforelse
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        @foreach($schoolsPerDistrict as $districtId => $count)
+                        <button @click="showDistrict = true; selectedDistrict = '{{ $districtId }}'" class="px-3 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-600 hover:text-white transition">District {{ $districtId }} ({{ $count }})</button>
+                        @endforeach
                     </div>
                 </div>
-
                 <!-- Schools per Division Card -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center space-x-3 mb-4">
@@ -154,52 +270,38 @@
                             <p class="text-xs text-gray-500">Schools per division</p>
                         </div>
                     </div>
-                    <div class="space-y-2 max-h-48 overflow-y-auto">
-                        @forelse($schoolsPerDivision as $division => $count)
-                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg hover:bg-pink-50 transition-colors duration-200">
-                            <span class="text-sm font-medium text-gray-700 capitalize">{{ $division }}</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-pink-100 text-pink-800">
-                                    {{ $count }}
-                                </span>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center py-6">
-                            <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            <p class="text-gray-500 text-sm mt-1">No division data available</p>
-                        </div>
-                        @endforelse
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        @foreach($schoolsPerDivision as $division => $count)
+                        <button @click="showDivision = true; selectedDivision = '{{ $division }}'" class="px-3 py-1 rounded bg-pink-100 text-pink-700 text-xs font-semibold hover:bg-pink-600 hover:text-white transition">{{ $division }} ({{ $count }})</button>
+                        @endforeach
                     </div>
                 </div>
             </div>
-            </div>
-            
-            <!-- Loyalty Award Recipients Table -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10">
-                <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Loyalty Award Recipients</h3>
-                            <p class="text-sm text-gray-600 mt-1">Recognizing excellence in {{ date("Y") }}</p>
-                        </div>
+        </div>
+
+        <!-- Loyalty Award Recipients Table -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10">
+            <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Loyalty Award Recipients</h3>
+                        <p class="text-sm text-gray-600 mt-1">Recognizing excellence in {{ date("Y") }}</p>
                     </div>
                 </div>
-                <div class="p-4">
-                    @livewire('datatable.loyalty-datatable')
-                </div>
+            </div>
+            <div class="p-4">
+                @livewire('datatable.loyalty-datatable')
             </div>
         </div>
-        
-        <!-- Right Sidebar -->
-        <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300">
-            @livewire('right-sidebar')
-        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300" style="z-index:5;">
+        @livewire('right-sidebar')
+    </div>
 </x-app-layout>

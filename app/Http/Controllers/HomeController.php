@@ -25,7 +25,12 @@ class HomeController extends Controller
         $personnelCount = Personnel::count();
         $schoolCount = School::count();
         $userCount = User::count();
-        $activePersonnels = Personnel::where('job_status', 'Active')->get(['first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
+        $activePersonnels = Personnel::where('job_status', 'Active')->get(['id', 'first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
+        $schools = School::all(['id', 'school_id', 'school_name', 'district_id', 'division']);
+        $allPersonnels = Personnel::all(['id', 'first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
+        $users = User::with(['personnel' => function ($q) {
+            $q->select('id', 'first_name', 'middle_name', 'last_name', 'name_ext');
+        }])->get(['id', 'email', 'created_at', 'personnel_id']);
 
         // Job status counts
         $jobStatusCounts = Personnel::selectRaw('job_status, COUNT(*) as count')
@@ -47,6 +52,9 @@ class HomeController extends Controller
             'schoolCount',
             'userCount',
             'activePersonnels',
+            'schools',
+            'allPersonnels',
+            'users',
             'jobStatusCounts',
             'schoolsPerDistrict',
             'schoolsPerDivision',
