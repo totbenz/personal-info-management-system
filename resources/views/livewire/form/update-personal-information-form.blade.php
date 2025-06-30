@@ -297,9 +297,15 @@
                 </span>
                 <span class="w-2/12">
                     <x-native-select label="Job Status" wire:model="job_status" id="job_status" name="job_status" class="form-control">
-                        @foreach(['active', 'vacation', 'terminated', 'on leave', 'suspended', 'resigned', 'probation'] as $status)
-                        <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
-                        @endforeach
+                        @if(in_array($category, ['Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher']))
+                            @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation', 'personal leave', 'sick leave'] as $status)
+                            <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
+                            @endforeach
+                        @else
+                            @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation', 'vacation leave', 'sick leave', 'compensatory time off', 'force leave', 'special privilege leave', 'personal leave', 'maternity leave', 'study leave', 'rehabilitation leave'] as $status)
+                            <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
+                            @endforeach
+                        @endif
                     </x-native-select>
                 </span>
                 </span>
@@ -355,7 +361,7 @@
                     <x-input type="date" class="form-control" id="employment_end" name="employment_end" label="Employment End Date" wire:model="employment_end" required />
                 </span>
             </div>
-            <div class="mt-2 mb-4 p-0 flex space-x-5"">
+            <div class="mt-2 mb-4 p-0 flex space-x-5">
                 <span class=" w-2/12">
                 <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model="leave_of_absence_without_pay_count" min="0" required />
                 </span>

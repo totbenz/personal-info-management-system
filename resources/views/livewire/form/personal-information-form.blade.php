@@ -91,7 +91,7 @@
             <x-input type="number" class="bg-gray-50 border-gray-300" id="school_id" label="School ID" wire:model="school_id" readonly/>
         </span>
         <span class="w-2/12">
-            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="job_status" label="Job Position" wire:model="job_status" readonly/>
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="job_status" label="Job Status" wire:model="job_status" readonly/>
         </span>
         <span class="w-3/12">
             <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="category" label="Category" wire:model="category" readonly/>
