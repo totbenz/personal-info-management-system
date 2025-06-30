@@ -297,14 +297,28 @@
                 </span>
                 <span class="w-2/12">
                     <x-native-select label="Job Status" wire:model="job_status" id="job_status" name="job_status" class="form-control">
-                        @if(in_array($category, ['Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher']))
-                            @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation', 'personal leave', 'sick leave'] as $status)
-                            <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
-                            @endforeach
+                        @php
+                        $teachingClassifications = ['teaching', 'teaching-related'];
+                        $position = null;
+                        try {
+                        if (!empty($position_id)) {
+                        $position = \App\Models\Position::find($position_id);
+                        \Illuminate\Support\Facades\Log::info('Position lookup in blade', ['position_id' => $position_id, 'position' => $position]);
+                        } else {
+                        \Illuminate\Support\Facades\Log::warning('Position ID is empty in blade', ['position_id' => $position_id]);
+                        }
+                        } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Error looking up position in blade', ['error' => $e->getMessage(), 'position_id' => $position_id]);
+                        }
+                        @endphp
+                        @if($position && in_array(strtolower($position->classification), $teachingClassifications))
+                        @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation', 'personal leave', 'sick leave'] as $status)
+                        <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
+                        @endforeach
                         @else
-                            @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation', 'vacation leave', 'sick leave', 'compensatory time off', 'force leave', 'special privilege leave', 'personal leave', 'maternity leave', 'study leave', 'rehabilitation leave'] as $status)
-                            <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
-                            @endforeach
+                        @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation', 'vacation leave', 'sick leave', 'compensatory time off', 'force leave', 'special privilege leave', 'personal leave', 'maternity leave', 'study leave', 'rehabilitation leave'] as $status)
+                        <option value="{{ $status }}" classification="capitalize">{{ ucfirst($status) }}</option>
+                        @endforeach
                         @endif
                     </x-native-select>
                 </span>
@@ -363,11 +377,8 @@
             </div>
             <div class="mt-2 mb-4 p-0 flex space-x-5">
                 <span class=" w-2/12">
-                <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model="leave_of_absence_without_pay_count" min="0" required />
+                    <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model="leave_of_absence_without_pay_count" min="0" required />
                 </span>
-                <!-- <span class="w-2/12">
-                    <x-input type="date" class="form-control" id="employment_end" name="employment_end" label="Employment End Date" wire:model="employment_end" required />
-                </span> -->
             </div>
             <div class="mt-2 mb-4 p-0 flex space-x-5">
                 <span class="w-2/12">
@@ -401,10 +412,173 @@
             <div class="w-2/12">
                 <x-button wire:click.prevent="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105 duration-150" />
             </div>
-            <div class="w-2/12">
-                <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150" />
+            <div class="w-2/12" x-data="personnelForm" x-init="initWatchers()">
+                <button
+                    type="button"
+                    class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:bg-main_hover hover:scale-105 duration-150 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="!allRequiredFilled"
+                    @click.prevent="$wire.save()">
+                    Save
+                </button>
+                <div x-show="missingFields.length > 0" class="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded p-2" x-transition>
+                    <span>Please fill the following required fields to enable saving.</span>
+                    <ul class="list-disc ml-5">
+                        <template x-for="field in missingFields" :key="field">
+                            <li x-text="field"></li>
+                        </template>
+                    </ul>
+                </div>
             </div>
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+                    Alpine.data('personnelForm', () => ({
+                                requiredFields: [{
+                                        key: 'first_name',
+                                        label: 'First Name'
+                                    },
+                                    {
+                                        key: 'middle_name',
+                                        label: 'Middle Name'
+                                    },
+                                    {
+                                        key: 'last_name',
+                                        label: 'Last Name'
+                                    },
+                                    {
+                                        key: 'name_ext',
+                                        label: 'Name Extension'
+                                    },
+                                    {
+                                        key: 'date_of_birth',
+                                        label: 'Date of Birth'
+                                    },
+                                    {
+                                        key: 'place_of_birth',
+                                        label: 'Place of Birth'
+                                    },
+                                    {
+                                        key: 'citizenship',
+                                        label: 'Citizenship'
+                                    },
+                                    {
+                                        key: 'height',
+                                        label: 'Height'
+                                    },
+                                    {
+                                        key: 'weight',
+                                        label: 'Weight'
+                                    },
+                                    {
+                                        key: 'tin',
+                                        label: 'TIN'
+                                    },
+                                    {
+                                        key: 'sss_num',
+                                        label: 'SSS No.'
+                                    },
+                                    {
+                                        key: 'gsis_num',
+                                        label: 'GSIS No.'
+                                    },
+                                    {
+                                        key: 'philhealth_num',
+                                        label: 'PHILHEALTH NO.'
+                                    },
+                                    {
+                                        key: 'pagibig_num',
+                                        label: 'PAG-IBIG No'
+                                    },
+                                    {
+                                        key: 'personnel_id',
+                                        label: 'Personnel ID'
+                                    },
+                                    {
+                                        key: 'school_id',
+                                        label: 'School'
+                                    },
+                                    {
+                                        key: 'job_status',
+                                        label: 'Job Status'
+                                    },
+                                    {
+                                        key: 'category',
+                                        label: 'Category'
+                                    },
+                                    {
+                                        key: 'position_id',
+                                        label: 'Position'
+                                    },
+                                    {
+                                        key: 'fund_source',
+                                        label: 'Fund Source'
+                                    },
+                                    {
+                                        key: 'appointment',
+                                        label: 'Nature of Appointment'
+                                    },
+                                    {
+                                        key: 'step_increment',
+                                        label: 'Step Increment'
+                                    },
+                                    {
+                                        key: 'salary_grade_id',
+                                        label: 'Salary Grade'
+                                    },
+                                    {
+                                        key: 'employment_start',
+                                        label: 'Employment Start Date'
+                                    },
+                                    {
+                                        key: 'employment_end',
+                                        label: 'Employment End Date'
+                                    },
+                                    {
+                                        key: 'leave_of_absence_without_pay_count',
+                                        label: 'LOA w/o pay'
+                                    },
+                                    {
+                                        key: 'email',
+                                        label: 'Email'
+                                    },
+                                    {
+                                        key: 'tel_no',
+                                        label: 'Telephone No.'
+                                    },
+                                    {
+                                        key: 'mobile_no',
+                                        label: 'Mobile No.'
+                                    },
+                                ],
+                                get allRequiredFilled() {
+                                    return this.missingFields.length === 0;
+                                },
+                                get missingFields() {
+                                    return this.requiredFields
+                                        .filter(f => {
+                                            const el = document.getElementById(f.key);
+                                            if (!el) return true;
+                                            if (el.type === 'checkbox' || el.type === 'radio') {
+                                                return !el.checked;
+                                            }
+                                            return !el.value || el.value === '';
+                                        })
+                                        .map(f => f.label);
+                                },
+                                initWatchers() {
+                                    this.requiredFields.forEach(f => {
+                                        const el = document.getElementById(f.key);
+                                        if (el) {
+                                            el.addEventListener('input', () => {
+                                                this.$forceUpdate && this.$forceUpdate();
+                                            });
+                                        }
+                                    });
+                                },
+                            }))
+        });
+    </script>
 </section>
