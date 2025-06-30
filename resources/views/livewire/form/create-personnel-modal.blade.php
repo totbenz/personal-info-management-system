@@ -92,7 +92,7 @@
                     </span>
                     <span class="w-1/6">
                         <x-native-select label="Job Status" wire:model="job_status" id="job_status" name="job_status" class="form-control">
-                            @foreach(['active', 'vacation', 'terminated', 'on leave', 'suspended', 'resigned', 'probation'] as $status)
+                            @foreach(['active', 'vacation', 'terminated', 'suspended', 'resigned', 'probation'] as $status)
                             <option value="{{ $status }}" class="capitalize">{{ ucfirst($status) }}</option>
                             @endforeach
                         </x-native-select>
