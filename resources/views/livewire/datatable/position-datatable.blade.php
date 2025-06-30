@@ -1,24 +1,20 @@
-<div class="mx-5 my-0 p-3">
-    <div class="flex justify-between">
-        <div class="w-1/4 inline-flex space-x-4">
-            <a href="#" x-on:click="$openModal('create-position-modal')">
-                <button class="w-[9rem] py-2 px-4 bg-main font-medium text-sm tracking-wider rounded-md border-2 hover:bg-blue-900 text-white duration-300">
-                    Add Position
-                </button>
-            </a>
+<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex space-x-4">
+            <button x-on:click="$openModal('create-position-modal')" class="bg-main text-white px-4 py-2 rounded-lg shadow hover:bg-main-dark transition font-semibold">
+                Add Position
+            </button>
         </div>
         <!-- Search Input -->
-        <div class="flex space-x-2 relative">
+        <div class="relative">
             <input
                 type="text"
                 wire:model.live.debounce.150ms="search"
                 placeholder="Search Position..."
-                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10" />
-            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-1 top-1/2 transform -translate-y-1/2 h-4 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
-                </path>
+                class="w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm pl-10 focus:ring-2 focus:ring-main focus:border-main text-sm" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
             </svg>
-
         </div>
         <!-- <div class="flex w-2/4 items-center rounded-md border border-gray-400 bg-white focus:bg-white focus:border-gray-500">
             <div class="pl-2">
@@ -32,7 +28,7 @@
                 class="appearance-none rounded-md border-none block pl-2 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700">
         </div> -->
     </div>
-    <div class="mt-5 overflow-x-auto">
+    <div class="mt-5 overflow-x-auto rounded-lg">
         <div class="my-2 flex space-x-2">
             <div class="w-[11.5rem] px-0.5 text-xs">
                 <x-native-select wire:model.live.debounce.300ms="selectedClassification" id="selectedClassification" name="selectedClassification">
@@ -43,8 +39,8 @@
                 </x-native-select>
             </div>
         </div>
-        <table class="table-auto w-full">
-            <thead class="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
+        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+            <thead class="sticky top-0 z-10 bg-gray-100 text-gray-700 text-xs uppercase tracking-wider shadow">
                 <tr>
                     <th wire:click="doSort('id')" class="w-1/12 p-2 whitespace-nowrap">
                         <div class="flex items-center gap-x-3">
@@ -87,21 +83,21 @@
             </thead>
             <tbody>
                 @foreach ( $positions as $position)
-                <tr wire:loading.class="opacity-75">
-                    <td class="p-2 whitespace-nowrap w-1/12">
+                <tr wire:loading.class="opacity-75" class="hover:bg-indigo-50">
+                    <td class="p-2 whitespace-nowrap w-1/12 border-b border-gray-200">
                         <div class="text-left">{{ $position->id }}</div>
                     </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
+                    <td class="p-2 whitespace-nowrap w-1/12 border-b border-gray-200">
                         <div class="text-left">{{ $position->title }}</div>
                     </td>
-                    <td class="p-2 whitespace-nowrap w-1/12">
+                    <td class="p-2 whitespace-nowrap w-1/12 border-b border-gray-200">
                         <div class="text-xs tracking-wider text-left uppercase">{{ $position->classification }}</div>
                     </td>
-                    <td class="p-2 whitespace-nowrap w-2/12">
+                    <td class="p-2 whitespace-nowrap w-2/12 border-b border-gray-200">
                         {{-- @livewire('modal') --}}@include('position.forms.edit')
 
                         <div class="flex space-x-2">
-                            <button wire:click="editPosition({{ $position->id }})" class="py-1 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
+                            <button wire:click="editPosition({{ $position->id }})" class="py-1 px-4 bg-main text-white font-medium text-sm rounded-md hover:bg-main-dark transition">
                                 View
                             </button>
                             <button wire:click="setDeleteId({{ $position->id }})" x-on:click="$openModal('delete-position-modal')"
@@ -153,7 +149,7 @@
                     </div>
                     <h4 class="text-lg font-medium text-gray-900 mb-2">Are you sure want to delete <span style="color: red; font-weight: bold;">{{ $position->title }}</span> ?</h4>
                     <p class="text-gray-600 text-xs leading-relaxed">
-                        This will permanently delete the position from the system. 
+                        This will permanently delete the position from the system.
                         <span class="font-medium">This action cannot be undone.</span>
                     </p>
                 </div>
@@ -171,19 +167,16 @@
 
                 <!-- Action Buttons -->
                 <div class="flex space-x-3">
-                    <x-button 
-                        wire:click="cancelDelete()" 
-                        type="button" 
-                        class="flex-1 bg-blue-100 text-blue-700 border-0 hover:bg-blue-200 focus:ring-blue-300 py-3 font-medium transition-all duration-200"
-                    >
+                    <x-button
+                        wire:click="cancelDelete()"
+                        type="button"
+                        class="flex-1 bg-blue-100 text-blue-700 border-0 hover:bg-blue-200 focus:ring-blue-300 py-3 font-medium transition-all duration-200">
                         Cancel
                     </x-button>
-                    <x-button 
-                        wire:click="deletePosition()" 
-                        type="button" 
-                        class="flex-1 bg-red-600 text-white border-0 hover:bg-red-800 hover:border-red-600 border-2 py-3 font-medium transition-all duration-200"
-
-                    >
+                    <x-button
+                        wire:click="deletePosition()"
+                        type="button"
+                        class="flex-1 bg-red-600 text-white border-0 hover:bg-red-800 hover:border-red-600 border-2 py-3 font-medium transition-all duration-200">
                         <span class="flex items-center justify-center space-x-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

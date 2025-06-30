@@ -7,7 +7,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
                         </svg>
-                        <p>Export</p>
+                        <p>Export PDS</p>
                     </span>
                 </a>
             </button>
@@ -19,7 +19,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5v-9m0 9 3-3m-3 3-3-3m9 6.75H6a2.25 2.25 0 0 1-2.25-2.25v-15A2.25 2.25 0 0 1 6 2.25h12A2.25 2.25 0 0 1 20.25 4.5v15a2.25 2.25 0 0 1-2.25 2.25z" />
                         </svg>
                         <p>Download</p>
-                        <svg class="ml-2 -mr-1 h-4 w-4 transform transition-transform" 
+                        <svg class="ml-2 -mr-1 h-4 w-4 transform transition-transform"
                              :class="{'rotate-180': downloadsOpen, 'rotate-0': !downloadsOpen}"
                              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -28,7 +28,7 @@
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div x-show="downloadsOpen" 
+                <div x-show="downloadsOpen"
                      @click.away="downloadsOpen = false"
                      x-transition:enter="transition ease-out duration-100"
                      x-transition:enter-start="transform opacity-0 scale-95"
@@ -38,7 +38,7 @@
                      x-transition:leave-end="transform opacity-0 scale-95"
                      class="absolute right-15 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div class="py-1">
-                        <a href="{{ route('nosa.download', ['personnelId' => $personnelId]) }}" 
+                        <a href="{{ route('nosa.download', ['personnelId' => $personnelId]) }}"
                            @click="downloadsOpen = false"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-3 h-4 w-4">
@@ -46,7 +46,7 @@
                             </svg>
                             NOSA
                         </a>
-                        <a href="{{ route('nosi.download', ['personnelId' => $personnelId]) }}" 
+                        <a href="{{ route('nosi.download', ['personnelId' => $personnelId]) }}"
                            @click="downloadsOpen = false"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-3 h-4 w-4">
@@ -54,7 +54,7 @@
                             </svg>
                             NOSI
                         </a>
-                        <a href="{{ route('service-record.download', ['personnelId' => $personnelId]) }}" 
+                        <a href="{{ route('service-record.download', ['personnelId' => $personnelId]) }}"
                            @click="downloadsOpen = false"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-3 h-4 w-4">
@@ -63,7 +63,7 @@
                             Service Record
                         </a>
                         <!-- <hr class="my-1 border-gray-200">
-                        <a href="{{ route('download-all.download', ['personnelId' => $personnelId]) }}" 
+                        <a href="{{ route('download-all.download', ['personnelId' => $personnelId]) }}"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-medium">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-3 h-4 w-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -90,16 +90,16 @@
             <div class="w-2/12">
                 <div class="w-full" :class="{'w-[14.5rem] z-10 bg-white': formNav === 'personal_information'}">
                     <a @click="formNav = 'personal_information'" href="#personal_information">
-                        <div class="px-8 py-2 w-[14.4rem]">
-                            <span class="text-sm font-medium" :class="{'decoration-dandelion underline underline-offset-4 decoration-2 ': formNav === 'personal_information'}">Personal Information</span>
+                        <div class="px-8 py-2 w-[14.4rem]" :class="{'border-l-2 border-y-2 border-gray-300': formNav === 'personal_information'}">
+                            <span class="text-sm font-medium">Personal Information</span>
                         </div>
                     </a>
                 </div>
 
                 <div class="w-full" :class="{'w-[14.5rem] z-10 bg-white': formNav === 'address'}">
                     <a @click="formNav = 'address'" href="#address">
-                        <div class="px-8 py-2 w-[14.4rem]">
-                            <span class="text-sm font-medium" :class="{'decoration-dandelion underline underline-offset-4 decoration-2 ': formNav === 'address'}">Address</span>
+                        <div class="px-8 py-2 w-[14.4rem]" :class="{'border-l-2 border-y-2 border-gray-300': formNav === 'address'}">
+                            <span class="text-sm font-medium">Address</span>
                         </div>
                     </a>
                 </div>

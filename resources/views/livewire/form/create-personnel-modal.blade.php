@@ -1,4 +1,4 @@
-<x-modal name="create-personnel-modal" blur="2xl">
+<x-modal name="create-personnel-modal">
     <x-card>
         <div class="px-5 py-5">
             @if (session()->has('flash.banner'))
@@ -191,7 +191,9 @@
 
             <div class="my-5 p-0 flex space-x-3 justify-end">
                 <div class="w-2/12">
-                    <x-button wire:click="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105" />
+                    <a wire:navigate href="{{ route('personnels.index') }}">
+                        <x-button type="button" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-600 hover:scale-105" />
+                    </a>
                 </div>
                 <div class="w-2/12">
                     <x-button wire:click="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150" />

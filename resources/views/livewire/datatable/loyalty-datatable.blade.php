@@ -29,13 +29,13 @@
                 type="text"
                 wire:model.live.debounce.150ms="search"
                 placeholder="Search ID..."
-                class="w-[16rem] px-2 py-1 border rounded text-sm pl-10" />
+                class="w-[16rem] px-2 py-1 border text-sm pl-10 rounded-full" />
             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-1 top-1/2 transform -translate-y-1/2 h-4 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                 <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
                 </path>
             </svg>
             <a href="{{ route('loyalty-awards.export-pdf') }}" target="_blank">
-                <x-button class="ml-2 bg-green-600 hover:bg-green-700 text-white">Download PDF</x-button>
+                <x-button class="ml-2 bg-gray-50 text-black rounded-full">Download PDF</x-button>
             </a>
         </div>
     </div>
@@ -114,7 +114,7 @@
             </thead>
             <tbody>
                 @foreach ($personnels as $index => $personnel)
-                <tr wire:loading.class="opacity-75" class="text-sm hover:bg-indigo-50 cursor-pointer" onclick="window.location='{{ route('personnels.show', ['personnel' => $personnel->id]) }}';">
+                <tr wire:loading.class="opacity-75" class="text-sm hover:bg-indigo-50 cursor-pointer" wire:navigate href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $personnel->personnel_id }}</div>
                     </td>
