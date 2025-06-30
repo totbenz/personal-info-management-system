@@ -95,7 +95,7 @@
                     <button @click="showPersonnels = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
                     <h2 class="text-xl font-semibold mb-4">Active Personnels</h2>
                     <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
-                        @foreach($activePersonnels as $personnel)
+                        @foreach($allPersonnels as $personnel)
                         <li class="py-2 flex items-center justify-between">
                             <div>
                                 <span class="font-medium text-gray-800">
@@ -127,7 +127,6 @@
                                     @endif
                                 </span>
                                 <span class="ml-2 text-xs text-gray-500">{{ $user->email }}</span>
-                                <span class="ml-2 text-xs text-gray-400">Joined: {{ $user->created_at ? $user->created_at->format('Y-m-d') : 'N/A' }}</span>
                             </div>
                             @if($user->personnel)
                             <a href="{{ route('personnels.show', ['personnel' => $user->personnel->id]) }}" class="ml-4 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition" target="_blank">Show</a>
