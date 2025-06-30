@@ -1,4 +1,3 @@
-
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -10,22 +9,35 @@
             <div class="flex space-x-3 justify-end">
 
                 {{-- <a href="{{ route('school.export', $school->id) }}" class="inline-flex items-center px-5 py-2 mb-2 mr-2 text-sm font-medium text-center text-gray-900 bg-gray-50 border border-slate-200 rounded-lg hover:bg-white hover:scale-105 duration-300">
-                    <span class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
-                        </svg>
-                        <p>Generate SF7</p>
-                    </span>
+                <span class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
+                    </svg>
+                    <p>Generate SF7</p>
+                </span>
                 </a> --}}
 
                 @if (Auth::user()->role === "admin")
-                    <form action="{{ route('schools.destroy', $school->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="w-24 rounded-md px-5 py-2 bg-danger text-white tracking-wider hover:hover:bg-red-700 hover:scale-105 duration-100">
-                            Delete
-                        </button>
-                    </form>
+                <!-- Delete Confirmation Modal -->
+                <div x-data="{ showDeleteModal: false }">
+                    <button type="button" @click="showDeleteModal = true" class="w-24 rounded-md px-5 py-2 bg-danger text-white tracking-wider hover:hover:bg-red-700 hover:scale-105 duration-100">
+                        Delete
+                    </button>
+                    <div x-show="showDeleteModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40" x-cloak>
+                        <div class="bg-white rounded-lg shadow-lg p-8 w-96">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Confirm Deletion</h3>
+                            <p class="mb-6 text-gray-700">Are you sure you want to delete <span class="font-bold">{{ $school->school_name }}</span>? This action cannot be undone.</p>
+                            <div class="flex justify-end space-x-3">
+                                <button @click="showDeleteModal = false" type="button" class="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Cancel</button>
+                                <form action="{{ route('schools.destroy', $school->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-4 py-2 rounded bg-danger text-white hover:bg-red-700">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @endif
             </div>
 
@@ -54,7 +66,7 @@
                                 :class="{'w-[13.2rem] z-10 bg-white': formNav === 'school_information' }">
                                 <a href="#school_information" @click="formNav = 'school_information'">
                                     <div class="px-4 py-2 w-[13.1rem]"
-                                         :class="{'border-l-2 border-y-2 border-gray-300 text-main': formNav === 'school_information' }">
+                                        :class="{'border-l-2 border-y-2 border-gray-300 text-main': formNav === 'school_information' }">
                                         <span class="text-sm font-medium">School Information</span>
                                     </div>
                                 </a>
@@ -63,7 +75,7 @@
                                 :class="{'w-[13.2rem] z-10 bg-white': formNav === 'school_personnels' }">
                                 <a href="#school_personnels" @click="formNav = 'school_personnels'">
                                     <div class="px-4 py-2 w-[13.1rem]"
-                                         :class="{'border-l-2 border-y-2 border-gray-300 text-main': formNav === 'school_personnels' }">
+                                        :class="{'border-l-2 border-y-2 border-gray-300 text-main': formNav === 'school_personnels' }">
                                         <span class="text-sm font-medium">School Personnels</span>
                                     </div>
                                 </a>

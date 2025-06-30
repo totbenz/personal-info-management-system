@@ -12,7 +12,7 @@ use App\Exports\PersonnelsIndexExport;
 class SelectedSchoolPersonnels extends Component
 {
     use WithPagination;
-    
+
     public $schoolId = null;
     public $selectedSchool = null, $selectedCategory = null, $selectedClassification = null, $selectedPosition = null, $selectedJobStatus = null;
     public $search = '';
@@ -73,19 +73,35 @@ class SelectedSchoolPersonnels extends Component
     public function export()
     {
         $excel = app(Excel::class);
-        return $excel->download(new PersonnelsIndexExport, 'personnel.xlsx');
+        // Pass all current filters to the export class
+        $filters = [
+            'schoolId' => $this->schoolId,
+            'selectedSchool' => $this->selectedSchool,
+            'selectedCategory' => $this->selectedCategory,
+            'selectedPosition' => $this->selectedPosition,
+            'selectedJobStatus' => $this->selectedJobStatus,
+            'search' => $this->search,
+            'sortColumn' => $this->sortColumn,
+            'sortDirection' => $this->sortDirection,
+        ];
+
+        // Determine school ID for filename
+        $schoolId = $this->schoolId ?? $this->selectedSchool;
+        $filename = $schoolId ? "school_id_{$schoolId}_personnels.xlsx" : "personnels.xlsx";
+
+        return $excel->download(new PersonnelsIndexExport($filters), $filename);
     }
 
     /**
      * Filter personnel by school ID
-     * 
+     *
      * @param int|null $schoolId The school ID to filter by. If null, uses component's schoolId or current user's school
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function filterPersonnelsBySchool($schoolId = null)
     {
         $query = Personnel::with(['school', 'position']);
-        
+
         // Priority order: parameter schoolId > component schoolId > user role-based schoolId
         if ($schoolId !== null) {
             $targetSchoolId = $schoolId;
@@ -98,12 +114,12 @@ class SelectedSchoolPersonnels extends Component
         } else {
             $targetSchoolId = null;
         }
-        
+
         // Apply school filter if we have a school ID
         if ($targetSchoolId) {
             $query->where('school_id', $targetSchoolId);
         }
-        
+
         return $query;
     }
 

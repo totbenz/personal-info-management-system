@@ -79,6 +79,15 @@ class SchoolController extends Controller
         }
         return redirect()->back();
     }
-    
 
+    public function destroy($id)
+    {
+        $school = School::findOrFail($id);
+        $school->delete();
+
+        session()->flash('flash.banner', 'School deleted successfully');
+        session()->flash('flash.bannerStyle', 'success');
+
+        return redirect()->route('schools.index');
+    }
 }
