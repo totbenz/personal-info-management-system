@@ -4,15 +4,15 @@
             @include('personnel.modal.create-modal')
             <div class="flex justify-between space-x-3">
                 <a href="#" x-on:click="$openModal('create-personnel-modal')">
-                    <button class="py-2 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
+                    <x-button class="m-0 hover:shadow-[0.5rem_0.5rem_#FA0302,-0.5rem_-0.5rem_#FCC008] transition">
                         New Personnel
-                    </button>
+                    </x-button>
                 </a>
             </div>
             <div class="flex justify-between space-x-3">
-                <button wire:click='export' class="py-2 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
+                <x-button wire:click='export' class="m-0 hover:shadow-[0.5rem_0.5rem_#FA0302,-0.5rem_-0.5rem_#FCC008] transition">
                     Export
-                </button>
+                </x-button>
             </div>
         </div>
         <!-- Search Input -->

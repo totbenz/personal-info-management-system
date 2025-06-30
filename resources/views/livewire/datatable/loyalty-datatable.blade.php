@@ -34,7 +34,9 @@
                 <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
                 </path>
             </svg>
-
+            <a href="{{ route('loyalty-awards.export-pdf') }}" target="_blank">
+                <x-button class="ml-2 bg-green-600 hover:bg-green-700 text-white">Download PDF</x-button>
+            </a>
         </div>
     </div>
 
@@ -80,7 +82,7 @@
                             </button>
                         </div>
                     </th>
-                    
+
                     <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('position_id')">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="position_id">
@@ -124,15 +126,15 @@
                     </td>
                     <td class="p-2 whitespace-nowrap w-1/12">
                         @php
-                            $yearsOfService = $personnel->years_of_service;
-                            $isEligible = false;
-                            
-                            if ($yearsOfService >= 10) {
-                                // Eligible at 10 years, then every 5 years after (15, 20, 25, etc.)
-                                $isEligible = ($yearsOfService == 10) || (($yearsOfService - 10) % 5 == 0);
-                            }
+                        $yearsOfService = $personnel->years_of_service;
+                        $isEligible = false;
+
+                        if ($yearsOfService >= 10) {
+                        // Eligible at 10 years, then every 5 years after (15, 20, 25, etc.)
+                        $isEligible = ($yearsOfService == 10) || (($yearsOfService - 10) % 5 == 0);
+                        }
                         @endphp
-                        
+
                         @if($isEligible)
                         <div class="flex items-center">
                             <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
@@ -145,8 +147,8 @@
                         </div>
                         @endif
                     </td>
-                 
-                   
+
+
                     <td class="p-2 whitespace-nowrap w-2/12">
                         <div class="text-left capitalize">{{ $personnel->position->title ?? 'N/A' }}</div>
                     </td>

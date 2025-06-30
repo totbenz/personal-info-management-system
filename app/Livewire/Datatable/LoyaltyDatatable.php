@@ -132,6 +132,19 @@ class LoyaltyDatatable extends Component
         return 10 + $nextMilestone;
     }
 
+    public function exportPdf()
+    {
+        $personnels = $this->getEligiblePersonnels(false); // not paginated, all eligible
+        $date = now()->format('F d, Y');
+        $pdf = Pdf::loadView('pdf.loyalty-awards', [
+            'personnels' => $personnels,
+            'date' => $date,
+        ])->setPaper('a4', 'portrait');
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'loyalty_awardees.pdf');
+    }
+
     public function render()
     {
         $personnels = $this->getEligiblePersonnels(true);

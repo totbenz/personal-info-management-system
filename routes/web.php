@@ -17,13 +17,13 @@ use App\Http\Controllers\NosaController;
 use App\Http\Controllers\NosiController;
 use App\Http\Controllers\DownloadController;
 
-Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function(){
+Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
     Route::get('/login', 'login')->name('login');
     Route::post('/authenticate', 'authenticate')->name('authenticate');
     Route::get('logout', 'logout')->middleware('auth')->name('logout');
 });
 
-Route::controller('App\Http\Controllers\Auth\RegisterController'::class)->group(function(){
+Route::controller('App\Http\Controllers\Auth\RegisterController'::class)->group(function () {
     Route::get('/register', 'register')->name('register');
     Route::post('/store', 'store')->name('store');
 });
@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     // SCHOOL HEAD ACCESS
     Route::middleware(['user-access:school_head'])->group(function () {
         // school routes
-        Route::controller(SchoolController::class)->group(function(){
+        Route::controller(SchoolController::class)->group(function () {
             // Route::get('school/create', 'create')->name('schools.create');
             // Route::post('schools/', 'store')->name('schools.store');
             Route::get('schools/{school}/edit', 'edit')->name('schools.edit');
@@ -62,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('school/export/{school}', 'export')->name('school.export');
         });
         //personnel routes
-        Route::controller(PersonnelController::class)->group(function(){
+        Route::controller(PersonnelController::class)->group(function () {
             Route::get('personnels/', 'index')->name('school_personnels.index');
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
 
     //DOWNLOAD ALL
     Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download');
-    
+
     //DOWNLOAD SPECIFIC TYPE
     Route::get('/personnels/{personnelId}/download/{type}', [DownloadController::class, 'downloadSpecific'])->name('download-specific.download');
 
@@ -96,11 +96,11 @@ Route::middleware(['auth'])->group(function () {
         // essential school and personnel-related routes
         Route::resource('positions', PositionController::class)->only('index', 'store', 'update', 'destroy');
         Route::delete('positions/{position}', [PositionController::class, 'deletePosition'])->name('positions.deletePosition');
-       
+
         Route::resource('districts', DistrictController::class)->only('index', 'store', 'update', 'destroy');
 
         // personnel routes
-        Route::controller(PersonnelController::class)->group(function(){
+        Route::controller(PersonnelController::class)->group(function () {
             Route::get('personnels/', 'index')->name('personnels.index');
             Route::get('personnel/create', 'create')->name('personnels.create');
             Route::post('personnels/', 'store')->name('personnels.store');
@@ -111,7 +111,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('personnels/{personnel}', 'destroy')->name('personnels.destroy');
         });
 
-        Route::controller(SchoolController::class)->group(function(){
+        Route::controller(SchoolController::class)->group(function () {
             Route::get('schools/', 'index')->name('schools.index');
             Route::get('school/create', 'create')->name('schools.create');
             Route::post('schools/', 'store')->name('schools.store');
@@ -121,21 +121,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/schools/export/{school}', 'export')->name('schools.export');
             Route::delete('schools/{school}', 'destroy')->name('schools.destroy');
         });
-        
-        Route::controller(UserController::class)->group(function(){
+
+        Route::controller(UserController::class)->group(function () {
             Route::get('accounts/', 'index')->name('accounts.index');
             Route::post('accounts/', 'store')->name('accounts.store');
             Route::patch('accounts/{account}', 'update')->name('accounts.update');
             Route::delete('accounts/{account}', 'destroy')->name('accounts.destroy');
         });
 
-        Route::controller(SalaryGradeController::class)->group(function()
-        {
+        Route::controller(SalaryGradeController::class)->group(function () {
             Route::get('salary-grades/', 'index')->name('salary_grades.index');
         });
 
-        Route::controller(SalaryStepController::class)->group(function()
-        {
+        Route::controller(SalaryStepController::class)->group(function () {
             Route::get('salary-steps/', 'index')->name('salary_steps.index');
         });
 
@@ -147,4 +145,7 @@ Route::middleware(['auth'])->group(function () {
         return view('settings');
     })->name('settings');
     Route::post('/settings/change-password', [UserController::class, 'changePassword'])->name('settings.changePassword');
+
+    // Add this route for loyalty awards PDF export
+    Route::get('/loyalty-awards/export-pdf', [\App\Livewire\Datatable\LoyaltyDatatable::class, 'exportPdf'])->name('loyalty-awards.export-pdf');
 });
