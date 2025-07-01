@@ -247,7 +247,6 @@ class EducationForm extends Component
                 ]);
             }
             if($this->graduate){
-                dd('sas');
                 $this->personnel->graduateEducation()->update([
                     'personnel_id' => $this->personnel->id,
                     'type' => 'graduate',
@@ -275,8 +274,6 @@ class EducationForm extends Component
                     'year_graduated' => $this->graduate_year_graduated,
                     'scholarship_honors' => $this->graduate_scholarship_honors,
                 ]);
-
-                // dd("oo");
             }
 
             if($this->graduate_studies){
