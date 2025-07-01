@@ -50,19 +50,29 @@ class PositionDatatable extends Component
 
     public function save()
     {
-        $this->validate([
-            'editingPosition.title' => 'required|string',
-            'editingPosition.classification' => 'required|in:teaching,teaching-related,non-teaching',
-        ]);
+        try {
+            $this->validate([
+                'editingPosition.title' => 'required|string',
+                'editingPosition.classification' => 'required|in:teaching,teaching-related,non-teaching',
+            ]);
 
-        $position = Position::find($this->editingPosition['id']);
-        $position->update([
-            'title' => $this->editingPosition['title'],
-            'classification' => $this->editingPosition['classification'],
-        ]);
+            $position = Position::find($this->editingPosition['id']);
+            if (!$position) {
+                $this->dispatch('show-error-alert', ['message' => 'Position not found.']);
+                return;
+            }
+            $position->update([
+                'title' => $this->editingPosition['title'],
+                'classification' => $this->editingPosition['classification'],
+            ]);
 
-        $this->showEditModal = false;
-        session()->flash('message', 'Position updated successfully.');
+            $this->showEditModal = false;
+            $this->dispatch('show-success-alert', ['message' => 'Position updated successfully.']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('show-error-alert', ['message' => 'Validation failed. Please check your input.']);
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', ['message' => 'An error occurred while updating the position.']);
+        }
     }
 
     public function deletePosition()
