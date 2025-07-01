@@ -83,6 +83,8 @@ class VoluntaryWorkForm extends Component
             session()->flash('flash.banner', 'Failed to delete Voluntary Work');
             session()->flash('flash.bannerStyle', 'danger');
         }
+        session(['active_personnel_tab' => 'voluntary_work']);
+
         if(Auth::user()->role === "teacher")
         {
             return redirect()->route('personnel.profile');
@@ -153,6 +155,7 @@ class VoluntaryWorkForm extends Component
 
         session()->flash('flash.banner', 'Voluntary Work saved successfully');
         session()->flash('flash.bannerStyle', 'success');
+        session(['active_personnel_tab' => 'voluntary_work']);
 
         if(Auth::user()->role === "teacher")
         {

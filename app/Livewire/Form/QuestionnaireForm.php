@@ -226,10 +226,13 @@ class QuestionnaireForm extends PersonnelNavigation
 
             session()->flash('flash.banner', 'Questionnaire saved successfully');
             session()->flash('flash.bannerStyle', 'save');
+            // Set session to remember the active tab
+            session(['active_personnel_tab' => 'questionnaire']);
         } catch (\Throwable $th) {
             \Log::error('Failed to save questionnaire: ' . $th->getMessage());
             session()->flash('flash.banner', 'Failed to save Questionnaire: ' . $th->getMessage());
             session()->flash('flash.bannerStyle', 'danger');
+            
             return; // Don't redirect if there's an error
         }
 
@@ -246,6 +249,9 @@ class QuestionnaireForm extends PersonnelNavigation
 
     public function cancel()
     {
+        // Set session to remember the active tab
+        session(['active_personnel_tab' => 'questionnaire']);
+        
         if(Auth::user()->role === "teacher")
         {
             return redirect()->route('personnel.profile');

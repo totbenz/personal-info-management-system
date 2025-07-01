@@ -310,6 +310,8 @@ class EducationForm extends Component
 
             session()->flash('flash.banner', 'Education saved successfully');
             session()->flash('flash.bannerStyle', 'success');
+            
+            session(['active_personnel_tab' => 'education']);
 
             if(Auth::user()->role === "teacher")
             {

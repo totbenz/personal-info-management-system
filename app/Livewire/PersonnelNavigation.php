@@ -15,6 +15,13 @@ class PersonnelNavigation extends Component
         if($personnel_id) {
             $this->personnelId = $personnel_id;
         }
+        
+        // Check if there's an active tab stored in session
+        if (session()->has('active_personnel_tab')) {
+            $this->formNav = session('active_personnel_tab');
+            // Clear the session value after using it
+            session()->forget('active_personnel_tab');
+        }
     }
 
     public function edit()

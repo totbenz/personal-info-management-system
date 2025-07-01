@@ -89,6 +89,7 @@ class TrainingCertificationForm extends PersonnelNavigation
             session()->flash('flash.banner', 'Failed to deleteWork Experience ');
             session()->flash('flash.bannerStyle', 'danger');
         }
+        session(['active_personnel_tab' => 'training_certification']);
     }
 
     public function edit()
@@ -193,6 +194,7 @@ class TrainingCertificationForm extends PersonnelNavigation
 
         session()->flash('flash.banner', 'Training Certification saved successfully');
         session()->flash('flash.bannerStyle', 'success');
+        session(['active_personnel_tab' => 'training_certification']);
 
         if(Auth::user()->role === "teacher")
         {

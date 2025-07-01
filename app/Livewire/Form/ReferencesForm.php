@@ -71,6 +71,7 @@ class ReferencesForm extends Component
             session()->flash('flash.banner', 'Failed to delete Reference');
             session()->flash('flash.bannerStyle', 'success');
         }
+        session(['active_personnel_tab' => 'references']);
 
         if(Auth::user()->role === "teacher")
         {
@@ -134,6 +135,8 @@ class ReferencesForm extends Component
 
         session()->flash('flash.banner', 'References saved successfully');
         session()->flash('flash.bannerStyle', 'success');
+
+        session(['active_personnel_tab' => 'references']);
 
         if(Auth::user()->role === "teacher")
         {

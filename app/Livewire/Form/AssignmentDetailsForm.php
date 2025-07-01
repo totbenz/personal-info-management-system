@@ -93,6 +93,7 @@ class AssignmentDetailsForm extends Component
             session()->flash('flash.banner', 'Failed to delete Assignment Detail');
             session()->flash('flash.bannerStyle', 'danger');
         }
+        session(['active_personnel_tab' => 'assignment_details']);
     }
 
     public function edit()
@@ -199,6 +200,7 @@ class AssignmentDetailsForm extends Component
 
             session()->flash('flash.banner', 'Assignment Details saved successfully');
             session()->flash('flash.bannerStyle', 'success');
+            session(['active_personnel_tab' => 'assignment_details']);
 
             if(Auth::user()->role === "teacher")
             {

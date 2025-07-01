@@ -98,6 +98,8 @@ class WorkExperienceForm extends Component
             session()->flash('flash.banner', 'Failed to deleteWork Experience ');
             session()->flash('flash.bannerStyle', 'danger');
         }
+        session(['active_personnel_tab' => 'work_experience']);
+
         if(Auth::user()->role === "teacher")
         {
             return redirect()->route('personnel.profile');

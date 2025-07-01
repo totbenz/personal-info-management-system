@@ -116,6 +116,7 @@ class OtherInformationForm extends PersonnelNavigation
         } catch (\Throwable $th) {
             session()->flash('flash.banner', 'Failed to delete information');
             session()->flash('flash.bannerStyle', 'danger');
+            session(['active_personnel_tab' => 'other_information']);
 
             if(Auth::user()->role === "teacher")
             {
@@ -221,6 +222,8 @@ class OtherInformationForm extends PersonnelNavigation
             session()->flash('flash.banner', $th->getMessage());
             session()->flash('flash.bannerStyle', 'danger');
         }
+        session(['active_personnel_tab' => 'other_information']);
+
         if(Auth::user()->role === "teacher")
         {
             return redirect()->route('personnel.profile');

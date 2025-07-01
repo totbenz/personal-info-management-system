@@ -151,6 +151,7 @@ class AddressForm extends PersonnelNavigation
 
             session()->flash('flash.banner', 'Address and Contact Person saved successfully');
             session()->flash('flash.bannerStyle', 'success');
+            session(['active_personnel_tab' => 'address']);
 
             if(Auth::user()->role === "teacher")
             {

@@ -88,6 +88,7 @@ class CivilServiceEligibilityForm extends Component
             session()->flash('flash.banner', 'Failed to delete Civil Service Eligibility');
             session()->flash('flash.bannerStyle', 'success');
         }
+        session(['active_personnel_tab' => 'civil_service_eligibility']);
 
         if(Auth::user()->role === "teacher")
         {

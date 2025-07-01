@@ -262,6 +262,7 @@ class FamilyForm extends PersonnelNavigation
             session()->flash('flash.banner', 'Failed to save Address and Contact Person');
             session()->flash('flash.bannerStyle', 'danger');
         }
+        session(['active_personnel_tab' => 'family']);
 
         if(Auth::user()->role === "teacher")
         {
