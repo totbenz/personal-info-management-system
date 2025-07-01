@@ -2,7 +2,7 @@
     <div x-data="{ formNav: @entangle('formNav')}">
         <div class="px-2 sm:px-6 lg:px-8 my-2.5 flex space-x-3 justify-end">
             <button type="button" class="inline-flex items-center px-5 py-2 mb-2 mr-2 text-sm font-medium text-center text-gray-900 bg-gray-50 border border-slate-200 rounded-lg hover:bg-white hover:scale-105 duration-300">
-                <a href="{{ route('personnel-salary-changes.index', $personnelId) }}">
+                <a wire:navigate href="{{ route('personnel-salary-changes.index', $personnelId) }}">
                     <span class="flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 6.75V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V4.5A2.25 2.25 0 0 1 6.75 2.25h7.5L19.5 6.75z" />
