@@ -147,7 +147,23 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">Are you sure want to delete <span style="color: red; font-weight: bold;">{{ $position->title }}</span> ?</h4>
+                    @php
+                    $deletePosition = null;
+                    if ($showDeleteModal && $deleteId) {
+                    $deletePosition = \App\Models\Position::find($deleteId);
+                    }
+                    @endphp
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">
+                        Are you sure want to delete
+                        <span style="color: red; font-weight: bold;">
+                            Position
+                            @if($deletePosition)
+                            ID:{{ $deletePosition->id }} - {{ $deletePosition->title }}
+                            @else
+                            ...
+                            @endif
+                        </span> ?
+                    </h4>
                     <p class="text-gray-600 text-xs leading-relaxed">
                         This will permanently delete the position from the system.
                         <span class="font-medium">This action cannot be undone.</span>

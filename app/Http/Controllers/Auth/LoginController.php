@@ -34,36 +34,84 @@ class LoginController extends Controller
                 $request->session()->regenerate();
                 $user = auth()->user();
 
-                if ($user->role == 'admin') {
-                    return redirect()->route('admin.home');
-                } elseif ($user->role == 'school_head') {
-                    return redirect()->route('schools.profile', ['school' => auth()->user()->personnel->school->id]);
-                } elseif ($user->role == 'teacher') {
-                    return redirect()->route('personnel.profile');
-                }
-            } else {
-                $account = User::where('email', $request->email)->first();
-                if (!$account) {
-                    $flashMessage = ['banner' => 'Account Doesn\'t Exist', 'bannerStyle' => 'danger'];
-                } elseif (!password_verify($request->password, $account->password)) {
-                    $flashMessage = ['banner' => 'Password Incorrect', 'bannerStyle' => 'danger'];
-                } else {
-                    $flashMessage = ['banner' => 'Authentication Error', 'bannerStyle' => 'danger'];
+                // Return JSON response with success message for AJAX requests
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Login successful! Welcome back.',
+                        'redirect' => $this->getRedirectUrl($user)
+                    ]);
                 }
 
-                session()->flash('flash', $flashMessage);
+                // For regular requests, redirect with success message and delay
+                session()->flash('success_message', 'Login successful! Welcome back.');
+                session()->flash('redirect_url', $this->getRedirectUrl($user));
+                session()->flash('show_delayed_redirect', true);
+
+                return redirect()->back();
+            } else {
+                $account = User::where('email', $request->email)->first();
+                $errorMessage = 'Authentication failed';
+
+                if (!$account) {
+                    $errorMessage = 'Account doesn\'t exist';
+                } elseif (!password_verify($request->password, $account->password)) {
+                    $errorMessage = 'Password is incorrect';
+                }
+
+                // Return JSON response with error message for AJAX requests
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage
+                    ], 422);
+                }
+
+                // For regular requests, redirect back with error message
+                session()->flash('error_message', $errorMessage);
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Authentication Error!');
+            $errorMessage = 'Authentication error occurred';
+
+            // Return JSON response with error message for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 500);
+            }
+
+            // For regular requests, redirect back with error message
+            session()->flash('error_message', $errorMessage);
         }
 
         return redirect()->back();
+    }
+
+    /**
+     * Get the appropriate redirect URL based on user role
+     */
+    private function getRedirectUrl($user)
+    {
+        if ($user->role == 'admin') {
+            return route('admin.home');
+        } elseif ($user->role == 'school_head') {
+            return route('schools.profile', ['school' => $user->personnel->school->id]);
+        } elseif ($user->role == 'teacher') {
+            return route('personnel.profile');
+        }
+
+        return '/dashboard'; // Default fallback
     }
 
     public function logout(Request $request)
     {
         Auth::guard('web')->logout();
         $request->session()->invalidate();
+
+        // Show success message for logout
+        session()->flash('success_message', 'You have been successfully logged out.');
+
         return redirect('/login');
     }
 }

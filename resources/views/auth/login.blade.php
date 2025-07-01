@@ -7,9 +7,9 @@
         <x-validation-errors class="mb-4" />
 
         @session('status')
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ $value }}
-            </div>
+        <div class="mb-4 font-medium text-sm text-green-600">
+            {{ $value }}
+        </div>
         @endsession
 
         <form method="POST" action="{{ route('authenticate') }}">
@@ -38,14 +38,14 @@
                     <a href="{{ route('register') }}" class="font-medium text-main-600 hover:underline duration-150">Activate Account</a>
                 </p> --}}
 
-                <x-button type="submit" label="Login" class="bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover"/>
+                <x-button type="submit" label="Login" class="bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover" />
             </div>
         </form>
     </x-authentication-card>
 </x-guest-layout>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const rememberMeCheckbox = document.getElementById('remember_me');
         const emailInput = document.getElementById('email');
         const savedRememberMe = localStorage.getItem('remember_me');
@@ -58,18 +58,44 @@
             }
         }
 
-        rememberMeCheckbox.addEventListener('change', function () {
+        rememberMeCheckbox.addEventListener('change', function() {
             localStorage.setItem('remember_me', rememberMeCheckbox.checked);
             if (!rememberMeCheckbox.checked) {
                 localStorage.removeItem('email');
             }
         });
 
-        emailInput.addEventListener('input', function () {
+        emailInput.addEventListener('input', function() {
             if (rememberMeCheckbox.checked) {
                 localStorage.setItem('email', emailInput.value);
             }
         });
+
+        // Show SweetAlert notifications for session messages
+        const successMessage = "{{ session('success_message') }}";
+        const errorMessage = "{{ session('error_message') }}";
+        const warningMessage = "{{ session('warning_message') }}";
+        const redirectUrl = "{{ session('redirect_url') }}";
+        const showDelayedRedirect = "{{ session('show_delayed_redirect') }}";
+
+        if (successMessage) {
+            showSuccessAlert(successMessage);
+
+            // If we need to redirect after showing success message
+            if (showDelayedRedirect && redirectUrl) {
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 2000);
+            }
+        }
+
+        if (errorMessage) {
+            showErrorAlert(errorMessage);
+        }
+
+        if (warningMessage) {
+            showWarningAlert(warningMessage);
+        }
     });
 
     function togglePassword() {

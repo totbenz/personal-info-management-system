@@ -18,12 +18,41 @@ $login = function () {
 
     Session::regenerate();
 
-    $this->redirectIntended(default: RouteServiceProvider::HOME, navigate: true);
+    // Add delay before redirect to allow SweetAlert to show
+    $this->dispatch('show-success-and-redirect', url: RouteServiceProvider::HOME);
 };
 
 ?>
 
-<div>
+<div x-data="{
+    init() {
+        // Listen for Livewire events and show SweetAlert
+        this.$wire.on('show-success-alert', (event) => {
+            showSuccessAlert(event.message);
+        });
+
+        this.$wire.on('show-error-alert', (event) => {
+            showErrorAlert(event.message);
+        });
+
+        this.$wire.on('show-warning-alert', (event) => {
+            showWarningAlert(event.message);
+        });
+
+        // Listen for success and redirect event
+        this.$wire.on('show-success-and-redirect', (event) => {
+            showSuccessAlert('Login successful! Welcome back.');
+            // Delay redirect by 2 seconds to allow SweetAlert to show
+            setTimeout(() => {
+                if (window.Livewire && typeof window.Livewire.navigate === 'function') {
+                    window.Livewire.navigate(event.url);
+                } else {
+                    window.location.href = event.url;
+                }
+            }, 2000);
+        });
+    }
+}">
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -40,9 +69,9 @@ $login = function () {
             <x-input-label for="password" :value="__('Password')" />
 
             <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                type="password"
+                name="password"
+                required autocomplete="current-password" />
 
             <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
         </div>
@@ -57,9 +86,9 @@ $login = function () {
 
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
+                {{ __('Forgot your password?') }}
+            </a>
             @endif
 
             <x-main-button class="ms-3">

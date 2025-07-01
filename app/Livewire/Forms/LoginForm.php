@@ -33,12 +33,18 @@ class LoginForm extends Form
         if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
+            // Dispatch error event for SweetAlert
+            dispatch('show-error-alert', trans('auth.failed'));
+
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Dispatch success event for SweetAlert
+        dispatch('show-success-alert', 'Login successful! Welcome back.');
     }
 
     /**
@@ -54,6 +60,12 @@ class LoginForm extends Form
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
+        // Dispatch warning event for SweetAlert
+        dispatch('show-warning-alert', trans('auth.throttle', [
+            'seconds' => $seconds,
+            'minutes' => ceil($seconds / 60),
+        ]));
+
         throw ValidationException::withMessages([
             'form.email' => trans('auth.throttle', [
                 'seconds' => $seconds,
@@ -67,6 +79,6 @@ class LoginForm extends Form
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 }
