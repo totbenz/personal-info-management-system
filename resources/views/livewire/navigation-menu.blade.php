@@ -4,8 +4,8 @@
         <div class="flex justify-between items-center h-12 text-white">
             <div class="flex w-full items-center justify-between p-0">
                 <div class="flex items-center space-x-2">
-                    <img src="{{ asset('image/kagawaran-ng-edukasyon-logo.png') }}" alt="DepEd Logo" class="h-8 w-8 rounded-lg object-contain bg-white p-0.5">
-                    <img src="{{ asset('image/division-logo.png') }}" alt="Division Logo" class="h-8 w-8 rounded-lg object-contain bg-white p-0.5">
+                    <img src="{{ asset('image/kagawaran-ng-edukasyon-logo.png') }}" alt="DepEd Logo" class="h-8 w-8 rounded-full object-contain bg-white p-0.5">
+                    <img src="{{ asset('image/division-logo.png') }}" alt="Division Logo" class="h-8 w-8 rounded-full object-contain bg-white p-0.5">
                     <span class="ml-2 font-bold text-base tracking-tight whitespace-nowrap" style="font-family: 'Times New Roman', Times, serif;">
                         <div class="flex flex-col leading-tight">
                             HRIS
@@ -118,7 +118,7 @@
                         active-class="bg-white text-[#0f152a] shadow font-bold"
                         inactive-class="hover:bg-[#1a223a] hover:text-white"
                     >
-                        {{ __('SSL Table') }}
+                        {{ __('Salary Table') }}
                     </x-nav-link>
                     @endif
                 </div>
