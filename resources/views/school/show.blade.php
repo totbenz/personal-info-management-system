@@ -29,7 +29,7 @@
                             <p class="mb-6 text-gray-700">Are you sure you want to delete <span class="font-bold">{{ $school->school_name }}</span>? This action cannot be undone.</p>
                             <div class="flex justify-end space-x-3">
                                 <button @click="showDeleteModal = false" type="button" class="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Cancel</button>
-                                <form action="{{ route('schools.destroy', $school->id) }}" method="POST">
+                                <form id="deleteSchoolForm" action="{{ route('schools.destroy', $school->id) }}" method="POST" @submit.prevent="deleteSchool">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="px-4 py-2 rounded bg-danger text-white hover:bg-red-700">Delete</button>
@@ -38,6 +38,70 @@
                         </div>
                     </div>
                 </div>
+                <script>
+                    function deleteSchool(event) {
+                        event.preventDefault();
+                        const form = document.getElementById('deleteSchoolForm');
+                        const url = form.action;
+                        const token = form.querySelector('input[name="_token"]').value;
+                        fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': token,
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json',
+                                },
+                                body: new URLSearchParams({
+                                    '_method': 'DELETE',
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (window.Swal) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Deleted!',
+                                            text: data.message,
+                                            timer: 1800,
+                                            showConfirmButton: false
+                                        });
+                                    } else {
+                                        alert(data.message);
+                                    }
+                                    setTimeout(() => {
+                                        if (window.Livewire && typeof window.Livewire.navigate === 'function') {
+                                            window.Livewire.navigate(data.redirect);
+                                        } else {
+                                            window.location.href = data.redirect;
+                                        }
+                                    }, 1800);
+                                } else {
+                                    if (window.Swal) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: data.message || 'Failed to delete school.'
+                                        });
+                                    } else {
+                                        alert(data.message || 'Failed to delete school.');
+                                    }
+                                }
+                            })
+                            .catch(() => {
+                                if (window.Swal) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Failed to delete school.'
+                                    });
+                                } else {
+                                    alert('Failed to delete school.');
+                                }
+                            });
+                    }
+                    window.deleteSchool = deleteSchool;
+                </script>
                 @endif
             </div>
 

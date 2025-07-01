@@ -82,12 +82,31 @@ class SchoolController extends Controller
 
     public function destroy($id)
     {
-        $school = School::findOrFail($id);
-        $school->delete();
+        try {
+            $school = School::findOrFail($id);
+            $school->delete();
 
-        session()->flash('flash.banner', 'School deleted successfully');
-        session()->flash('flash.bannerStyle', 'success');
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'School deleted successfully',
+                    'redirect' => route('schools.index'),
+                ]);
+            }
 
-        return redirect()->route('schools.index');
+            session()->flash('flash.banner', 'School deleted successfully');
+            session()->flash('flash.bannerStyle', 'success');
+            return redirect()->route('schools.index');
+        } catch (\Exception $e) {
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete school' + $e,
+                ], 500);
+            }
+            session()->flash('flash.banner', 'Failed to delete school');
+            session()->flash('flash.bannerStyle', 'danger');
+            return redirect()->route('schools.index');
+        }
     }
 }
