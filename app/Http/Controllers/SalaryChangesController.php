@@ -14,8 +14,18 @@ class SalaryChangesController extends Controller
         // Fetch all salary changes for the given personnel ID
         $salaryChanges = \App\Models\SalaryChange::where('personnel_id', $id)->get();
 
+        // Fetch personnel details
+        $personnel = \App\Models\Personnel::find($id);
+
+        // Combine full name
+        $fullName = trim("{$personnel->first_name} {$personnel->middle_name} {$personnel->last_name}");
+
         // Pass the data to a view (correct path: livewire.salary-changes.index)
-        return view('livewire.salary-changes.index', compact('salaryChanges'));
+        return view('livewire.salary-changes.index', [
+            'salaryChanges' => $salaryChanges,
+            'personnelId' => $id,
+            'fullName' => $fullName,
+        ]);
     }
 
     /**
