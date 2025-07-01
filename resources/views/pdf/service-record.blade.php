@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Service Record</title>
@@ -10,11 +11,13 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
         }
+
         h4 {
             text-align: center;
             font-size: 14px;
             font-weight: normal;
         }
+
         h3 {
             text-align: center;
             font-size: 16px;
@@ -22,10 +25,12 @@
             margin-top: -15px;
             letter-spacing: .75px;
         }
+
         h3 span {
             font-size: 14px;
             font-weight: normal;
         }
+
         .service-record {
             text-align: center;
             font-size: 24px;
@@ -34,36 +39,48 @@
             margin-top: -12px;
             letter-spacing: 1.5px;
         }
+
         .service-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-size: 11px;
         }
-        .service-table, .service-table th {
-            border: 0.5px solid black; 
+
+        .service-table,
+        .service-table th {
+            border: 0.5px solid black;
         }
+
         .service-table td {
-            border-left: 0.5px dashed black; 
-            border-right: 0.5px dashed black; 
+            border-left: 0.5px dashed black;
+            border-right: 0.5px dashed black;
         }
-        .service-table th, .service-table td {
+
+        .service-table th,
+        .service-table td {
             padding: 5px;
             text-align: center;
         }
+
         .service-table th:nth-child(6) {
-            width: 80px; /* Make DepEd/Division Station/Place column smaller */
+            width: 80px;
+            /* Make DepEd/Division Station/Place column smaller */
         }
+
         .service-table th:nth-child(2),
         .service-table th:nth-child(3) {
-            width: 120px; /* Make 'From' and 'To' columns wider */
+            width: 120px;
+            /* Make 'From' and 'To' columns wider */
         }
+
         .footer {
             margin-top: 30px;
             font-size: 11px;
         }
     </style>
 </head>
+
 <body>
     <div class="headers" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 100px; height: auto; position: absolute; left: 7%; top: 7%; transform: translateY(-50%);">
@@ -127,7 +144,7 @@
         </tr>
     </table>
     <br>
-    <div  style="font-size: 14px; width: 100%; text-align: left; margin-top: 10px; display: flex; align-items: center;">
+    <div style="font-size: 14px; width: 100%; text-align: left; margin-top: 10px; display: flex; align-items: center;">
         <p>
             <span style="margin-left:10%;">THIS IS TO CERTIFY that the employee named above rendered service in this Office as shown by</span> <br>
             the service records below its line in which is supported by appointment and the other papers actually issued by this Office and approved
@@ -137,113 +154,60 @@
 
     <!-- Service Table -->
     <table class="service-table">
-    <thead>
-        <tr>
-            <th colspan="2">Inclusive Dates of Service<br>(mm-dd-yy)</th>
-            <th colspan="3">Record of Appointment</th>
-            <th rowspan="2" style="width: 80px;">DepEd/Division Station/Place</th> 
-            <th rowspan="2">Branch</th>
-            <th rowspan="2" style="width: 70px;">Leave of absence w/o pay</th>
-            <th colspan="2">Separation</th>
-        </tr>
-        <tr>
-            <th style="width: 50px;">From</th> 
-            <th style="width: 50px;">To</th> 
-            <th style="width: 70px;">Designation</th>
-            <th>Status</th>
-            <th>Salary p.a. (Php)</th>
-            <th>Date</th>
-            <th>Cause</th>
-        </tr>
-    </thead>
+        <thead>
+            <tr>
+                <th colspan="2">Inclusive Dates of Service<br>(mm-dd-yy)</th>
+                <th colspan="3">Record of Appointment</th>
+                <th rowspan="2" style="width: 80px;">DepEd/Division Station/Place</th>
+                <th rowspan="2">Branch</th>
+                <th rowspan="2" style="width: 70px;">Leave of absence w/o pay</th>
+                <th colspan="2">Separation</th>
+            </tr>
+            <tr>
+                <th style="width: 50px;">From</th>
+                <th style="width: 50px;">To</th>
+                <th style="width: 70px;">Designation</th>
+                <th>Status</th>
+                <th>Salary p.a. (Php)</th>
+                <th>Date</th>
+                <th>Cause</th>
+            </tr>
+        </thead>
 
-    <!-- Table Body -->
-    <tbody>
-
-        <!-- The data used are for testing purposes only -->
-        <tr>
-            <td>08-04-93</td>
-            <td>12-31-93</td>
-            <td>Teacher I</td>
-            <td>R/Perm</td>
-            <td>37,224</td>
-            <td>Baybay N.</td>
-            <td>N/M</td>
-            <td>None</td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>01-01-94</td>
-            <td>12-31-94</td>
-            <td>"</td>
-            <td>"</td>
-            <td>46,824</td>
-            <td>"</td>
-            <td>"</td>
-            <td>"</td>
-            <td></td>
-            <td></td>
-        </tr>
-       
-            <td>01-01-22</td>
-            <td>12-31-22</td>
-            <td>School Principal III</td>
-            <td>"</td><td>730,812</td>
-            <td>Bitanhuan ES</td>
-            <td>"</td>
-            <td>"</td>
-            <td></td>
-            <td><i>(Promotion)</i></td>
-        </tr>
-        <tr>
-            <td>08-23-21</td>
-            <td>12-31-22</td>
-            <td>"</td><td>"</td>
-            <td>730,812</td>
-            <td>Plaridel CS</td>
-            <td>"</td>
-            <td>"</td>
-            <td></td>
-            <td><i>(S.O. 085, s.2021: Transfer of Station)</i></td>
-        </tr>
-        <tr>
-            <td>01-01-23</td>
-            <td>Present</td>
-            <td>"</td>
-            <td>"</td>
-            <td>767,964</td>
-            <td>"</td>
-            <td>"</td>
-            <td>"</td>
-            <td></td>
-            <td><i>(NBC 589)</i></td>
-        </tr>
-        <tr style="border-top: none;">
-            <td colspan="10" style="text-align: left; font-weight: bold; padding: 8px; font-size: 12px;">
-                Purpose: For Claims / Employment / File Copy / Loans / Ranking / Reclassification / Scholarship / Transfer / Others
-            </td>
-        </tr>
-    </tbody>
-        <!-- <tbody>
-            @foreach ($serviceRecords as $record)
-                <tr>
-                    <td>{{ \Carbon\Carbon::parse($record->from_date)->format('F d, Y') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($record->to_date)->format('F d, Y') }}</td>
-                    <td>{{ $record->position_id }}</td>
-                    <td>{{ $record->appointment_status }}</td>
-                    <td>{{ $record->salary }}</td>
-                    <td>{{ $record->station }}</td>
-                    <td>{{ $record->branch }}</td>
-                </tr>
-            @endforeach
-        </tbody> -->
+        <!-- Table Body -->
+        <tbody>
+            @forelse ($serviceRecords as $record)
+            <tr>
+                <td>{{ \Carbon\Carbon::parse($record->from_date)->format('m-d-y') }}</td>
+                <td>
+                    {{ $record->to_date ? \Carbon\Carbon::parse($record->to_date)->format('m-d-y') : 'Present' }}
+                </td>
+                <td>{{ $record->designation }}</td>
+                <td>{{ $record->appointment_status }}</td>
+                <td>{{ $record->salary ? number_format($record->salary, 2) : '' }}</td>
+                <td>{{ $record->station }}</td>
+                <td>{{ $record->branch }}</td>
+                <td>{{ $record->lv_wo_pay }}</td>
+                <td>{{ $record->created_at->format('m-d-y') }}</td>
+                <td>{{ $record->separation_date_cause }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="10" style="text-align: center;">No service records found.</td>
+            </tr>
+            @endforelse
+            <tr style="border-top: none;">
+                <td colspan="10" style="text-align: left; font-weight: bold; padding: 8px; font-size: 12px;">
+                    Purpose: For Claims / Employment / File Copy / Loans / Ranking / Reclassification / Scholarship / Transfer / Others
+                </td>
+            </tr>
+        </tbody>
     </table>
     <br>
 
     <div style="font-size: 14px; text-align: left;">
-        <span style="margin-left:10%">Issued in compliance with Executive Order No. 54, dated August 10, 1954 and in accordance  with</span><br>
-       Circular No. 58, dated August 10, 1954 of the System.
+        <span style="margin-left:10%">Issued in compliance with Executive Order No. 54, dated August 10, 1954 and in accordance with</span><br>
+        Circular No. 58, dated August 10, 1954 of the System.
     </div>
 
     <br><br>
@@ -255,8 +219,8 @@
                 April 12, 2024<br>
                 <span style="border-top: 1px solid black; display: inline-block; width: 150px;">Date</span>
             </td>
-            <td style="width: 50%;"> 
-            <span>CERTIFIED CORRECT:</span>
+            <td style="width: 50%;">
+                <span>CERTIFIED CORRECT:</span>
                 <br><br><br>
                 <u style="margin-left:10%;">JULIUS CAESAR C. DE LA CERNA</u><br>
                 <span style="margin-left:10%;">Administrative Officer VI (HRMO II)</span><br>
@@ -264,4 +228,5 @@
         </tr>
     </table>
 </body>
+
 </html>

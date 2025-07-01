@@ -76,13 +76,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
 
-    //NOSA
-    Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download');
-    Route::get('/nosa/{personnelId}/preview', [NosaController::class, 'preview'])->name('nosa.preview');
+    // //NOSA
+    // Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download');
+    // Route::get('/nosa/{personnelId}/preview', [NosaController::class, 'preview'])->name('nosa.preview');
 
-    //NOSI
-    Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download');
-    Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview');
+    // //NOSI
+    // Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download');
+    // Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview');
 
     //DOWNLOAD ALL
     Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download');

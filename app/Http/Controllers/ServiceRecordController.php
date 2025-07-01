@@ -13,6 +13,12 @@ class ServiceRecordController extends Controller
         $personnel = Personnel::findOrFail($personnelId);
         $serviceRecords = $personnel->serviceRecords()->with('position')->get();
 
+        // Map service records to include position title as designation
+        $serviceRecords = $serviceRecords->map(function($record) {
+            $record->designation = $record->position->title ?? '';
+            return $record;
+        });
+
         // Generate the PDF using the Blade view
         $pdf = Pdf::loadView('pdf.service-record', [
             'personnel' => $personnel,

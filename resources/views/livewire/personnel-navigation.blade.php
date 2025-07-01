@@ -50,8 +50,6 @@
                      class="absolute right-15 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div class="py-1">
                         <template x-for="item in [
-                            { route: '{{ route('nosa.download', ['personnelId' => $personnelId]) }}', label: 'NOSA' },
-                            { route: '{{ route('nosi.download', ['personnelId' => $personnelId]) }}', label: 'NOSI' },
                             { route: '{{ route('service-record.download', ['personnelId' => $personnelId]) }}', label: 'Service Record' }
                         ]" :key="item.label">
                             <a :href="item.route"

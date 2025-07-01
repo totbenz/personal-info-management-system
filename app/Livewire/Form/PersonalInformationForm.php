@@ -24,44 +24,14 @@ class PersonalInformationForm extends PersonnelNavigation
         $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position, $leave_of_absence_without_pay_count,
         $email, $tel_no, $mobile_no;
     public $showMode = false, $storeMode = false, $updateMode = false;
+    public $separation_cause_input = null;
+    public $original_position_id = null;
+    public $original_employment_start = null;
+    public $original_employment_end = null;
+    public $original_school_id = null;
+    public $show_separation_cause_input = false;
 
-    protected $rules = [
-        'first_name' => 'required',
-        'last_name' => 'required',
-        'middle_name' => 'nullable',
-        'name_ext' => 'nullable',
-        'date_of_birth' => 'required',
-        'place_of_birth' => 'required',
-        'sex' => 'required',
-        'civil_status' => 'required',
-        'citizenship' => 'required',
-        'height' => 'required',
-        'weight' => 'required',
-        'blood_type' => 'required',
-        'salary' => 'nullable',
-        'personnel_id' => 'required',
-        'school_id' => 'required',
-        'position_id' => 'required',
-        'appointment' => 'required',
-        'fund_source' => 'required',
-        'salary_grade_id' => 'required',
-        'step_increment' => 'required',
-        'category' => 'required',
-        'job_status' => 'required',
-        'employment_start' => 'required',
-        'employment_end' => 'required',
-        'leave_of_absence_without_pay_count' => 'nullable',
-
-        'tin' => 'required|min:8|max:12',
-        'sss_num' => 'nullable|size:10',
-        'gsis_num' => 'nullable|min:8',
-        'philhealth_num' => 'nullable|min:11',
-        'pagibig_num' => 'nullable|min:11',
-
-        'email' => 'required',
-        'tel_no' => 'nullable',
-        'mobile_no' => 'required',
-    ];
+    protected $listeners = ['saveSeparationCause'];
 
     public function mount($id = null)
     {
@@ -109,6 +79,11 @@ class PersonalInformationForm extends PersonnelNavigation
 
                 // Calculate salary based on current salary_grade_id and step_increment
                 $this->calculateSalary();
+
+                $this->original_position_id = $this->position_id;
+                $this->original_employment_start = $this->employment_start;
+                $this->original_employment_end = $this->employment_end;
+                $this->original_school_id = $this->school_id;
             }
         }
     }
@@ -296,7 +271,19 @@ class PersonalInformationForm extends PersonnelNavigation
             session()->flash('flash.bannerStyle', 'success');
         } else {
             LaravelLog::info('Updating existing Personnel', ['personnel_id' => $this->personnel->id]);
-            $this->createServiceRecord($school, $this->personnel);
+
+            // Check if relevant fields are dirty before creating service record
+            $isDirty = ($this->personnel->position_id != $this->position_id &&
+                $this->personnel->employment_start != $this->employment_start &&
+                $this->personnel->employment_end != $this->employment_end &&
+                $this->school_id) ||
+                ($this->personnel->employment_end != $this->employment_end &&
+                    $this->personnel->employment_start != $this->employment_start);
+
+            if ($isDirty) {
+                $this->createServiceRecord($school, $this->personnel, $this->separation_cause_input);
+            }
+
             $original_grade = $this->personnel->salary_grade_id;
             $original_step = $this->personnel->step_increment;
             $original_salary = $this->personnel->salary;
@@ -486,18 +473,19 @@ class PersonalInformationForm extends PersonnelNavigation
         ]);
     }
 
-    public function createServiceRecord($school, $personnel)
+    public function createServiceRecord($school, $personnel, $cause = null)
     {
         $personnel->serviceRecords()->create([
             'personnel_id' => $personnel->id,
             'from_date' => $personnel->employment_start,
-            'to_date' => now(), // Save the current date as the end date for the previous record
+            'to_date' => now(),
             'position_id' => $personnel->position_id,
             'appointment_status' => $personnel->appointment,
             'salary' => $personnel->salary,
-            'salary_grade' => $personnel->salary_grade,
             'station' => $school->district_id,
-            'branch' => $school->id
+            'branch' => $school->id,
+            'lv_wo_pay' => $personnel->leave_of_absence_without_pay_count,
+            'separation_date_cause' => $cause,
         ]);
     }
 
@@ -508,5 +496,84 @@ class PersonalInformationForm extends PersonnelNavigation
             'action' => $action,
             'description' => $description
         ]);
+    }
+
+    public function saveSeparationCause($cause)
+    {
+        $this->separation_cause_input = $cause;
+        $school = School::findOrFail($this->school_id);
+        $this->createServiceRecord($school, $this->personnel, $cause);
+        // Continue with the rest of the save logic after service record creation
+        session()->flash('flash.banner', 'Service record updated with cause of separation.');
+        session()->flash('flash.bannerStyle', 'success');
+        // Optionally, redirect or update UI as needed
+        $this->updateMode = false;
+        $this->storeMode = false;
+        $this->showMode = true;
+    }
+
+    public function updated($propertyName)
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updateShowSeparationCauseInput()
+    {
+        $isAllDirty = ($this->position_id != $this->original_position_id)
+            && ($this->employment_start != $this->original_employment_start)
+            && ($this->employment_end != $this->original_employment_end)
+            && ($this->school_id != $this->original_school_id);
+        $isDateDirty = ($this->employment_start != $this->original_employment_start)
+            && ($this->employment_end != $this->original_employment_end);
+        $this->show_separation_cause_input = $isAllDirty || $isDateDirty;
+    }
+
+    public function rules()
+    {
+        $rules = [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'middle_name' => 'nullable',
+            'name_ext' => 'nullable',
+            'date_of_birth' => 'required',
+            'place_of_birth' => 'required',
+            'sex' => 'required',
+            'civil_status' => 'required',
+            'citizenship' => 'required',
+            'height' => 'required',
+            'weight' => 'required',
+            'blood_type' => 'required',
+            'salary' => 'nullable',
+            'personnel_id' => 'required',
+            'school_id' => 'required',
+            'position_id' => 'required',
+            'appointment' => 'required',
+            'fund_source' => 'required',
+            'salary_grade_id' => 'required',
+            'step_increment' => 'required',
+            'category' => 'required',
+            'job_status' => 'required',
+            'employment_start' => 'required',
+            'employment_end' => 'required',
+            'leave_of_absence_without_pay_count' => 'nullable',
+            'tin' => 'required|min:8|max:12',
+            'sss_num' => 'nullable|size:10',
+            'gsis_num' => 'nullable|min:8',
+            'philhealth_num' => 'nullable|min:11',
+            'pagibig_num' => 'nullable|min:11',
+            'email' => 'required',
+            'tel_no' => 'nullable',
+            'mobile_no' => 'required',
+        ];
+        $isAllDirty = ($this->position_id != $this->original_position_id)
+            && ($this->employment_start != $this->original_employment_start)
+            && ($this->employment_end != $this->original_employment_end)
+            && ($this->school_id != $this->original_school_id);
+        $isDateDirty = ($this->employment_start != $this->original_employment_start)
+            && ($this->employment_end != $this->original_employment_end);
+        if ($isAllDirty || $isDateDirty) {
+            $rules['separation_cause_input'] = 'required|string|max:255';
+        }
+        return $rules;
     }
 }

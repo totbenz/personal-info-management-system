@@ -343,6 +343,22 @@
                         label="Position"
                         class="form-control" />
                 </span>
+                @php
+                $isAllDirty = ($position_id != $original_position_id) && ($employment_start != $personnel->employment_start) && ($employment_end != $personnel->employment_end) && ($school_id != $personnel->school_id);
+                $isDateDirty = ($employment_start != $personnel->employment_start) && ($employment_end != $personnel->employment_end);
+                @endphp
+                @if($isAllDirty || $isDateDirty)
+                <div class="w-3/12 mt-2 mb-4">
+                    <x-input
+                        type="text"
+                        class="form-control"
+                        id="separation_cause_input"
+                        label="Cause of Separation"
+                        wire:model="separation_cause_input"
+                        required />
+                    <span class="text-xs text-gray-500">Please provide the cause of separation for the previous position or date change.</span>
+                </div>
+                @endif
                 <span class="w-3/12">
                     <x-input type="text" class="form-control" id="fund_source" label="Fund Source" wire:model="fund_source" name="fund_source" required />
                 </span>
@@ -433,152 +449,29 @@
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('alpine:init', () => {
-                    Alpine.data('personnelForm', () => ({
-                                requiredFields: [{
-                                        key: 'first_name',
-                                        label: 'First Name'
-                                    },
-                                    {
-                                        key: 'middle_name',
-                                        label: 'Middle Name'
-                                    },
-                                    {
-                                        key: 'last_name',
-                                        label: 'Last Name'
-                                    },
-                                    {
-                                        key: 'name_ext',
-                                        label: 'Name Extension'
-                                    },
-                                    {
-                                        key: 'date_of_birth',
-                                        label: 'Date of Birth'
-                                    },
-                                    {
-                                        key: 'place_of_birth',
-                                        label: 'Place of Birth'
-                                    },
-                                    {
-                                        key: 'citizenship',
-                                        label: 'Citizenship'
-                                    },
-                                    {
-                                        key: 'height',
-                                        label: 'Height'
-                                    },
-                                    {
-                                        key: 'weight',
-                                        label: 'Weight'
-                                    },
-                                    {
-                                        key: 'tin',
-                                        label: 'TIN'
-                                    },
-                                    {
-                                        key: 'sss_num',
-                                        label: 'SSS No.'
-                                    },
-                                    {
-                                        key: 'gsis_num',
-                                        label: 'GSIS No.'
-                                    },
-                                    {
-                                        key: 'philhealth_num',
-                                        label: 'PHILHEALTH NO.'
-                                    },
-                                    {
-                                        key: 'pagibig_num',
-                                        label: 'PAG-IBIG No'
-                                    },
-                                    {
-                                        key: 'personnel_id',
-                                        label: 'Personnel ID'
-                                    },
-                                    {
-                                        key: 'school_id',
-                                        label: 'School'
-                                    },
-                                    {
-                                        key: 'job_status',
-                                        label: 'Job Status'
-                                    },
-                                    {
-                                        key: 'category',
-                                        label: 'Category'
-                                    },
-                                    {
-                                        key: 'position_id',
-                                        label: 'Position'
-                                    },
-                                    {
-                                        key: 'fund_source',
-                                        label: 'Fund Source'
-                                    },
-                                    {
-                                        key: 'appointment',
-                                        label: 'Nature of Appointment'
-                                    },
-                                    {
-                                        key: 'step_increment',
-                                        label: 'Step Increment'
-                                    },
-                                    {
-                                        key: 'salary_grade_id',
-                                        label: 'Salary Grade'
-                                    },
-                                    {
-                                        key: 'employment_start',
-                                        label: 'Employment Start Date'
-                                    },
-                                    {
-                                        key: 'employment_end',
-                                        label: 'Employment End Date'
-                                    },
-                                    {
-                                        key: 'leave_of_absence_without_pay_count',
-                                        label: 'LOA w/o pay'
-                                    },
-                                    {
-                                        key: 'email',
-                                        label: 'Email'
-                                    },
-                                    {
-                                        key: 'tel_no',
-                                        label: 'Telephone No.'
-                                    },
-                                    {
-                                        key: 'mobile_no',
-                                        label: 'Mobile No.'
-                                    },
-                                ],
-                                get allRequiredFilled() {
-                                    return this.missingFields.length === 0;
-                                },
-                                get missingFields() {
-                                    return this.requiredFields
-                                        .filter(f => {
-                                            const el = document.getElementById(f.key);
-                                            if (!el) return true;
-                                            if (el.type === 'checkbox' || el.type === 'radio') {
-                                                return !el.checked;
-                                            }
-                                            return !el.value || el.value === '';
-                                        })
-                                        .map(f => f.label);
-                                },
-                                initWatchers() {
-                                    this.requiredFields.forEach(f => {
-                                        const el = document.getElementById(f.key);
-                                        if (el) {
-                                            el.addEventListener('input', () => {
-                                                this.$forceUpdate && this.$forceUpdate();
-                                            });
-                                        }
-                                    });
-                                },
-                            }))
+        document.addEventListener('livewire:load', function() {
+            Livewire.on('prompt-separation-cause', () => {
+                Swal.fire({
+                    title: 'Cause of Separation',
+                    input: 'text',
+                    inputLabel: 'Please enter the cause of separation for this service record.',
+                    inputPlaceholder: 'e.g. Promotion, Transfer, Retirement, etc.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save',
+                    cancelButtonText: 'Cancel',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'You need to write something!';
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Livewire.emit('saveSeparationCause', result.value);
+                    }
+                });
+            });
         });
     </script>
 </section>

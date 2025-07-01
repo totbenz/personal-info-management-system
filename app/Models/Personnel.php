@@ -269,9 +269,9 @@ class Personnel extends Model
         }
     }
 
-    public function serviceRecords(): HasMany
+    public function serviceRecords()
     {
-        return $this->hasMany(ServiceRecord::class);
+        return $this->hasMany(\App\Models\ServiceRecord::class, 'personnel_id');
     }
 
     public function createServiceRecord()
