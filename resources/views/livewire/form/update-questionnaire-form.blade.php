@@ -13,8 +13,8 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="consanguinity_third_degree_yes" label="Yes" wire:model="consanguinity_third_degree" name="consanguinity_third_degree" value="true" required />
-                                    <x-checkbox id="consanguinity_third_degree_no" label="No" wire:model="!consanguinity_third_degree" name="consanguinity_third_degree" value="false" required />
+                                    <x-radio id="consanguinity_third_degree_yes" label="Yes" wire:model.live="consanguinity_third_degree" name="consanguinity_third_degree" value="1" />
+                                    <x-radio id="consanguinity_third_degree_no" label="No" wire:model.live="consanguinity_third_degree" name="consanguinity_third_degree" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -24,17 +24,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="consanguinity_fourth_degree" name="consanguinity_fourth_degree" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!consanguinity_fourth_degree" name="consanguinity_fourth_degree" value="false" required/>
+                                    <x-radio id="consanguinity_fourth_degree_yes" label="Yes" wire:model.live="consanguinity_fourth_degree" name="consanguinity_fourth_degree" value="1" />
+                                    <x-radio id="consanguinity_fourth_degree_no" label="No" wire:model.live="consanguinity_fourth_degree" name="consanguinity_fourth_degree" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($consanguinity_third_degree == '1' || $consanguinity_fourth_degree == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input wire:model="consanguinity_third_degree_details" class="form-control w-full" type="text" label="If YES, give details" id="consanguinity_third_degree_details"/>
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <div class="mt-3 mb-6">
@@ -44,34 +45,36 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="px-5 flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="found_guilty_administrative_offense" name="found_guilty_administrative_offense" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!found_guilty_administrative_offense" name="found_guilty_administrative_offense" value="false" required/>
+                                    <x-radio id="found_guilty_administrative_offense_yes" label="Yes" wire:model.live="found_guilty_administrative_offense" name="found_guilty_administrative_offense" value="1" />
+                                    <x-radio id="found_guilty_administrative_offense_no" label="No" wire:model.live="found_guilty_administrative_offense" name="found_guilty_administrative_offense" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($found_guilty_administrative_offense == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
-                                <x-input class="form-control w-full" type="text" label="If YES, give details" id="administrative_offense_details"/>
+                                <x-input wire:model="administrative_offense_details" class="form-control w-full" type="text" label="If YES, give details" id="administrative_offense_details"/>
                             </span>
                         </div>
+                        @endif
                         <div class=" w-[45rem] mt-3 flex space-x-3 items-center">
                             <div class="w-10/12">
                                 <p class="text-sm font-medium">Have you been criminally charged before any court?</p>
                             </div>
                             <div class="w-2/12">
                                 <div class="px-5 flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="criminally_charged" name="criminally_charged" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!criminally_charged" name="criminally_charged" value="false" required/>
+                                    <x-radio id="criminally_charged_yes" label="Yes" wire:model.live="criminally_charged" name="criminally_charged" value="1" />
+                                    <x-radio id="criminally_charged_no" label="No" wire:model.live="criminally_charged" name="criminally_charged" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($criminally_charged == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, give details" id="criminally_charged_details" wire:model="criminally_charged_details"/>
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <div class="mt-3 mb-6">
@@ -81,17 +84,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="px-5 flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="convicted_crime" name="convicted_crime" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!convicted_crime" name="convicted_crime" value="false" required/>
+                                    <x-radio id="convicted_crime_yes" label="Yes" wire:model.live="convicted_crime" name="convicted_crime" value="1" />
+                                    <x-radio id="convicted_crime_no" label="No" wire:model.live="convicted_crime" name="convicted_crime" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($convicted_crime == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, give details" id="convicted_crime_details" wire:model="convicted_crime_details"/>
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <div class="mt-3 mb-6">
@@ -101,17 +105,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="px-5 flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="separated_from_service" name="separated_from_service" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!separated_from_service" name="separated_from_service" value="false" required/>
+                                    <x-radio id="separated_from_service_yes" label="Yes" wire:model.live="separated_from_service" name="separated_from_service" value="1" />
+                                    <x-radio id="separated_from_service_no" label="No" wire:model.live="separated_from_service" name="separated_from_service" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($separated_from_service == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
-                                <x-input class="form-control w-full" type="text" label="If YES, give details" id="separation_details"/>
+                                <x-input wire:model="separation_details" class="form-control w-full" type="text" label="If YES, give details" id="separation_details"/>
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <div class="mt-3 mb-6">
@@ -121,34 +126,36 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="px-5 flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="candidate_last_year" name="candidate_last_year" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!candidate_last_year" name="candidate_last_year" value="false" required/>
+                                    <x-radio id="candidate_last_year_yes" label="Yes" wire:model.live="candidate_last_year" name="candidate_last_year" value="1" />
+                                    <x-radio id="candidate_last_year_no" label="No" wire:model.live="candidate_last_year" name="candidate_last_year" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($candidate_last_year == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, give details" id="candidate_details" wire:model="candidate_details"/>
                             </span>
                         </div>
+                        @endif
                         <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                             <div class="w-10/12">
                                 <p class="text-sm font-medium">Have you resigned from the government service during the three (3)-month period before the last election to promote/actively campaign for a national or local candidate?</p>
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="resigned_to_campaign" name="resigned_to_campaign" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!resigned_to_campaign" name="resigned_to_campaign" value="false" required/>
+                                    <x-radio id="resigned_to_campaign_yes" label="Yes" wire:model.live="resigned_to_campaign" name="resigned_to_campaign" value="1" />
+                                    <x-radio id="resigned_to_campaign_no" label="No" wire:model.live="resigned_to_campaign" name="resigned_to_campaign" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($resigned_to_campaign == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, give details" id="resigned_campaign_details" wire:model="resigned_campaign_details"/>
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <div class="mt-3 mb-6">
@@ -158,17 +165,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="immigrant_status" name="immigrant_status" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!immigrant_status" name="immigrant_status" value="false" required/>
+                                    <x-radio id="immigrant_status_yes" label="Yes" wire:model.live="immigrant_status" name="immigrant_status" value="1" />
+                                    <x-radio id="immigrant_status_no" label="No" wire:model.live="immigrant_status" name="immigrant_status" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($immigrant_status == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
-                                <x-input class="form-control w-full" type="text" label="If YES, give details (country): " id="immigrant_country_details"/>
+                                <x-input wire:model="immigrant_country_details" class="form-control w-full" type="text" label="If YES, give details (country): " id="immigrant_country_details"/>
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <div class="mt-3 mb-6">
@@ -181,17 +189,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="member_indigenous_group" name="member_indigenous_group" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!member_indigenous_group" name="member_indigenous_group" value="false" required/>
+                                    <x-radio id="member_indigenous_group_yes" label="Yes" wire:model.live="member_indigenous_group" name="member_indigenous_group" value="1" />
+                                    <x-radio id="member_indigenous_group_no" label="No" wire:model.live="member_indigenous_group" name="member_indigenous_group" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($member_indigenous_group == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, give details" id="indigenous_group_details" wire:model="indigenous_group_details" />
                             </span>
                         </div>
+                        @endif
 
                         <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                             <div class="w-10/12">
@@ -199,17 +208,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="person_with_disability" name="person_with_disability" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!person_with_disability" name="person_with_disability" value="false" required/>
+                                    <x-radio id="person_with_disability_yes" label="Yes" wire:model.live="person_with_disability" name="person_with_disability" value="1" />
+                                    <x-radio id="person_with_disability_no" label="No" wire:model.live="person_with_disability" name="person_with_disability" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($person_with_disability == '1')
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, please specify ID No: " id="disability_id_no" wire:model="disability_id_no"/>
                             </span>
                         </div>
+                        @endif
 
                         <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                             <div class="w-10/12">
@@ -217,12 +227,18 @@
                             </div>
                             <div class="w-2/12">
                                 <div class="flex space-x-8 items-center">
-                                    <x-checkbox id="right-label" label="Yes" wire:model="solo_parent" name="solo_parent" value="true" required/>
-
-                                    <x-checkbox id="right-label" label="No" wire:model="!solo_parent" name="solo_parent" value="false" required/>
+                                    <x-radio id="solo_parent_yes" label="Yes" wire:model.live="solo_parent" name="solo_parent" value="1" />
+                                    <x-radio id="solo_parent_no" label="No" wire:model.live="solo_parent" name="solo_parent" value="0" />
                                 </div>
                             </div>
                         </div>
+                        @if($solo_parent == '1')
+                        <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
+                            <span class="w-[20rem]">
+                                <x-input class="form-control w-full" type="text" label="If YES, please specify ID No: " id="solo_parent_id_no" wire:model="solo_parent_id_no"/>
+                            </span>
+                        </div>
+                        @endif
                     </div>
 
                 </div>
@@ -234,7 +250,7 @@
             <x-button wire:click.prevent="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105 duration-150"/>
         </div>
         <div class="w-2/12">
-            <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main-hover"/>
+            <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-800"/>
         </div>
     </div>
 </div>

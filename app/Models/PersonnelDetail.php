@@ -36,6 +36,7 @@ class PersonnelDetail extends Model
         'person_with_disability',
         'disability_id_no',
         'solo_parent',
+        'solo_parent_id_no',
     ];
 
     public function personnel()
