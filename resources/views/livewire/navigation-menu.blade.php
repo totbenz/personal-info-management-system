@@ -2,62 +2,124 @@
     {{-- <div class="max-w-7xl mx-3 px-4 sm:px-6 lg:px-3"> --}}
     <div class="mx-2 px-4 sm:px-6 lg:px-3">
         <div class="flex justify-between items-center h-12 text-white">
-            <div class="flex space-x-3 p-0">
-                {{-- <div class="shrink-0 flex items-center">
-                    <span class="p-1 cursor-pointer outline-none hover:scale-110 hover:bg-[#18203b9e] hover:rounded-full duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 m-0 p-0" @click="open = ! open">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
-                        </svg>
+            <div class="flex w-full items-center justify-between p-0">
+                <div class="flex items-center space-x-2">
+                    <img src="{{ asset('image/kagawaran-ng-edukasyon-logo.png') }}" alt="DepEd Logo" class="h-8 w-8 rounded-lg object-contain bg-white p-0.5">
+                    <img src="{{ asset('image/division-logo.png') }}" alt="Division Logo" class="h-8 w-8 rounded-lg object-contain bg-white p-0.5">
+                    <span class="ml-2 font-bold text-base tracking-tight whitespace-nowrap" style="font-family: 'Times New Roman', Times, serif;">
+                        <div class="flex flex-col leading-tight">
+                            HRIS
+                            <span class="text-[9px] font-normal tracking-normal mt-0.3 text-gray-400" style="font-family: Arial, sans-serif;">
+                                Human Resource Information System
+                            </span>
+                        </div>
                     </span>
-                </div> --}}
+                </div>
 
-                <span class="m-0 p-0 rounded-full">
-                    <img src="{{ asset('image/sd-pms-logo.png') }}" alt="sd-pmis-logo" class="h-10 w-[10rem] my-1 text-xs rounded-xl">
-                </span>
-
-                <div class="flex space-x-3 items-center">
+                <div class="flex space-x-3 items-center justify-center flex-1">
                     @if (Auth::user()->role == "admin")
-                    <x-nav-link href="{{ route('admin.home') }}" :active="request()->routeIs('admin.home')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('admin.home') }}"
+                        :active="request()->routeIs('admin.home')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @endif
                     @if (Auth::user()->role == "school_head")
-                    <x-nav-link href="{{ route('schools.show', ['school' => Auth::user()->personnel->school]) }}" :active="request()->routeIs('schools.show')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('schools.show', ['school' => Auth::user()->personnel->school]) }}"
+                        :active="request()->routeIs('schools.show')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ Auth::user()->personnel->school->school_name }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('personnels.profile', ['personnel' => Auth::user()->personnel->id]) }}" :active="request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('personnels.profile', ['personnel' => Auth::user()->personnel->id]) }}"
+                        :active="request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Profile') }}
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
-                    <x-nav-link href="{{ route('schools.index') }}" :active="request()->routeIs('schools.index')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('schools.index') }}"
+                        :active="request()->routeIs('schools.index')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Schools') }}
                     </x-nav-link>
                     @endif
                     @if (Auth::user()->role == "teacher")
-                    <x-nav-link href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
-                        :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
+                        :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Profile') }}
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
-                    <x-nav-link href="{{ route('personnels.index') }}" :active="request()->routeIs('personnels.index')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('personnels.index') }}"
+                        :active="request()->routeIs('personnels.index')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Personnels') }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('positions.index') }}" :active="request()->routeIs('positions.index')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('positions.index') }}"
+                        :active="request()->routeIs('positions.index')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Positions') }}
                     </x-nav-link>
                     {{-- <x-nav-link href="{{ route('districts.index') }}" :active="request()->routeIs('districts.index')" wire:navigate>
                     {{ __('Districts') }}
                     </x-nav-link> --}}
-                    <x-nav-link href="{{ route('accounts.index') }}" :active="request()->routeIs('accounts.index')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('accounts.index') }}"
+                        :active="request()->routeIs('accounts.index')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('Accounts') }}
                     </x-nav-link>
                     <!-- <x-nav-link href="{{ route('salary_grades.index') }}" :active="request()->routeIs('salary_grades.index')" wire:navigate>
                         {{ __('Salary Grades') }}
                     </x-nav-link> -->
-                    <x-nav-link href="{{ route('salary_steps.index') }}" :active="request()->routeIs('salary_steps.index')" wire:navigate>
+                    <x-nav-link
+                        href="{{ route('salary_steps.index') }}"
+                        :active="request()->routeIs('salary_steps.index')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white"
+                    >
                         {{ __('SSL Table') }}
                     </x-nav-link>
-
                     @endif
                 </div>
             </div>
