@@ -39,6 +39,7 @@ return new class extends Migration
             $table->boolean('person_with_disability');
             $table->string('disability_id_no')->nullable();
             $table->boolean('solo_parent');
+            $table->string('solo_parent_id_no')->nullable();
             $table->timestamps();
 
             $table->foreign('personnel_id')->references('id')->on('personnels')->onDelete('cascade');

@@ -49,11 +49,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($consanguinity_third_degree_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" name="consanguinity_third_degree_details" wire:model="consanguinity_third_degree_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" name="consanguinity_third_degree_details" wire:model="consanguinity_third_degree_details" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
                 <div class="mt-3 mb-6">
@@ -72,11 +74,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($administrative_offense_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="administrative_offense_details" wire:model="administrative_offense_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="administrative_offense_details" wire:model="administrative_offense_details" disabled/>
                         </span>
                     </div>
+                    @endif
                     <div class=" w-[45rem] mt-3 flex space-x-3 items-center">
                         <div class="w-10/12">
                             <p class="text-sm font-medium">Have you been criminally charged before any court?</p>
@@ -92,11 +96,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($criminally_charged_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="criminally_charged_details" wire:model="criminally_charged_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="criminally_charged_details" wire:model="criminally_charged_details" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
                 <div class="mt-3 mb-6">
@@ -115,11 +121,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($convicted_crime_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="convicted_crime_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="convicted_crime_details" wire:model="convicted_crime_details" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
                 <div class="mt-3 mb-6">
@@ -138,11 +146,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($separation_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="separation_details" wire:model="separation_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="separation_details" wire:model="separation_details" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
                 <div class="mt-3 mb-6">
@@ -161,11 +171,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($candidate_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="candidate_details" wire:model="candidate_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="candidate_details" wire:model="candidate_details" disabled/>
                         </span>
                     </div>
+                    @endif
                     <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                         <div class="w-10/12">
                             <p class="text-sm font-medium">Have you resigned from the government service during the three (3)-month period before the last election to promote/actively campaign for a national or local candidate?</p>
@@ -181,11 +193,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($resigned_campaign_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="resigned_campaign_details" wire:model="resigned_campaign_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="resigned_campaign_details" wire:model="resigned_campaign_details" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
                 <div class="mt-3 mb-6">
@@ -204,11 +218,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($immigrant_country_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details (country): " id="immigrant_country_details" wire:model="immigrant_country_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details (country): " id="immigrant_country_details" wire:model="immigrant_country_details" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
                 <div class="mt-3 mb-6">
@@ -230,11 +246,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($indigenous_group_details)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="indigenous_group_details" wire:model="indigenous_group_details"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="indigenous_group_details" wire:model="indigenous_group_details" disabled/>
                         </span>
                     </div>
+                    @endif
 
                     <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                         <div class="w-10/12">
@@ -251,11 +269,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($person_with_disability == '1')
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, please specify ID No: " id="disability_id_no" wire:model="disability_id_no"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, please specify ID No: " id="disability_id_no" wire:model="disability_id_no" value="{{ $disability_id_no }}" disabled/>
                         </span>
                     </div>
+                    @endif
 
                     <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                         <div class="w-10/12">
@@ -272,11 +292,13 @@
                             </div>
                         </div>
                     </div>
+                    @if($solo_parent == '1')
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, please specify ID No: " id="solo_parent"/>
+                            <x-input class="form-control w-full" type="text" label="If YES, please specify ID No: " id="solo_parent_id_no" wire:model="solo_parent_id_no" value="{{ $solo_parent_id_no }}" disabled/>
                         </span>
                     </div>
+                    @endif
                 </div>
 
             </div>
