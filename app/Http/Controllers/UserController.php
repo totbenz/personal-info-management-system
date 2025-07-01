@@ -134,8 +134,10 @@ class UserController extends Controller
             return back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 
-        $user->password = Hash::make($request->new_password);
-        $user->save();
+        // Retrieve the fresh User model instance if needed
+        $userModel = \App\Models\User::find($user->id);
+        $userModel->password = Hash::make($request->new_password);
+        $userModel->save();
 
         return back()->with('success', 'Password updated successfully.');
     }

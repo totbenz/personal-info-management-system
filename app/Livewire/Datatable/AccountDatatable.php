@@ -84,27 +84,37 @@ class AccountDatatable extends Component
 
     public function save()
     {
-        $this->validate([
-            'editingAccount.email' => 'required|email',
-            'editingAccount.role' => 'required|in:admin,school_head,teacher',
-            'editingAccount.personnel.personnel_id' => 'required'
-        ]);
-
-        $account = User::find($this->editingAccount['id']);
-        $account->update([
-            'email' => $this->editingAccount['email'],
-            'role' => $this->editingAccount['role']
-        ]);
-
-        if ($account->personnel) {
-            $account->personnel->update([
-                'personnel_id' => $this->editingAccount['personnel']['personnel_id']
+        try {
+            $this->validate([
+                'editingAccount.email' => 'required|email',
+                'editingAccount.role' => 'required|in:admin,school_head,teacher',
+                'editingAccount.personnel.personnel_id' => 'required'
             ]);
-        }
 
-        $this->showEditModal = false;
-        $this->resetEditingAccount();
-        session()->flash('message', 'Account updated successfully.');
+            $account = User::find($this->editingAccount['id']);
+            if (!$account) {
+                $this->dispatch('show-error-alert', ['message' => 'Account not found.']);
+                return;
+            }
+            $account->update([
+                'email' => $this->editingAccount['email'],
+                'role' => $this->editingAccount['role']
+            ]);
+
+            if ($account->personnel) {
+                $account->personnel->update([
+                    'personnel_id' => $this->editingAccount['personnel']['personnel_id']
+                ]);
+            }
+
+            $this->showEditModal = false;
+            $this->resetEditingAccount();
+            $this->dispatch('show-success-alert', ['message' => 'Account updated successfully.']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('show-error-alert', ['message' => 'Validation failed. Please check your input.']);
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', ['message' => 'An error occurred while updating the account.']);
+        }
     }
 
     public function setDeleteId($id)
@@ -127,47 +137,56 @@ class AccountDatatable extends Component
             $account = User::find($this->deleteId);
             if ($account) {
                 $account->delete();
-                session()->flash('message', 'Account deleted successfully.');
+                $this->dispatch('show-success-alert', ['message' => 'Account deleted successfully.']);
                 $this->showDeleteModal = false;
                 $this->deleteId = null;
             } else {
                 $this->deleteError = 'Account not found.';
+                $this->dispatch('show-error-alert', ['message' => 'Account not found.']);
             }
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->getCode() == 23000) {
                 $this->deleteError = 'Cannot delete this account because it is referenced by other records.';
+                $this->dispatch('show-error-alert', ['message' => 'Cannot delete this account because it is referenced by other records.']);
             } else {
                 $this->deleteError = 'An error occurred while deleting the account.';
+                $this->dispatch('show-error-alert', ['message' => 'An error occurred while deleting the account.']);
             }
         }
     }
 
     public function store()
     {
-        $this->validate([
-            'editingAccount.email' => 'required|email|unique:users,email',
-            'editingAccount.role' => 'required|in:admin,school_head,teacher',
-            'editingAccount.personnel.personnel_id' => 'required|exists:personnels,personnel_id',
-        ]);
+        try {
+            $this->validate([
+                'editingAccount.email' => 'required|email|unique:users,email',
+                'editingAccount.role' => 'required|in:admin,school_head,teacher',
+                'editingAccount.personnel.personnel_id' => 'required|exists:personnels,personnel_id',
+            ]);
 
-        // Find the Personnel by personnel_id
-        $personnel = \App\Models\Personnel::where('personnel_id', $this->editingAccount['personnel']['personnel_id'])->first();
-        if (!$personnel) {
-            session()->flash('message', 'Personnel not found.');
-            return;
+            // Find the Personnel by personnel_id
+            $personnel = \App\Models\Personnel::where('personnel_id', $this->editingAccount['personnel']['personnel_id'])->first();
+            if (!$personnel) {
+                $this->dispatch('show-error-alert', ['message' => 'Personnel not found.']);
+                return;
+            }
+
+            // Create the User and associate with Personnel
+            $user = \App\Models\User::create([
+                'email' => $this->editingAccount['email'],
+                'role' => $this->editingAccount['role'],
+                'personnel_id' => $personnel->id,
+                // Set a default password or handle password input as needed
+                'password' => bcrypt('password123'),
+            ]);
+
+            $this->showEditModal = false;
+            $this->resetEditingAccount();
+            $this->dispatch('show-success-alert', ['message' => 'Account created successfully.']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('show-error-alert', ['message' => 'Validation failed. Please check your input.']);
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', ['message' => 'An error occurred while creating the account.']);
         }
-
-        // Create the User and associate with Personnel
-        $user = \App\Models\User::create([
-            'email' => $this->editingAccount['email'],
-            'role' => $this->editingAccount['role'],
-            'personnel_id' => $personnel->id,
-            // Set a default password or handle password input as needed
-            'password' => bcrypt('password123'),
-        ]);
-
-        $this->showEditModal = false;
-        $this->resetEditingAccount();
-        session()->flash('message', 'Account created successfully.');
     }
 }

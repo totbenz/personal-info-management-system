@@ -1,4 +1,40 @@
-<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg">
+<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg" x-data="{
+    init() {
+        window.addEventListener('show-success-alert', e => {
+            let msg = (e.detail && typeof e.detail.message !== 'undefined' && e.detail.message) ? e.detail.message : 'Operation Successful!';
+            let isDelete = msg && msg.toLowerCase().includes('delete');
+            let isEdit = msg && (msg.toLowerCase().includes('update') || msg.toLowerCase().includes('edit'));
+            let title = isDelete ? 'Deleted!' : (isEdit ? 'Updated!' : 'Success!');
+            // Always show the message, not just the title
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'success',
+                    title: title,
+                    text: msg,
+                    timer: 1800,
+                    showConfirmButton: false
+                });
+            } else {
+                alert(msg);
+            }
+        });
+        window.addEventListener('show-error-alert', e => {
+            let msg = (e.detail && typeof e.detail.message !== 'undefined' && e.detail.message) ? e.detail.message : 'An error occurred.';
+            let isDelete = msg && msg.toLowerCase().includes('delete');
+            let isEdit = msg && (msg.toLowerCase().includes('update') || msg.toLowerCase().includes('edit'));
+            let title = isDelete ? 'Delete Error' : (isEdit ? 'Update Error' : 'Error');
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'error',
+                    title: title,
+                    text: msg
+                });
+            } else {
+                alert(msg);
+            }
+        });
+    }
+}" x-init="init()">
     <div class="flex justify-between items-center mb-6">
         <div class="flex space-x-4">
             @include('user.forms.create')
