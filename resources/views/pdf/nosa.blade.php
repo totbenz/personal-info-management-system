@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Notice of Salary Adjustment</title>
@@ -8,24 +9,27 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
-        
+
         @page {
             size: legal;
             margin: 0.25in 0.5in 0 0.5in;
         }
+
         body {
             margin: 0;
             padding: 0;
-            min-height: 13in; 
+            min-height: 13in;
             font-size: 16px;
             font-family: Times New Roman, serif;
         }
+
         .unifraktur-font {
-            font-family: 'UnifrakturCook'!important;
+            font-family: 'UnifrakturCook' !important;
             font-weight: 700;
         }
     </style>
 </head>
+
 <body class="text-gray-900">
     <div class="text-center mb-6 ">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
@@ -40,7 +44,7 @@
     <div class="text-center mb-6">
         <h1 class="font-bold uppercase" style="font-size: 24px;">Notice of Salary Adjustment (NOSA)</h1>
         <div>
-            <p class="mt-7 mr-5 text-right">October 24, 2024</p>
+            <p class="mt-7 mr-5 text-right">{{ $salaryChange->adjusted_monthly_salary_date ? \Carbon\Carbon::parse($salaryChange->adjusted_monthly_salary_date)->format('F d, Y') : '' }}</p>
             <p class="mr-16 text-right">Date</p>
         </div>
     </div>
@@ -54,7 +58,7 @@
     <div class="mb-6">
         <p class="font-bold">Sir/Madame:</p>
         <p class="mt-4 text-justify">
-           <span class="ml-14">Pursuant</span> to National Budget Circular No. 594 dated August 12, 2024, implementing Executive Order No. 64 dated August 2, 2024, your salary is hereby adjusted effective <strong class="underline">January 24, 2024</strong>, as follows:
+            <span class="ml-14">Pursuant</span> to National Budget Circular No. 594 dated August 12, 2024, implementing Executive Order No. 64 dated August 2, 2024, your salary is hereby adjusted effective <strong class="underline">{{ $salaryChange->adjusted_monthly_salary_date ? \Carbon\Carbon::parse($salaryChange->adjusted_monthly_salary_date)->format('F d, Y') : '' }}</strong>, as follows:
         </p>
     </div>
 
@@ -63,27 +67,27 @@
             <tbody>
                 <tr class="column-1">
                     <td class="px-4 py-2" style="width: 55%;">1. Adjusted monthly basic salary effective under the New Salary Schedule:
-                        <br><span>SG <strong  class="mr-10">19</strong></span>
-                        <span>Step <strong>1</strong></span>
+                        <br><span>SG <strong class="mr-10">{{ $salaryChange->current_salary_grade }}</strong></span>
+                        <span>Step <strong>{{ $salaryChange->current_salary_step }}</strong></span>
                     </td>
-                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline">January 24, 2024</strong></td>
+                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline">{{ $salaryChange->adjusted_monthly_salary_date ? \Carbon\Carbon::parse($salaryChange->adjusted_monthly_salary_date)->format('F d, Y') : '' }}</strong></td>
                     <td class="px-4 py-2" style="width: 5%;">P</td>
-                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">53,873.00</td>
+                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">{{ number_format($salaryChange->current_salary, 2) }}</td>
                 </tr>
                 <tr>
                     <td class="px-4 py-2" style="width: 40%;">2. Actual monthly basic salary as of
-                        <br><span>SG <strong  class="mr-10">18</strong></span>
-                        <span>Step <strong>1</strong></span>
+                        <br><span>SG <strong class="mr-10">{{ $salaryChange->previous_salary_grade }}</strong></span>
+                        <span>Step <strong>{{ $salaryChange->previous_salary_step }}</strong></span>
                     </td>
-                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline ">January 23, 2024</strong></td>
+                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline ">{{ $salaryChange->actual_monthly_salary_as_of_date ? \Carbon\Carbon::parse($salaryChange->actual_monthly_salary_as_of_date)->format('F d, Y') : '' }}</strong></td>
                     <td class="px-4 py-2" style="width: 5%;">P</td>
-                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">49,015.00</td>
+                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">{{ number_format($salaryChange->previous_salary, 2) }}</td>
                 </tr>
                 <tr>
                     <td class="px-4 py-2" style="width: 40%;">3. Monthly salary adjustment effective </td>
-                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline ">January 24, 2024</strong></td>
+                    <td class="px-4 py-2 text-center" style="width: 25%;"><strong class="underline ">{{ $salaryChange->adjusted_monthly_salary_date ? \Carbon\Carbon::parse($salaryChange->adjusted_monthly_salary_date)->format('F d, Y') : '' }}</strong></td>
                     <td class="px-4 py-2" style="width: 5%;">P</td>
-                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">4,858.00</td>
+                    <td class="px-4 py-2 text-right" style="width: 15%; text-decoration: underline;">{{ number_format($salaryChange->current_salary - $salaryChange->previous_salary, 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -104,10 +108,10 @@
     </div>
 
     <div class="mt-24">
-        <p class="text-sm">Position: Master Teacher II</p>
-        <p class="text-sm">Salary Grade: 19</p>
-        <p class="text-sm">Item No./Unique Item No. Fy 2024 Personnel  Services Itemization</p>
-        <p class="text-sm">and/or Plantilla of Personnel:  <span class="ml-14 uppercase underline">OSEC-decsbmtchr2-540459-1998</span></p>
+        <p class="text-sm">Position: {{ $personnel->position->title }}</p>
+        <p class="text-sm">Salary Grade: {{ $salaryChange->current_salary_grade }}</p>
+        <p class="text-sm">Item No./Unique Item No. Fy 2024 Personnel Services Itemization</p>
+        <p class="text-sm">and/or Plantilla of Personnel: <span class="ml-14 uppercase underline">OSEC-decsbmtchr2-540459-1998</span></p>
     </div>
     <hr class="border-gray-300 mt-1 border-t-2 mb-2">
 
@@ -124,4 +128,5 @@
         <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>
     </div>
 </body>
+
 </html>

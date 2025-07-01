@@ -75,4 +75,24 @@ class SalaryChangesController extends Controller
     {
         //
     }
+
+    /**
+     * Download a specific salary change as PDF (NOSA or NOSI)
+     */
+    public function download($personnelId, $changeId)
+    {
+        $salaryChange = \App\Models\SalaryChange::findOrFail($changeId);
+        $personnel = \App\Models\Personnel::findOrFail($personnelId);
+
+        // Choose template based on type
+        $view = $salaryChange->type === 'NOSI' ? 'pdf.nosi' : 'pdf.nosa';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($view, [
+            'personnel' => $personnel,
+            'salaryChange' => $salaryChange
+        ]);
+
+        $filename = $personnel->last_name . ' ' . $personnel->first_name . ' - ' . $salaryChange->type . '.pdf';
+        return $pdf->download($filename);
+    }
 }

@@ -66,7 +66,7 @@ class PersonnelFactory extends Factory
             'appointment' => $this->faker->randomElement(['regular', 'part-time', 'temporary', 'contract']),
             'fund_source' => $this->faker->randomElement(['nationally funded', 'pta']),
             'salary_grade_id' => $this->faker->numberBetween(1, 32),
-            'step_increment' => $this->faker->optional()->randomElement(range(1, 8)),
+            'step_increment' => $this->faker->randomElement(range(1, 8)),
             'leave_of_absence_without_pay_count' => $this->faker->numberBetween(0, 30),
             'category' => $this->faker->randomElement(['SDO Personnel', 'School Head', 'Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher', 'School Non-teaching Personnel']),
             'job_status' => $this->faker->randomElement($jobStatusOptions),

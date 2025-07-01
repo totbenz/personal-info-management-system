@@ -138,8 +138,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('salary-steps/', 'index')->name('salary_steps.index');
         });
 
-        Route::controller(SalaryChangesController::class)->group(function(){
+        Route::controller(SalaryChangesController::class)->group(function () {
             Route::get('personnels/{personnel}/salary-changes', 'index')->name('personnel-salary-changes.index');
+            Route::get('personnels/{personnel}/salary-changes/{change}/download', 'download')->name('personnel-salary-changes.download');
         });
         // Events routes
         Route::resource('events', EventController::class);
