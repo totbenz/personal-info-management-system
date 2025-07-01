@@ -127,7 +127,7 @@
                                 View
                             </button>
                             <button wire:click="setDeleteId({{ $account->id }})" x-on:click="$openModal('delete-account-modal')"
-                                class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 hover:text-white text-white duration-300">
+                                class="py-1 px-4 bg-red-600 font-medium text-sm tracking-wider rounded-md border-2 border-red-600 hover:bg-red-700 text-white duration-300">
                                 Delete
                             </button>
                         </div>
@@ -199,7 +199,7 @@
                         class="flex-1 bg-blue-100 text-blue-700 border-0 hover:bg-blue-200 focus:ring-blue-300 py-3 font-medium transition-all duration-200">
                         Cancel
                     </x-button>
-                    <x-button
+                    <button
                         wire:click="deleteAccount()"
                         type="button"
                         class="flex-1 bg-red-600 text-white border-0 hover:bg-red-800 hover:border-red-600 border-2 py-3 font-medium transition-all duration-200">
@@ -209,7 +209,7 @@
                             </svg>
                             <span>Delete</span>
                         </span>
-                    </x-button>
+                    </button>
                 </div>
             </div>
         </div>

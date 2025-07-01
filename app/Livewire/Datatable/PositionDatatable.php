@@ -72,17 +72,20 @@ class PositionDatatable extends Component
             $position = Position::find($this->deleteId);
             if ($position) {
                 $position->delete();
-                session()->flash('message', 'Position deleted successfully.');
+                $this->dispatch('show-success-alert', ['message' => 'Position deleted successfully.']);
                 $this->showDeleteModal = false;
                 $this->deleteId = null;
             } else {
                 $this->deleteError = 'Position not found.';
+                $this->dispatch('show-error-alert', ['message' => 'Position not found.']);
             }
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->getCode() == 23000) {
                 $this->deleteError = 'Cannot delete this position because it is referenced by other records.';
+                $this->dispatch('show-error-alert', ['message' => 'Cannot delete this position because it is referenced by other records.']);
             } else {
                 $this->deleteError = 'An error occurred while deleting the position.';
+                $this->dispatch('show-error-alert', ['message' => 'An error occurred while deleting the position.']);
             }
         }
     }

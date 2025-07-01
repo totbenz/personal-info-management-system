@@ -1,4 +1,31 @@
-<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg">
+<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg" x-data="{
+    init() {
+        window.addEventListener('show-success-alert', e => {
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: e.detail && e.detail.message ? e.detail.message : 'Position deleted successfully.',
+                    timer: 1800,
+                    showConfirmButton: false
+                });
+            } else {
+                alert(e.detail && e.detail.message ? e.detail.message : 'Position deleted successfully.');
+            }
+        });
+        window.addEventListener('show-error-alert', e => {
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: e.detail && e.detail.message ? e.detail.message : 'Failed to delete position.'
+                });
+            } else {
+                alert(e.detail && e.detail.message ? e.detail.message : 'Failed to delete position.');
+            }
+        });
+    }
+}">
     <div class="flex justify-between items-center mb-6">
         <div class="flex space-x-4">
             <button x-on:click="$openModal('create-position-modal')" class="bg-main text-white px-4 py-2 rounded-lg shadow hover:bg-main-dark transition font-semibold">
@@ -189,7 +216,7 @@
                         class="flex-1 bg-blue-100 text-blue-700 border-0 hover:bg-blue-200 focus:ring-blue-300 py-3 font-medium transition-all duration-200">
                         Cancel
                     </x-button>
-                    <x-button
+                    <button
                         wire:click="deletePosition()"
                         type="button"
                         class="flex-1 bg-red-600 text-white border-0 hover:bg-red-800 hover:border-red-600 border-2 py-3 font-medium transition-all duration-200">
@@ -199,7 +226,7 @@
                             </svg>
                             <span>Delete</span>
                         </span>
-                    </x-button>
+                    </button>
                 </div>
             </div>
         </div>
