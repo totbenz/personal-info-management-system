@@ -83,7 +83,6 @@ Route::middleware(['auth'])->group(function () {
     // //NOSI
     // Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download');
     // Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview');
-
     //DOWNLOAD ALL
     Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download');
 
