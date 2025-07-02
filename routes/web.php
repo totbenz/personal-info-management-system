@@ -75,6 +75,7 @@ Route::middleware(['auth'])->group(function () {
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
+    Route::get('/service-records/{personnelId}', [ServiceRecordController::class, 'index'])->name('service-records.index');
 
     // //NOSA
     // Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download');
