@@ -216,7 +216,7 @@
         <tr>
             <td style="width: 50%; text-align: center;">
                 <br><br><br>
-                April 12, 2024<br>
+                {{ \Carbon\Carbon::now()->format('F d, Y') }}<br>
                 <span style="border-top: 1px solid black; display: inline-block; width: 150px;">Date</span>
             </td>
             <td style="width: 50%;">

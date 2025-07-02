@@ -12,6 +12,7 @@ use App\Livewire\PersonnelNavigation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log as LaravelLog;
 use Illuminate\Support\Facades\DB;
+use App\Observers\PersonnelObserver;
 
 class PersonalInformationForm extends PersonnelNavigation
 {
@@ -22,7 +23,7 @@ class PersonalInformationForm extends PersonnelNavigation
         $tin, $sss_num, $gsis_num, $philhealth_num,
         $pagibig_num, $salary,
         $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position, $leave_of_absence_without_pay_count,
-        $email, $tel_no, $mobile_no;
+        $email, $tel_no, $mobile_no, $salary_changed_at;
     public $showMode = false, $storeMode = false, $updateMode = false;
     public $separation_cause_input = null;
     public $original_position_id = null;
@@ -66,6 +67,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 // changes in the database table
                 $this->salary_grade_id = $this->personnel->salary_grade_id;
                 $this->step_increment = $this->personnel->step_increment;
+                $this->salary_changed_at = $this->personnel->salary_changed_at;
                 $this->category = $this->personnel->category;
                 $this->job_status = $this->personnel->job_status;
                 $this->employment_start = $this->personnel->employment_start;
@@ -225,6 +227,7 @@ class PersonalInformationForm extends PersonnelNavigation
             throw $e;
         }
 
+
         // Prepare data for Personnel
         $data = [
             'first_name' => $this->first_name,
@@ -261,6 +264,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'mobile_no' => $this->mobile_no,
             'leave_of_absence_without_pay_count' => $this->leave_of_absence_without_pay_count,
         ];
+
         LaravelLog::info('Prepared data for Personnel', $data);
 
         if ($this->personnel == null) {
@@ -335,6 +339,10 @@ class PersonalInformationForm extends PersonnelNavigation
             $salary_changed = $original_salary != $new_salary;
 
             if ($grade_changed && $step_changed) {
+                // Update salary_changed_at timestamp
+                $this->personnel->salary_changed_at = now();
+                $this->personnel->save();
+
                 // Log NOSA (grade change, step stays original)
                 LaravelLog::info('Salary change detected, logging NOSA to salary_changes', [
                     'personnel_id' => $this->personnel->id,
@@ -355,7 +363,7 @@ class PersonalInformationForm extends PersonnelNavigation
                     'current_salary_step' => $original_step,
                     'previous_salary' => $previous_salary,
                     'current_salary' => $nosa_salary,
-                    'actual_monthly_salary_as_of_date' => now(),
+                    'actual_monthly_salary_as_of_date' => $this->salary_changed_at ?? now(),
                     'adjusted_monthly_salary_date' => now(),
                 ]);
                 // Log NOSI (step change, grade is new)
@@ -378,10 +386,14 @@ class PersonalInformationForm extends PersonnelNavigation
                     'current_salary_step' => $new_step,
                     'previous_salary' => $nosa_salary,
                     'current_salary' => $current_salary,
-                    'actual_monthly_salary_as_of_date' => now(),
+                    'actual_monthly_salary_as_of_date' => $this->salary_changed_at ?? now(),
                     'adjusted_monthly_salary_date' => now(),
                 ]);
             } elseif ($grade_changed) {
+                // Update salary_changed_at timestamp
+                $this->personnel->salary_changed_at = now();
+                $this->personnel->save();
+
                 // Only grade changed
                 LaravelLog::info('Salary change detected, logging NOSA to salary_changes', [
                     'personnel_id' => $this->personnel->id,
@@ -402,10 +414,14 @@ class PersonalInformationForm extends PersonnelNavigation
                     'current_salary_step' => $original_step,
                     'previous_salary' => $previous_salary,
                     'current_salary' => $nosa_salary,
-                    'actual_monthly_salary_as_of_date' => now(),
+                    'actual_monthly_salary_as_of_date' => $this->salary_changed_at ?? now(),
                     'adjusted_monthly_salary_date' => now(),
                 ]);
             } elseif ($step_changed) {
+                // Update salary_changed_at timestamp
+                $this->personnel->salary_changed_at = now();
+                $this->personnel->save();
+
                 // Only step changed
                 LaravelLog::info('Salary change detected, logging NOSI to salary_changes', [
                     'personnel_id' => $this->personnel->id,
@@ -426,7 +442,7 @@ class PersonalInformationForm extends PersonnelNavigation
                     'current_salary_step' => $new_step,
                     'previous_salary' => $previous_salary,
                     'current_salary' => $current_salary,
-                    'actual_monthly_salary_as_of_date' => now(),
+                    'actual_monthly_salary_as_of_date' =>  $this->salary_changed_at ?? now(),
                     'adjusted_monthly_salary_date' => now(),
                 ]);
             }
@@ -571,6 +587,8 @@ class PersonalInformationForm extends PersonnelNavigation
             && ($this->school_id != $this->original_school_id);
         $isDateDirty = ($this->employment_start != $this->original_employment_start)
             && ($this->employment_end != $this->original_employment_end);
+        $isSalaryGradeDirty = ($this->salary_grade_id != ($this->personnel->salary_grade_id ?? null));
+        $isStepIncrementDirty = ($this->step_increment != ($this->personnel->step_increment ?? null));
         if ($isAllDirty || $isDateDirty) {
             $rules['separation_cause_input'] = 'required|string|max:255';
         }

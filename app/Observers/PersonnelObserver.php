@@ -21,20 +21,12 @@ class PersonnelObserver
      */
     public function updated(Personnel $personnel)
     {
-        // Check if specific fields are dirty (have been changed)
-        if ($personnel->isDirty(['position_id', 'appointment', 'salary_grade', 'school_id'])) {
-            ServiceRecord::create([
-                'personnel_id' => $personnel->id,
-                'from_date' => now(), // Adjust this as needed
-                'to_date' => null,    // Adjust this as needed
-                'designation' => $personnel->position->title,
-                'appointment_status' => $personnel->appointment,
-                'salary' => $personnel->salary_grade,
-                'station' => $personnel->school->school_name, // Adjust this as needed
-                'branch' => $personnel->school->district->title,   // Adjust this as needed
-                'lv_wo_pay' => $personnel->lv_wo_pay, // Adjust this as needed
-                'separation_date_cause' => $personnel->separation_date_cause // Adjust this as needed
-            ]);
+        // This code checks if either the salary grade or step increment has changed
+        // If so, it updates the salary_changed_at timestamp to the current time and saves the personnel record
+        // This helps track when salary changes occur for the personnel
+        if ($personnel->isDirty(['salary_grade_id', 'step_increment'])) {
+            $personnel->salary_changed_at = now();
+            $personnel->save();
         }
     }
 
