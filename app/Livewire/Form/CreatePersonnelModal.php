@@ -60,13 +60,13 @@ class CreatePersonnelModal extends Component
     public function mount()
     {
         // Set default values
-        $this->sex = '';
-        $this->civil_status = '';
-        $this->blood_type = '';
-        $this->appointment = '';
-        $this->job_status = '';
-        $this->category = '';
-        $this->fund_source = '';
+        $this->sex = 'male';
+        $this->civil_status = 'single';
+        $this->blood_type = 'A+';
+        $this->appointment = 'regular';
+        $this->job_status = 'active';
+        $this->category = 'Elementary School Teacher';
+        $this->fund_source = 'nationally funded';
         $this->salary_grade_id = 1;
         $this->step_increment = 1;
         $this->tin = '';
