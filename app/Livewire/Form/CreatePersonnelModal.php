@@ -19,6 +19,7 @@ class CreatePersonnelModal extends Component
         $email, $tel_no, $mobile_no,
         $tin, $sss_num, $gsis_num, $philhealth_num, $pagibig_num;
     public $showModal;
+    public $isAuthUserSchoolHead;
 
     protected $rules = [
         'first_name' => 'required|string|max:255',
@@ -54,16 +55,18 @@ class CreatePersonnelModal extends Component
         'pagibig_num' => 'nullable|string|max:12',
     ];
 
+    public $schoolOptions = [];
+
     public function mount()
     {
         // Set default values
-        $this->sex = 'male';
-        $this->civil_status = 'single';
-        $this->blood_type = 'A+';
-        $this->appointment = 'regular';
-        $this->job_status = 'active';
-        $this->category = 'Elementary School Teacher';
-        $this->fund_source = 'nationally funded';
+        $this->sex = '';
+        $this->civil_status = '';
+        $this->blood_type = '';
+        $this->appointment = '';
+        $this->job_status = '';
+        $this->category = '';
+        $this->fund_source = '';
         $this->salary_grade_id = 1;
         $this->step_increment = 1;
         $this->tin = '';
@@ -72,6 +75,24 @@ class CreatePersonnelModal extends Component
         $this->philhealth_num = '';
         $this->pagibig_num = '';
         $this->showModal = false;
+        $this->isAuthUserSchoolHead = Auth::check() && Auth::user()->role === 'school_head';
+
+        // Get all unique school_ids from personnels table
+        $personnelSchoolIds = \App\Models\Personnel::distinct()->pluck('school_id')->toArray();
+
+        // Fetch schools where id is in personnelSchoolIds
+        $this->schoolOptions = School::whereIn('id', $personnelSchoolIds)
+            ->select('school_id', 'school_name')
+            ->get()
+            ->toArray();
+
+        // If the authenticated user is a school_head, auto-populate school_id
+        if ($this->isAuthUserSchoolHead) {
+            $personnel = \App\Models\Personnel::where('id', Auth::user()->id)->first();
+            if ($personnel && $personnel->school_id) {
+                $this->school_id = $personnel->school_id;
+            }
+        }
     }
 
     public function render()

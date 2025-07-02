@@ -77,6 +77,9 @@
                     <span class="w-2/6">
                         <x-input type="number" class="form-control" id="personnel_id" label="Personnel ID" wire:model="personnel_id" required />
                     </span>
+                    @php
+                        $isSchoolAdmin = auth()->user() && auth()->user()->getRole('school_admin');
+                    @endphp
                     <span class="w-3/6">
                         <x-select
                             wire:model="school_id"
@@ -88,7 +91,21 @@
                             option-value="id"
                             option-description="school_name"
                             label="School ID"
-                            class="form-control" />
+                            class="form-control"
+                            @if($isSchoolAdmin) disabled @endif
+                        />
+                        @php
+                            $user = auth()->user();
+                            $schoolName = $user ? $user->getSchoolName() : null;
+                        @endphp
+                        <x-input 
+                            type="text" 
+                            class="form-control" 
+                            id="school_name" 
+                            label="School" 
+                            :value="$schoolName" 
+                            readonly 
+                        />
                     </span>
                     <span class="w-1/6">
                         <x-native-select label="Job Status" wire:model="job_status" id="job_status" name="job_status" class="form-control">

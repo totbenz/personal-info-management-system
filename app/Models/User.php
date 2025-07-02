@@ -63,4 +63,32 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Personnel::class);
     }
+
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    public function school()
+    {
+        return $this->personnel ? $this->personnel->school() : null;
+    }
+
+    public function getSchoolId()
+    {
+        $personnel = $this->personnel;
+        if (!$personnel || !$personnel->school) {
+            return null;
+        }
+        return $personnel->school->id;
+    }
+
+    public function getSchoolName()
+    {
+        $personnel = $this->personnel;
+        if (!$personnel || !$personnel->school) {
+            return null;
+        }
+        return $personnel->school->school_name;
+    }
 }

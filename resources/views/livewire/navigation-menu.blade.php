@@ -24,8 +24,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @endif
@@ -36,8 +35,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ Auth::user()->personnel->school->school_name }}
                     </x-nav-link>
                     <x-nav-link
@@ -46,8 +44,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Profile') }}
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
@@ -57,8 +54,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Schools') }}
                     </x-nav-link>
                     @endif
@@ -69,8 +65,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Profile') }}
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
@@ -80,8 +75,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Personnels') }}
                     </x-nav-link>
                     <x-nav-link
@@ -90,8 +84,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Positions') }}
                     </x-nav-link>
                     {{-- <x-nav-link href="{{ route('districts.index') }}" :active="request()->routeIs('districts.index')" wire:navigate>
@@ -103,8 +96,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Accounts') }}
                     </x-nav-link>
                     <!-- <x-nav-link href="{{ route('salary_grades.index') }}" :active="request()->routeIs('salary_grades.index')" wire:navigate>
@@ -116,8 +108,7 @@
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white"
-                    >
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Salary Table') }}
                     </x-nav-link>
                     @endif
@@ -157,13 +148,33 @@
                             </a>
                         </li>
                         <li class="border-gray-400">
-                            <a href="{{ route('logout') }}" class="flex items-center px-3 py-1.5 hover:bg-gray-200">
+                            <button type="button" onclick="confirmLogout(event)" class="flex items-center px-3 py-1.5 hover:bg-gray-200 w-full text-left">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
                                 </svg>
                                 <span class="ml-2 text-sm">Logout</span>
-                            </a>
+                            </button>
                         </li>
+                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                        <script>
+                            function confirmLogout(e) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    title: 'Are you sure?',
+                                    text: 'You will be logged out of your account.',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Logout',
+                                    cancelButtonText: 'Cancel'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = "{{ route('logout') }}";
+                                    }
+                                });
+                            }
+                        </script>
                     </ul>
                 </div>
             </div>

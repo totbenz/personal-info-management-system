@@ -2,15 +2,15 @@
     <div class="flex justify-between">
         <div class="w-1/4 inline-flex space-x-4">
             @include('personnel.modal.create-modal')
-            <!-- <div class="flex justify-between space-x-3">
+            <div class="flex justify-between space-x-3">
                 <a href="#" x-on:click="$openModal('create-personnel-modal')">
-                    <button class="py-2 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
+                    <button class="py-2 px-4 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
                         New Personnel
                     </button>
                 </a>
-            </div> -->
+            </div>
             <div class="flex justify-between space-x-3">
-                <button wire:click='export' class="py-2 px-4 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
+                <button wire:click='export' class="py-2 px-4 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
                     Export Excel
                 </button>
             </div>
