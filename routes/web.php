@@ -67,7 +67,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/', 'index')->name('school_personnels.index');
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
-            // Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
+            Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
             Route::get('/personnel/profile', [PersonnelController::class, 'profile'])->name('personnels.profile');
             Route::get('school/personnels/{personnel}', 'show')->name('school_personnels.show');
         });
