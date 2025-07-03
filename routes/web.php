@@ -18,9 +18,14 @@ use App\Http\Controllers\NosiController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\SalaryChangesController;
 
+Route::middleware('guest')->group(function () {
+    Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
+        Route::get('/login', 'login')->name('login');
+        Route::post('/authenticate', 'authenticate')->name('authenticate');
+    });
+});
+
 Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
-    Route::get('/login', 'login')->name('login');
-    Route::post('/authenticate', 'authenticate')->name('authenticate');
     Route::get('logout', 'logout')->middleware('auth')->name('logout');
 });
 
