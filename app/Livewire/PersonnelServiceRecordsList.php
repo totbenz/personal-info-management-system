@@ -29,9 +29,10 @@ class PersonnelServiceRecordsList extends Component
     public $positions = [];
 
     protected $rules = [
+        'personnel_id' => 'required|integer|exists:personnels,id',
         'position_id' => 'required|exists:positions,id',
         'appointment_status' => 'required|string|max:255',
-        'salary' => 'required|numeric',
+        'salary' => 'nullable|numeric',
         'from_date' => 'required|date',
         'to_date' => 'nullable|date|after_or_equal:from_date',
         'station' => 'nullable|string|max:255',
@@ -40,12 +41,12 @@ class PersonnelServiceRecordsList extends Component
         'separation_date_cause' => 'nullable|string|max:255',
     ];
 
-    public function mount($serviceRecords)
+    public function mount($serviceRecords, $personnelId)
     {
         $this->positions = Position::all();
         $serviceRecords->load('position');
         $this->serviceRecords = $serviceRecords;
-        $this->personnel_id = $serviceRecords->first()->personnel_id ?? null;
+        $this->personnel_id = $personnelId;
     }
 
     public function openModal()
@@ -81,6 +82,7 @@ class PersonnelServiceRecordsList extends Component
         $this->editId = $id;
         $this->isEditMode = true;
         $this->showModal = true;
+        $this->personnel_id = $record->personnel_id;
         $this->position_id = $record->position_id;
         $this->appointment_status = $record->appointment_status;
         $this->salary = $record->salary;
@@ -102,7 +104,7 @@ class PersonnelServiceRecordsList extends Component
             'to_date' => 'nullable|date|after:from_date',
             'station' => 'required',
             'branch' => 'required',
-            'lv_wo_pay' => 'nullable',
+            'lv_wo_pay' => 'nullable|integer',
             'separation_date_cause' => 'nullable'
         ]);
 
