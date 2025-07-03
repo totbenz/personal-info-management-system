@@ -26,9 +26,10 @@
                         </label>
                         <x-native-select id="division" wire:model="division" name="division" required>
                             <option value="" disabled selected>Select Division</option>
-                            @for ($i = 1; $i <= 13; $i++)
-                                <option value="Division {{ $i }}">Division {{ $i }}</option>
-                                @endfor
+                            <option value="Ormoc City">Ormoc City</option>
+                            <option value="Maasin City">Maasin City</option>
+                            <option value="Leyte">Leyte</option>
+                            <option value="Baybay City">Baybay City</option>
                         </x-native-select>
                     </span>
                     <span class="w-2/6">

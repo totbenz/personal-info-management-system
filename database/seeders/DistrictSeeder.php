@@ -18,6 +18,12 @@ class DistrictSeeder extends Seeder
             ['name' => 'District 2'],
             ['name' => 'District 3'],
             ['name' => 'District 4'],
+            ['name' => 'District 5'],
+            ['name' => 'District 6'],
+            ['name' => 'District 7'],
+            ['name' => 'District 8'],
+            ['name' => 'District 9'],
+            ['name' => 'District 10'],
         ]);
     }
 }
