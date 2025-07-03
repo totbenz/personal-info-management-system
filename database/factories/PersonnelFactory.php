@@ -5,8 +5,10 @@ namespace Database\Factories;
 use App\Models\Personnel;
 use App\Models\School;
 use App\Models\Position;
+use App\Models\SalaryStep;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class PersonnelFactory extends Factory
 {
@@ -44,6 +46,21 @@ class PersonnelFactory extends Factory
             ];
         }
 
+        // Generate salary grade and step increment
+        $salaryGradeId = $this->faker->numberBetween(1, 32);
+        $stepIncrement = $this->faker->randomElement(range(1, 8));
+
+        // Get current year
+        $currentYear = Carbon::now()->year;
+
+        // Get salary based on salary grade, step and year
+        $salary = SalaryStep::where('salary_grade_id', $salaryGradeId)
+            ->where('step', $stepIncrement)
+            ->where('year', '<=', $currentYear)
+            ->orderByDesc('year')
+            ->first()
+            ->salary ?? 0;
+
         return [
             'first_name' => $this->faker->firstName,
             'middle_name' => $this->faker->optional()->firstName,
@@ -65,8 +82,9 @@ class PersonnelFactory extends Factory
             'position_id' => $position ? $position->id : null,
             'appointment' => $this->faker->randomElement(['regular', 'part-time', 'temporary', 'contract']),
             'fund_source' => $this->faker->randomElement(['nationally funded', 'pta']),
-            'salary_grade_id' => $this->faker->numberBetween(1, 32),
-            'step_increment' => $this->faker->randomElement(range(1, 8)),
+            'salary_grade_id' => $salaryGradeId,
+            'step_increment' => $stepIncrement,
+            'salary' => $salary,
             'leave_of_absence_without_pay_count' => $this->faker->numberBetween(0, 30),
             'salary_changed_at' => $this->faker->date,
             'category' => $this->faker->randomElement(['SDO Personnel', 'School Head', 'Elementary School Teacher', 'Junior High School Teacher', 'Senior High School Teacher', 'School Non-teaching Personnel']),

@@ -77,21 +77,29 @@ class CreatePersonnelModal extends Component
         $this->showModal = false;
         $this->isAuthUserSchoolHead = Auth::check() && Auth::user()->role === 'school_head';
 
-        // Get all unique school_ids from personnels table
-        $personnelSchoolIds = \App\Models\Personnel::distinct()->pluck('school_id')->toArray();
-
-        // Fetch schools where id is in personnelSchoolIds
-        $this->schoolOptions = School::whereIn('id', $personnelSchoolIds)
-            ->select('school_id', 'school_name')
-            ->get()
-            ->toArray();
-
-        // If the authenticated user is a school_head, auto-populate school_id
+        // If the authenticated user is a school_head, auto-populate school_id and get school name
         if ($this->isAuthUserSchoolHead) {
-            $personnel = \App\Models\Personnel::where('id', Auth::user()->id)->first();
+            $personnel = \App\Models\Personnel::with('school')
+                ->where('id', Auth::user()->id)
+                ->first();
+
             if ($personnel && $personnel->school_id) {
                 $this->school_id = $personnel->school_id;
+                $this->schoolOptions = [[
+                    'id' => $personnel->school->id,
+                    'school_id' => $personnel->school->school_id,
+                    'school_name' => $personnel->school->school_name
+                ]];
             }
+        } else {
+            // Get all unique school_ids from personnels table
+            $personnelSchoolIds = \App\Models\Personnel::distinct()->pluck('school_id')->toArray();
+
+            // Fetch schools where id is in personnelSchoolIds
+            $this->schoolOptions = School::whereIn('id', $personnelSchoolIds)
+                ->select('id', 'school_id', 'school_name')
+                ->get()
+                ->toArray();
         }
     }
 
@@ -231,6 +239,7 @@ class CreatePersonnelModal extends Component
             'philhealth_num' => $this->philhealth_num,
             'pagibig_num' => $this->pagibig_num,
             'salary' => $this->salary,
+            'salary_changed_at' => now(),
         ];
         LaravelLog::info('Prepared data for Personnel in create modal', $data);
 
@@ -238,8 +247,47 @@ class CreatePersonnelModal extends Component
             LaravelLog::info('Creating new Personnel from modal');
             $personnel = Personnel::create($data);
 
-            // Create service record
-            // $this->createServiceRecord($school, $personnel);
+            // Create NOSA and NOSI salary change records for new personnel
+            $salaryChanges = [];
+
+            // NOSA record
+            $salaryChanges[] = [
+                'personnel_id' => $personnel->id,
+                'type' => 'NOSA',
+                'previous_salary_grade' => 0,
+                'current_salary_grade' => $this->salary_grade_id,
+                'previous_salary_step' => 0,
+                'current_salary_step' => $this->step_increment,
+                'previous_salary' => 0,
+                'current_salary' => $this->salary,
+                'actual_monthly_salary_as_of_date' => now(),
+                'adjusted_monthly_salary_date' => now(),
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // NOSI record
+            $salaryChanges[] = [
+                'personnel_id' => $personnel->id,
+                'type' => 'NOSI',
+                'previous_salary_grade' => 0,
+                'current_salary_grade' => $this->salary_grade_id,
+                'previous_salary_step' => 0,
+                'current_salary_step' => $this->step_increment,
+                'previous_salary' => 0,
+                'current_salary' => $this->salary,
+                'actual_monthly_salary_as_of_date' => now(),
+                'adjusted_monthly_salary_date' => now(),
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // Create both salary change records
+            DB::table('salary_changes')->insert($salaryChanges);
+
+            LaravelLog::info('Salary change records created', [
+                'salary_changes' => $salaryChanges
+            ]);
 
             session()->flash('flash.banner', 'Personnel created successfully');
             session()->flash('flash.bannerStyle', 'success');
@@ -250,7 +298,7 @@ class CreatePersonnelModal extends Component
             $this->reset();
             $this->mount();
 
-            // Close modal (you might need to emit an event to close the modal)
+            // Close modal
             $this->dispatch('close-modal', 'create-personnel-modal');
         } catch (\Exception $e) {
             LaravelLog::error('Error creating personnel from modal', [
@@ -261,6 +309,8 @@ class CreatePersonnelModal extends Component
             session()->flash('flash.banner', 'Failed to create personnel: ' . $e->getMessage());
             session()->flash('flash.bannerStyle', 'danger');
         }
+
+        return redirect()->route('personnels.index');
     }
 
     /**
