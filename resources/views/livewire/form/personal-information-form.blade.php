@@ -85,7 +85,7 @@
     <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
     <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
         <span class="w-3/12">
-            <x-input type="number" class="bg-gray-50 border-gray-300" id="personnel_id" label="Personnel ID" wire:model="personnel_id" readonly/>
+            <x-input type="number" class="bg-gray-50 border-gray-300" id="personnel_id" label="Employee ID" wire:model="personnel_id" readonly/>
         </span>
         <span class="w-3/12">
             <x-input type="number" class="bg-gray-50 border-gray-300" id="school_id" label="School ID" wire:model="school_id" readonly/>

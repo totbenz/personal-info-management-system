@@ -83,6 +83,7 @@
                             <option value="grade 1-6">Grade 1-6</option>
                             <option value="grade 7-10">Grade 7-10</option>
                             <option value="grade 11-12">Grade 11-12</option>
+                            <option value="kindergarten">Kindergarten</option>
                         </x-native-select>
                     </div>
                 </div>
