@@ -7,7 +7,7 @@
             {{ __('Service Records') }} of {{ $fullName }}
         </h2>
         <div class="mt-2 ml-2 text-gray-600 text-sm">
-            <span class="font-medium">Personnel ID:</span> {{ $personnelId }}
+            <span class="font-medium">Record Number:</span> {{ $personnelId }}
         </div>
     </x-slot>
     <div class="max-w-8xl mx-auto sm:px-6 sm:py-3 lg:px-8 lg:py-5">

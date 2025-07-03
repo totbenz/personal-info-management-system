@@ -29,7 +29,7 @@
                     <div class="flex-1 overflow-y-auto px-6 py-2">
                         <form wire:submit.prevent="save" class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Personnel ID</label>
+                                <label class="block text-sm font-medium text-gray-700">Record Number</label>
                                 <input type="text" wire:model.defer="personnel_id" class="mt-1 block w-full rounded border-gray-300 bg-gray-100 shadow-sm focus:ring focus:ring-blue-200" readonly>
                             </div>
                             <div>
