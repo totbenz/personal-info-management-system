@@ -229,7 +229,7 @@
                         <option value="seperated">Seperated</option>
                         <option value="widowed">Widowed</option>
                         <option value="divorced">Divorced</option>
-                        <option value="others">Others</option>
+                    <option value="others">Others</option>
                     </x-native-select>
                 </span>
                 <span class="w-2/12">

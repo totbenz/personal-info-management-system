@@ -288,12 +288,24 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->createServiceRecord($school, $this->personnel, $this->separation_cause_input);
             }
 
+            // Check if employment_start is dirty and reset loyalty_award_claim_count if needed
+            $resetLoyaltyAwardClaimCount = false;
+            if ($this->personnel && $this->personnel->employment_start != $this->employment_start) {
+                $resetLoyaltyAwardClaimCount = true;
+            }
+
             $original_grade = $this->personnel->salary_grade_id;
             $original_step = $this->personnel->step_increment;
             $original_salary = $this->personnel->salary;
 
             // Update the Personnel first
             $this->personnel->update($data);
+
+            // Reset loyalty_award_claim_count if employment_start was changed
+            if ($resetLoyaltyAwardClaimCount) {
+                $this->personnel->loyalty_award_claim_count = 0;
+                $this->personnel->save();
+            }
 
             // Now compare the original and new values
             $new_grade = $this->personnel->salary_grade_id;

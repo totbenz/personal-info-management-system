@@ -57,6 +57,9 @@ class LoyaltyDatatable extends Component
             $personnel->can_claim = $this->canClaimLoyaltyAward($yearsOfService);
             $personnel->next_award_year = $this->getNextAwardYear($yearsOfService);
 
+            // Calculate max possible claims
+            $personnel->max_claims = $this->calculateMaxClaims($yearsOfService);
+
             // Sanitize fields to prevent malformed UTF-8
             $personnel->first_name = $this->sanitizeUtf8($personnel->first_name);
             $personnel->middle_name = $this->sanitizeUtf8($personnel->middle_name);
@@ -130,6 +133,26 @@ class LoyaltyDatatable extends Component
         $yearsSinceFirstAward = $yearsOfService - 10;
         $nextMilestone = ceil(($yearsSinceFirstAward + 1) / 5) * 5;
         return 10 + $nextMilestone;
+    }
+
+    // Calculate max possible claims based on years of service
+    private function calculateMaxClaims($yearsOfService)
+    {
+        if ($yearsOfService < 10) return 0;
+        return 1 + floor(max(0, $yearsOfService - 10) / 5);
+    }
+
+    public function claimLoyaltyAward($personnelId)
+    {
+        $personnel = Personnel::find($personnelId);
+        if (!$personnel) return;
+        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
+        $maxClaims = $this->calculateMaxClaims($yearsOfService);
+        if ($personnel->loyalty_award_claim_count < $maxClaims) {
+            $personnel->loyalty_award_claim_count += 1;
+            $personnel->save();
+            session()->flash('success', 'Loyalty award claim recorded!');
+        }
     }
 
     public function exportPdf()

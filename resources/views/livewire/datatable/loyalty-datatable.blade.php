@@ -35,22 +35,22 @@
                 </path>
             </svg>
             @php
-                // Count eligible personnels
-                $eligibleCount = $personnels->filter(function($personnel) {
-                    $yearsOfService = $personnel->years_of_service;
-                    return $yearsOfService >= 10 && ($yearsOfService == 10 || (($yearsOfService - 10) % 5 == 0));
-                })->count();
+            // Count eligible personnels
+            $eligibleCount = $personnels->filter(function($personnel) {
+            $yearsOfService = $personnel->years_of_service;
+            return $yearsOfService >= 10 && ($yearsOfService == 10 || (($yearsOfService - 10) % 5 == 0));
+            })->count();
             @endphp
 
             @if($eligibleCount > 0)
-                <a href="{{ route('loyalty-awards.export-pdf') }}" target="_blank">
-                    <button class="ml-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white flex items-center gap-2 rounded shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
-                        <span class="font-semibold tracking-wide">Export PDF</span>
-                    </button>
-                </a>
+            <a href="{{ route('loyalty-awards.export-pdf') }}" target="_blank">
+                <button class="ml-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white flex items-center gap-2 rounded shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    <span class="font-semibold tracking-wide">Export PDF</span>
+                </button>
+            </a>
             @endif
         </div>
     </div>
@@ -63,7 +63,7 @@
                     <th wire:click="doSort('personnel_id')" class="w-1/12 p-2 whitespace-nowrap">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="personnel_id">
-                                <span class="font-semibold text-left">ID</span>
+                                <span class="font-semibold text-left">Employee ID</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                 </svg>
@@ -118,18 +118,25 @@
                             </button>
                         </div>
                     </th>
-                    <!-- <th class="p-2 whitespace-nowrap w-1/12">
+                    <th class="p-2 whitespace-nowrap w-1/12">
+                        <div class="flex items-center gap-x-3">
+                            <button class="flex items-center gap-x-2">
+                                <span class="font-semibold text-left">Claims</span>
+                            </button>
+                        </div>
+                    </th>
+                    <th class="p-2 whitespace-nowrap w-1/12">
                         <div class="flex items-center gap-x-3">
                             <button class="flex items-center gap-x-2">
                                 <span class="font-semibold text-left">Action</span>
                             </button>
                         </div>
-                    </th> -->
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($personnels as $index => $personnel)
-                <tr wire:loading.class="opacity-75" class="text-sm hover:bg-indigo-50 cursor-pointer" onclick="window.location='{{ route('personnels.show', ['personnel' => $personnel->id]) }}';">
+                <tr wire:loading.class="opacity-75" class="text-sm hover:bg-indigo-50 cursor-pointer">
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $personnel->personnel_id }}</div>
                     </td>
@@ -170,15 +177,30 @@
                     <td class="p-2 whitespace-nowrap w-1/12">
                         <div class="text-left">{{ $personnel->school->school_name ?? 'N/A' }}</div>
                     </td>
-                    <!-- <td class="p-2 whitespace-nowrap w-1/12">
-                        <div class="flex justify-between space-x-3">
-                            <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
-                                <button class="py-1 px-2 bg-white font-medium text-sm tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
-                                    View
-                                </button>
-                            </a>
+                    <td class="p-2 whitespace-nowrap w-1/12">
+                        <div class="text-center font-semibold">
+                            {{ $personnel->loyalty_award_claim_count ?? 0 }} / {{ $personnel->max_claims ?? 0 }}
                         </div>
-                    </td> -->
+                    </td>
+                    <td class="p-2 whitespace-nowrap w-1/12">
+                        @php
+                        $canClaim = ($personnel->loyalty_award_claim_count ?? 0) < ($personnel->max_claims ?? 0);
+                            @endphp
+                            <div class="flex justify-center gap-2">
+                                @if($canClaim)
+                                <button wire:click.stop="claimLoyaltyAward({{ $personnel->id }})" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold shadow disabled:opacity-50" @if(!$canClaim) disabled @endif>
+                                    Claim
+                                </button>
+                                @else
+                                <span class="px-2 py-1 bg-gray-300 text-gray-600 rounded text-xs font-semibold">Claimed</span>
+                                @endif
+                                <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}" class="ml-2">
+                                    <button class="py-1 px-2 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300">
+                                        View
+                                    </button>
+                                </a>
+                            </div>
+                    </td>
                 </tr>
                 @endforeach
                 @if ($personnels->isEmpty())

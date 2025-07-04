@@ -240,6 +240,7 @@ class CreatePersonnelModal extends Component
             'pagibig_num' => $this->pagibig_num,
             'salary' => $this->salary,
             'salary_changed_at' => now(),
+            'loyalty_award_claim_count' => 0,
         ];
         LaravelLog::info('Prepared data for Personnel in create modal', $data);
 
