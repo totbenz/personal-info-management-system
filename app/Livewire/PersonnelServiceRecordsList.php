@@ -16,15 +16,15 @@ class PersonnelServiceRecordsList extends Component
     public $editId = null;
 
     // Form fields
-    public $position_id = '';
-    public $appointment_status = '';
-    public $salary = '';
-    public $from_date = '';
-    public $to_date = '';
-    public $station = '';
-    public $branch = '';
-    public $lv_wo_pay = '';
-    public $separation_date_cause = '';
+    public $position_id = null;
+    public $appointment_status = null;
+    public $salary = null;
+    public $from_date = null;
+    public $to_date = null;
+    public $station = null;
+    public $branch = null;
+    public $lv_wo_pay = null;
+    public $separation_date_cause = null;
     public $personnel_id;
     public $positions = [];
 
@@ -144,8 +144,8 @@ class PersonnelServiceRecordsList extends Component
                     'to_date' => $this->to_date,
                     'station' => $this->station,
                     'branch' => $this->branch,
-                    'lv_wo_pay' => $this->lv_wo_pay,
-                    'separation_date_cause' => $this->separation_date_cause,
+                    'lv_wo_pay' => $this->lv_wo_pay ? $this->lv_wo_pay : 0,
+                    'separation_date_cause' => $this->separation_date_cause ? $this->separation_date_cause : 'N/A',
                 ]);
                 $msg = 'Service record added successfully!';
             }
