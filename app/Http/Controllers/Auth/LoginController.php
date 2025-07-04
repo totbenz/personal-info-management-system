@@ -43,12 +43,12 @@ class LoginController extends Controller
                     ]);
                 }
 
-                // For regular requests, redirect with success message and delay
+                // For regular requests, redirect to a temporary success page
                 session()->flash('success_message', 'Login successful! Welcome back.');
                 session()->flash('redirect_url', $this->getRedirectUrl($user));
                 session()->flash('show_delayed_redirect', true);
 
-                return redirect()->back();
+                return redirect()->route('login.success');
             } else {
                 $account = User::where('email', $request->email)->first();
                 $errorMessage = 'Authentication failed';

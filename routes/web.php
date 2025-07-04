@@ -159,3 +159,8 @@ Route::middleware(['auth'])->group(function () {
     // Add this route for loyalty awards PDF export
     Route::get('/loyalty-awards/export-pdf', [\App\Livewire\Datatable\LoyaltyDatatable::class, 'exportPdf'])->name('loyalty-awards.export-pdf');
 });
+
+// Login success page (no middleware to allow authenticated users)
+Route::get('/login-success', function () {
+    return view('auth.login-success');
+})->name('login.success');
