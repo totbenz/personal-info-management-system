@@ -1,4 +1,14 @@
 <div>
+    @if(session('error'))
+    <div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div class="bg-red-500 text-white px-6 py-3 rounded shadow-lg flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+    </div>
+    @endif
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
             <div>

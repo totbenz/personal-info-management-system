@@ -96,57 +96,69 @@ class PersonnelServiceRecordsList extends Component
 
     public function save()
     {
-        $this->validate([
-            'position_id' => 'required|exists:position,id',
-            'appointment_status' => 'required',
-            'salary' => 'required|numeric',
-            'from_date' => 'required|date',
-            'to_date' => 'nullable|date|after:from_date',
-            'station' => 'required',
-            'branch' => 'required',
-            'lv_wo_pay' => 'nullable|integer',
-            'separation_date_cause' => 'nullable'
-        ]);
-
-        // Get position title before creating/updating record
-        $position = \App\Models\Position::find($this->position_id);
-        $positionTitle = $position ? $position->title : '';
-
-        if ($this->isEditMode && $this->editId) {
-            $record = ServiceRecord::findOrFail($this->editId);
-            $record->update([
-                'position_id' => $this->position_id,
-                'designation' => $positionTitle,
-                'appointment_status' => $this->appointment_status,
-                'salary' => $this->salary,
-                'from_date' => $this->from_date,
-                'to_date' => $this->to_date,
-                'station' => $this->station,
-                'branch' => $this->branch,
-                'lv_wo_pay' => $this->lv_wo_pay,
-                'separation_date_cause' => $this->separation_date_cause,
+        try {
+            $this->validate([
+                'position_id' => 'required|exists:position,id',
+                'appointment_status' => 'required',
+                'salary' => 'required|numeric',
+                'from_date' => 'required|date',
+                'to_date' => 'nullable|date|after:from_date',
+                'station' => 'required',
+                'branch' => 'required',
+                'lv_wo_pay' => 'nullable|integer',
+                'separation_date_cause' => 'nullable'
             ]);
-            $msg = 'Service record updated successfully!';
-        } else {
-            ServiceRecord::create([
-                'personnel_id' => $this->personnel_id,
-                'position_id' => $this->position_id,
-                'designation' => $positionTitle,
-                'appointment_status' => $this->appointment_status,
-                'salary' => $this->salary,
-                'from_date' => $this->from_date,
-                'to_date' => $this->to_date,
-                'station' => $this->station,
-                'branch' => $this->branch,
-                'lv_wo_pay' => $this->lv_wo_pay,
-                'separation_date_cause' => $this->separation_date_cause,
-            ]);
-            $msg = 'Service record added successfully!';
+
+            // Convert empty string to null for nullable date fields
+            if ($this->to_date === '' || $this->to_date === null) {
+                $this->to_date = null;
+            }
+
+            // Get position title before creating/updating record
+            $position = \App\Models\Position::find($this->position_id);
+            $positionTitle = $position ? $position->title : '';
+
+            if ($this->isEditMode && $this->editId) {
+                $record = ServiceRecord::findOrFail($this->editId);
+                $record->update([
+                    'position_id' => $this->position_id,
+                    'designation' => $positionTitle,
+                    'appointment_status' => $this->appointment_status,
+                    'salary' => $this->salary,
+                    'from_date' => $this->from_date,
+                    'to_date' => $this->to_date,
+                    'station' => $this->station,
+                    'branch' => $this->branch,
+                    'lv_wo_pay' => $this->lv_wo_pay,
+                    'separation_date_cause' => $this->separation_date_cause,
+                ]);
+                $msg = 'Service record updated successfully!';
+            } else {
+                ServiceRecord::create([
+                    'personnel_id' => $this->personnel_id,
+                    'position_id' => $this->position_id,
+                    'designation' => $positionTitle,
+                    'appointment_status' => $this->appointment_status,
+                    'salary' => $this->salary,
+                    'from_date' => $this->from_date,
+                    'to_date' => $this->to_date,
+                    'station' => $this->station,
+                    'branch' => $this->branch,
+                    'lv_wo_pay' => $this->lv_wo_pay,
+                    'separation_date_cause' => $this->separation_date_cause,
+                ]);
+                $msg = 'Service record added successfully!';
+            }
+            $this->closeModal();
+            // Refresh the list from DB to get latest, eager load position
+            $this->serviceRecords = ServiceRecord::with('position')->where('personnel_id', $this->personnel_id)->get();
+            session()->flash('success', $msg);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            session()->flash('error', 'Validation failed. Please check your input.');
+            throw $e;
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
         }
-        $this->closeModal();
-        // Refresh the list from DB to get latest, eager load position
-        $this->serviceRecords = ServiceRecord::with('position')->where('personnel_id', $this->personnel_id)->get();
-        session()->flash('success', $msg);
     }
 
     public function confirmDelete($id)
