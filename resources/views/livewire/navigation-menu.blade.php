@@ -30,8 +30,17 @@
                     @endif
                     @if (Auth::user()->role == "school_head")
                     <x-nav-link
+                        href="{{ route('school_head.dashboard') }}"
+                        :active="request()->routeIs('school_head.dashboard')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
+                        {{ __('School Head Dashboard') }}
+                    </x-nav-link>
+                    <x-nav-link
                         href="{{ route('schools.show', ['school' => Auth::user()->personnel->school]) }}"
-                        :active="!request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
+                        :active="!request()->routeIs('school_head.dashboard') && !request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"

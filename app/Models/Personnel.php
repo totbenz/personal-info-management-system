@@ -102,6 +102,11 @@ class Personnel extends Model
         return $this->belongsTo(Position::class);
     }
 
+    public function salaryGrade(): BelongsTo
+    {
+        return $this->belongsTo(SalaryGrade::class);
+    }
+
     public function user(): HasOne
     {
         return $this->hasOne(User::class);
