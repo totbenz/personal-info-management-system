@@ -113,7 +113,7 @@
     <div class="mt-10 text-right">
         <p class="text-center">Approved:</p>
         <div class="mt-8 text-center" style="margin-left: 40%;">
-            <p class="font-bold underline uppercase">MANUEL T. ALBARO, Ph.D., CESO V</p>
+            <p class="font-bold underline uppercase">MANUEL T. ALBAÑO, Ph.D., CESO V</p>
             <p>Schools Division Superintendent</p>
         </div>
     </div>

@@ -102,7 +102,7 @@
     <div class="mt-10 text-right mb-8">
         <p class="text-center">Very truly yours,</p>
         <div class="mt-10 text-center" style="margin-left: 40%;">
-            <p class="font-bold underline">MANUEL T. ALBARO, Ph.D., CESO V</p>
+            <p class="font-bold underline">MANUEL T. ALBAÑO, Ph.D., CESO V</p>
             <p>Schools Division Superintendent</p>
         </div>
     </div>
