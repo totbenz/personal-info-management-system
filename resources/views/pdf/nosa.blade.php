@@ -111,7 +111,7 @@
         <p class="text-sm">Position: {{ $personnel->position->title }}</p>
         <p class="text-sm">Salary Grade: {{ $salaryChange->current_salary_grade }}</p>
         <p class="text-sm">Item No./Unique Item No. Fy 2024 Personnel Services Itemization</p>
-        <p class="text-sm">and/or Plantilla of Personnel: <span class="ml-14 uppercase underline">OSEC-decsbmtchr2-540459-1998</span></p>
+        <p class="text-sm">and/or Plantilla of Personnel: <span class="ml-14 uppercase underline">{{$personnel->pantilla_of_personnel}}</span></p>
     </div>
     <hr class="border-gray-300 mt-1 border-t-2 mb-2">
 

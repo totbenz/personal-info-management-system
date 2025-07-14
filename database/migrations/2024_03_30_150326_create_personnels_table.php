@@ -46,6 +46,7 @@ return new class extends Migration
             $table->integer('leave_of_absence_without_pay_count')->default(0)->nullable();
             $table->date('employment_start');
             $table->date('employment_end')->nullable();
+            $table->string('pantilla_of_personnel');
 
             // Government Information
             $table->string('tin', 12);

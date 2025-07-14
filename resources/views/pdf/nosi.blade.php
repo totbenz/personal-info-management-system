@@ -120,7 +120,7 @@
 
     <div class="mt-4">
         <p class="text-sm">Position/Salary Grade: <span class="ml-8">{{ $personnel->position->title }}/SG-{{ $salaryChange->current_salary_grade }}</span></p>
-        <p class="text-sm">Item No.: <span class="ml-14 uppercase underline">OSEC-DECSB-TCH1-544261-2018</span></p>
+        <p class="text-sm">Item No.: <span class="ml-14 uppercase underline">{{$personnel->pantilla_of_personnel}}</span></p>
     </div>
     <hr class="border-gray-300 mt-1 border-t-2 mb-2">
 

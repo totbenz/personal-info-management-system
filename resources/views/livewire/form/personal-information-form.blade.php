@@ -79,6 +79,9 @@
                         <span class="w-1/4">
                             <x-input type="number" class="bg-gray-50 border-gray-300" id="pagibig_num" label="PAG-IBIG No" wire:model="pagibig_num" readonly/>
                         </span>
+                        <span class="w-3/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="pantilla_of_personnel" label="Pantilla of Personnel" wire:model="pantilla_of_personnel" readonly/>
+        </span>
                     </div>
                 </div>
                 <div class="my-10">
@@ -96,6 +99,7 @@
         <span class="w-3/12">
             <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="category" label="Category" wire:model="category" readonly/>
         </span>
+
     </div>
     <div class="mt-2 mb-4 p-0 flex space-x-3 item-center">
         <span class="w-3/12">

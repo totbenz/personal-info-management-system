@@ -114,6 +114,7 @@ class PersonnelFactory extends Factory
             'pagibig_num' => $this->faker->numerify('###########'),
             'created_at' => now(),
             'updated_at' => now(),
+            'pantilla_of_personnel' => 'OSEC-DECSBMTCHR2-540459-1998'
         ];
     }
 }

@@ -23,7 +23,7 @@ class PersonalInformationForm extends PersonnelNavigation
         $tin, $sss_num, $gsis_num, $philhealth_num,
         $pagibig_num, $salary,
         $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position, $leave_of_absence_without_pay_count,
-        $email, $tel_no, $mobile_no, $salary_changed_at;
+        $email, $tel_no, $mobile_no, $salary_changed_at, $pantilla_of_personnel;
     public $showMode = false, $storeMode = false, $updateMode = false;
     public $separation_cause_input = null;
     public $original_position_id = null;
@@ -57,6 +57,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->gsis_num = $this->personnel->gsis_num;
                 $this->philhealth_num = $this->personnel->philhealth_num;
                 $this->pagibig_num = $this->personnel->pagibig_num;
+                $this->pantilla_of_personnel = $this->personnel->pantilla_of_personnel;
 
                 $this->personnel_id = $this->personnel->personnel_id;
                 $this->school_id = $this->personnel->school->id;
@@ -263,6 +264,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'tel_no' => $this->tel_no,
             'mobile_no' => $this->mobile_no,
             'leave_of_absence_without_pay_count' => $this->leave_of_absence_without_pay_count,
+            'pantilla_of_personnel' => $this->pantilla_of_personnel,
         ];
 
         LaravelLog::info('Prepared data for Personnel', $data);
