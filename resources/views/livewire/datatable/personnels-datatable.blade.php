@@ -169,7 +169,9 @@
                     <td class="p-2 text-left capitalize text-xs border-b border-gray-300">{{ $personnel->position->title }}</td>
                     <td class="p-2 text-left capitalize text-xs border-b border-gray-300">{{ $personnel->position->classification }}</td>
                     <td class="p-2 text-left capitalize text-xs border-b border-gray-300">{{ $personnel->category }}</td>
-                    <td class="p-2 text-left text-xs border-b border-gray-300">{{ $personnel->school->school_name }}</td>
+                    <td class="p-2 text-left text-xs border-b border-gray-300">
+                        {{ $personnel->school && $personnel->school->school_name ? $personnel->school->school_name : 'N/A' }}
+                    </td>
                     <td class="p-2 text-xs border-b border-gray-300">
                         <a wire:navigate href="{{ route(auth()->user()->role === 'school_head' ? 'school_personnels.show' : 'personnels.show', ['personnel' => $personnel->id]) }}">
                             <button class="py-1 px-4 bg-main text-white font-medium text-xs rounded-md hover:bg-main-dark transition">
