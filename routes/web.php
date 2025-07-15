@@ -150,6 +150,10 @@ Route::middleware(['auth'])->group(function () {
         });
         // Events routes
         Route::resource('events', EventController::class);
+
+        // Signatures Settings (admin only)
+        Route::get('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'edit'])->name('admin.signatures.edit');
+        Route::post('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'update'])->name('admin.signatures.update');
     });
     // SETTINGS ROUTE
     Route::get('/settings', function () {

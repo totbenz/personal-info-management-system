@@ -50,7 +50,13 @@
     </div>
 
     <div class="mb-6">
-        <p><strong>{{$personnel->first_name}} {{$personnel->last_name}}</strong></p>
+    <p><strong>
+            {{$personnel->first_name}}
+            @if(!empty($personnel->middle_name))
+                {{ strtoupper(substr($personnel->middle_name, 0, 1)) }}.
+            @endif
+            {{$personnel->last_name}}
+        </strong></p>
         <p>{{$personnel->position->title}}</p>
         <p>{{$personnel->school->school_name}}</p>
     </div>
@@ -102,7 +108,7 @@
     <div class="mt-10 text-right mb-8">
         <p class="text-center">Very truly yours,</p>
         <div class="mt-10 text-center" style="margin-left: 40%;">
-            <p class="font-bold underline">MANUEL T. ALBAÑO, Ph.D., CESO V</p>
+            <p class="font-bold underline">{{$schools_division_superintendent_signature->full_name}}</p>
             <p>Schools Division Superintendent</p>
         </div>
     </div>
