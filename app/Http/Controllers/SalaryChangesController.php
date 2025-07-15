@@ -88,6 +88,8 @@ class SalaryChangesController extends Controller
      */
     public function download($personnelId, $changeId)
     {
+        ini_set('memory_limit', '512M'); // or '1024M' for 1GB
+
         $salaryChange = \App\Models\SalaryChange::findOrFail($changeId);
         $personnel = \App\Models\Personnel::findOrFail($personnelId);
 
