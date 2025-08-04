@@ -17,7 +17,7 @@ class CreatePersonnelModal extends Component
         $citizenship, $blood_type, $height, $weight,
         $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $salary,
         $email, $tel_no, $mobile_no,
-        $tin, $sss_num, $gsis_num, $philhealth_num, $pagibig_num;
+        $tin, $sss_num, $gsis_num, $philhealth_num, $pagibig_num, $pantilla_of_personnel;
     public $showModal;
     public $isAuthUserSchoolHead;
 
@@ -48,11 +48,12 @@ class CreatePersonnelModal extends Component
         'email' => 'nullable|email|max:255',
         'tel_no' => 'nullable|string|max:255',
         'mobile_no' => 'nullable|string|max:255',
-        'tin' => 'required|string|max:12',
+        'tin' => 'nullable|string|max:12',
         'sss_num' => 'nullable|string|max:10',
         'gsis_num' => 'nullable|string|max:11',
         'philhealth_num' => 'nullable|string|max:12',
         'pagibig_num' => 'nullable|string|max:12',
+        'pantilla_of_personnel' => 'nullable|string|max:50',
     ];
 
     public $schoolOptions = [];
@@ -241,6 +242,7 @@ class CreatePersonnelModal extends Component
             'salary' => $this->salary,
             'salary_changed_at' => now(),
             'loyalty_award_claim_count' => 0,
+            'pantilla_of_personnel' => $this->pantilla_of_personnel,
         ];
         LaravelLog::info('Prepared data for Personnel in create modal', $data);
 

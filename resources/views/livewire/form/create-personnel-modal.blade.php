@@ -168,6 +168,9 @@
                     <span class="w-2/6">
                         <x-input type="number" class="form-control bg-gray-50 border-gray-300" id="salary" name="salary" label="Calculated Salary" wire:model="salary" readonly />
                     </span>
+                    <span class="w-2/6">
+                        <x-input type="text" class="form-control bg-gray-50 border-gray-300" id="plantilla" name="plantilla" label="Plantilla" wire:model="pantilla_of_personnel" />
+                    </span>
                 </div>
 
                 <div class="mt-2 mb-4 p-0 flex justify-center">
@@ -184,19 +187,19 @@
                 <h5 class="font-bold text-xl text-gray-darkest mb-2">Government Information</h5>
                 <div class="mt-2 mb-4 p-0 flex space-x-5">
                     <span class="w-2/12">
-                        <x-input type="text" class="form-control" id="tin" label="TIN" wire:model="tin" required maxlength="12" />
+                        <x-input type="number" class="form-control" id="tin" label="TIN" wire:model="tin" required maxlength="12" />
                     </span>
                     <span class="w-2/12">
-                        <x-input type="text" class="form-control" id="sss_num" label="SSS No." wire:model="sss_num" maxlength="10" />
+                        <x-input type="number" class="form-control" id="sss_num" label="SSS No." wire:model="sss_num" maxlength="10" />
                     </span>
                     <span class="w-2/12">
-                        <x-input type="text" class="form-control" id="gsis_num" label="GSIS No." wire:model="gsis_num" maxlength="11" />
+                        <x-input type="number" class="form-control" id="gsis_num" label="GSIS No." wire:model="gsis_num" maxlength="11" />
                     </span>
                     <span class="w-3/12">
-                        <x-input type="text" class="form-control" id="philhealth_num" label="PhilHealth No." wire:model="philhealth_num" maxlength="12" />
+                        <x-input type="number" class="form-control" id="philhealth_num" label="PhilHealth No." wire:model="philhealth_num" maxlength="12" />
                     </span>
                     <span class="w-3/12">
-                        <x-input type="text" class="form-control" id="pagibig_num" label="PAG-IBIG No." wire:model="pagibig_num" maxlength="12" />
+                        <x-input type="number" class="form-control" id="pagibig_num" label="PAG-IBIG No." wire:model="pagibig_num" maxlength="12" />
                     </span>
                 </div>
             </div>
