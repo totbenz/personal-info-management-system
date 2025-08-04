@@ -35,7 +35,7 @@ class CreatePersonnelModal extends Component
         'height' => 'required|numeric|min:0',
         'weight' => 'required|numeric|min:0',
         'personnel_id' => 'required|string|unique:personnels,personnel_id',
-        'school_id' => 'required|exists:schools,id',
+        'school_id' => 'nullable|exists:schools,id',
         'position_id' => 'required|exists:position,id',
         'appointment' => 'required|in:regular,part-time,temporary,contract',
         'fund_source' => 'required|string|max:255',
@@ -195,18 +195,22 @@ class CreatePersonnelModal extends Component
             return;
         }
 
-        // Find the school
-        try {
-            $school = School::findOrFail($this->school_id);
-            LaravelLog::info('School found in create modal', ['school_id' => $school->id]);
-        } catch (\Exception $e) {
-            LaravelLog::error('School not found in create modal', ['school_id' => $this->school_id, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            session()->flash('flash.banner', 'School not found: ' . $e->getMessage());
-            session()->flash('flash.bannerStyle', 'danger');
-            return;
+        // Find the school (allow school_id to be null)
+        $schoolId = null;
+        if ($this->school_id) {
+            try {
+                $school = School::findOrFail($this->school_id);
+                $schoolId = $school->id;
+                LaravelLog::info('School found in create modal', ['school_id' => $schoolId]);
+            } catch (\Exception $e) {
+                LaravelLog::error('School not found in create modal', ['school_id' => $this->school_id, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+                session()->flash('flash.banner', 'School not found: ' . $e->getMessage());
+                session()->flash('flash.bannerStyle', 'danger');
+                return;
+            }
         }
 
-        // Prepare data for Personnel (match migration exactly)
+        // Prepare data for Personnel (school_id can be null)
         $data = [
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
@@ -224,7 +228,7 @@ class CreatePersonnelModal extends Component
             'tel_no' => $this->tel_no,
             'mobile_no' => $this->mobile_no,
             'personnel_id' => $this->personnel_id,
-            'school_id' => $school->id,
+            'school_id' => $schoolId,
             'position_id' => $this->position_id,
             'appointment' => $this->appointment,
             'fund_source' => $this->fund_source,
