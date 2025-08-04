@@ -22,7 +22,14 @@
                 </div>
                 <div class="m-0 mb-4 p-0 flex space-x-5">
                     <span class="w-3/12">
-                        <x-input type="date" class="form-control" id="date_of_birth" label="Date of Birth" wire:model="date_of_birth" required />
+                        <x-input
+                            type="date"
+                            class="form-control"
+                            id="date_of_birth"
+                            label="Date of Birth"
+                            wire:model="date_of_birth"
+                            max="{{ date('Y-m-d', strtotime('-15 years')) }}"
+                            required />
                     </span>
                     <span class="w-3/12">
                         <x-input type="text" class="form-control" id="place_of_birth" label="Place of Birth" wire:model="place_of_birth" required />
@@ -79,27 +86,25 @@
                     </span>
                     <span class="w-3/6">
                         @if($isAuthUserSchoolHead)
-                            <x-input
-                                type="text"
-                                class="form-control"
-                                id="school_name"
-                                label="School"
-                                :value="$schoolOptions[0]['school_name']"
-                                readonly
-                            />
+                        <x-input
+                            type="text"
+                            class="form-control"
+                            id="school_name"
+                            label="School"
+                            :value="$schoolOptions[0]['school_name']"
+                            readonly />
                         @else
-                            <x-select
-                                wire:model="school_id"
-                                id="school_id"
-                                name="school_id"
-                                placeholder="Select a school"
-                                :async-data="route('api.schools.index')"
-                                option-label="school_id"
-                                option-value="id"
-                                option-description="school_name"
-                                label="School ID"
-                                class="form-control"
-                            />
+                        <x-select
+                            wire:model="school_id"
+                            id="school_id"
+                            name="school_id"
+                            placeholder="Select a school"
+                            :async-data="route('api.schools.index')"
+                            option-label="school_id"
+                            option-value="id"
+                            option-description="school_name"
+                            label="School ID"
+                            class="form-control" />
                         @endif
                     </span>
                     <span class="w-1/6">

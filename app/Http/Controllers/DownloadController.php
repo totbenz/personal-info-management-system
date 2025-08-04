@@ -13,6 +13,7 @@ class DownloadController extends Controller
 {
     public function downloadAll($personnelId)
     {
+        ini_set('memory_limit', '512M'); // or '1024M' for 1GB
         try {
             // Fetch the personnel and their service records
             $personnel = Personnel::findOrFail($personnelId);
@@ -47,7 +48,7 @@ class DownloadController extends Controller
         }
 
         $tempDir = storage_path('app/temp/downloads_' . $personnel->id . '_' . time());
-        
+
         if (!File::makeDirectory($tempDir, 0755, true)) {
             throw new \Exception('Failed to create temporary directory');
         }
@@ -69,15 +70,15 @@ class DownloadController extends Controller
                         'personnel' => $personnel,
                         'serviceRecords' => $serviceRecords
                     ]);
-                    
+
                     $filePath = $tempDir . '/' . $doc['name'];
                     $pdfContent = $pdf->output();
-                    
+
                     if (file_put_contents($filePath, $pdfContent) === false) {
                         Log::warning("Failed to write PDF file: " . $filePath);
                         continue;
                     }
-                    
+
                     if (File::exists($filePath) && File::size($filePath) > 0) {
                         $files[] = ['path' => $filePath, 'name' => $doc['name']];
                         Log::info("Generated successfully: " . $doc['name'] . " (" . File::size($filePath) . " bytes)");
@@ -96,19 +97,19 @@ class DownloadController extends Controller
             // Create ZIP
             $zipPath = $tempDir . '/Personnel_Documents_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $personnel->last_name . '_' . $personnel->first_name) . '.zip';
             $zip = new \ZipArchive;
-            
+
             $result = $zip->open($zipPath, \ZipArchive::CREATE);
             if ($result !== TRUE) {
                 throw new \Exception("Failed to create ZIP file. Error code: " . $result);
             }
-            
+
             foreach ($files as $file) {
                 if (File::exists($file['path'])) {
                     $zip->addFile($file['path'], $file['name']);
                     Log::info("Added to ZIP: " . $file['name']);
                 }
             }
-            
+
             $zip->close();
 
             if (!File::exists($zipPath) || File::size($zipPath) == 0) {
@@ -117,10 +118,10 @@ class DownloadController extends Controller
 
             Log::info("ZIP file created successfully: " . $zipPath . " (" . File::size($zipPath) . " bytes)");
 
-            $personnelName = preg_replace('/[^A-Za-z0-9_\-]/', '_', 
+            $personnelName = preg_replace('/[^A-Za-z0-9_\-]/', '_',
                 trim($personnel->last_name . '_' . $personnel->first_name));
 
-            return response()->download($zipPath, 
+            return response()->download($zipPath,
                 'Personnel_Documents_' . $personnelName . '.zip')
                 ->deleteFileAfterSend(true);
 
@@ -143,7 +144,7 @@ class DownloadController extends Controller
     private function downloadAllAsHtmlPage($personnel, $serviceRecords, $personnelId)
     {
         $personnelName = $personnel->first_name . ' ' . $personnel->last_name;
-        
+
         $html = '
         <!DOCTYPE html>
         <html>
@@ -163,7 +164,7 @@ class DownloadController extends Controller
             <script>
                 let downloadCount = 0;
                 const totalDownloads = 3;
-                
+
                 function downloadDocument(url, filename) {
                     const link = document.createElement("a");
                     link.href = url;
@@ -171,7 +172,7 @@ class DownloadController extends Controller
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    
+
                     downloadCount++;
                     if (downloadCount === totalDownloads) {
                         setTimeout(() => {
@@ -179,13 +180,13 @@ class DownloadController extends Controller
                         }, 2000);
                     }
                 }
-                
+
                 function downloadAll() {
                     downloadDocument("' . route('service-record.download', ['personnelId' => $personnelId]) . '", "Service_Record_' . $personnel->id . '.pdf");
                     setTimeout(() => downloadDocument("' . route('nosa.download', ['personnelId' => $personnelId]) . '", "NOSA_' . $personnel->id . '.pdf"), 1000);
                     setTimeout(() => downloadDocument("' . route('nosi.download', ['personnelId' => $personnelId]) . '", "NOSI_' . $personnel->id . '.pdf"), 2000);
                 }
-                
+
                 // Auto-start downloads after page loads
                 window.onload = function() {
                     setTimeout(downloadAll, 1000);
@@ -196,39 +197,39 @@ class DownloadController extends Controller
             <div class="container">
                 <h1>Download All Documents</h1>
                 <h2>' . $personnelName . '</h2>
-                
+
                 <div class="auto-download">
                     <p><strong>Downloads will start automatically...</strong></p>
                     <p>If downloads don\'t start, click the buttons below:</p>
                 </div>
-                
+
                 <div class="download-item">
                     <h3>📄 Service Record</h3>
                     <p>Complete service record with employment history</p>
                     <a href="' . route('service-record.download', ['personnelId' => $personnelId]) . '" class="download-btn" target="_blank">Download Service Record</a>
                 </div>
-                
+
                 <div class="download-item">
                     <h3>📋 NOSA (Notice of Salary Adjustment)</h3>
                     <p>Salary adjustment notification document</p>
                     <a href="' . route('nosa.download', ['personnelId' => $personnelId]) . '" class="download-btn" target="_blank">Download NOSA</a>
                 </div>
-                
+
                 <div class="download-item">
                     <h3>📊 NOSI (Notice of Step Increment)</h3>
                     <p>Step increment notification document</p>
                     <a href="' . route('nosi.download', ['personnelId' => $personnelId]) . '" class="download-btn" target="_blank">Download NOSI</a>
                 </div>
-                
+
                 <div class="note">
                     <strong>Note:</strong> All documents will be downloaded separately. Check your Downloads folder for the files.
                 </div>
-                
+
                 <div id="completion-message" style="display: none; text-align: center; background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-top: 20px;">
                     <strong>✅ All downloads completed!</strong><br>
                     Check your Downloads folder for all three documents.
                 </div>
-                
+
                 <div style="text-align: center; margin-top: 30px;">
                     <button onclick="downloadAll()" class="download-btn">Download All Again</button>
                     <a href="javascript:history.back()" style="margin-left: 10px; color: #666;">← Go Back</a>
@@ -248,7 +249,7 @@ class DownloadController extends Controller
     {
         try {
             Log::info("Attempting to create ZIP file at: {$zipPath}");
-            
+
             // Check if ZipArchive class exists
             if (!class_exists('ZipArchive')) {
                 Log::warning("ZipArchive class not found - ZIP extension not available");
@@ -257,18 +258,18 @@ class DownloadController extends Controller
 
             $zip = new \ZipArchive;
             $result = $zip->open($zipPath, \ZipArchive::CREATE);
-            
+
             if ($result !== TRUE) {
                 Log::error("Failed to open ZIP file. Error code: {$result}");
                 return false;
             }
-            
+
             foreach ($files as $file) {
                 if (!File::exists($file['path'])) {
                     Log::warning("File does not exist: " . $file['path']);
                     continue;
                 }
-                
+
                 $addResult = $zip->addFile($file['path'], $file['name']);
                 if (!$addResult) {
                     Log::warning("Failed to add file to ZIP: " . $file['path']);
@@ -276,17 +277,17 @@ class DownloadController extends Controller
                     Log::info("Added file to ZIP: " . $file['name']);
                 }
             }
-            
+
             $closeResult = $zip->close();
-            
+
             if (!$closeResult) {
                 Log::error("Failed to close ZIP file");
                 return false;
             }
-            
+
             Log::info("ZIP file created successfully");
             return true;
-            
+
         } catch (\Exception $e) {
             Log::error("ZIP creation failed: " . $e->getMessage());
             Log::error("Stack trace: " . $e->getTraceAsString());
@@ -299,6 +300,7 @@ class DownloadController extends Controller
      */
     public function downloadSpecific($personnelId, $type)
     {
+        ini_set('memory_limit', '512M'); // or '1024M' for 1GB
         try {
             $personnel = Personnel::findOrFail($personnelId);
             $serviceRecords = $personnel->serviceRecords()->with('position')->get();

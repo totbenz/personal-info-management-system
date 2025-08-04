@@ -21,40 +21,50 @@ class CreatePersonnelModal extends Component
     public $showModal;
     public $isAuthUserSchoolHead;
 
-    protected $rules = [
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'name_ext' => 'nullable|string|max:255',
-        'date_of_birth' => 'required|date',
-        'place_of_birth' => 'required|string|max:255',
-        'sex' => 'required|in:male,female',
-        'civil_status' => 'required|in:single,married,widowed,divorced,seperated,others',
-        'citizenship' => 'required|string|max:255',
-        'blood_type' => 'nullable|string|max:10',
-        'height' => 'required|numeric|min:0',
-        'weight' => 'required|numeric|min:0',
-        'personnel_id' => 'required|string|unique:personnels,personnel_id',
-        'school_id' => 'nullable|exists:schools,id',
-        'position_id' => 'required|exists:position,id',
-        'appointment' => 'required|in:regular,part-time,temporary,contract',
-        'fund_source' => 'required|string|max:255',
-        'salary_grade_id' => 'required|integer|min:1|max:32',
-        'step_increment' => 'nullable|in:1,2,3,4,5,6,7,8',
-        'category' => 'required|in:SDO Personnel,School Head,Elementary School Teacher,Junior High School Teacher,Senior High School Teacher,School Non-teaching Personnel',
-        'job_status' => 'required|in:active,vacation,terminated,on leave,suspended,resigned,probation',
-        'employment_start' => 'required|date',
-        'employment_end' => 'nullable|date|after:employment_start',
-        'email' => 'nullable|email|max:255',
-        'tel_no' => 'nullable|string|max:255',
-        'mobile_no' => 'nullable|string|max:255',
-        'tin' => 'nullable|string|max:12',
-        'sss_num' => 'nullable|string|max:10',
-        'gsis_num' => 'nullable|string|max:11',
-        'philhealth_num' => 'nullable|string|max:12',
-        'pagibig_num' => 'nullable|string|max:12',
-        'pantilla_of_personnel' => 'nullable|string|max:50',
-    ];
+    protected function rules()
+    {
+        return [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'name_ext' => 'nullable|string|max:255',
+            'date_of_birth' => 'required|date|before_or_equal:' . now()->subYears(15)->format('Y-m-d'),
+            'place_of_birth' => 'required|string|max:255',
+            'sex' => 'required|in:male,female',
+            'civil_status' => 'required|in:single,married,widowed,divorced,seperated,others',
+            'citizenship' => 'required|string|max:255',
+            'blood_type' => 'nullable|string|max:10',
+            'height' => 'required|numeric|min:0',
+            'weight' => 'required|numeric|min:0',
+            'personnel_id' => 'required|string|unique:personnels,personnel_id',
+            'school_id' => 'nullable|exists:schools,id',
+            'position_id' => 'required|exists:position,id',
+            'appointment' => 'required|in:regular,part-time,temporary,contract',
+            'fund_source' => 'required|string|max:255',
+            'salary_grade_id' => 'required|integer|min:1|max:32',
+            'step_increment' => 'nullable|in:1,2,3,4,5,6,7,8',
+            'category' => 'required|in:SDO Personnel,School Head,Elementary School Teacher,Junior High School Teacher,Senior High School Teacher,School Non-teaching Personnel',
+            'job_status' => 'required|in:active,vacation,terminated,on leave,suspended,resigned,probation',
+            'employment_start' => 'required|date',
+            'employment_end' => 'nullable|date|after:employment_start',
+            'email' => 'nullable|email|max:255',
+            'tel_no' => 'nullable|string|max:255',
+            'mobile_no' => 'nullable|string|max:255',
+            'tin' => 'nullable|string|max:12',
+            'sss_num' => 'nullable|string|max:10',
+            'gsis_num' => 'nullable|string|max:11',
+            'philhealth_num' => 'nullable|string|max:12',
+            'pagibig_num' => 'nullable|string|max:12',
+            'pantilla_of_personnel' => 'nullable|string|max:50',
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'date_of_birth.before_or_equal' => 'The personnel must be at least 15 years old.',
+        ];
+    }
 
     public $schoolOptions = [];
 
@@ -180,7 +190,7 @@ class CreatePersonnelModal extends Component
         $this->calculateSalary();
 
         try {
-            $this->validate();
+            $this->validate($this->rules(), $this->messages());
             LaravelLog::info('Validation passed in create modal save()', [
                 'validated_data' => $this->allInputsForDebug()
             ]);
