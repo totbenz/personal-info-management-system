@@ -3,7 +3,6 @@
         <section>
             <div class="mb-5 flex justify-between">
                 <h4 class="font-bold text-2xl text-gray-darkest">Personal Information</h4>
-                    @if (Auth::user()->role == "admin")
                     <button wire:navigate wire:click.prevent="edit" type="button" class="inline-flex items-center px-5 py-2 mb-2 mr-2 text-sm font-medium text-center text-white bg-main border border-main rounded-lg hover:bg-main_hover hover:scale-105 duration-300">
                         <span class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
@@ -12,7 +11,6 @@
                             <p>Edit</p>
                         </span>
                     </button>
-                    @endif
             </div>
             <div>
                 <div>

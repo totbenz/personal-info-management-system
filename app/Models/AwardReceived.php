@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AwardReceived extends Model
 {
     use HasFactory;
+    protected $table = 'award_received';
     protected $fillable = [
         'personnel_id',
         'award_name',

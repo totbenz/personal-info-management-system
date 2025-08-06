@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
     // PERSONNEL ACCESS
     Route::middleware(['user-access:teacher'])->group(function () {
+        Route::get('/teacher-dashboard', [HomeController::class, 'teacherDashboard'])->name('teacher.dashboard');
         Route::get('profile/{personnel}', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');

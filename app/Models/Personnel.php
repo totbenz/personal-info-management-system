@@ -243,6 +243,16 @@ class Personnel extends Model
         return $this->hasMany(AssignmentDetail::class);
     }
 
+    public function awardsReceived(): HasMany
+    {
+        return $this->hasMany(AwardReceived::class);
+    }
+
+    public function salaryChanges(): HasMany
+    {
+        return $this->hasMany(SalaryChange::class);
+    }
+
     public function createInitialServiceRecord()
     {
         $this->serviceRecords()->create([

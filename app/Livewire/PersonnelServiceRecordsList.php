@@ -130,7 +130,7 @@ class PersonnelServiceRecordsList extends Component
                     'station' => $this->station,
                     'branch' => $this->branch,
                     'lv_wo_pay' => $this->lv_wo_pay,
-                    'separation_date_cause' => $this->separation_date_cause,
+                    'separation_date_cause' => $this->separation_date_cause ?: null,
                 ]);
                 $msg = 'Service record updated successfully!';
             } else {
@@ -145,7 +145,7 @@ class PersonnelServiceRecordsList extends Component
                     'station' => $this->station,
                     'branch' => $this->branch,
                     'lv_wo_pay' => $this->lv_wo_pay ? $this->lv_wo_pay : 0,
-                    'separation_date_cause' => $this->separation_date_cause ? $this->separation_date_cause : 'N/A',
+                    'separation_date_cause' => $this->separation_date_cause ?: null,
                 ]);
                 $msg = 'Service record added successfully!';
             }

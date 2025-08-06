@@ -199,6 +199,157 @@ class HomeController extends Controller
         ));
     }
 
+    public function teacherDashboard()
+    {
+        $user = Auth::user();
+        $personnel = $user->personnel;
+
+        // Personal Information
+        $personalInfo = [
+            'full_name' => $personnel->first_name . ' ' . $personnel->middle_name . ' ' . $personnel->last_name . ' ' . $personnel->name_ext,
+            'personnel_id' => $personnel->personnel_id,
+            'date_of_birth' => $personnel->date_of_birth,
+            'place_of_birth' => $personnel->place_of_birth,
+            'citizenship' => $personnel->citizenship,
+            'civil_status' => $personnel->civil_status,
+            'sex' => $personnel->sex,
+            'blood_type' => $personnel->blood_type,
+            'height' => $personnel->height,
+            'weight' => $personnel->weight,
+            'email' => $personnel->email,
+            'tel_no' => $personnel->tel_no,
+            'mobile_no' => $personnel->mobile_no,
+        ];
+
+        // Work Information
+        $workInfo = [
+            'position' => $personnel->position->title ?? 'N/A',
+            'classification' => $personnel->position->classification ?? 'N/A',
+            'school' => $personnel->school->school_name ?? 'N/A',
+            'school_id' => $personnel->school->school_id ?? 'N/A',
+            'category' => $personnel->category,
+            'job_status' => $personnel->job_status,
+            'appointment' => $personnel->appointment,
+            'employment_start' => $personnel->employment_start,
+            'employment_end' => $personnel->employment_end,
+            'fund_source' => $personnel->fund_source,
+            'salary_grade' => $personnel->salary_grade_id,
+            'step_increment' => $personnel->step_increment,
+            'leave_of_absence_without_pay_count' => $personnel->leave_of_absence_without_pay_count,
+        ];
+
+        // Government Information
+        $governmentInfo = [
+            'tin' => $personnel->tin,
+            'sss_num' => $personnel->sss_num,
+            'gsis_num' => $personnel->gsis_num,
+            'philhealth_num' => $personnel->philhealth_num,
+            'pagibig_num' => $personnel->pagibig_num,
+            'pantilla_of_personnel' => $personnel->pantilla_of_personnel,
+        ];
+
+        // Address Information
+        $addresses = $personnel->addresses()->get();
+
+        // Contact Person Information
+        $contactPersons = $personnel->contactPerson()->get();
+
+        // Family Information
+        $familyMembers = $personnel->families()->get();
+
+        // Education Information
+        $education = $personnel->educations()->orderBy('type')->get();
+
+        // Civil Service Eligibility
+        $civilServiceEligibility = $personnel->civilServiceEligibilities()->get();
+
+        // Work Experience
+        $workExperience = $personnel->workExperiences()->orderBy('inclusive_from', 'desc')->get();
+
+        // Voluntary Work
+        $voluntaryWork = $personnel->voluntaryWorks()->orderBy('inclusive_from', 'desc')->get();
+
+        // Training and Certifications
+        $trainingCertifications = $personnel->trainingCertifications()->orderBy('inclusive_from', 'desc')->get();
+
+        // References
+        $references = $personnel->references()->get();
+
+        // Assignment Details
+        $assignmentDetails = $personnel->assignmentDetails()->orderBy('school_year', 'desc')->get();
+
+        // Awards Received
+        // Fix: Specify the correct table name for the AwardReceived model
+        $awardsReceived = \App\Models\AwardReceived::query()
+            ->where('personnel_id', $personnel->id)
+            ->orderBy('award_date', 'desc')
+            ->get();
+
+        // Service Records
+        $serviceRecords = $personnel->serviceRecords()->orderBy('from_date', 'desc')->get();
+
+        // Other Information
+        $otherInformation = $personnel->otherInformations()->get();
+
+        // Personnel Details (Special Cases)
+        $personnelDetails = $personnel->personnelDetail()->first();
+
+        // Calculate years of service
+        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
+
+        // Loyalty Award Information
+        $canClaimLoyaltyAward = $this->canClaimLoyaltyAward($yearsOfService);
+        $maxClaims = $this->calculateMaxClaims($yearsOfService);
+        $nextAwardYear = $this->getNextAwardYear($yearsOfService);
+
+        // Recent Events (if any)
+        $recentEvents = \App\Models\Event::where('status', 'active')
+            ->where('start_date', '>=', now()->toDateString())
+            ->orderBy('start_date', 'asc')
+            ->take(5)
+            ->get();
+
+        // Salary Information
+        $salaryInfo = [
+            'current_salary_grade' => $personnel->salary_grade_id,
+            'step_increment' => $personnel->step_increment,
+            'years_of_service' => $yearsOfService,
+        ];
+
+        // Recent Salary Changes
+        $recentSalaryChanges = \App\Models\SalaryChange::where('personnel_id', $personnel->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('teacher.dashboard', compact(
+            'personalInfo',
+            'workInfo',
+            'governmentInfo',
+            'addresses',
+            'contactPersons',
+            'familyMembers',
+            'education',
+            'civilServiceEligibility',
+            'workExperience',
+            'voluntaryWork',
+            'trainingCertifications',
+            'references',
+            'assignmentDetails',
+            'awardsReceived',
+            'serviceRecords',
+            'otherInformation',
+            'personnelDetails',
+            'yearsOfService',
+            'canClaimLoyaltyAward',
+            'maxClaims',
+            'nextAwardYear',
+            'recentEvents',
+            'salaryInfo',
+            'recentSalaryChanges'
+        ));
+    }
+
     // Helper methods for loyalty award calculations
     private function calculateYearsOfService($employmentStart)
     {

@@ -87,6 +87,9 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->original_employment_start = $this->employment_start;
                 $this->original_employment_end = $this->employment_end;
                 $this->original_school_id = $this->school_id;
+
+                // Initialize separation cause input visibility
+                $this->updateShowSeparationCauseInput();
             }
         }
     }
@@ -547,14 +550,34 @@ class PersonalInformationForm extends PersonnelNavigation
         $this->updateShowSeparationCauseInput();
     }
 
+    public function updatedPositionId()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updatedEmploymentStart()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updatedEmploymentEnd()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updatedSchoolId()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
     public function updateShowSeparationCauseInput()
     {
         $isAllDirty = ($this->position_id != $this->original_position_id)
-            && ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end)
-            && ($this->school_id != $this->original_school_id);
+            || ($this->employment_start != $this->original_employment_start)
+            || ($this->employment_end != $this->original_employment_end)
+            || ($this->school_id != $this->original_school_id);
         $isDateDirty = ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end);
+            || ($this->employment_end != $this->original_employment_end);
         $this->show_separation_cause_input = $isAllDirty || $isDateDirty;
     }
 
@@ -596,11 +619,11 @@ class PersonalInformationForm extends PersonnelNavigation
             'mobile_no' => 'required',
         ];
         $isAllDirty = ($this->position_id != $this->original_position_id)
-            && ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end)
-            && ($this->school_id != $this->original_school_id);
+            || ($this->employment_start != $this->original_employment_start)
+            || ($this->employment_end != $this->original_employment_end)
+            || ($this->school_id != $this->original_school_id);
         $isDateDirty = ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end);
+            || ($this->employment_end != $this->original_employment_end);
         $isSalaryGradeDirty = ($this->salary_grade_id != ($this->personnel->salary_grade_id ?? null));
         $isStepIncrementDirty = ($this->step_increment != ($this->personnel->step_increment ?? null));
         if ($isAllDirty || $isDateDirty) {

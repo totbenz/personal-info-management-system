@@ -293,6 +293,7 @@
                 </span>
             </div>
         </div>
+        @if(Auth::user() && Auth::user()->role === 'admin')
         <div class="my-10">
             <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
             <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
@@ -358,7 +359,7 @@
                         <option value="{{ $grade }}">{{ $grade }}</option>
                         @endforeach
                     </x-native-select>
-                </span>D
+                </span>
             </div>
             <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
                 <span class="w-2/12">
@@ -374,7 +375,16 @@
                     <x-input type="number" class="form-control bg-gray-50 border-gray-300" id="salary" name="salary" label="Calculated Salary" wire:model="salary" readonly />
                 </span>
             </div>
+            @if($show_separation_cause_input)
+            <div class="mt-2 mb-4 p-0">
+                <div class="w-full">
+                    <x-input type="text" class="form-control" id="separation_cause_input" name="separation_cause_input" label="Cause of Separation" wire:model="separation_cause_input" placeholder="e.g. Promotion, Transfer, Retirement, etc." required />
+                    <p class="text-sm text-gray-600 mt-1">This field is required when employment dates, position, or school is changed.</p>
+                </div>
+            </div>
+            @endif
         </div>
+        @endif
         <div class="mt-10">
             <h5 class="font-bold text-xl text-gray-darkest">Contact Information</h5>
             <div class="mt-2 mb-4 p-0 flex space-x-5">
