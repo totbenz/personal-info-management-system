@@ -309,3 +309,4 @@
         @livewire('right-sidebar')
     </div>
 </x-app-layout>
+    

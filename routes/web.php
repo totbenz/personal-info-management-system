@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     // SCHOOL HEAD ACCESS
     Route::middleware(['user-access:school_head'])->group(function () {
+        Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
+
         // school routes
         Route::controller(SchoolController::class)->group(function () {
             // Route::get('school/create', 'create')->name('schools.create');
