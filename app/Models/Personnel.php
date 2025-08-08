@@ -46,6 +46,7 @@ class Personnel extends Model
         'employment_end',
         'salary',
         'leave_of_absence_without_pay_count',
+        'pantilla_of_personnel',
 
         // Government Information
         'tin',
@@ -100,6 +101,11 @@ class Personnel extends Model
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
+    }
+
+    public function salaryGrade(): BelongsTo
+    {
+        return $this->belongsTo(SalaryGrade::class);
     }
 
     public function user(): HasOne
@@ -235,6 +241,16 @@ class Personnel extends Model
     public function assignmentDetails(): HasMany
     {
         return $this->hasMany(AssignmentDetail::class);
+    }
+
+    public function awardsReceived(): HasMany
+    {
+        return $this->hasMany(AwardReceived::class);
+    }
+
+    public function salaryChanges(): HasMany
+    {
+        return $this->hasMany(SalaryChange::class);
     }
 
     public function createInitialServiceRecord()

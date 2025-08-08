@@ -26,9 +26,19 @@
                         </label>
                         <x-native-select id="division" wire:model="division" name="division" required>
                             <option value="" disabled selected>Select Division</option>
-                            @for ($i = 1; $i <= 13; $i++)
-                                <option value="Division {{ $i }}">Division {{ $i }}</option>
-                                @endfor
+                            <option value="Ormoc City">Ormoc City</option>
+                            <option value="Maasin City">Maasin City</option>
+                            <option value="Leyte">Leyte</option>
+                            <option value="Baybay City">Baybay City</option>
+                            <option value="Southern Leyte">Southern Leyte</option>
+                            <option value="Biliran">Biliran</option>
+                            <option value="Tacloban City">Tacloban City</option>
+                            <option value="Northern Samar">Northern Samar</option>
+                            <option value="Eastern Samar">Eastern Samar</option>
+                            <option value="Samar">Samar</option>
+                            <option value="Western Samar">Western Samar</option>
+                            <option value="Calbayog City">Calbayog City</option>
+                            <option value="Catbalogan City">Catbalogan City</option>
                         </x-native-select>
                     </span>
                     <span class="w-2/6">
@@ -80,7 +90,7 @@
                         </label>
                         <x-native-select wire:model="curricular_classification" class="form-control" required>
                             <option value="" disabled selected>Select Curricular Classification</option>
-                            <option value="grade 1-6">Grade 1-6</option>
+                            <option value="grade 1-6">Kindergarten to Grade 1-6</option>
                             <option value="grade 7-10">Grade 7-10</option>
                             <option value="grade 11-12">Grade 11-12</option>
                         </x-native-select>

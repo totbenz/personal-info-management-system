@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('salary', 10, 2)->nullable();
             $table->string('station')->nullable();
             $table->string('branch')->nullable();
-            $table->string('lv_wo_pay')->nullable();
+            $table->integer('lv_wo_pay')->nullable();
             $table->string('separation_date_cause')->nullable();
             $table->timestamps();
 

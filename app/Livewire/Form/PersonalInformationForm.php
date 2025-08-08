@@ -23,7 +23,7 @@ class PersonalInformationForm extends PersonnelNavigation
         $tin, $sss_num, $gsis_num, $philhealth_num,
         $pagibig_num, $salary,
         $personnel_id, $school_id, $position_id, $appointment, $fund_source, $job_status, $category, $employment_start, $employment_end, $salary_grade_id, $step_increment, $classification, $position, $leave_of_absence_without_pay_count,
-        $email, $tel_no, $mobile_no, $salary_changed_at;
+        $email, $tel_no, $mobile_no, $salary_changed_at, $pantilla_of_personnel;
     public $showMode = false, $storeMode = false, $updateMode = false;
     public $separation_cause_input = null;
     public $original_position_id = null;
@@ -57,6 +57,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->gsis_num = $this->personnel->gsis_num;
                 $this->philhealth_num = $this->personnel->philhealth_num;
                 $this->pagibig_num = $this->personnel->pagibig_num;
+                $this->pantilla_of_personnel = $this->personnel->pantilla_of_personnel;
 
                 $this->personnel_id = $this->personnel->personnel_id;
                 $this->school_id = $this->personnel->school->id;
@@ -86,6 +87,9 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->original_employment_start = $this->employment_start;
                 $this->original_employment_end = $this->employment_end;
                 $this->original_school_id = $this->school_id;
+
+                // Initialize separation cause input visibility
+                $this->updateShowSeparationCauseInput();
             }
         }
     }
@@ -263,6 +267,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'tel_no' => $this->tel_no,
             'mobile_no' => $this->mobile_no,
             'leave_of_absence_without_pay_count' => $this->leave_of_absence_without_pay_count,
+            'pantilla_of_personnel' => $this->pantilla_of_personnel,
         ];
 
         LaravelLog::info('Prepared data for Personnel', $data);
@@ -288,12 +293,24 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->createServiceRecord($school, $this->personnel, $this->separation_cause_input);
             }
 
+            // Check if employment_start is dirty and reset loyalty_award_claim_count if needed
+            $resetLoyaltyAwardClaimCount = false;
+            if ($this->personnel && $this->personnel->employment_start != $this->employment_start) {
+                $resetLoyaltyAwardClaimCount = true;
+            }
+
             $original_grade = $this->personnel->salary_grade_id;
             $original_step = $this->personnel->step_increment;
             $original_salary = $this->personnel->salary;
 
             // Update the Personnel first
             $this->personnel->update($data);
+
+            // Reset loyalty_award_claim_count if employment_start was changed
+            if ($resetLoyaltyAwardClaimCount) {
+                $this->personnel->loyalty_award_claim_count = 0;
+                $this->personnel->save();
+            }
 
             // Now compare the original and new values
             $new_grade = $this->personnel->salary_grade_id;
@@ -533,14 +550,34 @@ class PersonalInformationForm extends PersonnelNavigation
         $this->updateShowSeparationCauseInput();
     }
 
+    public function updatedPositionId()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updatedEmploymentStart()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updatedEmploymentEnd()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
+    public function updatedSchoolId()
+    {
+        $this->updateShowSeparationCauseInput();
+    }
+
     public function updateShowSeparationCauseInput()
     {
         $isAllDirty = ($this->position_id != $this->original_position_id)
-            && ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end)
-            && ($this->school_id != $this->original_school_id);
+            || ($this->employment_start != $this->original_employment_start)
+            || ($this->employment_end != $this->original_employment_end)
+            || ($this->school_id != $this->original_school_id);
         $isDateDirty = ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end);
+            || ($this->employment_end != $this->original_employment_end);
         $this->show_separation_cause_input = $isAllDirty || $isDateDirty;
     }
 
@@ -582,11 +619,11 @@ class PersonalInformationForm extends PersonnelNavigation
             'mobile_no' => 'required',
         ];
         $isAllDirty = ($this->position_id != $this->original_position_id)
-            && ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end)
-            && ($this->school_id != $this->original_school_id);
+            || ($this->employment_start != $this->original_employment_start)
+            || ($this->employment_end != $this->original_employment_end)
+            || ($this->school_id != $this->original_school_id);
         $isDateDirty = ($this->employment_start != $this->original_employment_start)
-            && ($this->employment_end != $this->original_employment_end);
+            || ($this->employment_end != $this->original_employment_end);
         $isSalaryGradeDirty = ($this->salary_grade_id != ($this->personnel->salary_grade_id ?? null));
         $isStepIncrementDirty = ($this->step_increment != ($this->personnel->step_increment ?? null));
         if ($isAllDirty || $isDateDirty) {

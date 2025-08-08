@@ -116,7 +116,7 @@
                         @if($editingCell['salary_grade_id'] === $grade->id && $editingCell['step'] === $step)
                         <input type="number" step="0.01" wire:model.defer="editingCell.salary" wire:keydown.enter="saveCell" wire:blur="saveCell" class="w-20 border rounded px-1 py-0.5">
                         @else
-                        {{ $salaryMatrix[$grade->id][$step] ?? '' }}
+                        {{ isset($salaryMatrix[$grade->id][$step]) ? number_format($salaryMatrix[$grade->id][$step], 2) : '0.00' }}
                         @endif
                         </td>
                         @endfor

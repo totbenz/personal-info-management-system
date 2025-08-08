@@ -25,7 +25,7 @@
             </button>
             @endif
             <button type="button" class="inline-flex items-center px-5 py-2 mb-2 mr-2 text-sm font-medium text-center text-gray-900 bg-gray-50 border border-slate-200 rounded-lg hover:bg-white hover:scale-105 duration-300">
-                <a href="{{ Auth::user()->role === 'teacher' ? route('teacher-profile.export') : route('personnels.export', $personnelId) }}">
+                <a href="{{ Auth::user()->role === 'teacher' ? route('teacher-profile.export') : (Auth::user()->role === 'school_head' ? route('pds.export', $personnelId) : route('personnels.export', $personnelId)) }}">
                     <span class="flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />

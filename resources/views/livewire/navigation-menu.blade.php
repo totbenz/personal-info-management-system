@@ -30,8 +30,17 @@
                     @endif
                     @if (Auth::user()->role == "school_head")
                     <x-nav-link
+                        href="{{ route('school_head.dashboard') }}"
+                        :active="request()->routeIs('school_head.dashboard')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
+                        {{ __('School Head Dashboard') }}
+                    </x-nav-link>
+                    <x-nav-link
                         href="{{ route('schools.show', ['school' => Auth::user()->personnel->school]) }}"
-                        :active="!request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
+                        :active="!request()->routeIs('school_head.dashboard') && !request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
@@ -59,6 +68,15 @@
                     </x-nav-link>
                     @endif
                     @if (Auth::user()->role == "teacher")
+                    <x-nav-link
+                        href="{{ route('teacher.dashboard') }}"
+                        :active="request()->routeIs('teacher.dashboard')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
                     <x-nav-link
                         href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
                         :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])"
@@ -144,9 +162,20 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.01c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.01 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.01 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.01c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.01c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.01-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.01-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.01z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
                                 </svg>
-                                <span class="ml-2 text-sm">Settings</span>
+                                <span class="ml-2 text-sm">Change Password</span>
                             </a>
                         </li>
+                        @if(Auth::user()->role === 'admin')
+                        <li class="border-gray-400">
+                            <a href="{{ route('admin.signatures.edit') }}" class="flex items-center px-3 py-1.5 hover:bg-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75A2.25 2.25 0 0 0 14.25 4.5h-4.5A2.25 2.25 0 0 0 7.5 6.75v10.5A2.25 2.25 0 0 0 9.75 19.5h4.5A2.25 2.25 0 0 0 16.5 17.25V13.5" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75v-6" />
+                                </svg>
+                                <span class="ml-2 text-sm">Signatures Settings</span>
+                            </a>
+                        </li>
+                        @endif
                         <li class="border-gray-400">
                             <button type="button" onclick="confirmLogout(event)" class="flex items-center px-3 py-1.5 hover:bg-gray-200 w-full text-left">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-4">

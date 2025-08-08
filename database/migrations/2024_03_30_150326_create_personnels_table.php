@@ -32,7 +32,7 @@ return new class extends Migration
 
             // Work Information
             $table->string('personnel_id')->unique();
-            $table->unsignedBigInteger('school_id');
+            $table->unsignedBigInteger('school_id')->nullable(); //optional, can be null for non-school personnel
             $table->unsignedBigInteger('position_id');
             $table->enum('appointment', ['regular', 'part-time', 'temporary', 'contract']);
             $table->string('fund_source');
@@ -45,7 +45,8 @@ return new class extends Migration
             $table->string('job_status');
             $table->integer('leave_of_absence_without_pay_count')->default(0)->nullable();
             $table->date('employment_start');
-            $table->date('employment_end');
+            $table->date('employment_end')->nullable();
+            $table->string('pantilla_of_personnel')->nullable();
 
             // Government Information
             $table->string('tin', 12);

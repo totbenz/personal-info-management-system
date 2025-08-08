@@ -22,7 +22,14 @@
                 </div>
                 <div class="m-0 mb-4 p-0 flex space-x-5">
                     <span class="w-3/12">
-                        <x-input type="date" class="form-control" id="date_of_birth" label="Date of Birth" wire:model="date_of_birth" required />
+                        <x-input
+                            type="date"
+                            class="form-control"
+                            id="date_of_birth"
+                            label="Date of Birth"
+                            wire:model="date_of_birth"
+                            max="{{ date('Y-m-d', strtotime('-15 years')) }}"
+                            required />
                     </span>
                     <span class="w-3/12">
                         <x-input type="text" class="form-control" id="place_of_birth" label="Place of Birth" wire:model="place_of_birth" required />
@@ -75,12 +82,18 @@
                 <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
                 <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
                     <span class="w-2/6">
-                        <x-input type="number" class="form-control" id="personnel_id" label="Personnel ID" wire:model="personnel_id" required />
+                        <x-input type="number" class="form-control" id="personnel_id" label="Employee ID" wire:model="personnel_id" required />
                     </span>
-                    @php
-                        $isSchoolAdmin = auth()->user() && auth()->user()->getRole('school_admin');
-                    @endphp
                     <span class="w-3/6">
+                        @if($isAuthUserSchoolHead)
+                        <x-input
+                            type="text"
+                            class="form-control"
+                            id="school_name"
+                            label="School"
+                            :value="$schoolOptions[0]['school_name']"
+                            readonly />
+                        @else
                         <x-select
                             wire:model="school_id"
                             id="school_id"
@@ -91,21 +104,8 @@
                             option-value="id"
                             option-description="school_name"
                             label="School ID"
-                            class="form-control"
-                            @if($isSchoolAdmin) disabled @endif
-                        />
-                        @php
-                            $user = auth()->user();
-                            $schoolName = $user ? $user->getSchoolName() : null;
-                        @endphp
-                        <x-input 
-                            type="text" 
-                            class="form-control" 
-                            id="school_name" 
-                            label="School" 
-                            :value="$schoolName" 
-                            readonly 
-                        />
+                            class="form-control" />
+                        @endif
                     </span>
                     <span class="w-1/6">
                         <x-native-select label="Job Status" wire:model="job_status" id="job_status" name="job_status" class="form-control">
@@ -173,6 +173,9 @@
                     <span class="w-2/6">
                         <x-input type="number" class="form-control bg-gray-50 border-gray-300" id="salary" name="salary" label="Calculated Salary" wire:model="salary" readonly />
                     </span>
+                    <span class="w-2/6">
+                        <x-input type="text" class="form-control bg-gray-50 border-gray-300" id="plantilla" name="plantilla" label="Plantilla" wire:model="pantilla_of_personnel" />
+                    </span>
                 </div>
 
                 <div class="mt-2 mb-4 p-0 flex justify-center">
@@ -189,19 +192,19 @@
                 <h5 class="font-bold text-xl text-gray-darkest mb-2">Government Information</h5>
                 <div class="mt-2 mb-4 p-0 flex space-x-5">
                     <span class="w-2/12">
-                        <x-input type="text" class="form-control" id="tin" label="TIN" wire:model="tin" required maxlength="12" />
+                        <x-input type="number" class="form-control" id="tin" label="TIN" wire:model="tin" required maxlength="12" />
                     </span>
                     <span class="w-2/12">
-                        <x-input type="text" class="form-control" id="sss_num" label="SSS No." wire:model="sss_num" maxlength="10" />
+                        <x-input type="number" class="form-control" id="sss_num" label="SSS No." wire:model="sss_num" maxlength="10" />
                     </span>
                     <span class="w-2/12">
-                        <x-input type="text" class="form-control" id="gsis_num" label="GSIS No." wire:model="gsis_num" maxlength="11" />
+                        <x-input type="number" class="form-control" id="gsis_num" label="GSIS No." wire:model="gsis_num" maxlength="11" />
                     </span>
                     <span class="w-3/12">
-                        <x-input type="text" class="form-control" id="philhealth_num" label="PhilHealth No." wire:model="philhealth_num" maxlength="12" />
+                        <x-input type="number" class="form-control" id="philhealth_num" label="PhilHealth No." wire:model="philhealth_num" maxlength="12" />
                     </span>
                     <span class="w-3/12">
-                        <x-input type="text" class="form-control" id="pagibig_num" label="PAG-IBIG No." wire:model="pagibig_num" maxlength="12" />
+                        <x-input type="number" class="form-control" id="pagibig_num" label="PAG-IBIG No." wire:model="pagibig_num" maxlength="12" />
                     </span>
                 </div>
             </div>

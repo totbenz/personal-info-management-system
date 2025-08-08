@@ -50,13 +50,23 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function type(): Attribute
     {
         return new Attribute(
-            get: fn ($value) =>  ["teacher", "school_head", "admin"][$value],
+            get: fn($value) =>  ["teacher", "school_head", "admin"][$value],
         );
     }
 
-    public function scopeSearch($query, $value){
-        $query->where('email', "like", "%{$value}%")
-               ->orWhere('role', "like", "%{$value}%");
+    public function scopeSearch($query, $value)
+    {
+        if (!empty($value)) {
+            $query->where(function ($q) use ($value) {
+                $q->where('email', 'like', "%{$value}%")
+                    ->orWhere('role', 'like', "%{$value}%")
+                    ->orWhereHas('personnel', function ($personnelQuery) use ($value) {
+                        $personnelQuery->where('personnel_id', 'like', "%{$value}%")
+                            ->orWhere('first_name', 'like', "%{$value}%")
+                            ->orWhere('last_name', 'like', "%{$value}%");
+                    });
+            });
+        }
     }
 
     public function personnel(): BelongsTo

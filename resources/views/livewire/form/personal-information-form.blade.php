@@ -3,7 +3,6 @@
         <section>
             <div class="mb-5 flex justify-between">
                 <h4 class="font-bold text-2xl text-gray-darkest">Personal Information</h4>
-                    @if (Auth::user()->role == "admin")
                     <button wire:navigate wire:click.prevent="edit" type="button" class="inline-flex items-center px-5 py-2 mb-2 mr-2 text-sm font-medium text-center text-white bg-main border border-main rounded-lg hover:bg-main_hover hover:scale-105 duration-300">
                         <span class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
@@ -12,7 +11,6 @@
                             <p>Edit</p>
                         </span>
                     </button>
-                    @endif
             </div>
             <div>
                 <div>
@@ -79,13 +77,16 @@
                         <span class="w-1/4">
                             <x-input type="number" class="bg-gray-50 border-gray-300" id="pagibig_num" label="PAG-IBIG No" wire:model="pagibig_num" readonly/>
                         </span>
+                        <span class="w-3/12">
+            <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="pantilla_of_personnel" label="Pantilla of Personnel" wire:model="pantilla_of_personnel" readonly/>
+        </span>
                     </div>
                 </div>
                 <div class="my-10">
     <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
     <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
         <span class="w-3/12">
-            <x-input type="number" class="bg-gray-50 border-gray-300" id="personnel_id" label="Personnel ID" wire:model="personnel_id" readonly/>
+            <x-input type="number" class="bg-gray-50 border-gray-300" id="personnel_id" label="Employee ID" wire:model="personnel_id" readonly/>
         </span>
         <span class="w-3/12">
             <x-input type="number" class="bg-gray-50 border-gray-300" id="school_id" label="School ID" wire:model="school_id" readonly/>
@@ -96,6 +97,7 @@
         <span class="w-3/12">
             <x-input type="text" class="bg-gray-50 border-gray-300 capitalize" id="category" label="Category" wire:model="category" readonly/>
         </span>
+
     </div>
     <div class="mt-2 mb-4 p-0 flex space-x-3 item-center">
         <span class="w-3/12">

@@ -54,9 +54,17 @@ class SalaryStepsDatatable extends Component
 
     public function mount()
     {
+        // Initialize salary grades
         $this->salaryGrades = SalaryGrade::orderBy('grade')->get();
+
+        // Initialize years
         $this->years = SalaryStep::distinct()->orderBy('year', 'desc')->pluck('year')->toArray();
         $this->selectedYear = $this->years[0] ?? date('Y');
+
+        // Reset editing cell
+        $this->resetEditingCell();
+
+        // Update salary matrix
         $this->updateSalaryMatrix();
     }
 
@@ -157,8 +165,13 @@ class SalaryStepsDatatable extends Component
 
     public function updatedSelectedYear()
     {
-        $this->salaryGrades = SalaryGrade::orderBy('grade')->get();
+        // Reset editing cell first
         $this->resetEditingCell();
+
+        // Refresh salary grades
+        $this->salaryGrades = SalaryGrade::orderBy('grade')->get();
+
+        // Update the matrix
         $this->updateSalaryMatrix();
     }
 
@@ -167,20 +180,27 @@ class SalaryStepsDatatable extends Component
         $grades = SalaryGrade::orderBy('grade')->get();
         $steps = range(1, 8);
         $matrix = [];
+
         foreach ($grades as $grade) {
             foreach ($steps as $step) {
                 $salaryStep = SalaryStep::where('salary_grade_id', $grade->id)
                     ->where('step', $step)
                     ->where('year', $this->selectedYear)
                     ->first();
-                $matrix[$grade->id][$step] = $salaryStep ? $salaryStep->salary : null;
+                $matrix[$grade->id][$step] = $salaryStep ? $salaryStep->salary : 0;
             }
         }
+
         $this->salaryMatrix = $matrix;
     }
 
     public function startEditCell($salary_grade_id, $step)
     {
+        // Validate that we have valid grade and step
+        if (!$salary_grade_id || !$step) {
+            return;
+        }
+
         $this->editingCell = [
             'salary_grade_id' => $salary_grade_id,
             'step' => $step,
@@ -194,12 +214,21 @@ class SalaryStepsDatatable extends Component
         $step = $this->editingCell['step'];
         $salary = $this->editingCell['salary'];
         $year = $this->selectedYear;
+
+        // Validate that we have valid data
+        if (!$gradeId || !$step || !$year) {
+            $this->resetEditingCell();
+            return;
+        }
+
         // Enforce 0 for empty/blank salary
         $salary = ($salary === '' || $salary === null) ? 0 : $salary;
+
         $salaryStep = SalaryStep::where('salary_grade_id', $gradeId)
             ->where('step', $step)
             ->where('year', $year)
             ->first();
+
         if ($salaryStep) {
             $salaryStep->salary = $salary;
             $salaryStep->save();
@@ -211,8 +240,8 @@ class SalaryStepsDatatable extends Component
                 'salary' => $salary,
             ]);
         }
+
         $this->resetEditingCell();
-        $this->salaryGrades = SalaryGrade::orderBy('grade')->get();
         $this->updateSalaryMatrix();
     }
 
@@ -313,7 +342,10 @@ class SalaryStepsDatatable extends Component
             return;
         }
         $this->isAddingYear = true;
+
+        // Get fresh salary grades
         $grades = SalaryGrade::orderBy('grade')->get();
+
         foreach ($grades as $grade) {
             for ($step = 1; $step <= 8; $step++) {
                 \App\Models\SalaryStep::create([
@@ -324,8 +356,12 @@ class SalaryStepsDatatable extends Component
                 ]);
             }
         }
+
+        // Refresh all data
         $this->years = SalaryStep::distinct()->orderBy('year', 'desc')->pluck('year')->toArray();
         $this->selectedYear = $this->newYear;
+        $this->salaryGrades = SalaryGrade::orderBy('grade')->get();
+        $this->resetEditingCell();
         $this->updateSalaryMatrix();
         $this->newYear = '';
         $this->isAddingYear = false;

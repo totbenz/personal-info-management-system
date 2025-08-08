@@ -2,16 +2,16 @@
     <!-- Header -->
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-           Settings
+           Change Password
         </h2>
     </x-slot>
-    
+
     <div class="w-[40%] mx-auto sm:px-6 lg:px-8 mt-8">
-    
+
     <form method="POST" action="{{ route('settings.changePassword') }}" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <h3 class="text-lg font-semibold mb-2">Change Password</h3>
         @if (session()->has('success'))
-        <div 
+        <div
             class="mb-1 text-green-600 font-medium "
             x-data="{ show: true }"
             x-init="setTimeout(() => show = false, 3000)"
@@ -32,10 +32,10 @@
             <input type="password" id="current_password" name="current_password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                 @input="showError = false"
             >
-            @error('current_password') 
+            @error('current_password')
                 <span class="text-red-600 text-sm" x-show="showError">
                     {{ $message }}
-                </span> 
+                </span>
             @enderror
         </div>
 
@@ -44,10 +44,10 @@
             <input type="password" id="new_password" name="new_password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                 @input="showError = false"
             >
-            @error('new_password') 
+            @error('new_password')
                 <span class="text-red-600 text-sm" x-show="showError">
                     {{ $message }}
-                </span> 
+                </span>
             @enderror
         </div>
 

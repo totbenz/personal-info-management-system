@@ -3,11 +3,11 @@
         <form action="{{ route('accounts.store') }}" method="POST">
             @csrf
             <div>
-                <label for="personnel_id" class="block font-medium text-sm text-gray-700 mb-1">Personnel ID</label>
+                <label for="personnel_id" class="block font-medium text-sm text-gray-700 mb-1">Employee ID</label>
                 <x-select
                     name="personnel_id"
                     wire:model.live.debounce.300ms="selectedPersonnelId"
-                    placeholder="Select a Personnel ID"
+                    placeholder="Select a Employee ID"
                     :async-data="route('api.personnel_list.index')"
                     option-label="personnel_id"
                     option-value="personnel_id"

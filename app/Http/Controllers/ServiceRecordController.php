@@ -11,6 +11,7 @@ class ServiceRecordController extends Controller
 {
     public function download($personnelId)
     {
+        ini_set('memory_limit', '512M'); // or '1024M' for 1GB
         // Fetch the personnel and their service records
         $personnel = Personnel::findOrFail($personnelId);
         $serviceRecords = $personnel->serviceRecords()->with('position')->get();

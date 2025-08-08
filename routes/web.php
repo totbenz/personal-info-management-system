@@ -18,9 +18,14 @@ use App\Http\Controllers\NosiController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\SalaryChangesController;
 
+Route::middleware('guest')->group(function () {
+    Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
+        Route::get('/login', 'login')->name('login');
+        Route::post('/authenticate', 'authenticate')->name('authenticate');
+    });
+});
+
 Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
-    Route::get('/login', 'login')->name('login');
-    Route::post('/authenticate', 'authenticate')->name('authenticate');
     Route::get('logout', 'logout')->middleware('auth')->name('logout');
 });
 
@@ -45,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
     // PERSONNEL ACCESS
     Route::middleware(['user-access:teacher'])->group(function () {
+        Route::get('/teacher-dashboard', [HomeController::class, 'teacherDashboard'])->name('teacher.dashboard');
         Route::get('profile/{personnel}', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
@@ -56,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
 
         // school routes
+        Route::get('/school-head-dashboard', [HomeController::class, 'schoolHeadDashboard'])->name('school_head.dashboard');
         Route::controller(SchoolController::class)->group(function () {
             // Route::get('school/create', 'create')->name('schools.create');
             // Route::post('schools/', 'store')->name('schools.store');
@@ -69,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/', 'index')->name('school_personnels.index');
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
-            // Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
+            Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
             Route::get('/personnel/profile', [PersonnelController::class, 'profile'])->name('personnels.profile');
             Route::get('school/personnels/{personnel}', 'show')->name('school_personnels.show');
         });
@@ -146,6 +153,10 @@ Route::middleware(['auth'])->group(function () {
         });
         // Events routes
         Route::resource('events', EventController::class);
+
+        // Signatures Settings (admin only)
+        Route::get('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'edit'])->name('admin.signatures.edit');
+        Route::post('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'update'])->name('admin.signatures.update');
     });
     // SETTINGS ROUTE
     Route::get('/settings', function () {
@@ -156,3 +167,8 @@ Route::middleware(['auth'])->group(function () {
     // Add this route for loyalty awards PDF export
     Route::get('/loyalty-awards/export-pdf', [\App\Livewire\Datatable\LoyaltyDatatable::class, 'exportPdf'])->name('loyalty-awards.export-pdf');
 });
+
+// Login success page (no middleware to allow authenticated users)
+Route::get('/login-success', function () {
+    return view('auth.login-success');
+})->name('login.success');

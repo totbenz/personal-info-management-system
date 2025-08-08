@@ -1,4 +1,14 @@
 <div>
+    @if(session('error'))
+    <div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div class="bg-red-500 text-white px-6 py-3 rounded shadow-lg flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+    </div>
+    @endif
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
             <div>
@@ -29,6 +39,10 @@
                     <div class="flex-1 overflow-y-auto px-6 py-2">
                         <form wire:submit.prevent="save" class="space-y-4">
                             <div>
+                                <label class="block text-sm font-medium text-gray-700">Record Number</label>
+                                <input type="text" wire:model.defer="personnel_id" class="mt-1 block w-full rounded border-gray-300 bg-gray-100 shadow-sm focus:ring focus:ring-blue-200" readonly>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium text-gray-700">Designation<span class="text-red-500">*</span></label>
                                 <select wire:model.defer="position_id" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" required>
                                     <option value="">Select a designation</option>
@@ -40,12 +54,12 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Appointment Status <span class="text-red-500">*</span></label>
-                                <input type="text" wire:model.defer="appointment_status" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" required>
+                                <input type="text" wire:model.defer="appointment_status" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" required maxlength="255">
                                 @error('appointment_status') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Salary <span class="text-red-500">*</span></label>
-                                <input type="number" step="0.01" wire:model.defer="salary" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" required>
+                                <input type="number" step="0.01" min="0" wire:model.defer="salary" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" required>
                                 @error('salary') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                             <div class="flex space-x-2">
@@ -62,22 +76,22 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Station</label>
-                                <input type="text" wire:model.defer="station" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200">
+                                <input type="text" wire:model.defer="station" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" maxlength="255">
                                 @error('station') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Branch</label>
-                                <input type="text" wire:model.defer="branch" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200">
+                                <input type="text" wire:model.defer="branch" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" maxlength="255">
                                 @error('branch') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Leave w/o Pay</label>
-                                <input type="text" wire:model.defer="lv_wo_pay" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200">
+                                <input type="number" wire:model.defer="lv_wo_pay" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" maxlength="255">
                                 @error('lv_wo_pay') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Separation Cause</label>
-                                <input type="text" wire:model.defer="separation_date_cause" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200">
+                                <input type="text" wire:model.defer="separation_date_cause" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring focus:ring-blue-200" maxlength="255">
                                 @error('separation_date_cause') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                         </form>
@@ -144,8 +158,8 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button wire:click="editRecord({{ $record->id }})" class="text-blue-600 hover:text-blue-900 p-1 rounded focus:outline-none mr-1">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                 </svg>
                             </button>
                             <button wire:click="confirmDelete({{ $record->id }})" class="text-red-600 hover:text-red-900 p-1 rounded focus:outline-none">

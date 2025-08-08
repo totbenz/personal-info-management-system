@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             SchoolSeeder::class,
             PersonnelSeeder::class,
             UserSeeder::class,
+            SalaryChangesSeeder::class,
         ]);
     }
 }
