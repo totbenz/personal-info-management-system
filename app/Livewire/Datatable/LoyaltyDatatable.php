@@ -144,35 +144,41 @@ class LoyaltyDatatable extends Component
         return 1 + floor(max(0, $yearsOfService - 10) / 5);
     }
 
-    // Get available claims with amounts for a personnel
+    // Get all claims (both claimed and available) with status for a personnel
     private function getAvailableClaims($personnel)
     {
         $yearsOfService = $personnel->years_of_service;
         $claimedCount = $personnel->loyalty_award_claim_count ?? 0;
         $maxClaims = $this->calculateMaxClaims($yearsOfService);
         
-        $availableClaims = [];
+        $allClaims = [];
         
-        for ($i = $claimedCount; $i < $maxClaims; $i++) {
+        for ($i = 0; $i < $maxClaims; $i++) {
+            $isClaimed = $i < $claimedCount;
+            
             if ($i == 0) {
                 // First claim (10 years)
-                $availableClaims[] = [
+                $allClaims[] = [
                     'label' => '10 Years Service Award',
                     'amount' => 10000,
-                    'years' => 10
+                    'years' => 10,
+                    'is_claimed' => $isClaimed,
+                    'claim_index' => $i
                 ];
             } else {
                 // Subsequent claims (every 5 years)
                 $years = 10 + ($i * 5);
-                $availableClaims[] = [
+                $allClaims[] = [
                     'label' => $years . ' Years Service Award',
                     'amount' => 5000,
-                    'years' => $years
+                    'years' => $years,
+                    'is_claimed' => $isClaimed,
+                    'claim_index' => $i
                 ];
             }
         }
         
-        return $availableClaims;
+        return $allClaims;
     }
 
     // Calculate total claimable amount

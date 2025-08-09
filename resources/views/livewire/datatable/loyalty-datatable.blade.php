@@ -301,9 +301,9 @@
         $maxClaims = $personnel->max_claims ?? 0;
         @endphp
         
-        @if($canClaim && !empty($availableClaims))
+        @if(!empty($availableClaims))
         <x-modal name="loyalty-claims-modal-{{ $personnel->id }}" :show="false" max-width="2xl">
-            <div class="bg-white rounded-lg shadow-xl p-6">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-h-[90vh] flex flex-col">
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">Loyalty Award Claims</h3>
@@ -339,53 +339,94 @@
                     </div>
                 </div>
                 
-                <!-- Available Claims -->
-                <div class="space-y-4">
-                    <h4 class="font-medium text-gray-900 mb-3">Available Awards to Claim:</h4>
-                    
-                    @foreach($availableClaims as $index => $claim)
-                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.625a7.458 7.458 0 00.981-3.172M9.497 14.625v.375a3.375 3.375 0 002.25 2.25" />
-                                            </svg>
+                <!-- Available Claims - Scrollable Content -->
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-900 mb-3 sticky top-0 bg-white py-2 border-b border-gray-100">Loyalty Service Awards:</h4>
+                        
+                        @foreach($availableClaims as $index => $claim)
+                        <div class="border border-gray-200 rounded-lg p-4 {{ $claim['is_claimed'] ? 'bg-gray-50' : 'hover:bg-gray-50' }} transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="flex-shrink-0">
+                                            @if($claim['is_claimed'])
+                                            <div class="w-10 h-10 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            @else
+                                            <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.625a7.458 7.458 0 00.981-3.172M9.497 14.625v.375a3.375 3.375 0 002.25 2.25" />
+                                                </svg>
+                                            </div>
+                                            @endif
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <h5 class="font-semibold {{ $claim['is_claimed'] ? 'text-gray-600' : 'text-gray-900' }}">{{ $claim['label'] }}</h5>
+                                                @if($claim['is_claimed'])
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Claimed
+                                                </span>
+                                                @endif
+                                            </div>
+                                            <p class="text-sm {{ $claim['is_claimed'] ? 'text-gray-500' : 'text-gray-600' }}">Service milestone achievement award</p>
                                         </div>
                                     </div>
-                                    <div class="flex-1">
-                                        <h5 class="font-semibold text-gray-900">{{ $claim['label'] }}</h5>
-                                        <p class="text-sm text-gray-600">Service milestone achievement award</p>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold {{ $claim['is_claimed'] ? 'text-gray-500' : 'text-green-600' }}">₱{{ number_format($claim['amount']) }}</div>
+                                        <div class="text-xs text-gray-500">Award Amount</div>
                                     </div>
+                                    @if($claim['is_claimed'])
+                                    <div class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-semibold flex items-center space-x-2 cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Award Claimed</span>
+                                    </div>
+                                    @else
+                                    <button x-data="{}" 
+                                            x-on:click="$openModal('confirm-claim-modal-{{ $personnel->id }}-{{ $claim['claim_index'] }}')" 
+                                            class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold shadow-md transition-all duration-200 flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Claim Award</span>
+                                    </button>
+                                    @endif
                                 </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <div class="text-right">
-                                    <div class="text-2xl font-bold text-green-600">₱{{ number_format($claim['amount']) }}</div>
-                                    <div class="text-xs text-gray-500">Award Amount</div>
-                                </div>
-                                <button x-data="{}" 
-                                        x-on:click="$openModal('confirm-claim-modal-{{ $personnel->id }}-{{ $index }}')" 
-                                        class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold shadow-md transition-all duration-200 flex items-center space-x-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>Claim Award</span>
-                                </button>
                             </div>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
                 </div>
                 
-                <!-- Footer -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
+                <!-- Footer - Fixed at bottom -->
+                <div class="flex-shrink-0 mt-6 pt-4 border-t border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="text-sm text-gray-600">
-                            <span class="font-medium">Total Potential:</span>
-                            <span class="text-green-600 font-semibold">₱{{ number_format($personnel->total_claimable_amount) }}</span>
+                            @php
+                                $totalClaimed = collect($availableClaims)->where('is_claimed', true)->sum('amount');
+                                $totalAvailable = collect($availableClaims)->where('is_claimed', false)->sum('amount');
+                            @endphp
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-medium">Total Claimed:</span>
+                                    <span class="text-lg font-bold text-gray-600 ml-2">₱{{ number_format($totalClaimed) }}</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">Available to Claim:</span>
+                                    <span class="text-lg font-bold text-green-600 ml-2">₱{{ number_format($totalAvailable) }}</span>
+                                </div>
+                            </div>
                         </div>
                         <button @click="show = false" 
                                 class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors shadow-sm">
