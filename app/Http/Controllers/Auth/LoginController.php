@@ -96,7 +96,7 @@ class LoginController extends Controller
         if ($user->role == 'admin') {
             return route('admin.home');
         } elseif ($user->role == 'school_head') {
-            return route('schools.profile', ['school' => $user->personnel->school->id]);
+            return route('school_head.dashboard');
         } elseif ($user->role == 'teacher') {
             return route('personnel.profile');
         }

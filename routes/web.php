@@ -55,6 +55,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
+       
+        // Leave request submission
+        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
 
     // SCHOOL HEAD ACCESS
@@ -80,6 +83,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/personnel/profile', [PersonnelController::class, 'profile'])->name('personnels.profile');
             Route::get('school/personnels/{personnel}', 'show')->name('school_personnels.show');
         });
+
+        // School Head Leaves
+        Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
     });
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
@@ -120,6 +126,10 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/{personnel}', 'show')->name('personnels.show');
             Route::delete('personnels/{personnel}', 'destroy')->name('personnels.destroy');
         });
+       
+        // Leave request admin view and approval
+        Route::get('/admin/leave-requests', [\App\Http\Controllers\LeaveRequestController::class, 'index'])->name('admin.leave-requests');
+        Route::post('/admin/leave-requests/{id}', [\App\Http\Controllers\LeaveRequestController::class, 'update'])->name('admin.leave-requests.update');
 
         Route::controller(SchoolController::class)->group(function () {
             Route::get('schools/', 'index')->name('schools.index');

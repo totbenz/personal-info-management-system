@@ -64,8 +64,29 @@ class HomeController extends Controller
 
     public function schoolHeadDashboard()
     {
-        $user = Auth::user();
-        $school = $user->personnel->school;
+    $user = Auth::user();
+    $schoolHead = $user->personnel;
+    $school = $schoolHead->school;
+        // School Head Leaves
+        $year = now()->year;
+        $soloParent = $schoolHead->is_solo_parent ?? false;
+        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent);
+        $leaves = \App\Models\SchoolHeadLeave::where('school_head_id', $schoolHead->id)
+            ->where('year', $year)
+            ->get()
+            ->keyBy('leave_type');
+        $leaveData = [];
+        foreach ($defaultLeaves as $type => $max) {
+            $leave = $leaves->get($type);
+            $leaveData[] = [
+                'type' => $type,
+                'max' => $max,
+                'available' => $leave ? $leave->available : $max,
+                'used' => $leave ? $leave->used : 0,
+                'ctos_earned' => $leave ? $leave->ctos_earned : 0,
+                'remarks' => $leave ? $leave->remarks : '',
+            ];
+        }
 
         // School statistics
         $totalPersonnel = Personnel::where('school_id', $school->id)->count();
@@ -195,7 +216,9 @@ class HomeController extends Controller
             'schoolHeadMaxClaims',
             'schoolHeadNextAwardYear',
             'schoolPersonnelLoyalty',
-            'eligiblePersonnelCount'
+            'eligiblePersonnelCount',
+            'leaveData',
+            'year'
         ));
     }
 

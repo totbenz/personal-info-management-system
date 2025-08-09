@@ -11,6 +11,8 @@
                 <h2 class="font-bold text-xl text-gray-900 leading-tight">
                     {{ $schoolInfo['name'] }}
                 </h2>
+                    {{ $schoolInfo['name'] }}
+                </h2>
                 <p class="text-sm text-gray-600">School Management Dashboard</p>
             </div>
         </div>
@@ -75,6 +77,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Available Leaves Section (moved up for prominence) -->
+            @include('school_head.partials.leaves', ['leaveData' => $leaveData ?? [], 'year' => $year ?? date('Y')])
 
             <!-- Key Metrics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
