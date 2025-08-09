@@ -22,10 +22,18 @@ class ServiceRecordController extends Controller
             return $record;
         });
 
+        // Fetch signatures
+        $schools_division_superintendent_signature = \App\Models\Signature::where('position', 'Schools Division Superintendent')->first();
+        $oic_assistant_schools_division_superintendent_signature = \App\Models\Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
+        $administrative_officer_vi_signature = \App\Models\Signature::where('position', 'Administrative Officer VI (HRMO II)')->first();
+
         // Generate the PDF using the Blade view
         $pdf = Pdf::loadView('pdf.service-record', [
             'personnel' => $personnel,
-            'serviceRecords' => $serviceRecords
+            'serviceRecords' => $serviceRecords,
+            'schools_division_superintendent_signature' => $schools_division_superintendent_signature,
+            'oic_assistant_schools_division_superintendent_signature' => $oic_assistant_schools_division_superintendent_signature,
+            'administrative_officer_vi_signature' => $administrative_officer_vi_signature,
         ]);
 
         // Return the PDF as a download response

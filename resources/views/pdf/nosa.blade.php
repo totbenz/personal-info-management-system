@@ -109,7 +109,7 @@
         <p class="text-center">Very truly yours,</p>
         <div class="mt-10 text-center" style="margin-left: 40%;">
             <p class="font-bold underline">{{$schools_division_superintendent_signature->full_name}}</p>
-            <p>Schools Division Superintendent</p>
+            <p>{{$schools_division_superintendent_signature->position_name}}</p>
         </div>
     </div>
 

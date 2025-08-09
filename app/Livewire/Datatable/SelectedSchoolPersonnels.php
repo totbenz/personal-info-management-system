@@ -92,6 +92,16 @@ class SelectedSchoolPersonnels extends Component
         return $excel->download(new PersonnelsIndexExport($filters), $filename);
     }
 
+    public function viewPersonnel($personnelId)
+    {
+        // Navigate to the appropriate personnel view based on user role
+        if (auth()->user()->role === 'school_head') {
+            return redirect()->route('school_personnels.show', ['personnel' => $personnelId]);
+        } else {
+            return redirect()->route('personnels.show', ['personnel' => $personnelId]);
+        }
+    }
+
     /**
      * Filter personnel by school ID
      *

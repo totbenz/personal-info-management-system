@@ -293,7 +293,7 @@
                 </span>
             </div>
         </div>
-        @if(Auth::user() && Auth::user()->role === 'admin')
+        @if(Auth::user() && in_array(Auth::user()->role, ['admin', 'school_head']))
         <div class="my-10">
             <h5 class="font-bold text-xl text-gray-darkest">Work Information</h5>
             <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">

@@ -119,13 +119,13 @@
             <div style="margin-top: 40px; font-size: 13px;">
                 <div style="margin-bottom: 30px;">
                     <strong>Recommending Approval:</strong><br><br>
-                    <span style="font-weight: bold; text-decoration: underline;">JOSEMILO P. RUIZ, EDD., CESE</span><br>
-                    Assistant School Division Superintendent
+                    <span style="font-weight: bold; text-decoration: underline;">{{$oic_assistant_schools_division_superintendent_signature->full_name}}</span><br>
+                    {{$oic_assistant_schools_division_superintendent_signature->position_name}}
                 </div>
                 <div>
                     <strong>Approved:</strong><br><br>
-                    <span style="font-weight: bold; text-decoration: underline;">MANUEL P. ALBAÑO, PH.D., CESO</span><br>
-                    School Division Superintendent
+                    <span style="font-weight: bold; text-decoration: underline;">{{$schools_division_superintendent_signature->full_name}}</span><br>
+                    {{$schools_division_superintendent_signature->position_name}}
                 </div>
             </div>
         </div>
