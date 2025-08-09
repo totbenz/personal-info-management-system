@@ -57,8 +57,10 @@ class LoyaltyDatatable extends Component
             $personnel->can_claim = $this->canClaimLoyaltyAward($yearsOfService);
             $personnel->next_award_year = $this->getNextAwardYear($yearsOfService);
 
-            // Calculate max possible claims
+            // Calculate max possible claims and available claims
             $personnel->max_claims = $this->calculateMaxClaims($yearsOfService);
+            $personnel->available_claims = $this->getAvailableClaims($personnel);
+            $personnel->total_claimable_amount = $this->calculateTotalClaimableAmount($yearsOfService);
 
             // Sanitize fields to prevent malformed UTF-8
             $personnel->first_name = $this->sanitizeUtf8($personnel->first_name);
@@ -142,16 +144,75 @@ class LoyaltyDatatable extends Component
         return 1 + floor(max(0, $yearsOfService - 10) / 5);
     }
 
-    public function claimLoyaltyAward($personnelId)
+    // Get all claims (both claimed and available) with status for a personnel
+    private function getAvailableClaims($personnel)
+    {
+        $yearsOfService = $personnel->years_of_service;
+        $claimedCount = $personnel->loyalty_award_claim_count ?? 0;
+        $maxClaims = $this->calculateMaxClaims($yearsOfService);
+        
+        $allClaims = [];
+        
+        for ($i = 0; $i < $maxClaims; $i++) {
+            $isClaimed = $i < $claimedCount;
+            
+            if ($i == 0) {
+                // First claim (10 years)
+                $allClaims[] = [
+                    'label' => '10 Years Service Award',
+                    'amount' => 10000,
+                    'years' => 10,
+                    'is_claimed' => $isClaimed,
+                    'claim_index' => $i
+                ];
+            } else {
+                // Subsequent claims (every 5 years)
+                $years = 10 + ($i * 5);
+                $allClaims[] = [
+                    'label' => $years . ' Years Service Award',
+                    'amount' => 5000,
+                    'years' => $years,
+                    'is_claimed' => $isClaimed,
+                    'claim_index' => $i
+                ];
+            }
+        }
+        
+        return $allClaims;
+    }
+
+    // Calculate total claimable amount
+    private function calculateTotalClaimableAmount($yearsOfService)
+    {
+        $maxClaims = $this->calculateMaxClaims($yearsOfService);
+        if ($maxClaims == 0) return 0;
+        
+        $totalAmount = 10000; // First 10 years
+        if ($maxClaims > 1) {
+            $totalAmount += ($maxClaims - 1) * 5000; // Each subsequent 5 years
+        }
+        
+        return $totalAmount;
+    }
+
+    public function claimLoyaltyAward($personnelId, $claimIndex = null)
     {
         $personnel = Personnel::find($personnelId);
         if (!$personnel) return;
+        
         $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
         $maxClaims = $this->calculateMaxClaims($yearsOfService);
-        if ($personnel->loyalty_award_claim_count < $maxClaims) {
-            $personnel->loyalty_award_claim_count += 1;
+        $currentClaims = $personnel->loyalty_award_claim_count ?? 0;
+        
+        if ($currentClaims < $maxClaims) {
+            $personnel->loyalty_award_claim_count = $currentClaims + 1;
             $personnel->save();
-            session()->flash('success', 'Loyalty award claim recorded!');
+            
+            // Determine the amount claimed
+            $amount = ($currentClaims == 0) ? 10000 : 5000;
+            $years = ($currentClaims == 0) ? 10 : (10 + ($currentClaims * 5));
+            
+            session()->flash('success', "Loyalty award claimed! ₱" . number_format($amount) . " for {$years} years of service.");
         }
     }
 
@@ -159,9 +220,18 @@ class LoyaltyDatatable extends Component
     {
         $personnels = $this->getEligiblePersonnels(false); // not paginated, all eligible
         $date = now()->format('F d, Y');
+        
+        // Fetch signatures
+        $schools_division_superintendent_signature = \App\Models\Signature::where('position', 'Schools Division Superintendent')->first();
+        $oic_assistant_schools_division_superintendent_signature = \App\Models\Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
+        $administrative_officer_vi_signature = \App\Models\Signature::where('position', 'Administrative Officer VI (HRMO II)')->first();
+        
         $pdf = Pdf::loadView('pdf.loyalty-awards', [
             'personnels' => $personnels,
             'date' => $date,
+            'schools_division_superintendent_signature' => $schools_division_superintendent_signature,
+            'oic_assistant_schools_division_superintendent_signature' => $oic_assistant_schools_division_superintendent_signature,
+            'administrative_officer_vi_signature' => $administrative_officer_vi_signature,
         ])->setPaper('a4', 'portrait');
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();

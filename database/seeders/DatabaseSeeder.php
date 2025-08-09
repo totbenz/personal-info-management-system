@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PersonnelSeeder::class,
             UserSeeder::class,
             SalaryChangesSeeder::class,
+            SignatureSeeder::class,
         ]);
     }
 }

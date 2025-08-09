@@ -120,7 +120,7 @@
         <p class="text-center">Approved:</p>
         <div class="mt-8 text-center" style="margin-left: 40%;">
             <p class="font-bold underline uppercase">{{$schools_division_superintendent_signature->full_name}}</p>
-            <p>Schools Division Superintendent</p>
+            <p>{{$schools_division_superintendent_signature->position_name}}</p>
         </div>
     </div>
 

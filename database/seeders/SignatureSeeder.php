@@ -16,14 +16,17 @@ class SignatureSeeder extends Seeder
         DB::table('signatures')->insert([
             [
                 'position' => 'Schools Division Superintendent',
+                'position_name' => 'Schools Division Superintendent',
                 'full_name' => 'MANUEL T. ALBAÑO, PH.D., CESO V',
             ],
             [
                 'position' => 'OIC Assistant Schools Division Superintendent',
+                'position_name' => 'OIC Assistant Schools Division Superintendent',
                 'full_name' => 'JOSEMILO P. RUIZ, EDD., CESE',
             ],
             [
                 'position' => 'Administrative Officer VI (HRMO II)',
+                'position_name' => 'Administrative Officer VI (HRMO II)',
                 'full_name' => 'JULIUS CAESAR C. DE LA CERNA'
             ],
         ]);

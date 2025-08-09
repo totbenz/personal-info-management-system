@@ -18,19 +18,19 @@ class UserSeeder extends Seeder
             [
                 'email' => 'admin@mailinator.com',
                 'role' => 'admin',
-                'password' => Hash::make('P@ssw0rd'),
+                'password' => Hash::make('Password'),
                 'personnel_id' => 1
             ],
             [
                 'email' => 'schoolhead@mailinator.com',
                 'role' => 'school_head',
-                'password' => Hash::make('Pa$$w0rd!'),
+                'password' => Hash::make('Password'),
                 'personnel_id' => 2
             ],
             [
                 'email' => 'teacher@mailinator.com',
                 'role' => 'teacher',
-                'password' => Hash::make('Pa$$w0rd!'),
+                'password' => Hash::make('Password'),
                 'personnel_id' => 3
             ],
 

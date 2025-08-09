@@ -222,8 +222,8 @@
             <td style="width: 50%;">
                 <span>CERTIFIED CORRECT:</span>
                 <br><br><br>
-                <u style="margin-left:10%;">JULIUS CAESAR C. DE LA CERNA</u><br>
-                <span style="margin-left:10%;">Administrative Officer VI (HRMO II)</span><br>
+                <u style="margin-left:10%;">{{$administrative_officer_vi_signature->full_name}}</u><br>
+                <span style="margin-left:10%;">{{$administrative_officer_vi_signature->position_name}}</span><br>
             </td>
         </tr>
     </table>

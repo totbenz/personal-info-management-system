@@ -140,14 +140,12 @@
                                 </svg>
                             </div>
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">
-                            Action
-                        </th>
+
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach ($personnels as $index => $personnel)
-                    <tr wire:loading.class="opacity-60 hover:bg-gray-50 transition" class="text-sm">
+                    <tr wire:click="viewPersonnel({{ $personnel->id }})" wire:loading.class="opacity-60" class="text-sm hover:bg-gray-50 cursor-pointer transition">
                         <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->personnel_id }}</td>
                         <td class="px-4 py-3 whitespace-nowrap text-gray-900 font-medium capitalize">{{ $personnel->fullName() }}</td>
                         <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">
@@ -156,28 +154,12 @@
                         <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->position->title }}</td>
                         <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->category }}</td>
                         <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->school->school_name }}</td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <div class="flex items-center space-x-2">
-                                @if(auth()->user()->role === 'school_head')
-                                <a href="{{ route('school_personnels.show', ['personnel' => $personnel->id]) }}">
-                                    <button class="inline-flex items-center px-3 py-1.5 rounded bg-main text-white text-xs font-semibold hover:bg-main/90 transition focus:outline-none">
-                                        View
-                                    </button>
-                                </a>
-                                @else
-                                <a href="{{ route('personnels.show', ['personnel' => $personnel->id]) }}">
-                                    <button class="inline-flex items-center px-3 py-1.5 rounded bg-main text-white text-xs font-semibold hover:bg-main/90 transition focus:outline-none">
-                                        View
-                                    </button>
-                                </a>
-                                @endif
-                            </div>
-                        </td>
+
                     </tr>
                     @endforeach
                     @if ($personnels->isEmpty())
                     <tr wire:loading.class="opacity-60">
-                        <td colspan="7" class="px-4 py-6 text-center text-gray-400 text-sm">No Personnel Found</td>
+                        <td colspan="6" class="px-4 py-6 text-center text-gray-400 text-sm">No Personnel Found</td>
                     </tr>
                     @endif
                 </tbody>
