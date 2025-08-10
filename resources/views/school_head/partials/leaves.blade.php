@@ -10,6 +10,12 @@
         'Solo Parent Leave' => 'amber',
         'Study Leave' => 'indigo',
     ];
+
+    // Create an array of leave balances for JavaScript access
+    $leaveBalances = [];
+    foreach($leaveData as $leave) {
+        $leaveBalances[$leave['type']] = $leave['available'];
+    }
 @endphp
 
 <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-8">
@@ -34,7 +40,18 @@
         @foreach($leaveData as $leave)
         <div class="group flex flex-col justify-between p-4 bg-gradient-to-br from-{{ $colors[$leave['type']] ?? 'gray' }}-50 to-{{ $colors[$leave['type']] ?? 'gray' }}-100/50 rounded-xl border border-{{ $colors[$leave['type']] ?? 'gray' }}-200/50 hover:shadow-md transition-all duration-200">
             <div>
-                <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700 mb-1">{{ $leave['type'] }}</p>
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
+                    @if($leave['available'] <= 0)
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            No Days
+                        </span>
+                    @elseif($leave['available'] <= 3)
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Low
+                        </span>
+                    @endif
+                </div>
                 <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['max'] }}</p>
                 <p class="text-sm text-gray-600">Used: {{ $leave['used'] }}</p>
                 @if($leave['ctos_earned'])
@@ -48,7 +65,7 @@
         @endforeach
     </div>
     <!-- Leave Request Modal (hidden by default) -->
-    <div id="leaveRequestModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div id="leaveRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
             <button id="closeLeaveRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +74,18 @@
             </button>
             <h3 class="text-xl font-bold text-gray-900 mb-4">File a Leave Request</h3>
             @if(session('success'))
-                <div class="mb-4 text-green-600">{{ session('success') }}</div>
+                <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach($errors->all() as $error)
+                            <li class="text-sm">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
             <form method="POST" action="{{ route('leave-request.store') }}" class="space-y-4">
                 @csrf
@@ -65,34 +93,45 @@
                     <label for="leave_type" class="block text-sm font-medium text-gray-700">Type of Leave</label>
                     <select name="leave_type" id="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="">Select type</option>
-                        <option value="Sick">Sick Leave</option>
-                        <option value="Vacation">Vacation Leave</option>
-                        <option value="CTO">CTO</option>
-                        <option value="Special Privilege">Special Privilege Leave</option>
-                        <option value="Force">Force Leave</option>
-                        <option value="Maternity">Maternity Leave</option>
-                        <option value="Rehabilitation">Rehabilitation Leave</option>
-                        <option value="Solo Parent">Solo Parent Leave</option>
-                        <option value="Study">Study Leave</option>
+                        @foreach($leaveData as $leave)
+                            @if($leave['available'] > 0)
+                                <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">
+                                    {{ $leave['type'] }} ({{ $leave['available'] }} days available)
+                                </option>
+                            @else
+                                <option value="{{ $leave['type'] }}" disabled class="text-gray-400" data-available="0">
+                                    {{ $leave['type'] }} (No days available)
+                                </option>
+                            @endif
+                        @endforeach
                     </select>
                     @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                    <div id="leave_type_warning" class="hidden text-red-500 text-xs mt-1">
+                        This leave type has no available days.
+                    </div>
                 </div>
                 <div>
                     <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                    <input type="date" name="start_date" id="start_date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="date" name="start_date" id="start_date" value="{{ old('start_date') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                     @error('start_date')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                 </div>
                 <div>
                     <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                    <input type="date" name="end_date" id="end_date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="date" name="end_date" id="end_date" value="{{ old('end_date') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                     @error('end_date')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                    <div id="date_warning" class="hidden text-red-500 text-xs mt-1">
+                        The selected dates exceed your available leave days.
+                    </div>
+                    <div id="days_info" class="hidden text-blue-600 text-xs mt-1">
+                        Total days: <span id="total_days">0</span>
+                    </div>
                 </div>
                 <div>
                     <label for="reason" class="block text-sm font-medium text-gray-700">Reason</label>
-                    <input type="text" name="reason" id="reason" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="text" name="reason" id="reason" value="{{ old('reason') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                     @error('reason')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                 </div>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">File Leave</button>
+                <button type="submit" id="submitBtn" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">File Leave</button>
             </form>
         </div>
     </div>
@@ -100,16 +139,129 @@
 <!-- Modal JS -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Pass leave balances to JavaScript
+        const leaveBalances = @json($leaveBalances);
+        
         var btn = document.getElementById('leaveRequestBtn');
         var modal = document.getElementById('leaveRequestModal');
         var closeBtn = document.getElementById('closeLeaveRequestModal');
+        var leaveTypeSelect = document.getElementById('leave_type');
+        var startDateInput = document.getElementById('start_date');
+        var endDateInput = document.getElementById('end_date');
+        var submitBtn = document.getElementById('submitBtn');
+        var dateWarning = document.getElementById('date_warning');
+        var daysInfo = document.getElementById('days_info');
+        var totalDaysSpan = document.getElementById('total_days');
+        var leaveTypeWarning = document.getElementById('leave_type_warning');
+
+        // Modal controls
         if(btn && modal && closeBtn) {
             btn.addEventListener('click', function() {
                 modal.classList.remove('hidden');
+                modal.classList.add('flex');
             });
             closeBtn.addEventListener('click', function() {
                 modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
             });
         }
+
+        // Auto-open modal if there are validation errors
+        @if($errors->any())
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        @endif
+
+        // Date calculation function
+        function calculateDays() {
+            if (!startDateInput.value || !endDateInput.value) {
+                daysInfo.classList.add('hidden');
+                return 0;
+            }
+
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            if (endDate < startDate) {
+                daysInfo.classList.add('hidden');
+                return 0;
+            }
+
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+            
+            totalDaysSpan.textContent = daysDiff;
+            daysInfo.classList.remove('hidden');
+            
+            return daysDiff;
+        }
+
+        // Validation function
+        function validateLeaveRequest() {
+            const selectedLeaveType = leaveTypeSelect.value;
+            const totalDays = calculateDays();
+            const availableDays = leaveBalances[selectedLeaveType] || 0;
+
+            // Reset warnings
+            dateWarning.classList.add('hidden');
+            leaveTypeWarning.classList.add('hidden');
+            
+            let isValid = true;
+
+            // Check if leave type has available days
+            if (selectedLeaveType && availableDays === 0) {
+                leaveTypeWarning.classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Check if requested days exceed available days
+            if (selectedLeaveType && totalDays > 0 && totalDays > availableDays) {
+                dateWarning.classList.remove('hidden');
+                dateWarning.innerHTML = `The selected dates (${totalDays} days) exceed your available ${selectedLeaveType} days (${availableDays} available).`;
+                isValid = false;
+            }
+
+            // Enable/disable submit button
+            submitBtn.disabled = !isValid || !selectedLeaveType || totalDays === 0;
+            
+            return isValid;
+        }
+
+        // Event listeners for validation
+        if (leaveTypeSelect) {
+            leaveTypeSelect.addEventListener('change', validateLeaveRequest);
+        }
+
+        if (startDateInput) {
+            startDateInput.addEventListener('change', validateLeaveRequest);
+        }
+
+        if (endDateInput) {
+            endDateInput.addEventListener('change', validateLeaveRequest);
+        }
+
+        // Form submission validation
+        const form = document.querySelector('#leaveRequestModal form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validateLeaveRequest()) {
+                    e.preventDefault();
+                    alert('Please fix the validation errors before submitting.');
+                }
+            });
+        }
+
+        // Initial validation
+        validateLeaveRequest();
     });
 </script>

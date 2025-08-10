@@ -86,6 +86,9 @@ Route::middleware(['auth'])->group(function () {
 
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
+        
+        // Leave request submission for school heads
+        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');

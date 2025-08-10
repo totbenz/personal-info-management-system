@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Personnel;
 use App\Models\School;
 use App\Models\User;
+use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SalaryGrade;
@@ -48,6 +49,14 @@ class HomeController extends Controller
             ->groupBy('division')
             ->pluck('count', 'division');
 
+        // Pending leave requests from school heads, teachers, and non-teaching staff
+        // This feature allows admin to view and approve/deny leave requests directly from the dashboard
+        $pendingLeaveRequests = LeaveRequest::where('status', 'pending')
+            ->with(['user.personnel'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
         return view('dashboard', compact(
             'personnelCount',
             'schoolCount',
@@ -59,6 +68,7 @@ class HomeController extends Controller
             'jobStatusCounts',
             'schoolsPerDistrict',
             'schoolsPerDivision',
+            'pendingLeaveRequests',
         ));
     }
 
@@ -71,10 +81,30 @@ class HomeController extends Controller
         $year = now()->year;
         $soloParent = $schoolHead->is_solo_parent ?? false;
         $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent);
+        
+        // Ensure all leave type records exist for this school head and year
+        foreach ($defaultLeaves as $leaveType => $maxDays) {
+            \App\Models\SchoolHeadLeave::firstOrCreate(
+                [
+                    'school_head_id' => $schoolHead->id,
+                    'leave_type' => $leaveType,
+                    'year' => $year
+                ],
+                [
+                    'available' => $maxDays,
+                    'used' => 0,
+                    'ctos_earned' => 0,
+                    'remarks' => 'Auto-initialized'
+                ]
+            );
+        }
+        
+        // Get existing leave records for this year (now they should all exist)
         $leaves = \App\Models\SchoolHeadLeave::where('school_head_id', $schoolHead->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
+        
         $leaveData = [];
         foreach ($defaultLeaves as $type => $max) {
             $leave = $leaves->get($type);
@@ -87,6 +117,12 @@ class HomeController extends Controller
                 'remarks' => $leave ? $leave->remarks : '',
             ];
         }
+
+        // School head's leave requests history
+        $leaveRequests = LeaveRequest::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
         // School statistics
         $totalPersonnel = Personnel::where('school_id', $school->id)->count();
@@ -218,6 +254,7 @@ class HomeController extends Controller
             'schoolPersonnelLoyalty',
             'eligiblePersonnelCount',
             'leaveData',
+            'leaveRequests',
             'year'
         ));
     }

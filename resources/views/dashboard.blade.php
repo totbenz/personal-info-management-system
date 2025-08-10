@@ -13,10 +13,29 @@
 
     <!-- Dashboard Content -->
     <div x-data="{ showSchools: false, showPersonnels: false, showUsers: false, showJobStatus: false, showDistrict: false, showDivision: false, selectedStatus: '', selectedDistrict: '', selectedDivision: '' }" class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pr-80">
+        
+        <!-- Success Message -->
+        @if(session('success'))
+        <div class="mx-4 px-4 sm:px-6 mb-4">
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700">{{ session('success') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+        
         <div class="mx-4 px-4 sm:px-6">
 
             <!-- Key Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <!-- Schools Card -->
                 <div @click="showSchools = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                     <div class="flex items-center justify-between">
@@ -69,6 +88,37 @@
                         <div class="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Requests Card -->
+                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative" onclick="document.getElementById('leaveRequestsSection').scrollIntoView({behavior: 'smooth'})">
+                    @if($pendingLeaveRequests->count() > 0)
+                    <div class="absolute -top-2 -right-2 flex">
+                        <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-orange-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+                    </div>
+                    @endif
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">Leave Requests</span>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingLeaveRequests->count() }}</div>
+                            <div class="text-xs text-gray-500">
+                                @if($pendingLeaveRequests->count() > 0)
+                                    Pending approvals
+                                @else
+                                    All up to date
+                                @endif
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
                         </div>
                     </div>
@@ -280,6 +330,247 @@
                         @endforeach
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Leave Approval Requests Table -->
+        <div id="leaveRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+            <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Pending Leave Approval Requests</h3>
+                            <p class="text-sm text-gray-600 mt-1">Review and approve leave requests from personnel</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            {{ $pendingLeaveRequests->count() }} Pending
+                        </span>
+                        <a href="{{ route('admin.leave-requests') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                            View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                @if($pendingLeaveRequests->count() > 0)
+                <div class="hidden md:block">
+                    <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Personnel
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Role
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Leave Type
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Duration
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Reason
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Requested Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($pendingLeaveRequests as $request)
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8">
+                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                            <span class="text-xs font-medium text-white">
+                                                {{ strtoupper(substr($request->user->personnel->first_name ?? $request->user->name, 0, 1)) }}{{ strtoupper(substr($request->user->personnel->last_name ?? '', 0, 1)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            @if($request->user->personnel)
+                                                {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
+                                            @else
+                                                {{ $request->user->name }}
+                                            @endif
+                                        </div>
+                                        <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
+                                    @elseif($request->user->role === 'teacher') bg-green-100 text-green-800
+                                    @else bg-blue-100 text-blue-800 @endif">
+                                    {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} - 
+                                    {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">
+                                    {{ $request->reason }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
+                                        @csrf
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                                                onclick="return confirm('Are you sure you want to approve this leave request?')">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
+                                        @csrf
+                                        <input type="hidden" name="status" value="denied">
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                                                onclick="return confirm('Are you sure you want to deny this leave request?')">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            Deny
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                </div>
+                
+                <!-- Mobile view -->
+                <div class="md:hidden space-y-4">
+                    @foreach($pendingLeaveRequests as $request)
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-white">
+                                            {{ strtoupper(substr($request->user->personnel->first_name ?? $request->user->name, 0, 1)) }}{{ strtoupper(substr($request->user->personnel->last_name ?? '', 0, 1)) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        @if($request->user->personnel)
+                                            {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
+                                        @else
+                                            {{ $request->user->name }}
+                                        @endif
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                        @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
+                                        @elseif($request->user->role === 'teacher') bg-green-100 text-green-800
+                                        @else bg-blue-100 text-blue-800 @endif">
+                                        {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Leave Type</span>
+                                <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
+                            </div>
+                            
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Duration</span>
+                                <div class="text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} - 
+                                    {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
+                                    <span class="text-xs text-gray-500">
+                                        ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Reason</span>
+                                <div class="text-sm text-gray-900">{{ $request->reason }}</div>
+                            </div>
+                            
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Requested</span>
+                                <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y h:i A') }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="flex-1">
+                                @csrf
+                                <input type="hidden" name="status" value="approved">
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                                        onclick="return confirm('Are you sure you want to approve this leave request?')">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Approve
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="flex-1">
+                                @csrf
+                                <input type="hidden" name="status" value="denied">
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                                        onclick="return confirm('Are you sure you want to deny this leave request?')">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Deny
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No pending leave requests</h3>
+                    <p class="mt-1 text-sm text-gray-500">All leave requests have been processed.</p>
+                </div>
+                @endif
             </div>
         </div>
 

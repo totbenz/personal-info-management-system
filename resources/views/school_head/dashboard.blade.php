@@ -81,6 +81,71 @@
             <!-- Available Leaves Section (moved up for prominence) -->
             @include('school_head.partials.leaves', ['leaveData' => $leaveData ?? [], 'year' => $year ?? date('Y')])
 
+            <!-- Leave Request History Section -->
+            @if(isset($leaveRequests) && $leaveRequests->count() > 0)
+            <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-orange-600/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Your Leave Request History</h3>
+                            <p class="text-gray-600">Track the status of your submitted leave requests</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                {{ $leaveRequests->where('status', 'pending')->count() }} Pending
+                            </span>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        @foreach($leaveRequests as $request)
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-xl border border-gray-200/50">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-br 
+                                    @if($request->status === 'pending') from-orange-500 to-orange-600
+                                    @elseif($request->status === 'approved') from-green-500 to-green-600
+                                    @else from-red-500 to-red-600 @endif
+                                    rounded-xl flex items-center justify-center shadow-lg">
+                                    @if($request->status === 'pending')
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    @elseif($request->status === 'approved')
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    @else
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    @endif
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900">{{ $request->leave_type }}</h4>
+                                    <p class="text-xs text-gray-600">
+                                        {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} - 
+                                        {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
+                                        ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ $request->reason }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if($request->status === 'pending') bg-orange-100 text-orange-800
+                                    @elseif($request->status === 'approved') bg-green-100 text-green-800
+                                    @else bg-red-100 text-red-800 @endif">
+                                    {{ ucfirst($request->status) }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Key Metrics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Total Personnel -->
