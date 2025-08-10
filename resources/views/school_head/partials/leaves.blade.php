@@ -20,49 +20,56 @@
 
 <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-8">
     <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+        <div id="leavesHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900">Available Leaves ({{ $year }})</h3>
-        </div>
-        <!-- Leave Request Icon Button -->
-        <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request">
-            <!-- Document with Plus Icon -->
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />
+            <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">Available Leaves ({{ $year }})</h3>
+            <svg id="leavesToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-        </button>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @foreach($leaveData as $leave)
-        <div class="group flex flex-col justify-between p-4 bg-gradient-to-br from-{{ $colors[$leave['type']] ?? 'gray' }}-50 to-{{ $colors[$leave['type']] ?? 'gray' }}-100/50 rounded-xl border border-{{ $colors[$leave['type']] ?? 'gray' }}-200/50 hover:shadow-md transition-all duration-200">
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
-                    @if($leave['available'] <= 0)
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            No Days
-                        </span>
-                    @elseif($leave['available'] <= 3)
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            Low
-                        </span>
-                    @endif
-                </div>
-                <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['max'] }}</p>
-                <p class="text-sm text-gray-600">Used: {{ $leave['used'] }}</p>
-                @if($leave['ctos_earned'])
-                <p class="text-sm text-teal-600">CTO Earned: {{ $leave['ctos_earned'] }}</p>
-                @endif
-                @if($leave['remarks'])
-                <p class="text-xs text-gray-500 italic">{{ $leave['remarks'] }}</p>
-                @endif
-            </div>
         </div>
-        @endforeach
+        <div class="flex items-center space-x-2">
+            <!-- Leave Request Icon Button -->
+            <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request">
+                <!-- Document with Plus Icon -->
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div id="leavesContent" class="transition-all duration-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($leaveData as $leave)
+            <div class="group flex flex-col justify-between p-4 bg-gradient-to-br from-{{ $colors[$leave['type']] ?? 'gray' }}-50 to-{{ $colors[$leave['type']] ?? 'gray' }}-100/50 rounded-xl border border-{{ $colors[$leave['type']] ?? 'gray' }}-200/50 hover:shadow-md transition-all duration-200">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
+                        @if($leave['available'] <= 0)
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                No Days
+                            </span>
+                        @elseif($leave['available'] <= 3)
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Low
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['max'] }}</p>
+                    <p class="text-sm text-gray-600">Used: {{ $leave['used'] }}</p>
+                    @if($leave['ctos_earned'])
+                    <p class="text-sm text-teal-600">CTO Earned: {{ $leave['ctos_earned'] }}</p>
+                    @endif
+                    <!-- @if($leave['remarks'])
+                    <p class="text-xs text-gray-500 italic">{{ $leave['remarks'] }}</p>
+                    @endif -->
+                </div>
+            </div>
+            @endforeach
+        </div>
     </div>
     <!-- Leave Request Modal (hidden by default) -->
     <div id="leaveRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
@@ -153,6 +160,41 @@
         var daysInfo = document.getElementById('days_info');
         var totalDaysSpan = document.getElementById('total_days');
         var leaveTypeWarning = document.getElementById('leave_type_warning');
+
+        // Minimize functionality for leaves section
+        var leavesHeaderToggle = document.getElementById('leavesHeaderToggle');
+        var leavesToggleIcon = document.getElementById('leavesToggleIcon');
+        var leavesContent = document.getElementById('leavesContent');
+        var isLeavesMinimized = localStorage.getItem('leavesMinimized') === 'true';
+
+        // Set initial state based on localStorage
+        if (isLeavesMinimized) {
+            leavesContent.style.height = '0';
+            leavesContent.style.overflow = 'hidden';
+            leavesContent.style.opacity = '0';
+            leavesToggleIcon.style.transform = 'rotate(-90deg)';
+        }
+
+        if (leavesHeaderToggle && leavesContent) {
+            leavesHeaderToggle.addEventListener('click', function() {
+                if (isLeavesMinimized) {
+                    // Expand
+                    leavesContent.style.height = 'auto';
+                    leavesContent.style.overflow = 'visible';
+                    leavesContent.style.opacity = '1';
+                    leavesToggleIcon.style.transform = 'rotate(0deg)';
+                    localStorage.setItem('leavesMinimized', 'false');
+                } else {
+                    // Minimize
+                    leavesContent.style.height = '0';
+                    leavesContent.style.overflow = 'hidden';
+                    leavesContent.style.opacity = '0';
+                    leavesToggleIcon.style.transform = 'rotate(-90deg)';
+                    localStorage.setItem('leavesMinimized', 'true');
+                }
+                isLeavesMinimized = !isLeavesMinimized;
+            });
+        }
 
         // Modal controls
         if(btn && modal && closeBtn) {
