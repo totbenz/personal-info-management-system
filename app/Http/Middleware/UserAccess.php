@@ -28,7 +28,7 @@ class UserAccess
             case 'school_head':
                 return redirect()->route('schools.profile', ['school' => $user->personnel->school]);
             case 'teacher':
-                return redirect()->route('personnels.profile');
+                return redirect()->route('teacher.dashboard');
             default:
                 session()->flash('flash.banner', 'You do not have permission to access this page.');
                 session()->flash('flash.bannerStyle', 'danger');

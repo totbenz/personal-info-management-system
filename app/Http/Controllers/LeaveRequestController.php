@@ -52,28 +52,79 @@ class LeaveRequestController extends Controller
             }
         }
 
-        LeaveRequest::create([
-            'user_id' => Auth::id(),
-            'leave_type' => $request->leave_type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'reason' => $request->reason,
-            'status' => 'pending',
-        ]);
-
-        // If this is a school head, ensure their leave records are initialized for the current year
-        if ($user->role === 'school_head') {
-            $this->ensureSchoolHeadLeaveRecordsExist($user->personnel);
+        // For teachers, validate only specific leave types that have limits
+        if ($user->role === 'teacher') {
+            $personnel = $user->personnel;
+            if ($personnel) {
+                $startDate = Carbon::parse($request->start_date);
+                $endDate = Carbon::parse($request->end_date);
+                $requestedDays = $startDate->diffInDays($endDate) + 1;
+                
+                // Check leave type specific limits for teachers
+                if ($request->leave_type === 'Solo Parent Leave') {
+                    if (!$personnel->is_solo_parent) {
+                        return redirect()->back()
+                            ->withErrors(['leave_type' => 'You are not eligible for Solo Parent Leave.'])
+                            ->withInput();
+                    }
+                    if ($requestedDays > 7) {
+                        return redirect()->back()
+                            ->withErrors(['leave_days' => 'Solo Parent Leave is limited to 7 days per year.'])
+                            ->withInput();
+                    }
+                } elseif ($request->leave_type === 'Maternity Leave') {
+                    $maxDays = $personnel->is_solo_parent ? 120 : 105;
+                    if ($requestedDays > $maxDays) {
+                        return redirect()->back()
+                            ->withErrors(['leave_days' => "Maternity Leave is limited to {$maxDays} days."])
+                            ->withInput();
+                    }
+                } elseif (in_array($request->leave_type, ['Rehabilitation Leave', 'Study Leave'])) {
+                    if ($requestedDays > 180) {
+                        return redirect()->back()
+                            ->withErrors(['leave_days' => "{$request->leave_type} is limited to 180 days."])
+                            ->withInput();
+                    }
+                }
+                // Personal Leave and Sick Leave are unlimited for teachers (taken from service credit)
+            }
         }
 
-        // Redirect based on user role
-        if ($user->role === 'school_head') {
-            return redirect()->route('school_head.dashboard')->with('success', 'Leave request submitted successfully!');
-        } elseif ($user->role === 'teacher') {
-            return redirect()->route('teacher.dashboard')->with('success', 'Leave request submitted successfully!');
+        try {
+            LeaveRequest::create([
+                'user_id' => Auth::id(),
+                'leave_type' => $request->leave_type,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'reason' => $request->reason,
+                'status' => 'pending',
+            ]);
+
+            // If this is a school head, ensure their leave records are initialized for the current year
+            if ($user->role === 'school_head') {
+                $this->ensureSchoolHeadLeaveRecordsExist($user->personnel);
+            }
+
+            // Redirect based on user role
+            if ($user->role === 'school_head') {
+                return redirect()->route('school_head.dashboard')->with('success', 'Leave request submitted successfully!');
+            } elseif ($user->role === 'teacher') {
+                return redirect()->route('teacher.dashboard')->with('success', 'Leave request submitted successfully!');
+            }
+            
+            return redirect()->back()->with('success', 'Leave request submitted successfully!');
+            
+        } catch (\Exception $e) {
+            Log::error('Leave request creation failed', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+            
+            return redirect()->back()
+                ->withErrors(['submission' => 'Failed to submit leave request. Please try again.'])
+                ->withInput();
         }
-        
-        return redirect()->back()->with('success', 'Leave request submitted successfully!');
     }
 
     // Admin views pending requests

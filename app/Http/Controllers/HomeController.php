@@ -382,6 +382,66 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
+        // Teacher's leave requests history
+        $leaveRequests = LeaveRequest::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Teacher leave data (simplified - no balance tracking like school heads)
+        $teacherLeaveData = [
+            [
+                'type' => 'Personal Leave',
+                'description' => 'Taken from service credit',
+                'max' => '∞', // Unlimited from service credit
+                'available' => '∞',
+                'used' => 0,
+                'color' => 'blue'
+            ],
+            [
+                'type' => 'Sick Leave',
+                'description' => 'Taken from service credit',
+                'max' => '∞', // Unlimited from service credit
+                'available' => '∞',
+                'used' => 0,
+                'color' => 'emerald'
+            ],
+            [
+                'type' => 'Maternity Leave',
+                'description' => '105 days, +15 for solo parent',
+                'max' => $personnel->is_solo_parent ? 120 : 105,
+                'available' => $personnel->is_solo_parent ? 120 : 105,
+                'used' => 0,
+                'color' => 'pink'
+            ],
+            [
+                'type' => 'Rehabilitation Leave',
+                'description' => 'In case of accident in line of duty',
+                'max' => 180,
+                'available' => 180,
+                'used' => 0,
+                'color' => 'red'
+            ],
+            [
+                'type' => 'Solo Parent Leave',
+                'description' => 'Annual leave for solo parents',
+                'max' => 7,
+                'available' => $personnel->is_solo_parent ? 7 : 0,
+                'used' => 0,
+                'color' => 'amber'
+            ],
+            [
+                'type' => 'Study Leave',
+                'description' => 'For approved educational pursuits',
+                'max' => 180,
+                'available' => 180,
+                'used' => 0,
+                'color' => 'indigo'
+            ]
+        ];
+
+        $year = now()->year;
+
         return view('teacher.dashboard', compact(
             'personalInfo',
             'workInfo',
@@ -406,7 +466,10 @@ class HomeController extends Controller
             'nextAwardYear',
             'recentEvents',
             'salaryInfo',
-            'recentSalaryChanges'
+            'recentSalaryChanges',
+            'leaveRequests',
+            'teacherLeaveData',
+            'year'
         ));
     }
 

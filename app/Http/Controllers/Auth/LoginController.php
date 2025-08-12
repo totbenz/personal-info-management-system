@@ -98,7 +98,7 @@ class LoginController extends Controller
         } elseif ($user->role == 'school_head') {
             return route('school_head.dashboard');
         } elseif ($user->role == 'teacher') {
-            return route('personnel.profile');
+            return route('teacher.dashboard');
         }
 
         return '/dashboard'; // Default fallback

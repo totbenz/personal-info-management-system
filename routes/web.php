@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         $user = Auth::user();
         if ($user->role === 'teacher') {
-            return redirect()->route('personnel.profile');
+            return redirect()->route('teacher.dashboard');
         } elseif ($user->role === 'school_head') {
             return redirect()->route('schools.profile', ['school' => $user->personnel->school]);
         } elseif ($user->role === 'admin') {
@@ -55,9 +55,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
-       
-        // Leave request submission
-        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
 
     // SCHOOL HEAD ACCESS
@@ -86,10 +83,10 @@ Route::middleware(['auth'])->group(function () {
 
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
-        
-        // Leave request submission for school heads
-        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
+    
+    // Leave request submission - available to both teachers and school heads
+    Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
