@@ -388,21 +388,28 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        // Teacher leave data (simplified - no balance tracking like school heads)
+        // Get actual service credits from database
+        $currentYear = now()->year;
+        $serviceCredit = \App\Models\ServiceCredit::where('personnel_id', $personnel->id)
+            ->where('year', $currentYear)
+            ->where('status', 'approved')
+            ->first();
+        
+        // Teacher leave data (based on actual approved service credits)
         $teacherLeaveData = [
             [
                 'type' => 'Personal Leave',
                 'description' => 'Taken from service credit',
-                'max' => '∞', // Unlimited from service credit
-                'available' => '∞',
+                'max' => $serviceCredit ? $serviceCredit->personal_leave_credits : 0,
+                'available' => $serviceCredit ? $serviceCredit->personal_leave_credits : 0,
                 'used' => 0,
                 'color' => 'blue'
             ],
             [
                 'type' => 'Sick Leave',
                 'description' => 'Taken from service credit',
-                'max' => '∞', // Unlimited from service credit
-                'available' => '∞',
+                'max' => $serviceCredit ? $serviceCredit->sick_leave_credits : 0,
+                'available' => $serviceCredit ? $serviceCredit->sick_leave_credits : 0,
                 'used' => 0,
                 'color' => 'emerald'
             ],
@@ -442,6 +449,12 @@ class HomeController extends Controller
 
         $year = now()->year;
 
+        // Get service credit requests for this teacher
+        $serviceCreditRequests = \App\Models\ServiceCreditRequest::where('personnel_id', $personnel->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('teacher.dashboard', compact(
             'personalInfo',
             'workInfo',
@@ -469,6 +482,7 @@ class HomeController extends Controller
             'recentSalaryChanges',
             'leaveRequests',
             'teacherLeaveData',
+            'serviceCreditRequests',
             'year'
         ));
     }

@@ -423,4 +423,14 @@ class Personnel extends Model
             ->first();
         return $salaryStep ? $salaryStep->salary : null;
     }
+
+    public function serviceCredits()
+    {
+        return $this->hasMany(ServiceCredit::class);
+    }
+
+    public function serviceCreditRequests()
+    {
+        return $this->hasMany(ServiceCreditRequest::class);
+    }
 }
