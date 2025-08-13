@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use App\Models\SalaryGrade;
 
 class HomeController extends Controller
@@ -93,7 +94,6 @@ class HomeController extends Controller
                 [
                     'available' => $maxDays,
                     'used' => 0,
-                    'ctos_earned' => 0,
                     'remarks' => 'Auto-initialized'
                 ]
             );

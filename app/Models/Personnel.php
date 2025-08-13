@@ -433,4 +433,9 @@ class Personnel extends Model
     {
         return $this->hasMany(ServiceCreditRequest::class);
     }
+
+    public function schoolHeadLeaves(): HasMany
+    {
+        return $this->hasMany(SchoolHeadLeave::class, 'school_head_id');
+    }
 }
