@@ -66,7 +66,7 @@
                             </span>
                         @endif
                     </div>
-                    <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['max'] }}</p>
+                    <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['type'] === 'Compensatory Time Off' ? $leave['ctos_earned'] : $leave['max'] }}</p>
                     <p class="text-sm text-gray-600">Used: {{ $leave['used'] }}</p>
                     @if(isset($leave['ctos_earned']) && $leave['ctos_earned'])
                     <p class="text-sm text-teal-600">CTO Earned: {{ $leave['ctos_earned'] }}</p>
