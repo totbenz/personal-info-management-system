@@ -405,146 +405,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-
-            <!-- Service Credit Request Section -->
-            <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full -mr-16 -mt-16"></div>
-                <div class="relative">
-                    <div class="flex items-center justify-between mb-6">
-                        <div id="serviceCreditHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
-                            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors duration-200">Service Credit Management</h3>
-                                <p class="text-gray-600">Request service credit for Personal and Sick Leave</p>
-                            </div>
-                            <svg id="serviceCreditToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <!-- Service Credit Request Button -->
-                            <button id="serviceCreditRequestBtn" class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Service Credit">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="serviceCreditContent" class="transition-all duration-300">
-                        @if($serviceCreditRequests->count() > 0)
-                            <div class="space-y-4">
-                                @foreach($serviceCreditRequests as $request)
-                                <div class="flex items-center justify-between p-4 bg-gradient-to-r 
-                                    @if($request->status === 'pending') from-purple-50 to-purple-100/50
-                                    @elseif($request->status === 'approved') from-green-50 to-green-100/50
-                                    @else from-red-50 to-red-100/50 @endif
-                                    rounded-xl border 
-                                    @if($request->status === 'pending') border-purple-200/50
-                                    @elseif($request->status === 'approved') border-green-200/50
-                                    @else border-red-200/50 @endif
-                                    hover:shadow-md transition-all duration-200">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-10 h-10 bg-gradient-to-br 
-                                            @if($request->status === 'pending') from-purple-500 to-purple-600
-                                            @elseif($request->status === 'approved') from-green-500 to-green-600
-                                            @else from-red-500 to-red-600 @endif
-                                            rounded-full flex items-center justify-center text-white">
-                                            @if($request->status === 'pending')
-                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            @elseif($request->status === 'approved')
-                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            @else
-                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <h4 class="text-sm font-semibold text-gray-900">{{ $request->year }} Service Credit Request</h4>
-                                            <p class="text-xs text-gray-600">
-                                                Personal: {{ $request->requested_personal_leave_credits }} days | 
-                                                Sick: {{ $request->requested_sick_leave_credits }} days
-                                            </p>
-                                            <p class="text-xs text-gray-500 mt-1">{{ Str::limit($request->justification, 60) }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @if($request->status === 'pending') bg-purple-100 text-purple-800
-                                            @elseif($request->status === 'approved') bg-green-100 text-green-800
-                                            @else bg-red-100 text-red-800 @endif">
-                                            {{ ucfirst($request->status) }}
-                                        </span>
-                                        <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-center py-8">
-                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">No Service Credit Requests</h3>
-                                <p class="text-gray-600 mb-4">You haven't requested any service credits yet. Request service credit to increase your available Personal and Sick Leave.</p>
-                                <button id="serviceCreditRequestBtn2" class="px-6 py-2 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition">Request Service Credit</button>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-                
-                <!-- Service Credit Request Modal -->
-                <div id="serviceCreditRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
-                    <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
-                        <button id="closeServiceCreditModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                        <h3 class="text-xl font-bold text-gray-900 mb-4">Request Service Credit</h3>
-                        <form method="POST" action="{{ route('service-credit-request.store') }}" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
-                                <select name="year" id="year" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                    <option value="">Select year</option>
-                                    @for($i = date('Y'); $i >= 2020; $i--)
-                                        <option value="{{ $i }}">{{ $i }}</option>
-                                    @endfor
-                                </select>
-                                @error('year')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
-                            </div>
-                            <div>
-                                <label for="requested_personal_leave_credits" class="block text-sm font-medium text-gray-700">Requested Personal Leave Credits</label>
-                                <input type="number" name="requested_personal_leave_credits" id="requested_personal_leave_credits" value="{{ old('requested_personal_leave_credits') }}" min="0" max="365" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                @error('requested_personal_leave_credits')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
-                            </div>
-                            <div>
-                                <label for="requested_sick_leave_credits" class="block text-sm font-medium text-gray-700">Requested Sick Leave Credits</label>
-                                <input type="number" name="requested_sick_leave_credits" id="requested_sick_leave_credits" value="{{ old('requested_sick_leave_credits') }}" min="0" max="365" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                @error('requested_sick_leave_credits')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
-                            </div>
-                            <div>
-                                <label for="justification" class="block text-sm font-medium text-gray-700">Justification</label>
-                                <textarea name="justification" id="justification" rows="4" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Please provide justification for your service credit request...">{{ old('justification') }}</textarea>
-                                @error('justification')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
-                            </div>
-                            <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition">Submit Request</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
 
             <!-- Leave Request History Section -->
             @if(isset($leaveRequests) && $leaveRequests->count() > 0)
@@ -629,7 +489,9 @@
             </div>
             @endif
 
-            <!-- Loyalty Award Information -->
+            
+        </div>
+        <!-- Loyalty Award Information -->
             @if($yearsOfService >= 10)
             <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-full -mr-16 -mt-16"></div>
@@ -757,8 +619,6 @@
                 </div>
             </div>
             @endif
-
-        </div>
     </div>
 
     <!-- JavaScript for Leave Section Toggle Feature -->
@@ -875,10 +735,16 @@
 
             // Auto-open modal if there are validation errors
             @if($errors->any())
-                if (leaveRequestModal) {
-                    leaveRequestModal.classList.remove('hidden');
-                    leaveRequestModal.classList.add('flex');
-                }
+                // Check if errors are related to service credit or leave request
+                @if($errors->has('year') || $errors->has('requested_personal_leave_credits') || $errors->has('requested_sick_leave_credits') || $errors->has('justification'))
+                    // Service Credit errors - don't open leave modal
+                @else
+                    // Leave request errors
+                    if (leaveRequestModal) {
+                        leaveRequestModal.classList.remove('hidden');
+                        leaveRequestModal.classList.add('flex');
+                    }
+                @endif
             @endif
 
             // Date calculation function
@@ -1050,6 +916,83 @@
                     serviceCreditRequestModal.classList.add('flex');
                 });
             }
+
+            // Service Credit form validation and calculation
+            var serviceCreditYear = document.getElementById('service_credit_year');
+            var personalLeaveCredits = document.getElementById('personal_leave_credits');
+            var sickLeaveCredits = document.getElementById('sick_leave_credits');
+            var serviceCreditJustification = document.getElementById('service_credit_justification');
+            var serviceCreditSummary = document.getElementById('service_credit_summary');
+            var totalCreditsSpan = document.getElementById('total_credits');
+            var personalSummarySpan = document.getElementById('personal_summary');
+            var sickSummarySpan = document.getElementById('sick_summary');
+            var serviceCreditSubmitBtn = document.getElementById('service_credit_submit_btn');
+
+            function calculateServiceCreditSummary() {
+                const personal = parseInt(personalLeaveCredits ? personalLeaveCredits.value : 0) || 0;
+                const sick = parseInt(sickLeaveCredits ? sickLeaveCredits.value : 0) || 0;
+                const total = personal + sick;
+
+                if (totalCreditsSpan) totalCreditsSpan.textContent = total;
+                if (personalSummarySpan) personalSummarySpan.textContent = personal;
+                if (sickSummarySpan) sickSummarySpan.textContent = sick;
+
+                if (serviceCreditSummary) {
+                    if (total > 0) {
+                        serviceCreditSummary.classList.remove('hidden');
+                    } else {
+                        serviceCreditSummary.classList.add('hidden');
+                    }
+                }
+            }
+
+            function validateServiceCreditForm() {
+                const year = serviceCreditYear ? serviceCreditYear.value : '';
+                const personal = parseInt(personalLeaveCredits ? personalLeaveCredits.value : 0) || 0;
+                const sick = parseInt(sickLeaveCredits ? sickLeaveCredits.value : 0) || 0;
+                const justification = serviceCreditJustification ? serviceCreditJustification.value.trim() : '';
+
+                const isValid = year && 
+                               (personal > 0 || sick > 0) && 
+                               justification.length >= 10;
+
+                if (serviceCreditSubmitBtn) {
+                    serviceCreditSubmitBtn.disabled = !isValid;
+                }
+
+                return isValid;
+            }
+
+            // Event listeners for service credit form
+            if (serviceCreditYear) {
+                serviceCreditYear.addEventListener('change', validateServiceCreditForm);
+            }
+
+            if (personalLeaveCredits) {
+                personalLeaveCredits.addEventListener('input', function() {
+                    calculateServiceCreditSummary();
+                    validateServiceCreditForm();
+                });
+            }
+
+            if (sickLeaveCredits) {
+                sickLeaveCredits.addEventListener('input', function() {
+                    calculateServiceCreditSummary();
+                    validateServiceCreditForm();
+                });
+            }
+
+            if (serviceCreditJustification) {
+                serviceCreditJustification.addEventListener('input', validateServiceCreditForm);
+            }
+
+            // Auto-open service credit modal if there are service credit validation errors
+            @if($errors->has('year') || $errors->has('requested_personal_leave_credits') || $errors->has('requested_sick_leave_credits') || $errors->has('justification'))
+                if (serviceCreditRequestModal) {
+                    serviceCreditRequestModal.classList.remove('hidden');
+                    serviceCreditRequestModal.classList.add('flex');
+                }
+            @endif
         });
     </script>
 </x-app-layout>
