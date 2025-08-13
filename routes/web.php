@@ -87,6 +87,9 @@ Route::middleware(['auth'])->group(function () {
 
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
+        
+        // CTO Request Routes
+        Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
     });
     
     // Leave request submission - available to both teachers and school heads
@@ -139,6 +142,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/service-credit-requests', [\App\Http\Controllers\ServiceCreditRequestController::class, 'index'])->name('admin.service-credit-requests');
         Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [\App\Http\Controllers\ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
         Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [\App\Http\Controllers\ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
+
+        // CTO Request admin view and approval
+        Route::get('/admin/cto-requests', [\App\Http\Controllers\CTORequestController::class, 'index'])->name('admin.cto-requests');
+        Route::post('/admin/cto-requests/{ctoRequest}/approve', [\App\Http\Controllers\CTORequestController::class, 'approve'])->name('admin.cto-requests.approve');
+        Route::post('/admin/cto-requests/{ctoRequest}/deny', [\App\Http\Controllers\CTORequestController::class, 'deny'])->name('admin.cto-requests.deny');
 
         Route::controller(SchoolController::class)->group(function () {
             Route::get('schools/', 'index')->name('schools.index');

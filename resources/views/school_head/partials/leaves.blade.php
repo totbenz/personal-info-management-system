@@ -32,6 +32,14 @@
             </svg>
         </div>
         <div class="flex items-center space-x-2">
+            <!-- CTO Request Icon Button -->
+            <button id="ctoRequestBtn" class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Compensatory Time Off">
+                <!-- Clock Plus Icon -->
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+            
             <!-- Leave Request Icon Button -->
             <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request">
                 <!-- Document with Plus Icon -->
@@ -142,6 +150,106 @@
             </form>
         </div>
     </div>
+
+    <!-- CTO Request Modal (hidden by default) -->
+    <div id="ctoRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+            <button id="closeCtoRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Request Compensatory Time Off</h3>
+            @if(session('cto_success'))
+                <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                    {{ session('cto_success') }}
+                </div>
+            @endif
+            @if($errors->has('cto_error') || $errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description'))
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    <ul class="list-disc list-inside space-y-1">
+                        @if($errors->has('cto_error'))
+                            <li class="text-sm">{{ $errors->first('cto_error') }}</li>
+                        @endif
+                        @if($errors->has('requested_hours'))
+                            <li class="text-sm">{{ $errors->first('requested_hours') }}</li>
+                        @endif
+                        @if($errors->has('work_date'))
+                            <li class="text-sm">{{ $errors->first('work_date') }}</li>
+                        @endif
+                        @if($errors->has('start_time'))
+                            <li class="text-sm">{{ $errors->first('start_time') }}</li>
+                        @endif
+                        @if($errors->has('end_time'))
+                            <li class="text-sm">{{ $errors->first('end_time') }}</li>
+                        @endif
+                        @if($errors->has('reason'))
+                            <li class="text-sm">{{ $errors->first('reason') }}</li>
+                        @endif
+                        @if($errors->has('description'))
+                            <li class="text-sm">{{ $errors->first('description') }}</li>
+                        @endif
+                    </ul>
+                </div>
+            @endif
+            <form method="POST" action="{{ route('cto-request.store') }}" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="work_date" class="block text-sm font-medium text-gray-700">Date of Work</label>
+                    <input type="date" name="work_date" id="work_date" required max="{{ date('Y-m-d') }}" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                           value="{{ old('work_date') }}">
+                    <p class="text-xs text-gray-500 mt-1">The date you performed extra work</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
+                        <input type="time" name="start_time" id="cto_start_time" required 
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                               value="{{ old('start_time') }}">
+                    </div>
+                    <div>
+                        <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
+                        <input type="time" name="end_time" id="cto_end_time" required 
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                               value="{{ old('end_time') }}">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="requested_hours" class="block text-sm font-medium text-gray-700">Hours Worked</label>
+                    <input type="number" name="requested_hours" id="requested_hours" min="1" max="24" required 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                           value="{{ old('requested_hours') }}" readonly>
+                    <p class="text-xs text-gray-500 mt-1">Automatically calculated from start and end time</p>
+                    <div id="cto_hours_info" class="mt-2 p-2 bg-teal-50 border border-teal-200 rounded text-sm text-teal-800 hidden">
+                        You will earn <span id="cto_days_earned">0</span> CTO day(s) from <span id="cto_hours_display">0</span> hour(s) of work.
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Extra Work</label>
+                    <textarea name="reason" id="cto_reason" rows="3" required maxlength="500" 
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                              placeholder="e.g., Emergency response, Special event, Weekend duties...">{{ old('reason') }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Briefly explain why you worked extra hours</p>
+                </div>
+                
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">Additional Details (Optional)</label>
+                    <textarea name="description" id="cto_description" rows="2" maxlength="1000" 
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                              placeholder="Any additional context or details about the work performed...">{{ old('description') }}</textarea>
+                </div>
+                
+                <button type="submit" id="cto_submit_btn" disabled 
+                        class="w-full px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+                    Submit CTO Request
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 <!-- Modal JS -->
 <script>
@@ -216,8 +324,117 @@
             });
         }
 
-        // Auto-open modal if there are validation errors
-        @if($errors->any())
+        // CTO Modal controls
+        var ctoBtn = document.getElementById('ctoRequestBtn');
+        var ctoModal = document.getElementById('ctoRequestModal');
+        var ctoCloseBtn = document.getElementById('closeCtoRequestModal');
+        var ctoStartTime = document.getElementById('cto_start_time');
+        var ctoEndTime = document.getElementById('cto_end_time');
+        var ctoHoursInput = document.getElementById('requested_hours');
+        var ctoHoursInfo = document.getElementById('cto_hours_info');
+        var ctoHoursDisplay = document.getElementById('cto_hours_display');
+        var ctoDaysEarned = document.getElementById('cto_days_earned');
+        var ctoSubmitBtn = document.getElementById('cto_submit_btn');
+
+        if(ctoBtn && ctoModal && ctoCloseBtn) {
+            ctoBtn.addEventListener('click', function() {
+                ctoModal.classList.remove('hidden');
+                ctoModal.classList.add('flex');
+            });
+
+            ctoCloseBtn.addEventListener('click', function() {
+                ctoModal.classList.add('hidden');
+                ctoModal.classList.remove('flex');
+            });
+
+            // Close modal when clicking outside
+            ctoModal.addEventListener('click', function(e) {
+                if (e.target === ctoModal) {
+                    ctoModal.classList.add('hidden');
+                    ctoModal.classList.remove('flex');
+                }
+            });
+        }
+
+        // CTO time calculation
+        function calculateCTOHours() {
+            if (!ctoStartTime || !ctoEndTime || !ctoStartTime.value || !ctoEndTime.value) {
+                if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
+                if (ctoHoursInput) ctoHoursInput.value = '';
+                if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
+                return 0;
+            }
+
+            const startTime = new Date('2000-01-01 ' + ctoStartTime.value);
+            const endTime = new Date('2000-01-01 ' + ctoEndTime.value);
+            
+            if (endTime <= startTime) {
+                if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
+                if (ctoHoursInput) ctoHoursInput.value = '';
+                if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
+                return 0;
+            }
+
+            const timeDiff = endTime.getTime() - startTime.getTime();
+            const hours = Math.round(timeDiff / (1000 * 60 * 60));
+            const days = (hours / 8).toFixed(2);
+            
+            if (ctoHoursInput) ctoHoursInput.value = hours;
+            if (ctoHoursDisplay) ctoHoursDisplay.textContent = hours;
+            if (ctoDaysEarned) ctoDaysEarned.textContent = days;
+            if (ctoHoursInfo) ctoHoursInfo.classList.remove('hidden');
+            
+            // Enable submit if all required fields are filled
+            validateCTOForm();
+            
+            return hours;
+        }
+
+        // CTO form validation
+        function validateCTOForm() {
+            const workDate = document.getElementById('work_date');
+            const reason = document.getElementById('cto_reason');
+            const hours = ctoHoursInput ? ctoHoursInput.value : '';
+            
+            const isValid = workDate && workDate.value && 
+                           reason && reason.value.trim().length >= 10 && 
+                           hours > 0;
+            
+            if (ctoSubmitBtn) ctoSubmitBtn.disabled = !isValid;
+            
+            return isValid;
+        }
+
+        // Event listeners for CTO calculation
+        if (ctoStartTime) {
+            ctoStartTime.addEventListener('change', calculateCTOHours);
+        }
+
+        if (ctoEndTime) {
+            ctoEndTime.addEventListener('change', calculateCTOHours);
+        }
+
+        // Event listeners for CTO form validation
+        var ctoWorkDate = document.getElementById('work_date');
+        if (ctoWorkDate) {
+            ctoWorkDate.addEventListener('change', validateCTOForm);
+        }
+
+        var ctoReason = document.getElementById('cto_reason');
+        if (ctoReason) {
+            ctoReason.addEventListener('input', validateCTOForm);
+        }
+
+        // Auto-open CTO modal if there are CTO validation errors
+        @if($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description'))
+            if (ctoModal) {
+                ctoModal.classList.remove('hidden');
+                ctoModal.classList.add('flex');
+            }
+        @endif
+
+        // Auto-open leave modal if there are leave validation errors
+        @if($errors->any() && !($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description')))
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');

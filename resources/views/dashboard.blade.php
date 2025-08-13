@@ -35,7 +35,7 @@
         <div class="mx-4 px-4 sm:px-6">
 
             <!-- Key Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                 <!-- Schools Card -->
                 <div @click="showSchools = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                     <div class="flex items-center justify-between">
@@ -119,6 +119,37 @@
                         <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTO Requests Card -->
+                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative" onclick="document.getElementById('ctoRequestsSection').scrollIntoView({behavior: 'smooth'})">
+                    @if($pendingCTORequests->count() > 0)
+                    <div class="absolute -top-2 -right-2 flex">
+                        <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                    </div>
+                    @endif
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">CTO Requests</span>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingCTORequests->count() }}</div>
+                            <div class="text-xs text-gray-500">
+                                @if($pendingCTORequests->count() > 0)
+                                    Pending approvals
+                                @else
+                                    All up to date
+                                @endif
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                     </div>
@@ -569,6 +600,219 @@
                     </svg>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">No pending leave requests</h3>
                     <p class="mt-1 text-sm text-gray-500">All leave requests have been processed.</p>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- CTO Requests Section -->
+        <div id="ctoRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+            <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Pending CTO Approval Requests</h3>
+                            <p class="text-sm text-gray-600 mt-1">Review and approve CTO requests from school heads</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ $pendingCTORequests->count() }} Pending
+                        </span>
+                        <a href="{{ route('admin.cto-requests') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                @if($pendingCTORequests->count() > 0)
+                <div class="hidden md:block">
+                    <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                School Head
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Work Details
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Hours
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                CTO Days Earned
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Reason
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Requested Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($pendingCTORequests as $request)
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8">
+                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                                            <span class="text-xs font-medium text-white">
+                                                {{ strtoupper(substr($request->personnel->first_name, 0, 1)) }}{{ strtoupper(substr($request->personnel->last_name, 0, 1)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $request->personnel->first_name }} {{ $request->personnel->middle_name }} {{ $request->personnel->last_name }} {{ $request->personnel->name_ext }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 font-medium">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">
+                                    {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - 
+                                    {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 font-medium">{{ $request->requested_hours }} hours</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-blue-600">{{ $request->cto_days_earned }} days</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">
+                                    {{ $request->reason }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                                                onclick="return confirm('Are you sure you want to approve this CTO request?')">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                                                onclick="return confirm('Are you sure you want to deny this CTO request?')">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            Deny
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                </div>
+                
+                <!-- Mobile view for CTO requests -->
+                <div class="md:hidden space-y-4">
+                    @foreach($pendingCTORequests as $request)
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-white">
+                                            {{ strtoupper(substr($request->personnel->first_name, 0, 1)) }}{{ strtoupper(substr($request->personnel->last_name, 0, 1)) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ $request->personnel->first_name }} {{ $request->personnel->last_name }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <div class="text-xs text-gray-500">Work Date</div>
+                                <div class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Hours Worked</div>
+                                <div class="text-sm font-medium text-gray-900">{{ $request->requested_hours }} hours</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">CTO Earned</div>
+                                <div class="text-sm font-medium text-blue-600">{{ $request->cto_days_earned }} days</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Time</div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - 
+                                    {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="text-xs text-gray-500 mb-1">Reason</div>
+                            <div class="text-sm text-gray-900">{{ $request->reason }}</div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="flex-1">
+                                @csrf
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                                        onclick="return confirm('Are you sure you want to approve this CTO request?')">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Approve
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="flex-1">
+                                @csrf
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                                        onclick="return confirm('Are you sure you want to deny this CTO request?')">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Deny
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No pending CTO requests</h3>
+                    <p class="mt-1 text-sm text-gray-500">All CTO requests have been processed.</p>
                 </div>
                 @endif
             </div>

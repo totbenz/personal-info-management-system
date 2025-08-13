@@ -58,6 +58,13 @@ class HomeController extends Controller
             ->take(10)
             ->get();
 
+        // Pending CTO requests from school heads
+        $pendingCTORequests = \App\Models\CTORequest::where('status', 'pending')
+            ->with(['personnel', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
         return view('dashboard', compact(
             'personnelCount',
             'schoolCount',
@@ -70,6 +77,7 @@ class HomeController extends Controller
             'schoolsPerDistrict',
             'schoolsPerDivision',
             'pendingLeaveRequests',
+            'pendingCTORequests',
         ));
     }
 
@@ -120,6 +128,12 @@ class HomeController extends Controller
 
         // School head's leave requests history
         $leaveRequests = LeaveRequest::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // School head's CTO requests history
+        $ctoRequests = \App\Models\CTORequest::where('school_head_id', $schoolHead->id)
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
@@ -255,6 +269,7 @@ class HomeController extends Controller
             'eligiblePersonnelCount',
             'leaveData',
             'leaveRequests',
+            'ctoRequests',
             'year'
         ));
     }

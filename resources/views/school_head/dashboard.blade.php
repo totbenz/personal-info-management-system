@@ -239,6 +239,91 @@
             </div>
             @endif
 
+            <!-- CTO Request History Section -->
+            @if(isset($ctoRequests) && $ctoRequests->count() > 0)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div id="ctoHistoryHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
+                        <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-200">Your CTO Request History</h3>
+                        <svg id="ctoHistoryToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            {{ $ctoRequests->where('status', 'pending')->count() }} Pending
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {{ $ctoRequests->where('status', 'approved')->count() }} Approved
+                        </span>
+                    </div>
+                </div>
+                <div id="ctoHistoryContent" class="space-y-4 transition-all duration-300">
+                    @foreach($ctoRequests as $request)
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-r 
+                        @if($request->status === 'pending') from-orange-50 to-orange-100/50
+                        @elseif($request->status === 'approved') from-green-50 to-green-100/50
+                        @else from-red-50 to-red-100/50 @endif
+                        rounded-xl border 
+                        @if($request->status === 'pending') border-orange-200/50
+                        @elseif($request->status === 'approved') border-green-200/50
+                        @else border-red-200/50 @endif
+                        hover:shadow-md transition-all duration-200">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-gradient-to-br 
+                                @if($request->status === 'pending') from-orange-500 to-orange-600
+                                @elseif($request->status === 'approved') from-green-500 to-green-600
+                                @else from-red-500 to-red-600 @endif
+                                rounded-xl flex items-center justify-center shadow-lg">
+                                @if($request->status === 'pending')
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                @elseif($request->status === 'approved')
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                @else
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                @endif
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900">{{ $request->requested_hours }} Hours CTO Request</h4>
+                                <p class="text-xs text-gray-600">
+                                    Work Date: {{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}
+                                    ({{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }})
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">{{ Str::limit($request->reason, 80) }}</p>
+                                @if($request->status === 'approved')
+                                    <p class="text-xs text-teal-600 font-medium mt-1">CTO Earned: {{ number_format($request->cto_days_earned, 2) }} days</p>
+                                @endif
+                                @if($request->admin_notes)
+                                    <p class="text-xs text-gray-500 mt-1 italic">Admin: {{ Str::limit($request->admin_notes, 60) }}</p>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($request->status === 'pending') bg-orange-100 text-orange-800
+                                @elseif($request->status === 'approved') bg-green-100 text-green-800
+                                @else bg-red-100 text-red-800 @endif">
+                                {{ ucfirst($request->status) }}
+                            </span>
+                            <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
 
 
             <!-- Charts and Analytics Row -->
@@ -606,6 +691,41 @@
                         localStorage.setItem('leaveHistoryMinimized', 'true');
                     }
                     isHistoryMinimized = !isHistoryMinimized;
+                });
+            }
+
+            // CTO History toggle functionality
+            var ctoHistoryHeaderToggle = document.getElementById('ctoHistoryHeaderToggle');
+            var ctoHistoryToggleIcon = document.getElementById('ctoHistoryToggleIcon');
+            var ctoHistoryContent = document.getElementById('ctoHistoryContent');
+            var isCtoHistoryMinimized = localStorage.getItem('ctoHistoryMinimized') === 'true';
+
+            // Set initial state based on localStorage for CTO history
+            if (isCtoHistoryMinimized && ctoHistoryHeaderToggle && ctoHistoryContent) {
+                ctoHistoryContent.style.height = '0';
+                ctoHistoryContent.style.overflow = 'hidden';
+                ctoHistoryContent.style.opacity = '0';
+                ctoHistoryToggleIcon.style.transform = 'rotate(-90deg)';
+            }
+
+            if (ctoHistoryHeaderToggle && ctoHistoryContent) {
+                ctoHistoryHeaderToggle.addEventListener('click', function() {
+                    if (isCtoHistoryMinimized) {
+                        // Expand
+                        ctoHistoryContent.style.height = 'auto';
+                        ctoHistoryContent.style.overflow = 'visible';
+                        ctoHistoryContent.style.opacity = '1';
+                        ctoHistoryToggleIcon.style.transform = 'rotate(0deg)';
+                        localStorage.setItem('ctoHistoryMinimized', 'false');
+                    } else {
+                        // Minimize
+                        ctoHistoryContent.style.height = '0';
+                        ctoHistoryContent.style.overflow = 'hidden';
+                        ctoHistoryContent.style.opacity = '0';
+                        ctoHistoryToggleIcon.style.transform = 'rotate(-90deg)';
+                        localStorage.setItem('ctoHistoryMinimized', 'true');
+                    }
+                    isCtoHistoryMinimized = !isCtoHistoryMinimized;
                 });
             }
         });
