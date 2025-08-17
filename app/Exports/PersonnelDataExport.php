@@ -26,36 +26,74 @@ class PersonnelDataExport
             $this->personnel = Personnel::findOrFail($id);
             Log::info('Personnel found: ', ['personnel' => $this->personnel]);
 
-            $this->filename = public_path('report/macro_enabled_cs_form_no_212.xlsm');
+            $this->filename = public_path('report/macro_enabled_cs_form_no_2122.xlsx');
             Log::info('Loading spreadsheet from file: ' . $this->filename);
+
+            // Check if template file exists
+            if (!file_exists($this->filename)) {
+                throw new \Exception('Template file not found: ' . $this->filename);
+            }
+
             $this->spreadsheet = IOFactory::load($this->filename);
+            Log::info('Template spreadsheet loaded successfully');
 
-            Log::info('Populating PersonnelDataC1Sheet');
-            $personnelC1Sheet = new PersonnelDataC1Sheet($this->personnel, $this->spreadsheet);
-            $personnelC1Sheet->populateSheet();
+            // Populate all sheets with error handling
+            $this->populateAllSheets();
 
-            Log::info('Populating PersonnelDataC2Sheet');
-            $personnelC2Sheet = new PersonnelDataC2Sheet($this->personnel, $this->spreadsheet);
-            $personnelC2Sheet->populateSheet();
-
-            Log::info('Populating PersonnelDataC3Sheet');
-            $personnelC3Sheet = new PersonnelDataC3Sheet($this->personnel, $this->spreadsheet);
-            $personnelC3Sheet->populateSheet();
-
-            Log::info('Populating PersonnelDataC4Sheet');
-            $personnelC4Sheet = new PersonnelDataC4Sheet($this->personnel, $this->spreadsheet);
-            $personnelC4Sheet->populateSheet();
-
-            $this->excelOutputPath = public_path('report/pds_generated.xlsm');
+            $this->excelOutputPath = public_path('report/pds_generated.xlsx');
             $this->pdfOutputPath = public_path('report/pds_generated.pdf');
+
+            // Ensure output directory exists
+            $outputDir = dirname($this->excelOutputPath);
+            if (!is_dir($outputDir)) {
+                mkdir($outputDir, 0755, true);
+            }
 
             Log::info('Saving Excel file to: ' . $this->excelOutputPath);
             $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
+
+            // Set additional options to prevent corruption
+            $writer->setPreCalculateFormulas(false);
+
             $writer->save($this->excelOutputPath);
 
             Log::info('Excel file saved successfully');
         } catch (\Exception $e) {
             Log::error('Error in PersonnelDataExport constructor: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            throw $e;
+        }
+    }
+
+    protected function populateAllSheets()
+    {
+        try {
+            Log::info('Starting to populate all sheets');
+
+            // Populate C1 Sheet (Personal Information)
+            Log::info('Populating PersonnelDataC1Sheet');
+            $personnelC1Sheet = new PersonnelDataC1Sheet($this->personnel, $this->spreadsheet);
+            $personnelC1Sheet->populateSheet();
+
+            // Populate C2 Sheet (Civil Service & Work Experience)
+            Log::info('Populating PersonnelDataC2Sheet');
+            $personnelC2Sheet = new PersonnelDataC2Sheet($this->personnel, $this->spreadsheet);
+            $personnelC2Sheet->populateSheet();
+
+            // Populate C3 Sheet (Voluntary Work & Training)
+            Log::info('Populating PersonnelDataC3Sheet');
+            $personnelC3Sheet = new PersonnelDataC3Sheet($this->personnel, $this->spreadsheet);
+            $personnelC3Sheet->populateSheet();
+
+            // Populate C4 Sheet (References & Questionnaire)
+            Log::info('Populating PersonnelDataC4Sheet');
+            $personnelC4Sheet = new PersonnelDataC4Sheet($this->personnel, $this->spreadsheet);
+            $personnelC4Sheet->populateSheet();
+
+            Log::info('All sheets populated successfully');
+        } catch (\Exception $e) {
+            Log::error('Error populating sheets: ' . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -63,6 +101,23 @@ class PersonnelDataExport
     {
         Log::info('getOutputPath called, returning: ' . $this->excelOutputPath);
         return $this->excelOutputPath;
+    }
+
+    public function getPersonnel()
+    {
+        return $this->personnel;
+    }
+
+    public function cleanup()
+    {
+        try {
+            if ($this->spreadsheet) {
+                $this->spreadsheet->disconnectWorksheets();
+                unset($this->spreadsheet);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error during cleanup: ' . $e->getMessage());
+        }
     }
 }
 

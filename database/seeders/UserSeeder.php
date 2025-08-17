@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Password'),
                 'personnel_id' => 1
             ],
-            [
+        [
                 'email' => 'schoolhead@mailinator.com',
                 'role' => 'school_head',
                 'password' => Hash::make('Password'),

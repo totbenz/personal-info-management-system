@@ -4,6 +4,7 @@ namespace App\Exports\Sheets;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PersonnelDataC2Sheet
 {
@@ -18,9 +19,13 @@ class PersonnelDataC2Sheet
 
     public function populateSheet()
     {
-        $this->populateCivilServiceEligibilities();
-        $this->populateWorkExperiences();
-        $this->populateCurrentDate();
+        try {
+            $this->populateCivilServiceEligibilities();
+            $this->populateWorkExperiences();
+            $this->populateCurrentDate();
+        } catch (\Exception $e) {
+            Log::error('Error populating C2 sheet: ' . $e->getMessage());
+        }
     }
 
     protected function populateCivilServiceEligibilities()
@@ -31,7 +36,8 @@ class PersonnelDataC2Sheet
         $endRow = 11;
         $currentRow = $startRow;
 
-        if ($this->personnel->civilServiceEligibilities) {
+        // Check if civil service eligibilities relationship exists
+        if ($this->personnel->civilServiceEligibilities && $this->personnel->civilServiceEligibilities->count() > 0) {
             foreach ($this->personnel->civilServiceEligibilities as $civil_service_eligibility) {
                 if ($currentRow > $endRow) {
                     // Copy the current sheet and use the new copy
@@ -52,13 +58,18 @@ class PersonnelDataC2Sheet
                 $currentRow++;
             }
         } else {
-            $worksheet->setCellValue('A' . $startRow, 'N/A');
-            $worksheet->setCellValue('F' . $startRow, 'N/A');
-            $worksheet->setCellValue('G' . $startRow, 'N/A');
-            $worksheet->setCellValue('I' . $startRow, 'N/A');
-            $worksheet->setCellValue('L' . $startRow, 'N/A');
-            $worksheet->setCellValue('M' . $startRow, 'N/A');
+            $this->setDefaultCivilServiceValues($worksheet, $startRow);
         }
+    }
+
+    private function setDefaultCivilServiceValues($worksheet, $row)
+    {
+        $worksheet->setCellValue('A' . $row, 'N/A');
+        $worksheet->setCellValue('F' . $row, 'N/A');
+        $worksheet->setCellValue('G' . $row, 'N/A');
+        $worksheet->setCellValue('I' . $row, 'N/A');
+        $worksheet->setCellValue('L' . $row, 'N/A');
+        $worksheet->setCellValue('M' . $row, 'N/A');
     }
 
     protected function populateWorkExperiences()
@@ -69,7 +80,8 @@ class PersonnelDataC2Sheet
         $endRow = 45;
         $currentRow = $startRow;
 
-        if ($this->personnel->workExperiences) {
+        // Check if work experiences relationship exists
+        if ($this->personnel->workExperiences && $this->personnel->workExperiences->count() > 0) {
             foreach ($this->personnel->workExperiences as $work_experience) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
@@ -95,15 +107,20 @@ class PersonnelDataC2Sheet
                 $currentRow++;
             }
         } else {
-            $worksheet->setCellValue('A' . $currentRow, 'N/A');
-            $worksheet->setCellValue('C' . $currentRow, 'N/A');
-            $worksheet->setCellValue('D' . $currentRow, 'N/A');
-            $worksheet->setCellValue('G' . $currentRow, 'N/A');
-            $worksheet->setCellValue('J' . $currentRow, 'N/A');
-            $worksheet->setCellValue('K' . $currentRow, 'N/A');
-            $worksheet->setCellValue('L' . $currentRow, 'N/A');
-            $worksheet->setCellValue('M' . $currentRow, 'N/A');
+            $this->setDefaultWorkExperienceValues($worksheet, $startRow);
         }
+    }
+
+    private function setDefaultWorkExperienceValues($worksheet, $row)
+    {
+        $worksheet->setCellValue('A' . $row, 'N/A');
+        $worksheet->setCellValue('C' . $row, 'N/A');
+        $worksheet->setCellValue('D' . $row, 'N/A');
+        $worksheet->setCellValue('G' . $row, 'N/A');
+        $worksheet->setCellValue('J' . $row, 'N/A');
+        $worksheet->setCellValue('K' . $row, 'N/A');
+        $worksheet->setCellValue('L' . $row, 'N/A');
+        $worksheet->setCellValue('M' . $row, 'N/A');
     }
 
     protected function populateCurrentDate()

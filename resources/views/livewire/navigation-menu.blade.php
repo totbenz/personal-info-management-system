@@ -199,7 +199,17 @@
                                     cancelButtonText: 'Cancel'
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        window.location.href = "{{ route('logout') }}";
+                                        // Show Toaster message before logout
+                                        if (typeof Toaster !== 'undefined') {
+                                            Toaster.info('Logging out...');
+                                            // Small delay to show the toast before redirecting
+                                            setTimeout(() => {
+                                                window.location.href = "{{ route('logout') }}";
+                                            }, 500);
+                                        } else {
+                                            // Fallback if Toaster is not available
+                                            window.location.href = "{{ route('logout') }}";
+                                        }
                                     }
                                 });
                             }

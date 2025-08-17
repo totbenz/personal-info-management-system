@@ -103,29 +103,6 @@
                 localStorage.setItem('email', emailInput.value);
             }
         });
-
-        const successMessage = "{{ session('success_message') }}";
-        const errorMessage = "{{ session('error_message') }}";
-        const warningMessage = "{{ session('warning_message') }}";
-        const redirectUrl = "{{ session('redirect_url') }}";
-        const showDelayedRedirect = "{{ session('show_delayed_redirect') }}";
-
-        if (successMessage) {
-            showSuccessAlert(successMessage);
-            if (showDelayedRedirect && redirectUrl) {
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 2000);
-            }
-        }
-
-        if (errorMessage) {
-            showErrorAlert(errorMessage);
-        }
-
-        if (warningMessage) {
-            showWarningAlert(warningMessage);
-        }
     });
 
     function togglePassword() {

@@ -253,6 +253,22 @@ class Personnel extends Model
         return $this->hasMany(SalaryChange::class);
     }
 
+    // Add missing relationships for export sheets
+    public function skillsInformation()
+    {
+        return $this->hasMany(OtherInformation::class)->where('type', 'special_skill');
+    }
+
+    public function nonacademicDistinctionInformation()
+    {
+        return $this->hasMany(OtherInformation::class)->where('type', 'nonacademic_distinction');
+    }
+
+    public function associationInformation()
+    {
+        return $this->hasMany(OtherInformation::class)->where('type', 'association');
+    }
+
     public function createInitialServiceRecord()
     {
         $this->serviceRecords()->create([

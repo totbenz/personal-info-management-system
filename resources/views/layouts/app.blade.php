@@ -53,6 +53,7 @@
     @stack('modals')
     @livewireScripts
     <wireui:scripts />
+    <x-toaster-hub />
 </body>
 
 </html>
