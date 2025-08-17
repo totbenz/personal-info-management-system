@@ -23,7 +23,8 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
 
-        "./vendor/vildanbina/livewire-wizard/resources/views/*.blade.php"
+        "./vendor/vildanbina/livewire-wizard/resources/views/*.blade.php",
+        './vendor/masmerise/livewire-toaster/resources/views/*.blade.php'
       ],
     theme: {
         extend: {

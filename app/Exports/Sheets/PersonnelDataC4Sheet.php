@@ -4,6 +4,7 @@ namespace App\Exports\Sheets;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PersonnelDataC4Sheet
 {
@@ -18,11 +19,18 @@ class PersonnelDataC4Sheet
 
     public function populateSheet()
     {
-        if ($this->personnel->references) {
-            $this->populateQuestionnaire();
-            $this->populateReferences();
+        try {
+            if ($this->personnel->references && $this->personnel->references->count() > 0) {
+                $this->populateQuestionnaire();
+                $this->populateReferences();
+            } else {
+                $this->populateQuestionnaire();
+                $this->setDefaultReferenceValues($this->worksheet);
+            }
+            $this->populateCurrentDate();
+        } catch (\Exception $e) {
+            Log::error('Error populating C4 sheet: ' . $e->getMessage());
         }
-        $this->populateCurrentDate();
     }
 
     protected function populateReferences()
@@ -33,7 +41,7 @@ class PersonnelDataC4Sheet
         $endRow = 54;
         $currentRow = $startRow;
 
-        if ($this->personnel->references) {
+        if ($this->personnel->references && $this->personnel->references->count() > 0) {
             foreach ($this->personnel->references as $reference) {
                 $worksheet->setCellValue('A' . $currentRow, $reference->full_name ?? 'N/A');
                 $worksheet->setCellValue('F' . $currentRow, $reference->address ?? 'N/A');
@@ -41,16 +49,22 @@ class PersonnelDataC4Sheet
                 $currentRow++;
             }
         } else {
-            $worksheet->setCellValue('A52', 'N/A');
-            $worksheet->setCellValue('F52', 'N/A');
-            $worksheet->setCellValue('G52', 'N/A');
+            $this->setDefaultReferenceValues($worksheet);
         }
+    }
+
+    private function setDefaultReferenceValues($worksheet)
+    {
+        $worksheet->setCellValue('A52', 'N/A');
+        $worksheet->setCellValue('F52', 'N/A');
+        $worksheet->setCellValue('G52', 'N/A');
     }
 
     protected function populateQuestionnaire()
     {
         $worksheet = $this->worksheet;
 
+        // Check if personnelDetail relationship exists
         if ($this->personnel->personnelDetail) {
             // Populate specific cells with data
             $worksheet->setCellValue('G6', $this->personnel->personnelDetail->consanguinity_third_degree ?? 'N/A');
@@ -77,31 +91,37 @@ class PersonnelDataC4Sheet
             $worksheet->setCellValue('L46', $this->personnel->personnelDetail->disability_id_no ?? 'N/A');
             $worksheet->setCellValue('G47', $this->personnel->personnelDetail->solo_parent ?? 'N/A');
         } else {
-            $worksheet->setCellValue('G6', 'N/A');
-            $worksheet->setCellValue('G8', 'N/A');
-            $worksheet->setCellValue('H11', 'N/A');
-            $worksheet->setCellValue('G13', 'N/A');
-            $worksheet->setCellValue('H15', 'N/A');
-            $worksheet->setCellValue('G18', 'N/A');
-            $worksheet->setCellValue('K20', 'N/A');
-            $worksheet->setCellValue('K21', 'N/A');
-            $worksheet->setCellValue('G23', 'N/A');
-            $worksheet->setCellValue('H25', 'N/A');
-            $worksheet->setCellValue('G27', 'N/A');
-            $worksheet->setCellValue('H29', 'N/A');
-            $worksheet->setCellValue('G31', 'N/A');
-            $worksheet->setCellValue('K32', 'N/A');
-            $worksheet->setCellValue('G34', 'N/A');
-            $worksheet->setCellValue('K35', 'N/A');
-            $worksheet->setCellValue('G37', 'N/A');
-            $worksheet->setCellValue('H39', 'N/A');
-            $worksheet->setCellValue('G43', 'N/A');
-            $worksheet->setCellValue('L44', 'N/A');
-            $worksheet->setCellValue('G45', 'N/A');
-            $worksheet->setCellValue('L46', 'N/A');
-            $worksheet->setCellValue('G47', 'N/A');
+            $this->setDefaultQuestionnaireValues($worksheet);
         }
     }
+
+    private function setDefaultQuestionnaireValues($worksheet)
+    {
+        $worksheet->setCellValue('G6', 'N/A');
+        $worksheet->setCellValue('G8', 'N/A');
+        $worksheet->setCellValue('H11', 'N/A');
+        $worksheet->setCellValue('G13', 'N/A');
+        $worksheet->setCellValue('H15', 'N/A');
+        $worksheet->setCellValue('G18', 'N/A');
+        $worksheet->setCellValue('K20', 'N/A');
+        $worksheet->setCellValue('K21', 'N/A');
+        $worksheet->setCellValue('G23', 'N/A');
+        $worksheet->setCellValue('H25', 'N/A');
+        $worksheet->setCellValue('G27', 'N/A');
+        $worksheet->setCellValue('H29', 'N/A');
+        $worksheet->setCellValue('G31', 'N/A');
+        $worksheet->setCellValue('K32', 'N/A');
+        $worksheet->setCellValue('G34', 'N/A');
+        $worksheet->setCellValue('K35', 'N/A');
+        $worksheet->setCellValue('G37', 'N/A');
+        $worksheet->setCellValue('H39', 'N/A');
+        $worksheet->setCellValue('G43', 'N/A');
+        $worksheet->setCellValue('L44', 'N/A');
+        $worksheet->setCellValue('G45', 'N/A');
+        $worksheet->setCellValue('L46', 'N/A');
+        $worksheet->setCellValue('G47', 'N/A');
+    }
+
     protected function populateCurrentDate()
     {
         $worksheet = $this->worksheet;

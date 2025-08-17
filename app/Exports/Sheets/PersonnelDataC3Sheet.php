@@ -4,6 +4,7 @@ namespace App\Exports\Sheets;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PersonnelDataC3Sheet
 {
@@ -18,10 +19,14 @@ class PersonnelDataC3Sheet
 
     public function populateSheet()
     {
-        $this->populateVoluntaryWorks();
-        $this->populateTrainingCertifications();
-        $this->populateOtherInformation();
-        $this->populateCurrentDate();
+        try {
+            $this->populateVoluntaryWorks();
+            $this->populateTrainingCertifications();
+            $this->populateOtherInformation();
+            $this->populateCurrentDate();
+        } catch (\Exception $e) {
+            Log::error('Error populating C3 sheet: ' . $e->getMessage());
+        }
     }
 
     protected function populateCurrentDate()
@@ -38,7 +43,8 @@ class PersonnelDataC3Sheet
         $endRow = 12;
         $currentRow = $startRow;
 
-        if ($this->personnel->voluntaryWorks) {
+        // Check if voluntary works relationship exists
+        if ($this->personnel->voluntaryWorks && $this->personnel->voluntaryWorks->count() > 0) {
             foreach ($this->personnel->voluntaryWorks as $voluntary_work) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
@@ -61,12 +67,17 @@ class PersonnelDataC3Sheet
                 $currentRow++;
             }
         } else {
-            $worksheet->setCellValue('A' . $startRow, 'N/A');
-            $worksheet->setCellValue('E' . $startRow, 'N/A');
-            $worksheet->setCellValue('F' . $startRow, 'N/A');
-            $worksheet->setCellValue('G' . $startRow, 'N/A');
-            $worksheet->setCellValue('H' . $startRow, 'N/A');
+            $this->setDefaultVoluntaryWorkValues($worksheet, $startRow);
         }
+    }
+
+    private function setDefaultVoluntaryWorkValues($worksheet, $row)
+    {
+        $worksheet->setCellValue('A' . $row, 'N/A');
+        $worksheet->setCellValue('E' . $row, 'N/A');
+        $worksheet->setCellValue('F' . $row, 'N/A');
+        $worksheet->setCellValue('G' . $row, 'N/A');
+        $worksheet->setCellValue('H' . $row, 'N/A');
     }
 
     protected function populateTrainingCertifications()
@@ -77,7 +88,8 @@ class PersonnelDataC3Sheet
         $endRow = 38;
         $currentRow = $startRow;
 
-        if ($this->personnel->trainingCertifications) {
+        // Check if training certifications relationship exists
+        if ($this->personnel->trainingCertifications && $this->personnel->trainingCertifications->count() > 0) {
             foreach ($this->personnel->trainingCertifications as $training_certification) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
@@ -101,13 +113,18 @@ class PersonnelDataC3Sheet
                 $currentRow++;
             }
         } else {
-            $worksheet->setCellValue('A' . $startRow, 'N/A');
-            $worksheet->setCellValue('E' . $startRow, 'N/A');
-            $worksheet->setCellValue('F' . $startRow, 'N/A');
-            $worksheet->setCellValue('G' . $startRow, 'N/A');
-            $worksheet->setCellValue('H' . $startRow, 'N/A');
-            $worksheet->setCellValue('I' . $startRow, 'N/A');
+            $this->setDefaultTrainingCertificationValues($worksheet, $startRow);
         }
+    }
+
+    private function setDefaultTrainingCertificationValues($worksheet, $row)
+    {
+        $worksheet->setCellValue('A' . $row, 'N/A');
+        $worksheet->setCellValue('E' . $row, 'N/A');
+        $worksheet->setCellValue('F' . $row, 'N/A');
+        $worksheet->setCellValue('G' . $row, 'N/A');
+        $worksheet->setCellValue('H' . $row, 'N/A');
+        $worksheet->setCellValue('I' . $row, 'N/A');
     }
 
     protected function populateOtherInformation()
@@ -118,9 +135,10 @@ class PersonnelDataC3Sheet
         $endRow = 48;
         $currentRow = $startRow;
 
-        // Skills Information
-        if ($this->personnel->skillsInformation) {
-            foreach ($this->personnel->skillsInformation as $skills_information) {
+        // Skills Information - Check if otherInformations relationship exists
+        if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'skills')->count() > 0) {
+            $skillsInformation = $this->personnel->otherInformations->where('type', 'skills');
+            foreach ($skillsInformation as $skills_information) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
                     $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
@@ -142,8 +160,9 @@ class PersonnelDataC3Sheet
         }
 
         // Nonacademic Distinction Information
-        if ($this->personnel->nonacademicDistinctionInformation) {
-            foreach ($this->personnel->nonacademicDistinctionInformation as $nonacademic_distinction_information) {
+        if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'nonacademic_distinction')->count() > 0) {
+            $nonacademicDistinctionInformation = $this->personnel->otherInformations->where('type', 'nonacademic_distinction');
+            foreach ($nonacademicDistinctionInformation as $nonacademic_distinction_information) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
                     $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
@@ -165,8 +184,9 @@ class PersonnelDataC3Sheet
         }
 
         // Association Information
-        if ($this->personnel->associationInformation) {
-            foreach ($this->personnel->associationInformation as $association_information) {
+        if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'association')->count() > 0) {
+            $associationInformation = $this->personnel->otherInformations->where('type', 'association');
+            foreach ($associationInformation as $association_information) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
                     $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;

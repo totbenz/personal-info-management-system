@@ -4,6 +4,7 @@ namespace App\Exports\Sheets;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PersonnelDataC1Sheet
 {
@@ -18,12 +19,16 @@ class PersonnelDataC1Sheet
 
     public function populateSheet()
     {
-        $this->populatePersonalInfo();
-        $this->populateAddress();
-        $this->populateFamilyInfo();
-        $this->populateChildren();
-        $this->populateEducation();
-        $this->populateCurrentDate();
+        try {
+            $this->populatePersonalInfo();
+            $this->populateAddress();
+            $this->populateFamilyInfo();
+            $this->populateChildren();
+            $this->populateEducation();
+            $this->populateCurrentDate();
+        } catch (\Exception $e) {
+            Log::error('Error populating C1 sheet: ' . $e->getMessage());
+        }
     }
 
     protected function populatePersonalInfo()
@@ -37,7 +42,7 @@ class PersonnelDataC1Sheet
         $worksheet->setCellValue('N11', $this->personnel->name_ext ?? 'N/A');
         $worksheet->setCellValue('D13', $this->personnel->date_of_birth ?? 'N/A');
         $worksheet->setCellValue('D15', $this->personnel->place_of_birth ?? 'N/A');
-        
+
 
         $worksheet->setCellValue('D17', $this->personnel->civil_status ?? 'N/A');
         $worksheet->setCellValue('J13', $this->personnel->citizenship ?? 'N/A');
@@ -55,15 +60,15 @@ class PersonnelDataC1Sheet
         $worksheet->setCellValue('I33', $this->personnel->mobile_no ?? 'N/A');
         $worksheet->setCellValue('I34', $this->personnel->email ?? 'N/A');
 
-        // Mark sex checkbox
+        // Mark sex checkbox - Use existing macros in the template
         if ($this->personnel->sex === 'male') {
-            $worksheet->setCellValue('D16', '✔');
-            $worksheet->getStyle('D16')->getFont()->setBold(true);
-            $worksheet->setCellValue('E16', '');
+            // For male, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('D16', 'Male ☑');
+            $worksheet->setCellValue('E16', 'Female ☐');
         } else {
-            $worksheet->setCellValue('E16', '✔');
-            $worksheet->getStyle('E16')->getFont()->setBold(true);
-            $worksheet->setCellValue('D16', '');
+            // For female, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('E16', 'Female ☑');
+            $worksheet->setCellValue('D16', 'Make ☐');
         }
     }
 
@@ -71,42 +76,47 @@ class PersonnelDataC1Sheet
     {
         $worksheet = $this->worksheet;
 
-        if ($this->personnel->residentialAddress) {
-            // Residential Address
-            $worksheet->setCellValue('I17', $this->personnel->residentialAddress->house_no ?? 'N/A');
-            $worksheet->setCellValue('L17', $this->personnel->residentialAddress->street ?? 'N/A');
-            $worksheet->setCellValue('I19', $this->personnel->residentialAddress->subdivision ?? 'N/A');
-            $worksheet->setCellValue('L19', $this->personnel->residentialAddress->barangay ?? 'N/A');
-            $worksheet->setCellValue('I22', $this->personnel->residentialAddress->city ?? 'N/A');
-            $worksheet->setCellValue('L22', $this->personnel->residentialAddress->province ?? 'N/A');
-            $worksheet->setCellValue('I24', $this->personnel->residentialAddress->zip_code ?? 'N/A');
-        } else {
-            $worksheet->setCellValue('I17', 'N/A');
-            $worksheet->setCellValue('L17', 'N/A');
-            $worksheet->setCellValue('I19', 'N/A');
-            $worksheet->setCellValue('L19', 'N/A');
-            $worksheet->setCellValue('I22', 'N/A');
-            $worksheet->setCellValue('L22', 'N/A');
-            $worksheet->setCellValue('I24', 'N/A');
-        }
+        // Check if addresses relationship exists and has data
+        if ($this->personnel->addresses && $this->personnel->addresses->count() > 0) {
+            $residentialAddress = $this->personnel->addresses->where('type', 'residential')->first();
+            $permanentAddress = $this->personnel->addresses->where('type', 'permanent')->first();
 
-        if ($this->personnel->permanentAddress) {
-            // Permanent Address
-            $worksheet->setCellValue('I25', $this->personnel->permanentAddress->house_no ?? 'N/A');
-            $worksheet->setCellValue('L25', $this->personnel->permanentAddress->street ?? 'N/A');
-            $worksheet->setCellValue('I27', $this->personnel->permanentAddress->subdivision ?? 'N/A');
-            $worksheet->setCellValue('L27', $this->personnel->permanentAddress->barangay ?? 'N/A');
-            $worksheet->setCellValue('I29', $this->personnel->permanentAddress->city ?? 'N/A');
-            $worksheet->setCellValue('L29', $this->personnel->permanentAddress->province ?? 'N/A');
-            $worksheet->setCellValue('I31', $this->personnel->permanentAddress->zip_code ?? 'N/A');
+            if ($residentialAddress) {
+                // Residential Address
+                $worksheet->setCellValue('I17', $residentialAddress->house_no ?? 'N/A');
+                $worksheet->setCellValue('L17', $residentialAddress->street ?? 'N/A');
+                $worksheet->setCellValue('I19', $residentialAddress->subdivision ?? 'N/A');
+                $worksheet->setCellValue('L19', $residentialAddress->barangay ?? 'N/A');
+                $worksheet->setCellValue('I22', $residentialAddress->city ?? 'N/A');
+                $worksheet->setCellValue('L22', $residentialAddress->province ?? 'N/A');
+                $worksheet->setCellValue('I24', $residentialAddress->zip_code ?? 'N/A');
+            } else {
+                $this->setDefaultAddressValues($worksheet, 'I17', 'L17', 'I19', 'L19', 'I22', 'L22', 'I24');
+            }
+
+            if ($permanentAddress) {
+                // Permanent Address
+                $worksheet->setCellValue('I25', $permanentAddress->house_no ?? 'N/A');
+                $worksheet->setCellValue('L25', $permanentAddress->street ?? 'N/A');
+                $worksheet->setCellValue('I27', $permanentAddress->subdivision ?? 'N/A');
+                $worksheet->setCellValue('L27', $permanentAddress->barangay ?? 'N/A');
+                $worksheet->setCellValue('I29', $permanentAddress->city ?? 'N/A');
+                $worksheet->setCellValue('L29', $permanentAddress->province ?? 'N/A');
+                $worksheet->setCellValue('I31', $permanentAddress->zip_code ?? 'N/A');
+            } else {
+                $this->setDefaultAddressValues($worksheet, 'I25', 'L25', 'I27', 'L27', 'I29', 'L29', 'I31');
+            }
         } else {
-            $worksheet->setCellValue('I25', 'N/A');
-            $worksheet->setCellValue('L25', 'N/A');
-            $worksheet->setCellValue('I27', 'N/A');
-            $worksheet->setCellValue('L27', 'N/A');
-            $worksheet->setCellValue('I29', 'N/A');
-            $worksheet->setCellValue('L29', 'N/A');
-            $worksheet->setCellValue('I31', 'N/A');
+            // Set default values if no addresses
+            $this->setDefaultAddressValues($worksheet, 'I17', 'L17', 'I19', 'L19', 'I22', 'L22', 'I24');
+            $this->setDefaultAddressValues($worksheet, 'I25', 'L25', 'I27', 'L27', 'I29', 'L29', 'I31');
+        }
+    }
+
+    private function setDefaultAddressValues($worksheet, ...$cells)
+    {
+        foreach ($cells as $cell) {
+            $worksheet->setCellValue($cell, 'N/A');
         }
     }
 
@@ -114,49 +124,56 @@ class PersonnelDataC1Sheet
     {
         $worksheet = $this->worksheet;
 
-        if ($this->personnel->spouse) {
-            // Spouse Information
-            $worksheet->setCellValue('D36', $this->personnel->spouse->last_name ?? 'N/A');
-            $worksheet->setCellValue('D37', $this->personnel->spouse->first_name ?? 'N/A');
-            $worksheet->setCellValue('D38', $this->personnel->spouse->middle_name ?? 'N/A');
-            $worksheet->setCellValue('H37', $this->personnel->spouse->name_ext ?? 'N/A');
-            $worksheet->setCellValue('D39', $this->personnel->spouse->occupation ?? 'N/A');
-            $worksheet->setCellValue('D40', $this->personnel->spouse->employer_business_name ?? 'N/A');
-            $worksheet->setCellValue('D41', $this->personnel->spouse->telephone_number ?? 'N/A');
-            $worksheet->setCellValue('D42', $this->personnel->spouse->business_address ?? 'N/A');
-        } else {
-            $worksheet->setCellValue('D36', 'N/A');
-            $worksheet->setCellValue('D37', 'N/A');
-            $worksheet->setCellValue('D38', 'N/A');
-            $worksheet->setCellValue('H37', 'N/A');
-            $worksheet->setCellValue('D39', 'N/A');
-            $worksheet->setCellValue('D40', 'N/A');
-            $worksheet->setCellValue('D41', 'N/A');
-            $worksheet->setCellValue('D42', 'N/A');
-        }
+        // Check if family relationships exist
+        if ($this->personnel->families && $this->personnel->families->count() > 0) {
+            $spouse = $this->personnel->families->where('relationship', 'spouse')->first();
+            $father = $this->personnel->families->where('relationship', 'father')->first();
+            $mother = $this->personnel->families->where('relationship', 'mother')->first();
 
-        if ($this->personnel->father) {
-            // Father's Information
-            $worksheet->setCellValue('D43', $this->personnel->father->last_name ?? 'N/A');
-            $worksheet->setCellValue('D44', $this->personnel->father->first_name ?? 'N/A');
-            $worksheet->setCellValue('D45', $this->personnel->father->middle_name ?? 'N/A');
-            $worksheet->setCellValue('H44', $this->personnel->father->name_ext ?? 'N/A');
-        } else {
-            $worksheet->setCellValue('D43', 'N/A');
-            $worksheet->setCellValue('D44', 'N/A');
-            $worksheet->setCellValue('D45', 'N/A');
-            $worksheet->setCellValue('H44', 'N/A');
-        }
+            if ($spouse) {
+                // Spouse Information
+                $worksheet->setCellValue('D36', $spouse->last_name ?? 'N/A');
+                $worksheet->setCellValue('D37', $spouse->first_name ?? 'N/A');
+                $worksheet->setCellValue('D38', $spouse->middle_name ?? 'N/A');
+                $worksheet->setCellValue('H37', $spouse->name_ext ?? 'N/A');
+                $worksheet->setCellValue('D39', $spouse->occupation ?? 'N/A');
+                $worksheet->setCellValue('D40', $spouse->employer_business_name ?? 'N/A');
+                $worksheet->setCellValue('D41', $spouse->telephone_number ?? 'N/A');
+                $worksheet->setCellValue('D42', $spouse->business_address ?? 'N/A');
+            } else {
+                $this->setDefaultFamilyValues($worksheet, ['D36', 'D37', 'D38', 'H37', 'D39', 'D40', 'D41', 'D42']);
+            }
 
-        if ($this->personnel->mother) {
-            // Mother's Information
-            $worksheet->setCellValue('D47', $this->personnel->mother->last_name ?? 'N/A');
-            $worksheet->setCellValue('D48', $this->personnel->mother->first_name ?? 'N/A');
-            $worksheet->setCellValue('D49', $this->personnel->mother->middle_name ?? 'N/A');
+            if ($father) {
+                // Father's Information
+                $worksheet->setCellValue('D43', $father->last_name ?? 'N/A');
+                $worksheet->setCellValue('D44', $father->first_name ?? 'N/A');
+                $worksheet->setCellValue('D45', $father->middle_name ?? 'N/A');
+                $worksheet->setCellValue('H44', $father->name_ext ?? 'N/A');
+            } else {
+                $this->setDefaultFamilyValues($worksheet, ['D43', 'D44', 'D45', 'H44']);
+            }
+
+            if ($mother) {
+                // Mother's Information
+                $worksheet->setCellValue('D47', $mother->last_name ?? 'N/A');
+                $worksheet->setCellValue('D48', $mother->first_name ?? 'N/A');
+                $worksheet->setCellValue('D49', $mother->middle_name ?? 'N/A');
+            } else {
+                $this->setDefaultFamilyValues($worksheet, ['D47', 'D48', 'D49']);
+            }
         } else {
-            $worksheet->setCellValue('D47', 'N/A');
-            $worksheet->setCellValue('D48', 'N/A');
-            $worksheet->setCellValue('D49', 'N/A');
+            // Set default values if no family data
+            $this->setDefaultFamilyValues($worksheet, ['D36', 'D37', 'D38', 'H37', 'D39', 'D40', 'D41', 'D42']);
+            $this->setDefaultFamilyValues($worksheet, ['D43', 'D44', 'D45', 'H44']);
+            $this->setDefaultFamilyValues($worksheet, ['D47', 'D48', 'D49']);
+        }
+    }
+
+    private function setDefaultFamilyValues($worksheet, $cells)
+    {
+        foreach ($cells as $cell) {
+            $worksheet->setCellValue($cell, 'N/A');
         }
     }
 
@@ -170,50 +187,93 @@ class PersonnelDataC1Sheet
     {
         $worksheet = $this->worksheet;
 
-        // Elementary Education
-        $worksheet->setCellValue('D54', $this->personnel->elementaryEducation->school_name ?? 'N/A');
-        $worksheet->setCellValue('G54', $this->personnel->elementaryEducation->degree_course ?? 'N/A');
-        $worksheet->setCellValue('J54', $this->personnel->elementaryEducation->period_from ?? 'N/A');
-        $worksheet->setCellValue('K54', $this->personnel->elementaryEducation->period_to ?? 'N/A');
-        $worksheet->setCellValue('L54', $this->personnel->elementaryEducation->highest_level_units ?? 'N/A');
-        $worksheet->setCellValue('M54', $this->personnel->elementaryEducation->year_graduated ?? 'N/A');
-        $worksheet->setCellValue('N54', $this->personnel->elementaryEducation->scholarship_honors ?? 'N/A');
+        // Check if education relationship exists
+        if ($this->personnel->educations && $this->personnel->educations->count() > 0) {
+            $elementary = $this->personnel->educations->where('type', 'elementary')->first();
+            $secondary = $this->personnel->educations->where('type', 'secondary')->first();
+            $vocational = $this->personnel->educations->where('type', 'vocational')->first();
+            $graduate = $this->personnel->educations->where('type', 'graduate')->first();
+            $graduateStudies = $this->personnel->educations->where('type', 'graduate_studies')->first();
 
-        // Secondary Education
-        $worksheet->setCellValue('D55', $this->personnel->secondaryEducation->school_name ?? 'N/A');
-        $worksheet->setCellValue('G55', $this->personnel->secondaryEducation->degree_course ?? 'N/A');
-        $worksheet->setCellValue('J55', $this->personnel->secondaryEducation->period_from ?? 'N/A');
-        $worksheet->setCellValue('K55', $this->personnel->secondaryEducation->period_to ?? 'N/A');
-        $worksheet->setCellValue('L55', $this->personnel->secondaryEducation->highest_level_units ?? 'N/A');
-        $worksheet->setCellValue('M55', $this->personnel->secondaryEducation->year_graduated ?? 'N/A');
-        $worksheet->setCellValue('N55', $this->personnel->secondaryEducation->scholarship_honors ?? 'N/A');
+            // Elementary Education
+            if ($elementary) {
+                $worksheet->setCellValue('D54', $elementary->school_name ?? 'N/A');
+                $worksheet->setCellValue('G54', $elementary->degree_course ?? 'N/A');
+                $worksheet->setCellValue('J54', $elementary->period_from ?? 'N/A');
+                $worksheet->setCellValue('K54', $elementary->period_to ?? 'N/A');
+                $worksheet->setCellValue('L54', $elementary->highest_level_units ?? 'N/A');
+                $worksheet->setCellValue('M54', $elementary->year_graduated ?? 'N/A');
+                $worksheet->setCellValue('N54', $elementary->scholarship_honors ?? 'N/A');
+            } else {
+                $this->setDefaultEducationValues($worksheet, 'D54', 'G54', 'J54', 'K54', 'L54', 'M54', 'N54');
+            }
 
-        // Vocational Education
-        $worksheet->setCellValue('D56', $this->personnel->vocationalEducation->school_name ?? 'N/A');
-        $worksheet->setCellValue('G56', $this->personnel->vocationalEducation->degree_course ?? 'N/A');
-        $worksheet->setCellValue('J56', $this->personnel->vocationalEducation->period_from ?? 'N/A');
-        $worksheet->setCellValue('K56', $this->personnel->vocationalEducation->period_to ?? 'N/A');
-        $worksheet->setCellValue('L56', $this->personnel->vocationalEducation->highest_level_units ?? 'N/A');
-        $worksheet->setCellValue('M56', $this->personnel->vocationalEducation->year_graduated ?? 'N/A');
-        $worksheet->setCellValue('N56', $this->personnel->vocationalEducation->scholarship_honors ?? 'N/A');
+            // Secondary Education
+            if ($secondary) {
+                $worksheet->setCellValue('D55', $secondary->school_name ?? 'N/A');
+                $worksheet->setCellValue('G55', $secondary->degree_course ?? 'N/A');
+                $worksheet->setCellValue('J55', $secondary->period_from ?? 'N/A');
+                $worksheet->setCellValue('K55', $secondary->period_to ?? 'N/A');
+                $worksheet->setCellValue('L55', $secondary->highest_level_units ?? 'N/A');
+                $worksheet->setCellValue('M55', $secondary->year_graduated ?? 'N/A');
+                $worksheet->setCellValue('N55', $secondary->scholarship_honors ?? 'N/A');
+            } else {
+                $this->setDefaultEducationValues($worksheet, 'D55', 'G55', 'J55', 'K55', 'L55', 'M55', 'N55');
+            }
 
-        // Graduate Education
-        $worksheet->setCellValue('D57', $this->personnel->graduateEducation->school_name ?? 'N/A');
-        $worksheet->setCellValue('G57', $this->personnel->graduateEducation->degree_course ?? 'N/A');
-        $worksheet->setCellValue('J57', $this->personnel->graduateEducation->period_from ?? 'N/A');
-        $worksheet->setCellValue('K57', $this->personnel->graduateEducation->period_to ?? 'N/A');
-        $worksheet->setCellValue('L57', $this->personnel->graduateEducation->highest_level_units ?? 'N/A');
-        $worksheet->setCellValue('M57', $this->personnel->graduateEducation->year_graduated ?? 'N/A');
-        $worksheet->setCellValue('N57', $this->personnel->graduateEducation->scholarship_honors ?? 'N/A');
+            // Vocational Education
+            if ($vocational) {
+                $worksheet->setCellValue('D56', $vocational->school_name ?? 'N/A');
+                $worksheet->setCellValue('G56', $vocational->degree_course ?? 'N/A');
+                $worksheet->setCellValue('J56', $vocational->period_from ?? 'N/A');
+                $worksheet->setCellValue('K56', $vocational->period_to ?? 'N/A');
+                $worksheet->setCellValue('L56', $vocational->highest_level_units ?? 'N/A');
+                $worksheet->setCellValue('M56', $vocational->year_graduated ?? 'N/A');
+                $worksheet->setCellValue('N56', $vocational->scholarship_honors ?? 'N/A');
+            } else {
+                $this->setDefaultEducationValues($worksheet, 'D56', 'G56', 'J56', 'K56', 'L56', 'M56', 'N56');
+            }
 
-        // Graduate Studies Education
-        $worksheet->setCellValue('D58', $this->personnel->graduateStudiesEducation->school_name ?? 'N/A');
-        $worksheet->setCellValue('G58', $this->personnel->graduateStudiesEducation->degree_course ?? 'N/A');
-        $worksheet->setCellValue('J58', $this->personnel->graduateStudiesEducation->period_from ?? 'N/A');
-        $worksheet->setCellValue('K58', $this->personnel->graduateStudiesEducation->period_to ?? 'N/A');
-        $worksheet->setCellValue('L58', $this->personnel->graduateStudiesEducation->highest_level_units ?? 'N/A');
-        $worksheet->setCellValue('M58', $this->personnel->graduateStudiesEducation->year_graduated ?? 'N/A');
-        $worksheet->setCellValue('N58', $this->personnel->graduateStudiesEducation->scholarship_honors ?? 'N/A');
+            // Graduate Education
+            if ($graduate) {
+                $worksheet->setCellValue('D57', $graduate->school_name ?? 'N/A');
+                $worksheet->setCellValue('G57', $graduate->degree_course ?? 'N/A');
+                $worksheet->setCellValue('J57', $graduate->period_from ?? 'N/A');
+                $worksheet->setCellValue('K57', $graduate->period_to ?? 'N/A');
+                $worksheet->setCellValue('L57', $graduate->highest_level_units ?? 'N/A');
+                $worksheet->setCellValue('M57', $graduate->year_graduated ?? 'N/A');
+                $worksheet->setCellValue('N57', $graduate->scholarship_honors ?? 'N/A');
+            } else {
+                $this->setDefaultEducationValues($worksheet, 'D57', 'G57', 'J57', 'K57', 'L57', 'M57', 'N57');
+            }
+
+            // Graduate Studies Education
+            if ($graduateStudies) {
+                $worksheet->setCellValue('D58', $graduateStudies->school_name ?? 'N/A');
+                $worksheet->setCellValue('G58', $graduateStudies->degree_course ?? 'N/A');
+                $worksheet->setCellValue('J58', $graduateStudies->period_from ?? 'N/A');
+                $worksheet->setCellValue('K58', $graduateStudies->period_to ?? 'N/A');
+                $worksheet->setCellValue('L58', $graduateStudies->highest_level_units ?? 'N/A');
+                $worksheet->setCellValue('M58', $graduateStudies->year_graduated ?? 'N/A');
+                $worksheet->setCellValue('N58', $graduateStudies->scholarship_honors ?? 'N/A');
+            } else {
+                $this->setDefaultEducationValues($worksheet, 'D58', 'G58', 'J58', 'K58', 'L58', 'M58', 'N58');
+            }
+        } else {
+            // Set default values if no education data
+            $this->setDefaultEducationValues($worksheet, 'D54', 'G54', 'J54', 'K54', 'L54', 'M54', 'N54');
+            $this->setDefaultEducationValues($worksheet, 'D55', 'G55', 'J55', 'K55', 'L55', 'M55', 'N55');
+            $this->setDefaultEducationValues($worksheet, 'D56', 'G56', 'J56', 'K56', 'L56', 'M56', 'N56');
+            $this->setDefaultEducationValues($worksheet, 'D57', 'G57', 'J57', 'K57', 'L57', 'M57', 'N57');
+            $this->setDefaultEducationValues($worksheet, 'D58', 'G58', 'J58', 'K58', 'L58', 'M58', 'N58');
+        }
+    }
+
+    private function setDefaultEducationValues($worksheet, ...$cells)
+    {
+        foreach ($cells as $cell) {
+            $worksheet->setCellValue($cell, 'N/A');
+        }
     }
 
     protected function populateChildren()
@@ -224,8 +284,11 @@ class PersonnelDataC1Sheet
         $endRow = 49; // Ending row for children info
         $currentRow = $startRow;
 
-        if ($this->personnel->children) {
-            foreach ($this->personnel->children as $child) {
+        // Check if children relationship exists
+        if ($this->personnel->families && $this->personnel->families->where('relationship', 'child')->count() > 0) {
+            $children = $this->personnel->families->where('relationship', 'child');
+
+            foreach ($children as $child) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet
                     $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;

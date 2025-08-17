@@ -56,6 +56,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
+        
+        // Service Credit Routes
+        Route::post('/service-credit-request', [App\Http\Controllers\ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
+
+        // Leave request submission
+        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
 
     // SCHOOL HEAD ACCESS
@@ -84,11 +90,13 @@ Route::middleware(['auth'])->group(function () {
 
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
-        
         // CTO Request Routes
         Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
+
+        // Leave request submission for school heads
+        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
-    
+
     // Leave request submission - available to both teachers and school heads
     Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     // SERVICE RECORD
@@ -130,7 +138,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/{personnel}', 'show')->name('personnels.show');
             Route::delete('personnels/{personnel}', 'destroy')->name('personnels.destroy');
         });
-       
+
         // Leave request admin view and approval
         Route::get('/admin/leave-requests', [\App\Http\Controllers\LeaveRequestController::class, 'index'])->name('admin.leave-requests');
         Route::post('/admin/leave-requests/{id}', [\App\Http\Controllers\LeaveRequestController::class, 'update'])->name('admin.leave-requests.update');
@@ -186,8 +194,3 @@ Route::middleware(['auth'])->group(function () {
     // Add this route for loyalty awards PDF export
     Route::get('/loyalty-awards/export-pdf', [\App\Livewire\Datatable\LoyaltyDatatable::class, 'exportPdf'])->name('loyalty-awards.export-pdf');
 });
-
-// Login success page (no middleware to allow authenticated users)
-Route::get('/login-success', function () {
-    return view('auth.login-success');
-})->name('login.success');

@@ -101,10 +101,19 @@ class PersonnelController extends Controller
             $outputPath = $export->getOutputPath();
             Log::info('Output path: ' . $outputPath);
 
-            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . $personnel->last_name . '_pds.xlsm');
+            // Check if file was created successfully
+            if (!file_exists($outputPath)) {
+                throw new \Exception('Export file was not created');
+            }
+
+            // Clean up the export object
+            $export->cleanup();
+
+            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . '_' . $personnel->last_name . '_pds.xlsx');
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
-            return redirect()->route('dashboard')->with('error', 'Failed to export personnel data.');
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->route('dashboard')->with('error', 'Failed to export personnel data: ' . $e->getMessage());
         }
     }
 
@@ -124,11 +133,20 @@ class PersonnelController extends Controller
             $outputPath = $export->getOutputPath();
             Log::info('Output path: ' . $outputPath);
 
-            // Return the Excel file as a download
-            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . $personnel->last_name . '_pds.xlsm');
+            // Check if file was created successfully
+            if (!file_exists($outputPath)) {
+                throw new \Exception('Export file was not created');
+            }
+
+            // Clean up the export object
+            $export->cleanup();
+
+            // Return the Excel file as a download with correct extension
+            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . '_' . $personnel->last_name . '_pds.xlsx');
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
-            return redirect()->route('dashboard')->with('error', 'Failed to export personnel data.');
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->route('dashboard')->with('error', 'Failed to export personnel data: ' . $e->getMessage());
         }
     }
 

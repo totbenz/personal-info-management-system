@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Masmerise\Toaster\Toaster;
 
 class LoginController extends Controller
 {
@@ -43,12 +44,10 @@ class LoginController extends Controller
                     ]);
                 }
 
-                // For regular requests, redirect to a temporary success page
-                session()->flash('success_message', 'Login successful! Welcome back.');
-                session()->flash('redirect_url', $this->getRedirectUrl($user));
-                session()->flash('show_delayed_redirect', true);
+                // For regular requests, use Toaster and redirect directly
+                Toaster::success('Login successful! Welcome back.');
 
-                return redirect()->route('login.success');
+                return redirect($this->getRedirectUrl($user));
             } else {
                 $account = User::where('email', $request->email)->first();
                 $errorMessage = 'Authentication failed';
@@ -68,7 +67,7 @@ class LoginController extends Controller
                 }
 
                 // For regular requests, redirect back with error message
-                session()->flash('error_message', $errorMessage);
+                Toaster::error($errorMessage);
             }
         } catch (\Exception $e) {
             $errorMessage = 'Authentication error occurred';
@@ -82,7 +81,7 @@ class LoginController extends Controller
             }
 
             // For regular requests, redirect back with error message
-            session()->flash('error_message', $errorMessage);
+            Toaster::error($errorMessage);
         }
 
         return redirect()->back();
@@ -110,7 +109,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
 
         // Show success message for logout
-        session()->flash('success_message', 'You have been successfully logged out.');
+        Toaster::success('You have been successfully logged out.');
 
         return redirect('/login');
     }
