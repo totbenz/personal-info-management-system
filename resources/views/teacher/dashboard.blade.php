@@ -735,16 +735,11 @@
 
             // Auto-open modal if there are validation errors
             @if($errors->any())
-                // Check if errors are related to service credit or leave request
-                @if($errors->has('year') || $errors->has('requested_personal_leave_credits') || $errors->has('requested_sick_leave_credits') || $errors->has('justification'))
-                    // Service Credit errors - don't open leave modal
-                @else
-                    // Leave request errors
-                    if (leaveRequestModal) {
-                        leaveRequestModal.classList.remove('hidden');
-                        leaveRequestModal.classList.add('flex');
-                    }
-                @endif
+                // Leave request errors
+                if (leaveRequestModal) {
+                    leaveRequestModal.classList.remove('hidden');
+                    leaveRequestModal.classList.add('flex');
+                }
             @endif
 
             // Date calculation function
@@ -845,154 +840,6 @@
 
             // Initial validation
             validateLeaveRequest();
-
-            // Service Credit Request Modal functionality
-            var serviceCreditRequestBtn = document.getElementById('serviceCreditRequestBtn');
-            var serviceCreditRequestBtn2 = document.getElementById('serviceCreditRequestBtn2');
-            var serviceCreditRequestModal = document.getElementById('serviceCreditRequestModal');
-            var closeServiceCreditModal = document.getElementById('closeServiceCreditModal');
-
-            // Service Credit section toggle
-            var serviceCreditHeaderToggle = document.getElementById('serviceCreditHeaderToggle');
-            var serviceCreditToggleIcon = document.getElementById('serviceCreditToggleIcon');
-            var serviceCreditContent = document.getElementById('serviceCreditContent');
-            var isServiceCreditMinimized = localStorage.getItem('teacherServiceCreditMinimized') === 'true';
-
-            // Set initial state for service credit section
-            if (isServiceCreditMinimized) {
-                serviceCreditContent.style.height = '0';
-                serviceCreditContent.style.overflow = 'hidden';
-                serviceCreditContent.style.opacity = '0';
-                serviceCreditToggleIcon.style.transform = 'rotate(-90deg)';
-            }
-
-            // Service credit section toggle
-            if (serviceCreditHeaderToggle && serviceCreditContent) {
-                serviceCreditHeaderToggle.addEventListener('click', function() {
-                    if (isServiceCreditMinimized) {
-                        // Expand
-                        serviceCreditContent.style.height = 'auto';
-                        serviceCreditContent.style.overflow = 'visible';
-                        serviceCreditContent.style.opacity = '1';
-                        serviceCreditToggleIcon.style.transform = 'rotate(0deg)';
-                        localStorage.setItem('teacherServiceCreditMinimized', 'false');
-                    } else {
-                        // Minimize
-                        serviceCreditContent.style.height = '0';
-                        serviceCreditContent.style.overflow = 'hidden';
-                        serviceCreditContent.style.opacity = '0';
-                        serviceCreditToggleIcon.style.transform = 'rotate(-90deg)';
-                        localStorage.setItem('teacherServiceCreditMinimized', 'true');
-                    }
-                    isServiceCreditMinimized = !isServiceCreditMinimized;
-                });
-            }
-
-            // Service credit modal controls
-            if(serviceCreditRequestBtn && serviceCreditRequestModal && closeServiceCreditModal) {
-                serviceCreditRequestBtn.addEventListener('click', function() {
-                    serviceCreditRequestModal.classList.remove('hidden');
-                    serviceCreditRequestModal.classList.add('flex');
-                });
-                
-                closeServiceCreditModal.addEventListener('click', function() {
-                    serviceCreditRequestModal.classList.add('hidden');
-                    serviceCreditRequestModal.classList.remove('flex');
-                });
-                
-                // Close modal when clicking outside
-                serviceCreditRequestModal.addEventListener('click', function(e) {
-                    if (e.target === serviceCreditRequestModal) {
-                        serviceCreditRequestModal.classList.add('hidden');
-                        serviceCreditRequestModal.classList.remove('flex');
-                    }
-                });
-            }
-
-            // Secondary service credit button
-            if(serviceCreditRequestBtn2 && serviceCreditRequestModal) {
-                serviceCreditRequestBtn2.addEventListener('click', function() {
-                    serviceCreditRequestModal.classList.remove('hidden');
-                    serviceCreditRequestModal.classList.add('flex');
-                });
-            }
-
-            // Service Credit form validation and calculation
-            var serviceCreditYear = document.getElementById('service_credit_year');
-            var personalLeaveCredits = document.getElementById('personal_leave_credits');
-            var sickLeaveCredits = document.getElementById('sick_leave_credits');
-            var serviceCreditJustification = document.getElementById('service_credit_justification');
-            var serviceCreditSummary = document.getElementById('service_credit_summary');
-            var totalCreditsSpan = document.getElementById('total_credits');
-            var personalSummarySpan = document.getElementById('personal_summary');
-            var sickSummarySpan = document.getElementById('sick_summary');
-            var serviceCreditSubmitBtn = document.getElementById('service_credit_submit_btn');
-
-            function calculateServiceCreditSummary() {
-                const personal = parseInt(personalLeaveCredits ? personalLeaveCredits.value : 0) || 0;
-                const sick = parseInt(sickLeaveCredits ? sickLeaveCredits.value : 0) || 0;
-                const total = personal + sick;
-
-                if (totalCreditsSpan) totalCreditsSpan.textContent = total;
-                if (personalSummarySpan) personalSummarySpan.textContent = personal;
-                if (sickSummarySpan) sickSummarySpan.textContent = sick;
-
-                if (serviceCreditSummary) {
-                    if (total > 0) {
-                        serviceCreditSummary.classList.remove('hidden');
-                    } else {
-                        serviceCreditSummary.classList.add('hidden');
-                    }
-                }
-            }
-
-            function validateServiceCreditForm() {
-                const year = serviceCreditYear ? serviceCreditYear.value : '';
-                const personal = parseInt(personalLeaveCredits ? personalLeaveCredits.value : 0) || 0;
-                const sick = parseInt(sickLeaveCredits ? sickLeaveCredits.value : 0) || 0;
-                const justification = serviceCreditJustification ? serviceCreditJustification.value.trim() : '';
-
-                const isValid = year && 
-                               (personal > 0 || sick > 0) && 
-                               justification.length >= 10;
-
-                if (serviceCreditSubmitBtn) {
-                    serviceCreditSubmitBtn.disabled = !isValid;
-                }
-
-                return isValid;
-            }
-
-            // Event listeners for service credit form
-            if (serviceCreditYear) {
-                serviceCreditYear.addEventListener('change', validateServiceCreditForm);
-            }
-
-            if (personalLeaveCredits) {
-                personalLeaveCredits.addEventListener('input', function() {
-                    calculateServiceCreditSummary();
-                    validateServiceCreditForm();
-                });
-            }
-
-            if (sickLeaveCredits) {
-                sickLeaveCredits.addEventListener('input', function() {
-                    calculateServiceCreditSummary();
-                    validateServiceCreditForm();
-                });
-            }
-
-            if (serviceCreditJustification) {
-                serviceCreditJustification.addEventListener('input', validateServiceCreditForm);
-            }
-
-            // Auto-open service credit modal if there are service credit validation errors
-            @if($errors->has('year') || $errors->has('requested_personal_leave_credits') || $errors->has('requested_sick_leave_credits') || $errors->has('justification'))
-                if (serviceCreditRequestModal) {
-                    serviceCreditRequestModal.classList.remove('hidden');
-                    serviceCreditRequestModal.classList.add('flex');
-                }
-            @endif
         });
     </script>
 </x-app-layout>

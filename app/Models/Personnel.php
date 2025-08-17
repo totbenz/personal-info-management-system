@@ -424,16 +424,6 @@ class Personnel extends Model
         return $salaryStep ? $salaryStep->salary : null;
     }
 
-    public function serviceCredits()
-    {
-        return $this->hasMany(ServiceCredit::class);
-    }
-
-    public function serviceCreditRequests()
-    {
-        return $this->hasMany(ServiceCreditRequest::class);
-    }
-
     public function schoolHeadLeaves(): HasMany
     {
         return $this->hasMany(SchoolHeadLeave::class, 'school_head_id');

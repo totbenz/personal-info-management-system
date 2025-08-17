@@ -10,7 +10,7 @@ use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\SalaryGradeController;
 use App\Http\Controllers\SalaryStepController;
 use App\Http\Controllers\EventController;
-use App\Http\Controllers\ServiceCreditRequestController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceRecordController;
@@ -56,9 +56,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
-        
-        // Service Credit Routes
-        Route::post('/service-credit-request', [App\Http\Controllers\ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
     });
 
     // SCHOOL HEAD ACCESS
@@ -138,11 +135,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/leave-requests', [\App\Http\Controllers\LeaveRequestController::class, 'index'])->name('admin.leave-requests');
         Route::post('/admin/leave-requests/{id}', [\App\Http\Controllers\LeaveRequestController::class, 'update'])->name('admin.leave-requests.update');
 
-        // Service Credit Request admin view and approval
-        Route::get('/admin/service-credit-requests', [\App\Http\Controllers\ServiceCreditRequestController::class, 'index'])->name('admin.service-credit-requests');
-        Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [\App\Http\Controllers\ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
-        Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [\App\Http\Controllers\ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
-
         // CTO Request admin view and approval
         Route::get('/admin/cto-requests', [\App\Http\Controllers\CTORequestController::class, 'index'])->name('admin.cto-requests');
         Route::post('/admin/cto-requests/{ctoRequest}/approve', [\App\Http\Controllers\CTORequestController::class, 'approve'])->name('admin.cto-requests.approve');
@@ -193,12 +185,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Add this route for loyalty awards PDF export
     Route::get('/loyalty-awards/export-pdf', [\App\Livewire\Datatable\LoyaltyDatatable::class, 'exportPdf'])->name('loyalty-awards.export-pdf');
-
-    // Service Credit Request routes
-    Route::post('/service-credit-requests', [ServiceCreditRequestController::class, 'store'])->name('service-credit-requests.store');
-    Route::get('/service-credit-requests', [ServiceCreditRequestController::class, 'index'])->name('service-credit-requests.index');
-    Route::post('/service-credit-requests/{id}/approve', [ServiceCreditRequestController::class, 'approve'])->name('service-credit-requests.approve')->middleware('user-access:admin');
-    Route::post('/service-credit-requests/{id}/deny', [ServiceCreditRequestController::class, 'deny'])->name('service-credit-requests.deny')->middleware('user-access:admin');
 });
 
 // Login success page (no middleware to allow authenticated users)
