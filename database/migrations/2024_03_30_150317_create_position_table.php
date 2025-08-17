@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up()
     {
-        // Create the job_titles table
+        // Create the position table
         Schema::create('position', function (Blueprint $table) {
             $table->id();
             $table->string('title');
@@ -22,7 +22,7 @@ return new class extends Migration
 
     public function down()
     {
-        // Drop the job_titles table
-        Schema::dropIfExists('job');
+        // Drop the position table
+        Schema::dropIfExists('position');
     }
 };

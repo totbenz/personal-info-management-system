@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Password'),
                 'personnel_id' => 1
             ],
-        [
+            [
                 'email' => 'schoolhead@mailinator.com',
                 'role' => 'school_head',
                 'password' => Hash::make('Password'),
@@ -33,7 +33,12 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Password'),
                 'personnel_id' => 3
             ],
-
+            [
+                'email' => 'nonteaching@mailinator.com',
+                'role' => 'non_teaching',
+                'password' => Hash::make('Password'),
+                'personnel_id' => 4
+            ],
         ]);
     }
 }

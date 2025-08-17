@@ -66,6 +66,49 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop foreign key constraints in related tables before dropping personnels
+        if (Schema::hasTable('contact_person')) {
+            try {
+                Schema::table('contact_person', function (Blueprint $table) {
+                    $table->dropForeign(['personnel_id']);
+                });
+            } catch (\Exception $e) {}
+        }
+        if (Schema::hasTable('addresses')) {
+            try {
+                Schema::table('addresses', function (Blueprint $table) {
+                    $table->dropForeign(['personnel_id']);
+                });
+            } catch (\Exception $e) {}
+        }
+        if (Schema::hasTable('educations')) {
+            try {
+                Schema::table('educations', function (Blueprint $table) {
+                    $table->dropForeign(['personnel_id']);
+                });
+            } catch (\Exception $e) {}
+        }
+        if (Schema::hasTable('award_received')) {
+            try {
+                Schema::table('award_received', function (Blueprint $table) {
+                    $table->dropForeign(['personnel_id']);
+                });
+            } catch (\Exception $e) {}
+        }
+        if (Schema::hasTable('service_records')) {
+            try {
+                Schema::table('service_records', function (Blueprint $table) {
+                    $table->dropForeign(['personnel_id']);
+                });
+            } catch (\Exception $e) {}
+        }
+        if (Schema::hasTable('service_credit_requests')) {
+            try {
+                Schema::table('service_credit_requests', function (Blueprint $table) {
+                    $table->dropForeign(['personnel_id']);
+                });
+            } catch (\Exception $e) {}
+        }
         Schema::dropIfExists('personnels');
     }
 };

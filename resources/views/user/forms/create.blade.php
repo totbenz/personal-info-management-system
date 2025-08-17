@@ -25,13 +25,15 @@
 
             <div class="mt-4">
                 <x-input id="password_confirmation" label="Confirm Password" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+                    <span id="password-match-error" class="text-xs text-red-600" style="display:none;">Passwords do not match.</span>
             </div>
 
             <div class="mt-4">
                 <x-native-select name="role" id="role" class="form-control" label="Role">
-                    <option value="teacher">Personnel</option>
-                    <option value="school_head">School Head</option>
-                    <option value="admin">Admin</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="school_head">School Head</option>
+                        <option value="non_teaching">Non-Teaching Personnel</option>
+                        <option value="admin">Admin</option>
                 </x-native-select>
             </div>
 
@@ -44,5 +46,21 @@
                 </div>
             </div>
         </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const password = document.getElementById('password');
+                    const confirm = document.getElementById('password_confirmation');
+                    const errorMsg = document.getElementById('password-match-error');
+                    function checkMatch() {
+                        if (confirm.value.length > 0 && password.value !== confirm.value) {
+                            errorMsg.style.display = 'block';
+                        } else {
+                            errorMsg.style.display = 'none';
+                        }
+                    }
+                    password.addEventListener('input', checkMatch);
+                    confirm.addEventListener('input', checkMatch);
+                });
+            </script>
     </x-card>
 </x-modal>

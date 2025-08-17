@@ -24,7 +24,7 @@ class UserController extends Controller
                 'personnel_id' => 'required|integer',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|confirmed|min:8',
-                'role' => 'required|in:teacher,school_head,admin'
+                'role' => 'required|in:teacher,school_head,non_teaching,admin'
             ]);
 
             $personnel = Personnel::where('personnel_id', $request->personnel_id)->firstOrFail();
