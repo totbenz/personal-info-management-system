@@ -56,7 +56,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
-
         // Service Credit Routes
         Route::post('/service-credit-request', [App\Http\Controllers\ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
 
@@ -90,7 +89,6 @@ Route::middleware(['auth'])->group(function () {
 
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
-
         // CTO Request Routes
         Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
 
