@@ -67,7 +67,7 @@
                         {{ __('Schools') }}
                     </x-nav-link>
                     @endif
-                    @if (Auth::user()->role == "teacher")
+                    @if (Auth::user()->role == 'teacher')
                     <x-nav-link
                         href="{{ route('teacher.dashboard') }}"
                         :active="request()->routeIs('teacher.dashboard')"
@@ -75,11 +75,30 @@
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"
                         inactive-class="hover:bg-[#1a223a] hover:text-white">
-                        {{ __('Dashboard') }}
+                        {{ __('Teacher Dashboard') }}
                     </x-nav-link>
                     <x-nav-link
                         href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
                         :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
+                        {{ __('Profile') }}
+                    </x-nav-link>
+                    @elseif (Auth::user()->role == 'non_teaching')
+                    <x-nav-link
+                        href="{{ route('non_teaching.dashboard') }}"
+                        :active="request()->routeIs('non_teaching.dashboard')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+                    <x-nav-link
+                        href="{{ route('personnel.profile2', ['personnel' => Auth::user()->personnel->id]) }}"
+                        :active="request()->routeIs('personnel.profile2', ['personnel' => Auth::user()->personnel->id])"
                         wire:navigate
                         class="relative px-3 py-1.5 rounded transition-colors duration-200"
                         active-class="bg-white text-[#0f152a] shadow font-bold"

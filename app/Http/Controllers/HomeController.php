@@ -83,14 +83,14 @@ class HomeController extends Controller
 
     public function schoolHeadDashboard()
     {
-    $user = Auth::user();
-    $schoolHead = $user->personnel;
-    $school = $schoolHead->school;
+        $user = Auth::user();
+        $schoolHead = $user->personnel;
+        $school = $schoolHead->school;
         // School Head Leaves
         $year = now()->year;
         $soloParent = $schoolHead->is_solo_parent ?? false;
         $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent);
-        
+
         // Ensure all leave type records exist for this school head and year
         foreach ($defaultLeaves as $leaveType => $maxDays) {
             \App\Models\SchoolHeadLeave::firstOrCreate(
@@ -106,13 +106,13 @@ class HomeController extends Controller
                 ]
             );
         }
-        
+
         // Get existing leave records for this year (now they should all exist)
         $leaves = \App\Models\SchoolHeadLeave::where('school_head_id', $schoolHead->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
-        
+
         $leaveData = [];
         foreach ($defaultLeaves as $type => $max) {
             $leave = $leaves->get($type);
@@ -406,7 +406,7 @@ class HomeController extends Controller
         // Calculate years of service for leave calculations
         $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
         $baseLeaveCredits = $yearsOfService * 15; // 15 days per year of service
-        
+
         // Teacher leave data (calculated based on years of service)
         $teacherLeaveData = [
             [
@@ -491,6 +491,270 @@ class HomeController extends Controller
             'year'
         ));
     }
+    public function nonTeachingDashboard()
+    {
+        $user = Auth::user();
+        $personnel = $user->personnel;
+
+        // Personal Information
+        $personalInfo = [
+            'full_name' => $personnel->first_name . ' ' . $personnel->middle_name . ' ' . $personnel->last_name . ' ' . $personnel->name_ext,
+            'personnel_id' => $personnel->personnel_id,
+            'date_of_birth' => $personnel->date_of_birth,
+            'place_of_birth' => $personnel->place_of_birth,
+            'citizenship' => $personnel->citizenship,
+            'civil_status' => $personnel->civil_status,
+            'sex' => $personnel->sex,
+            'blood_type' => $personnel->blood_type,
+            'height' => $personnel->height,
+            'weight' => $personnel->weight,
+            'email' => $personnel->email,
+            'tel_no' => $personnel->tel_no,
+            'mobile_no' => $personnel->mobile_no,
+        ];
+
+        // Work Information
+        $workInfo = [
+            'position' => $personnel->position->title ?? 'N/A',
+            'classification' => $personnel->position->classification ?? 'N/A',
+            'school' => $personnel->school->school_name ?? 'N/A',
+            'school_id' => $personnel->school->school_id ?? 'N/A',
+            'category' => $personnel->category,
+            'job_status' => $personnel->job_status,
+            'appointment' => $personnel->appointment,
+            'employment_start' => $personnel->employment_start,
+            'employment_end' => $personnel->employment_end,
+            'fund_source' => $personnel->fund_source,
+            'salary_grade' => $personnel->salary_grade_id,
+            'step_increment' => $personnel->step_increment,
+            'leave_of_absence_without_pay_count' => $personnel->leave_of_absence_without_pay_count,
+        ];
+
+        // Government Information
+        $governmentInfo = [
+            'tin' => $personnel->tin,
+            'sss_num' => $personnel->sss_num,
+            'gsis_num' => $personnel->gsis_num,
+            'philhealth_num' => $personnel->philhealth_num,
+            'pagibig_num' => $personnel->pagibig_num,
+            'pantilla_of_personnel' => $personnel->pantilla_of_personnel,
+        ];
+
+        // Address Information
+        $addresses = $personnel->addresses()->get();
+
+        // Contact Person Information
+        $contactPersons = $personnel->contactPerson()->get();
+
+        // Family Information
+        $familyMembers = $personnel->families()->get();
+
+        // Education Information
+        $education = $personnel->educations()->orderBy('type')->get();
+
+        // Civil Service Eligibility
+        $civilServiceEligibility = $personnel->civilServiceEligibilities()->get();
+
+        // Work Experience
+        $workExperience = $personnel->workExperiences()->orderBy('inclusive_from', 'desc')->get();
+
+        // Voluntary Work
+        $voluntaryWork = $personnel->voluntaryWorks()->orderBy('inclusive_from', 'desc')->get();
+
+        // Training and Certifications
+        $trainingCertifications = $personnel->trainingCertifications()->orderBy('inclusive_from', 'desc')->get();
+
+        // References
+        $references = $personnel->references()->get();
+
+        // Assignment Details
+        $assignmentDetails = $personnel->assignmentDetails()->orderBy('school_year', 'desc')->get();
+
+        // Awards Received
+        // Fix: Specify the correct table name for the AwardReceived model
+        $awardsReceived = \App\Models\AwardReceived::query()
+            ->where('personnel_id', $personnel->id)
+            ->orderBy('award_date', 'desc')
+            ->get();
+
+        // Service Records
+        $serviceRecords = $personnel->serviceRecords()->orderBy('from_date', 'desc')->get();
+
+        // Other Information
+        $otherInformation = $personnel->otherInformations()->get();
+
+        // Personnel Details (Special Cases)
+        $personnelDetails = $personnel->personnelDetail()->first();
+
+        // Calculate years of service
+        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
+
+        // Loyalty Award Information
+        $canClaimLoyaltyAward = $this->canClaimLoyaltyAward($yearsOfService);
+        $maxClaims = $this->calculateMaxClaims($yearsOfService);
+        $nextAwardYear = $this->getNextAwardYear($yearsOfService);
+
+        // Recent Events (if any)
+        $recentEvents = \App\Models\Event::where('status', 'active')
+            ->where('start_date', '>=', now()->toDateString())
+            ->orderBy('start_date', 'asc')
+            ->take(5)
+            ->get();
+
+        // Salary Information
+        $salaryInfo = [
+            'current_salary_grade' => $personnel->salary_grade_id,
+            'step_increment' => $personnel->step_increment,
+            'years_of_service' => $yearsOfService,
+        ];
+
+        // Recent Salary Changes
+        $recentSalaryChanges = \App\Models\SalaryChange::where('personnel_id', $personnel->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Teacher's leave requests history
+        $leaveRequests = LeaveRequest::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Calculate years of service for leave calculations
+        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
+        $baseLeaveCredits = $yearsOfService * 15; // 15 days per year of service
+
+        // Teacher leave data (calculated based on years of service)
+        $teacherLeaveData = [
+            [
+                'type' => 'Personal Leave',
+                'description' => 'Based on years of service',
+                'max' => $baseLeaveCredits,
+                'available' => $baseLeaveCredits,
+                'used' => 0,
+                'color' => 'blue'
+            ],
+            [
+                'type' => 'Sick Leave',
+                'description' => 'Based on years of service',
+                'max' => $baseLeaveCredits,
+                'available' => $baseLeaveCredits,
+                'used' => 0,
+                'color' => 'emerald'
+            ],
+            [
+                'type' => 'Maternity Leave',
+                'description' => '105 days, +15 for solo parent',
+                'max' => $personnel->is_solo_parent ? 120 : 105,
+                'available' => $personnel->is_solo_parent ? 120 : 105,
+                'used' => 0,
+                'color' => 'pink'
+            ],
+            [
+                'type' => 'Rehabilitation Leave',
+                'description' => 'In case of accident in line of duty',
+                'max' => 180,
+                'available' => 180,
+                'used' => 0,
+                'color' => 'red'
+            ],
+            [
+                'type' => 'Solo Parent Leave',
+                'description' => 'Annual leave for solo parents',
+                'max' => 7,
+                'available' => $personnel->is_solo_parent ? 7 : 0,
+                'used' => 0,
+                'color' => 'amber'
+            ],
+            [
+                'type' => 'Study Leave',
+                'description' => 'For approved educational pursuits',
+                'max' => 180,
+                'available' => 180,
+                'used' => 0,
+                'color' => 'indigo'
+            ]
+        ];
+
+        $year = now()->year;
+
+        return view('teacher.dashboard', compact(
+            'personalInfo',
+            'workInfo',
+            'governmentInfo',
+            'addresses',
+            'contactPersons',
+            'familyMembers',
+            'education',
+            'civilServiceEligibility',
+            'workExperience',
+            'voluntaryWork',
+            'trainingCertifications',
+            'references',
+            'assignmentDetails',
+            'awardsReceived',
+            'serviceRecords',
+            'otherInformation',
+            'personnelDetails',
+            'yearsOfService',
+            'canClaimLoyaltyAward',
+            'maxClaims',
+            'nextAwardYear',
+            'recentEvents',
+            'salaryInfo',
+            'recentSalaryChanges',
+            'leaveRequests',
+            'teacherLeaveData',
+            'year'
+        ));
+    }
+    // public function nonTeachingDashboard()
+    // {
+    //     $user = Auth::user();
+    //     $personnel = $user->personnel;
+
+    //     // Personal Information
+    //     $personalInfo = [
+    //         'full_name' => $personnel->first_name . ' ' . $personnel->middle_name . ' ' . $personnel->last_name . ' ' . $personnel->name_ext,
+    //         'personnel_id' => $personnel->personnel_id,
+    //         'date_of_birth' => $personnel->date_of_birth,
+    //         'place_of_birth' => $personnel->place_of_birth,
+    //         'citizenship' => $personnel->citizenship,
+    //         'civil_status' => $personnel->civil_status,
+    //         'sex' => $personnel->sex,
+    //         'blood_type' => $personnel->blood_type,
+    //         'height' => $personnel->height,
+    //         'weight' => $personnel->weight,
+    //         'email' => $personnel->email,
+    //         'tel_no' => $personnel->tel_no,
+    //         'mobile_no' => $personnel->mobile_no,
+    //     ];
+
+    //     // Limited Work Information (basic placement context)
+    //     $workInfo = [
+    //         'position' => $personnel->position->title ?? 'N/A',
+    //         'classification' => $personnel->position->classification ?? 'N/A',
+    //         'school' => $personnel->school->school_name ?? 'N/A',
+    //         'school_id' => $personnel->school->school_id ?? 'N/A',
+    //         'job_status' => $personnel->job_status,
+    //         'appointment' => $personnel->appointment,
+    //         'employment_start' => $personnel->employment_start,
+    //         'employment_end' => $personnel->employment_end,
+    //     ];
+
+    //     // Recent Events (optional common info)
+    //     $recentEvents = \App\Models\Event::where('status', 'active')
+    //         ->where('start_date', '>=', now()->toDateString())
+    //         ->orderBy('start_date', 'asc')
+    //         ->take(5)
+    //         ->get();
+
+    //     return view('non_teaching.dashboard', compact(
+    //         'personalInfo',
+    //         'workInfo',
+    //         'recentEvents'
+    //     ));
+    // }
 
     // Helper methods for loyalty award calculations
     private function calculateYearsOfService($employmentStart)
