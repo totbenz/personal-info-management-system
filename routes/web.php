@@ -10,6 +10,7 @@ use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\SalaryGradeController;
 use App\Http\Controllers\SalaryStepController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ServiceCreditRequestController;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -20,17 +21,17 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\SalaryChangesController;
 
 Route::middleware('guest')->group(function () {
-    Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
+    Route::controller('App\\Http\\Controllers\\Auth\\LoginController'::class)->group(function () {
         Route::get('/login', 'login')->name('login');
         Route::post('/authenticate', 'authenticate')->name('authenticate');
     });
 });
 
-Route::controller('App\Http\Controllers\Auth\LoginController'::class)->group(function () {
+Route::controller('App\\Http\\Controllers\\Auth\\LoginController'::class)->group(function () {
     Route::get('logout', 'logout')->middleware('auth')->name('logout');
 });
 
-Route::controller('App\Http\Controllers\Auth\RegisterController'::class)->group(function () {
+Route::controller('App\\Http\\Controllers\\Auth\\RegisterController'::class)->group(function () {
     Route::get('/register', 'register')->name('register');
     Route::post('/store', 'store')->name('store');
 });
@@ -40,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
         $user = Auth::user();
         if ($user->role === 'teacher') {
             return redirect()->route('teacher.dashboard');
+        } elseif ($user->role === 'non_teaching') {
+            return redirect()->route('non_teaching.dashboard');
         } elseif ($user->role === 'school_head') {
             return redirect()->route('schools.profile', ['school' => $user->personnel->school]);
         } elseif ($user->role === 'admin') {
@@ -49,16 +52,30 @@ Route::middleware(['auth'])->group(function () {
         }
     });
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
-    // PERSONNEL ACCESS
+    // PERSONNEL ACCESS - TEACHER
     Route::middleware(['user-access:teacher'])->group(function () {
         Route::get('/teacher-dashboard', [HomeController::class, 'teacherDashboard'])->name('teacher.dashboard');
         Route::get('profile/{personnel}', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
-        
+
         // Service Credit Routes
-        Route::post('/service-credit-request', [App\Http\Controllers\ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
+        Route::post('/service-credit-request', [ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
+
+        // Leave request submission
+        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+    });
+
+    // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
+    Route::middleware(['user-access:non_teaching'])->group(function () {
+        Route::get('/non-teaching-dashboard', [HomeController::class, 'nonTeachingDashboard'])->name('non_teaching.dashboard');
+        Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile2');
+        Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
+        Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
+
+        // Service Credit Routes
+        Route::post('/service-credit-request', [ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');

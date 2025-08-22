@@ -11,7 +11,7 @@
                 <h2 class="font-bold text-xl text-gray-900 leading-tight">
                     {{ $personalInfo['full_name'] }}
                 </h2>
-                <p class="text-sm text-gray-600">Teacher Dashboard - Personal Information</p>
+                <p class="text-sm text-gray-600">Non Teaching Dashboard - Personal Information</p>
             </div>
         </div>
     </x-slot>
@@ -106,7 +106,7 @@
             </div>
 
             <!-- Work Information Card -->
-             <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
+            <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -mr-16 -mt-16"></div>
                 <div class="relative">
                     <div class="flex items-center justify-between mb-6">
@@ -189,10 +189,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Government Information Card -->
-             <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
+            <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-pink-500/10 rounded-full -mr-16 -mt-16"></div>
                 <div class="relative">
                     <div class="flex items-center justify-between mb-6">
@@ -264,7 +264,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Available Leaves Section -->
             @php
