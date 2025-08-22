@@ -16,11 +16,18 @@
             </div>
 
             <div class="mt-4">
-                <x-input id="email" label="Email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+                    <x-input id="email" label="Email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+                    @if ($errors->has('email') && old('email'))
+                        <span class="text-xs text-red-600">{{ $errors->first('email') }}</span>
+                    @endif
             </div>
 
             <div class="mt-4">
                 <x-input id="password" label="Password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+                    @if ($errors->has('password'))
+                        <span class="text-xs text-red-600">{{ $errors->first('password') }}</span>
+                    @endif
+                    <span id="password-requirements-error" class="text-xs text-red-600" style="display:none;"></span>
             </div>
 
             <div class="mt-4">
@@ -51,15 +58,41 @@
                     const password = document.getElementById('password');
                     const confirm = document.getElementById('password_confirmation');
                     const errorMsg = document.getElementById('password-match-error');
+                        const requirementsError = document.getElementById('password-requirements-error');
+                        function checkPasswordRequirements(pw) {
+                            const requirements = [
+                                { regex: /.{8,}/, message: 'At least 8 characters.' },
+                                { regex: /[A-Z]/, message: 'At least one uppercase letter.' },
+                                { regex: /[a-z]/, message: 'At least one lowercase letter.' },
+                                { regex: /[0-9]/, message: 'At least one number.' },
+                                { regex: /[^A-Za-z0-9]/, message: 'At least one special character.' }
+                            ];
+                            let failed = requirements.filter(r => !r.regex.test(pw));
+                                if (password === document.activeElement && pw.length > 0 && failed.length > 0) {
+                                    requirementsError.style.display = 'block';
+                                    requirementsError.textContent = 'Password must have: ' + failed.map(f => f.message).join(' ');
+                                } else {
+                                    requirementsError.style.display = 'none';
+                                }
+                        }
                     function checkMatch() {
                         if (confirm.value.length > 0 && password.value !== confirm.value) {
                             errorMsg.style.display = 'block';
                         } else {
                             errorMsg.style.display = 'none';
                         }
+                            checkPasswordRequirements(password.value);
                     }
                     password.addEventListener('input', checkMatch);
                     confirm.addEventListener('input', checkMatch);
+                        password.addEventListener('focus', function() {
+                            checkPasswordRequirements(password.value);
+                        });
+                        password.addEventListener('blur', function() {
+                            requirementsError.style.display = 'none';
+                        });
+                        // Initial check in case of autofill
+                        requirementsError.style.display = 'none';
                 });
             </script>
     </x-card>

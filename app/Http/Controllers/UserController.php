@@ -66,17 +66,21 @@ class UserController extends Controller
                 'role' => 'required'
             ]);
 
-            $user = User::findOrFail($id);
-            $personnel = Personnel::where('personnel_id', $request->personnel_id)->firstOrFail();
-
-            $user->update([
-                'personnel_id' => $personnel->id,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => $request->role,
-            ]);
-
-            $message = 'User Data Updated Successfully';
+                $personnel = Personnel::where('personnel_id', $request->personnel_id)->firstOrFail();
+                // Prevent duplicate account creation for the same personnel
+                if ($personnel->user) {
+                    $message = 'This personnel already has an account.';
+                    $bannerStyle = 'danger';
+                } else {
+                    User::create([
+                        'personnel_id' => $personnel->id,
+                        'email' => $request->email,
+                        'password' => Hash::make($request->password),
+                        'role' => $request->role,
+                    ]);
+                    $message = 'User Data Added Successfully';
+                    $bannerStyle = 'success';
+                }
             $bannerStyle = 'success';
 
         } catch (ValidationException $e) {

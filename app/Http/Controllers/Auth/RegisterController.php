@@ -29,6 +29,11 @@ class RegisterController extends Controller
             try {
                 $personnel = Personnel::where('personnel_id', $request->personnel_id)->firstOrFail();
 
+                // Prevent duplicate account creation for the same personnel
+                if ($personnel->user) {
+                    return redirect()->back()->withErrors(['personnel_id' => 'This personnel already has an account.']);
+                }
+
                 $user = $personnel->user()->create([
                     'personnel_id' => $personnel->id,
                     'email' => $request->email,
