@@ -24,6 +24,13 @@ class LeaveRequestController extends Controller
 
         $user = Auth::user();
         
+        // General validation for all users: Check if male users are trying to request Maternity Leave
+        if ($request->leave_type === 'Maternity Leave' && $user->personnel && $user->personnel->sex === 'male') {
+            return redirect()->back()
+                ->withErrors(['leave_type' => 'Maternity Leave is not available for male personnel.'])
+                ->withInput();
+        }
+        
         // If this is a school head, check leave balance before allowing submission
         if ($user->role === 'school_head') {
             $personnel = $user->personnel;
@@ -73,6 +80,12 @@ class LeaveRequestController extends Controller
                             ->withInput();
                     }
                 } elseif ($request->leave_type === 'Maternity Leave') {
+                    // Check if the user is female
+                    if ($personnel->sex !== 'female') {
+                        return redirect()->back()
+                            ->withErrors(['leave_type' => 'Maternity Leave is only available for female personnel.'])
+                            ->withInput();
+                    }
                     $maxDays = $personnel->is_solo_parent ? 120 : 105;
                     if ($requestedDays > $maxDays) {
                         return redirect()->back()
@@ -255,7 +268,8 @@ class LeaveRequestController extends Controller
 
         $currentYear = now()->year;
         $soloParent = $personnel->is_solo_parent ?? false;
-        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent);
+        $userSex = $personnel->sex ?? null;
+        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent, $userSex);
 
         foreach ($defaultLeaves as $leaveType => $maxDays) {
             // Check if record exists for this leave type and year

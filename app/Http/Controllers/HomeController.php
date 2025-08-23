@@ -105,7 +105,8 @@ class HomeController extends Controller
         // School Head Leaves
         $year = now()->year;
         $soloParent = $schoolHead->is_solo_parent ?? false;
-        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent);
+        $userSex = $schoolHead->sex ?? null;
+        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent, $userSex);
 
         // Ensure all leave type records exist for this school head and year
         foreach ($defaultLeaves as $leaveType => $maxDays) {

@@ -13,7 +13,8 @@ class SchoolHeadLeaveController extends Controller
         $schoolHead = Auth::user()->personnel;
         $year = $request->input('year', Carbon::now()->year);
         $soloParent = $schoolHead->is_solo_parent ?? false;
-        $defaultLeaves = SchoolHeadLeave::defaultLeaves($soloParent);
+        $userSex = $schoolHead->sex ?? null;
+        $defaultLeaves = SchoolHeadLeave::defaultLeaves($soloParent, $userSex);
 
         $leaves = SchoolHeadLeave::where('school_head_id', $schoolHead->id)
             ->where('year', $year)

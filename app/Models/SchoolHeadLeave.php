@@ -19,18 +19,24 @@ class SchoolHeadLeave extends Model
         'remarks',
     ];
 
-    public static function defaultLeaves($soloParent = false)
+    public static function defaultLeaves($soloParent = false, $userSex = null)
     {
-        return [
+        $leaves = [
             'Vacation Leave' => 15,
             'Sick Leave' => 15,
             'Special Privilege Leave' => 3,
             'Force Leave' => 5,
             'Compensatory Time Off' => 0,
-            'Maternity Leave' => $soloParent ? 120 : 105,
             'Rehabilitation Leave' => 180,
             'Solo Parent Leave' => 7,
             'Study Leave' => 180,
         ];
+
+        // Only add Maternity Leave for female users
+        if ($userSex === 'female') {
+            $leaves['Maternity Leave'] = $soloParent ? 120 : 105;
+        }
+
+        return $leaves;
     }
 }

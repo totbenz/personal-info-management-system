@@ -277,9 +277,17 @@
             'Study Leave' => 'indigo',
             ];
 
+            // Get user gender to filter maternity leave for male users
+            $userSex = Auth::user()->personnel->sex ?? null;
+            
+            // Filter leave data to exclude maternity leave for male users
+            $filteredTeacherLeaveData = array_filter($teacherLeaveData, function($leave) use ($userSex) {
+                return !($leave['type'] === 'Maternity Leave' && $userSex === 'male');
+            });
+
             // Create an array of leave balances for JavaScript access
             $leaveBalances = [];
-            foreach($teacherLeaveData as $leave) {
+            foreach($filteredTeacherLeaveData as $leave) {
             $leaveBalances[$leave['type']] = $leave['available'];
             }
             @endphp
@@ -309,7 +317,7 @@
                 </div>
                 <div id="leavesContent" class="transition-all duration-300">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($teacherLeaveData as $leave)
+                        @foreach($filteredTeacherLeaveData as $leave)
                         <div class="group flex flex-col justify-between p-4 bg-gradient-to-br from-{{ $colors[$leave['type']] ?? 'gray' }}-50 to-{{ $colors[$leave['type']] ?? 'gray' }}-100/50 rounded-xl border border-{{ $colors[$leave['type']] ?? 'gray' }}-200/50 hover:shadow-md transition-all duration-200">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
@@ -363,7 +371,7 @@
                                 <label for="leave_type" class="block text-sm font-medium text-gray-700">Type of Leave</label>
                                 <select name="leave_type" id="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                     <option value="">Select type</option>
-                                    @foreach($teacherLeaveData as $leave)
+                                    @foreach($filteredTeacherLeaveData as $leave)
                                     @if($leave['available'] > 0 || $leave['available'] === '0')
                                     <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">
                                         {{ $leave['type'] }} ({{ $leave['available'] }} days available)
