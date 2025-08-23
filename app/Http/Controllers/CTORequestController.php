@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CTORequest;
 use App\Models\Personnel;
 use App\Models\SchoolHeadLeave;
+use App\Services\CTOService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +13,12 @@ use Carbon\Carbon;
 
 class CTORequestController extends Controller
 {
+    protected $ctoService;
+
+    public function __construct(CTOService $ctoService)
+    {
+        $this->ctoService = $ctoService;
+    }
     /**
      * Store a new CTO request
      */
@@ -123,7 +130,7 @@ class CTORequestController extends Controller
                 'admin_notes' => $request->admin_notes,
             ]);
 
-            // Add CTO to school head's leave balance
+            // Add CTO to school head's leave balance using the new CTO service
             $this->addCTOToLeaveBalance($ctoRequest);
 
             Log::info('CTO request approved', [
@@ -193,7 +200,7 @@ class CTORequestController extends Controller
     }
 
     /**
-     * Add approved CTO to school head's leave balance
+     * Add approved CTO to school head's leave balance using the new CTO service
      */
     private function addCTOToLeaveBalance(CTORequest $ctoRequest)
     {
@@ -201,7 +208,10 @@ class CTORequestController extends Controller
         $currentYear = now()->year;
         $ctoDaysEarned = $ctoRequest->cto_days_earned;
 
-        // Find or create the CTO leave record for the current year
+        // Create individual CTO entry with expiration date using the new service
+        $this->ctoService->createCTOEntry($ctoRequest);
+
+        // Update the legacy SchoolHeadLeave record for backward compatibility
         $ctoLeaveRecord = SchoolHeadLeave::where('school_head_id', $personnel->id)
             ->where('leave_type', 'Compensatory Time Off')
             ->where('year', $currentYear)
@@ -220,22 +230,14 @@ class CTORequestController extends Controller
             ]);
         }
 
-        // Update the CTO balance
-        $previousCTOsEarned = $ctoLeaveRecord->ctos_earned;
-        $previousAvailable = $ctoLeaveRecord->available;
+        // Update the CTO balance using the service
+        $this->ctoService->updateSchoolHeadLeaveBalance($personnel->id);
 
-        $ctoLeaveRecord->ctos_earned += $ctoDaysEarned;
-        $ctoLeaveRecord->available += $ctoDaysEarned;
-        $ctoLeaveRecord->save();
-
-        Log::info('CTO balance updated', [
+        Log::info('CTO balance updated with new service', [
             'personnel_id' => $personnel->id,
             'cto_request_id' => $ctoRequest->id,
-            'previous_ctos_earned' => $previousCTOsEarned,
-            'new_ctos_earned' => $ctoLeaveRecord->ctos_earned,
-            'previous_available' => $previousAvailable,
-            'new_available' => $ctoLeaveRecord->available,
-            'days_added' => $ctoDaysEarned
+            'days_added' => $ctoDaysEarned,
+            'expiry_date' => now()->addYear()->toDateString()
         ]);
     }
 

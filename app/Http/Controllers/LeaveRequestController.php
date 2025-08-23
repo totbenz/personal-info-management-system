@@ -6,12 +6,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\LeaveRequest;
+use App\Services\CTOService;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class LeaveRequestController extends Controller
 {
+    protected $ctoService;
+
+    public function __construct(CTOService $ctoService)
+    {
+        $this->ctoService = $ctoService;
+    }
     // User requests leave
     public function store(Request $request)
     {
@@ -200,6 +207,26 @@ class LeaveRequestController extends Controller
         // Update work info: set job_status to leave type
         $personnel->job_status = $leave->leave_type;
         $personnel->save();
+
+        // Handle CTO leave using the new CTO service
+        if ($leave->leave_type === 'Compensatory Time Off') {
+            try {
+                $this->ctoService->handleCTOLeaveRequest($leave);
+                Log::info("CTO leave processed using new service", [
+                    'leave_request_id' => $leave->id,
+                    'personnel_id' => $personnel->id,
+                    'leave_days' => $leaveDays
+                ]);
+                return; // Exit early since CTO service handles the balance update
+            } catch (\Exception $e) {
+                Log::error("Failed to process CTO leave using new service", [
+                    'leave_request_id' => $leave->id,
+                    'personnel_id' => $personnel->id,
+                    'error' => $e->getMessage()
+                ]);
+                // Fall back to legacy method below
+            }
+        }
 
         // Get current year
         $currentYear = now()->year;

@@ -102,6 +102,10 @@ class HomeController extends Controller
         $user = Auth::user();
         $schoolHead = $user->personnel;
         $school = $schoolHead->school;
+        
+        // Initialize CTO service for enhanced CTO management
+        $ctoService = app(\App\Services\CTOService::class);
+        
         // School Head Leaves
         $year = now()->year;
         $soloParent = $schoolHead->is_solo_parent ?? false;
@@ -124,6 +128,9 @@ class HomeController extends Controller
             );
         }
 
+        // Update CTO balance using the new service
+        $ctoService->updateSchoolHeadLeaveBalance($schoolHead->id);
+
         // Get existing leave records for this year (now they should all exist)
         $leaves = \App\Models\SchoolHeadLeave::where('school_head_id', $schoolHead->id)
             ->where('year', $year)
@@ -142,6 +149,9 @@ class HomeController extends Controller
                 'remarks' => $leave ? $leave->remarks : '',
             ];
         }
+
+        // Get detailed CTO balance information
+        $ctoBalance = $ctoService->getCTOBalance($schoolHead->id);
 
         // School head's leave requests history
         $leaveRequests = LeaveRequest::where('user_id', $user->id)
@@ -287,6 +297,7 @@ class HomeController extends Controller
             'leaveData',
             'leaveRequests',
             'ctoRequests',
+            'ctoBalance',
             'year'
         ));
     }

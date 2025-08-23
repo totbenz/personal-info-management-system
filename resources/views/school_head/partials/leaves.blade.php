@@ -86,6 +86,97 @@
             </div>
             @endforeach
         </div>
+
+        <!-- CTO Details Section -->
+        @if(isset($ctoBalance) && !empty($ctoBalance['entries']))
+        <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-200/50 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        CTO Entries Details
+                    </h4>
+                    <p class="text-sm text-gray-600">Your earned compensatory time off with expiration dates</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Total Available</p>
+                    <p class="text-2xl font-bold text-teal-600">{{ number_format($ctoBalance['total_available'], 1) }} days</p>
+                </div>
+            </div>
+
+            @if($ctoBalance['expired_days'] > 0)
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <span class="text-sm text-red-800">
+                        <strong>{{ number_format($ctoBalance['expired_days'], 1) }} days</strong> of CTO have expired and are no longer available.
+                    </span>
+                </div>
+            </div>
+            @endif
+
+            <div class="space-y-3">
+                @foreach($ctoBalance['entries'] as $entry)
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ number_format($entry['days_remaining'], 1) }} days remaining
+                                    <span class="text-gray-500">(of {{ number_format($entry['days_earned'], 1) }} earned)</span>
+                                </p>
+                                <p class="text-xs text-gray-600">
+                                    Earned: {{ \Carbon\Carbon::parse($entry['earned_date'])->format('M d, Y') }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-900">
+                                    Expires: {{ \Carbon\Carbon::parse($entry['expiry_date'])->format('M d, Y') }}
+                                </p>
+                                @php
+                                    $daysUntilExpiry = $entry['days_until_expiry'];
+                                @endphp
+                                @if($daysUntilExpiry < 0)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        Expired
+                                    </span>
+                                @elseif($daysUntilExpiry <= 30)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        {{ $daysUntilExpiry }} days left
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        {{ $daysUntilExpiry }} days left
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-sm text-blue-800">
+                        <p class="font-medium mb-1">CTO Usage Policy:</p>
+                        <ul class="list-disc list-inside space-y-1 text-xs">
+                            <li>CTO days expire 1 year after they are earned</li>
+                            <li>When using CTO, the oldest earned days are used first (FIFO)</li>
+                            <li>Expired CTO days cannot be used and are automatically removed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
     <!-- Leave Request Modal (hidden by default) -->
     <div id="leaveRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">

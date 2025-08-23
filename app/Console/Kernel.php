@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('personnel:increment-step')->daily();
+        $schedule->command('cto:expire-old')->daily()->at('00:30');
     }
 
     /**
