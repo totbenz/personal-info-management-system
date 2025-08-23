@@ -364,8 +364,9 @@
             </div>
         </div>
 
-        <!-- Leave Approval Requests Table -->
-        <div id="leaveRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+    <!-- Leave Approval Requests Table -->
+    @if($pendingLeaveRequests->count() > 0)
+    <div id="leaveRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -603,10 +604,12 @@
                 </div>
                 @endif
             </div>
-        </div>
+    </div>
+    @endif
 
-        <!-- CTO Requests Section -->
-        <div id="ctoRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+    <!-- CTO Requests Section -->
+    @if($pendingCTORequests->count() > 0)
+    <div id="ctoRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -816,7 +819,8 @@
                 </div>
                 @endif
             </div>
-        </div>
+    </div>
+    @endif
 
         <!-- Loyalty Award Recipients Table -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10">
