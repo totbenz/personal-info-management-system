@@ -4,11 +4,12 @@
             @csrf
             <div>
                 <label for="personnel_id" class="block font-medium text-sm text-gray-700 mb-1">Employee ID</label>
+            
                 <x-select
                     name="personnel_id"
                     wire:model.live.debounce.300ms="selectedPersonnelId"
                     placeholder="Select a Employee ID"
-                    :async-data="route('api.personnel_list.index')"
+                    :async-data="route('api.personnel_list.index', ['without_accounts' => 1])"
                     option-label="personnel_id"
                     option-value="personnel_id"
                     option-description="full_name" 

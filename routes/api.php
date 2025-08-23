@@ -69,14 +69,31 @@ Route::get('/personnel-ids', function () {
 })->name('api.personnel_ids.index');
 
 Route::get('/personnel-list', function () {
-    return \App\Models\Personnel::select('personnel_id', 'first_name', 'last_name')
-        ->get()
-        ->map(function ($personnel) {
-            return [
-                'personnel_id' => $personnel->personnel_id,
-                'full_name' => $personnel->last_name . ', ' . $personnel->first_name,
-            ];
-        });
-})->name('api.personnel_list.index');
+    $query = \App\Models\Personnel::select('personnel_id', 'first_name', 'last_name');
 
+    // If requested, exclude personnels that already have a user/account
+    if (request('without_accounts')) {
+        $query->whereDoesntHave('user');
+    }
+
+    // Optional search filter (keeps behavior consistent with other endpoints)
+    if ($search = request('search')) {
+        $query->where(function ($q) use ($search) {
+            $q->where('personnel_id', 'like', "%{$search}%")
+              ->orWhere('first_name', 'like', "%{$search}%")
+              ->orWhere('last_name', 'like', "%{$search}%");
+        });
+    }
+
+    if ($selected = request('selected')) {
+        $query->where('personnel_id', $selected);
+    }
+
+    return $query->get()->map(function ($personnel) {
+        return [
+            'personnel_id' => $personnel->personnel_id,
+            'full_name' => $personnel->last_name . ', ' . $personnel->first_name,
+        ];
+    });
+})->name('api.personnel_list.index');
 
