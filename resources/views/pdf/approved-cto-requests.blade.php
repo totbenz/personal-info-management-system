@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Approved CTO Requests - {{ $month }} {{ $year }}</title>
+    <style>
+        @page {
+            size: legal landscape;
+            margin: 0.5in;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            font-weight: normal;
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .header h3 {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #1865a6;
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 11px;
+        }
+
+        .info-left, .info-right {
+            width: 48%;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        .requests-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9px;
+            margin-top: 10px;
+        }
+
+        .requests-table th,
+        .requests-table td {
+            border: 0.5px solid #333;
+            padding: 6px 3px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .requests-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            font-size: 8px;
+        }
+
+        .requests-table td {
+            font-size: 8px;
+        }
+
+        .requests-table .text-left {
+            text-align: left;
+        }
+
+        .role-badge {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 7px;
+            font-weight: bold;
+            color: white;
+            background-color: #8B5CF6;
+        }
+
+        .hours-badge {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 7px;
+            font-weight: bold;
+            color: white;
+            background-color: #3B82F6;
+        }
+
+        .days-badge {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 7px;
+            font-weight: bold;
+            color: white;
+            background-color: #10B981;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .footer-left {
+            width: 60%;
+        }
+
+        .footer-right {
+            width: 35%;
+            text-align: right;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            width: 30%;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #333;
+            margin-bottom: 5px;
+            height: 40px;
+        }
+
+        .total-summary {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1865a6;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1>Republic of the Philippines</h1>
+        <h1>Department of Education</h1>
+        <h2>Region VIII - Eastern Visayas</h2>
+        <h2>SCHOOLS DIVISION OF BAYBAY CITY</h2>
+        <h2>Brgy. Gaas, Baybay City, Leyte</h2>
+        <h3>APPROVED CTO REQUESTS REPORT</h3>
+    </div>
+
+    <!-- Report Information -->
+    <div class="info-section">
+        <div class="info-left">
+            <strong>Report Period:</strong> {{ $month }} {{ $year }}<br>
+            <strong>Total Approved Requests:</strong> {{ $totalRequests }}<br>
+            <strong>Report Type:</strong> Approved CTO Requests
+        </div>
+        <div class="info-right">
+            <strong>Generated On:</strong> {{ $generatedAt }}<br>
+            <strong>Generated By:</strong> System Administrator<br>
+            <strong>Status:</strong> Official Report
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="summary-stats">
+        <div class="stat-box">
+            <div class="stat-number">{{ $requests->count() }}</div>
+            <div>Total Requests</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ $requests->sum('requested_hours') }}</div>
+            <div>Total Hours</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ number_format($requests->sum('cto_days_earned'), 2) }}</div>
+            <div>Total Days Earned</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ $requests->unique('personnel.school.id')->count() }}</div>
+            <div>Schools Involved</div>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="table-container">
+        @if($requests->count() > 0)
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th style="width: 4%;">#</th>
+                    <th style="width: 18%;">Personnel Name</th>
+                    <th style="width: 18%;">School</th>
+                    <th style="width: 10%;">Work Date</th>
+                    <th style="width: 12%;">Work Hours</th>
+                    <th style="width: 8%;">CTO Hours</th>
+                    <th style="width: 8%;">Days Earned</th>
+                    <th style="width: 12%;">Reason</th>
+                    <th style="width: 12%;">Admin Notes</th>
+                    <th style="width: 10%;">Approved Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($requests as $index => $request)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="text-left">
+                        @if($request->personnel)
+                            {{ $request->personnel->first_name }} {{ $request->personnel->last_name }}
+                            @if($request->personnel->position)
+                                <br><small style="color: #666;">{{ $request->personnel->position->title }}</small>
+                            @endif
+                        @elseif($request->user)
+                            {{ $request->user->name }}
+                        @else
+                            N/A
+                        @endif
+                        <br><span class="role-badge">School Head</span>
+                    </td>
+                    <td class="text-left">
+                        @if($request->personnel && $request->personnel->school)
+                            {{ $request->personnel->school->school_name }}
+                            <br><small style="color: #666;">{{ $request->personnel->school->school_id }}</small>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td>
+                        {{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}
+                        <br><small style="color: #666;">{{ \Carbon\Carbon::parse($request->work_date)->format('l') }}</small>
+                    </td>
+                    <td>
+                        {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }}
+                        <br>to {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
+                    </td>
+                    <td>
+                        <span class="hours-badge">{{ $request->requested_hours }}h</span>
+                    </td>
+                    <td>
+                        <span class="days-badge">{{ number_format($request->cto_days_earned, 2) }}</span>
+                    </td>
+                    <td class="text-left" style="font-size: 7px;">
+                        {{ \Illuminate\Support\Str::limit($request->reason, 40) }}
+                    </td>
+                    <td class="text-left" style="font-size: 7px;">
+                        @if($request->admin_notes)
+                            {{ \Illuminate\Support\Str::limit($request->admin_notes, 40) }}
+                        @else
+                            <span style="color: #999;">No notes</span>
+                        @endif
+                    </td>
+                    <td>
+                        {{ $request->updated_at->format('M d, Y') }}
+                        <br><small>{{ $request->updated_at->format('g:i A') }}</small>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @else
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <h3>No Approved CTO Requests Found</h3>
+            <p>No CTO requests were approved during {{ $month }} {{ $year }}</p>
+        </div>
+        @endif
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <div class="footer-left">
+            <strong>Note:</strong> This report contains all CTO requests that were approved during the specified period.
+            CTO (Compensatory Time Off) requests are typically submitted by School Heads for additional work hours.
+            All data has been verified for accuracy and completeness.
+        </div>
+        <div class="footer-right">
+            <strong>Page 1 of 1</strong><br>
+            Generated by PIMS v1.0
+        </div>
+    </div>
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <strong>Prepared by:</strong><br>
+            System Administrator<br>
+            {{ $generatedAt }}
+        </div>
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <strong>Reviewed by:</strong><br>
+            Administrative Officer VI (HRMO II)<br>
+            Date: ________________
+        </div>
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <strong>Approved by:</strong><br>
+            Schools Division Superintendent<br>
+            Date: ________________
+        </div>
+    </div>
+</body>
+
+</html>

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use App\Models\SalaryGrade;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
@@ -65,6 +67,18 @@ class HomeController extends Controller
             ->take(10)
             ->get();
 
+        // Approved leave requests from all roles
+        $approvedLeaveRequests = LeaveRequest::where('status', 'approved')
+            ->with(['user.personnel.school', 'user.personnel.position'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // Approved CTO requests from all roles
+        $approvedCTORequests = \App\Models\CTORequest::where('status', 'approved')
+            ->with(['personnel.school', 'personnel.position', 'user'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
         return view('dashboard', compact(
             'personnelCount',
             'schoolCount',
@@ -78,6 +92,8 @@ class HomeController extends Controller
             'schoolsPerDivision',
             'pendingLeaveRequests',
             'pendingCTORequests',
+            'approvedLeaveRequests',
+            'approvedCTORequests',
         ));
     }
 
@@ -816,5 +832,179 @@ class HomeController extends Controller
     {
         $personnel = Auth::user()->personnel->id;
         return view('personnel.show', ['personnel' => $personnel->id]);
+    }
+
+    /**
+     * Filter approved leave requests by month and year
+     */
+    public function filterApprovedLeaveRequests(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year', now()->year);
+
+        $query = LeaveRequest::where('status', 'approved')
+            ->with(['user.personnel.school', 'user.personnel.position']);
+
+        if ($month) {
+            $query->whereMonth('updated_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('updated_at', $year);
+        }
+
+        $approvedLeaveRequests = $query->orderBy('updated_at', 'desc')->get();
+
+        return response()->json([
+            'requests' => $approvedLeaveRequests->map(function ($request) {
+                return [
+                    'id' => $request->id,
+                    'personnel_name' => $request->user->personnel 
+                        ? $request->user->personnel->first_name . ' ' . $request->user->personnel->last_name 
+                        : $request->user->name,
+                    'personnel_initials' => $request->user->personnel 
+                        ? substr($request->user->personnel->first_name, 0, 1) . substr($request->user->personnel->last_name, 0, 1) 
+                        : substr($request->user->name, 0, 2),
+                    'position_title' => $request->user->personnel && $request->user->personnel->position 
+                        ? $request->user->personnel->position->title 
+                        : 'N/A',
+                    'role' => $request->user->role,
+                    'school_name' => $request->user->personnel && $request->user->personnel->school 
+                        ? $request->user->personnel->school->school_name 
+                        : 'N/A',
+                    'school_id' => $request->user->personnel && $request->user->personnel->school 
+                        ? $request->user->personnel->school->school_id 
+                        : 'N/A',
+                    'leave_type' => $request->leave_type,
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date,
+                    'days_count' => Carbon::parse($request->start_date)->diffInDays(Carbon::parse($request->end_date)) + 1,
+                    'updated_at' => $request->updated_at->format('M d, Y'),
+                    'updated_time' => $request->updated_at->format('g:i A'),
+                ];
+            }),
+            'count' => $approvedLeaveRequests->count()
+        ]);
+    }
+
+    /**
+     * Filter approved CTO requests by month and year
+     */
+    public function filterApprovedCTORequests(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year', now()->year);
+
+        $query = \App\Models\CTORequest::where('status', 'approved')
+            ->with(['personnel.school', 'personnel.position', 'user']);
+
+        if ($month) {
+            $query->whereMonth('updated_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('updated_at', $year);
+        }
+
+        $approvedCTORequests = $query->orderBy('updated_at', 'desc')->get();
+
+        return response()->json([
+            'requests' => $approvedCTORequests->map(function ($request) {
+                return [
+                    'id' => $request->id,
+                    'personnel_name' => $request->personnel 
+                        ? $request->personnel->first_name . ' ' . $request->personnel->last_name 
+                        : ($request->user ? $request->user->name : 'N/A'),
+                    'personnel_initials' => $request->personnel 
+                        ? substr($request->personnel->first_name, 0, 1) . substr($request->personnel->last_name, 0, 1) 
+                        : ($request->user ? substr($request->user->name, 0, 2) : 'N/A'),
+                    'position_title' => $request->personnel && $request->personnel->position 
+                        ? $request->personnel->position->title 
+                        : 'N/A',
+                    'school_name' => $request->personnel && $request->personnel->school 
+                        ? $request->personnel->school->school_name 
+                        : 'N/A',
+                    'school_id' => $request->personnel && $request->personnel->school 
+                        ? $request->personnel->school->school_id 
+                        : 'N/A',
+                    'work_date' => $request->work_date,
+                    'start_time' => Carbon::parse($request->start_time)->format('g:i A'),
+                    'end_time' => Carbon::parse($request->end_time)->format('g:i A'),
+                    'requested_hours' => $request->requested_hours,
+                    'cto_days_earned' => number_format($request->cto_days_earned, 2),
+                    'reason' => $request->reason,
+                    'admin_notes' => $request->admin_notes,
+                    'updated_at' => $request->updated_at->format('M d, Y'),
+                    'updated_time' => $request->updated_at->format('g:i A'),
+                ];
+            }),
+            'count' => $approvedCTORequests->count()
+        ]);
+    }
+
+    /**
+     * Download approved leave requests as PDF
+     */
+    public function downloadApprovedLeaveRequestsPDF(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year', now()->year);
+
+        $query = LeaveRequest::where('status', 'approved')
+            ->with(['user.personnel.school', 'user.personnel.position']);
+
+        if ($month) {
+            $query->whereMonth('updated_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('updated_at', $year);
+        }
+
+        $approvedLeaveRequests = $query->orderBy('updated_at', 'desc')->get();
+
+        $monthName = $month ? Carbon::create()->month($month)->format('F') : 'All Months';
+        $fileName = 'Approved_Leave_Requests_' . $monthName . '_' . $year . '.pdf';
+
+        $pdf = Pdf::loadView('pdf.approved-leave-requests', [
+            'requests' => $approvedLeaveRequests,
+            'month' => $monthName,
+            'year' => $year,
+            'generatedAt' => now()->format('F d, Y g:i A'),
+            'totalRequests' => $approvedLeaveRequests->count()
+        ]);
+
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Download approved CTO requests as PDF
+     */
+    public function downloadApprovedCTORequestsPDF(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year', now()->year);
+
+        $query = \App\Models\CTORequest::where('status', 'approved')
+            ->with(['personnel.school', 'personnel.position', 'user']);
+
+        if ($month) {
+            $query->whereMonth('updated_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('updated_at', $year);
+        }
+
+        $approvedCTORequests = $query->orderBy('updated_at', 'desc')->get();
+
+        $monthName = $month ? Carbon::create()->month($month)->format('F') : 'All Months';
+        $fileName = 'Approved_CTO_Requests_' . $monthName . '_' . $year . '.pdf';
+
+        $pdf = Pdf::loadView('pdf.approved-cto-requests', [
+            'requests' => $approvedCTORequests,
+            'month' => $monthName,
+            'year' => $year,
+            'generatedAt' => now()->format('F d, Y g:i A'),
+            'totalRequests' => $approvedCTORequests->count()
+        ]);
+
+        return $pdf->download($fileName);
     }
 }

@@ -138,6 +138,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['user-access:admin'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
 
+        // Approved requests filtering and PDF downloads
+        Route::get('/admin/approved-leave-requests/filter', [HomeController::class, 'filterApprovedLeaveRequests'])->name('admin.approved-leave-requests.filter');
+        Route::get('/admin/approved-cto-requests/filter', [HomeController::class, 'filterApprovedCTORequests'])->name('admin.approved-cto-requests.filter');
+        Route::get('/admin/approved-leave-requests/download-pdf', [HomeController::class, 'downloadApprovedLeaveRequestsPDF'])->name('admin.approved-leave-requests.download-pdf');
+        Route::get('/admin/approved-cto-requests/download-pdf', [HomeController::class, 'downloadApprovedCTORequestsPDF'])->name('admin.approved-cto-requests.download-pdf');
+
         // essential school and personnel-related routes
         Route::resource('positions', PositionController::class)->only('index', 'store', 'update', 'destroy');
         Route::delete('positions/{position}', [PositionController::class, 'deletePosition'])->name('positions.deletePosition');

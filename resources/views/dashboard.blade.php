@@ -364,9 +364,9 @@
             </div>
         </div>
 
-    <!-- Leave Approval Requests Table -->
-    @if($pendingLeaveRequests->count() > 0)
-    <div id="leaveRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+        <!-- Leave Approval Requests Table -->
+        @if($pendingLeaveRequests->count() > 0)
+        <div id="leaveRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -604,12 +604,12 @@
                 </div>
                 @endif
             </div>
-    </div>
-    @endif
+        </div>
+        @endif
 
-    <!-- CTO Requests Section -->
-    @if($pendingCTORequests->count() > 0)
-    <div id="ctoRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+        <!-- CTO Requests Section -->
+        @if($pendingCTORequests->count() > 0)
+        <div id="ctoRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -819,8 +819,327 @@
                 </div>
                 @endif
             </div>
-    </div>
-    @endif
+        </div>
+        @endif
+
+        <!-- Approved Leave Requests History Section -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 mr-10 ml-10 mb-8 overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
+                <div class="flex items-center justify-between">
+                    <div id="approvedLeaveHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-green-100/50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-200">Approved Leave Requests</h3>
+                            <p class="text-sm text-gray-600">All approved leave requests across all roles</p>
+                        </div>
+                        <svg id="approvedLeaveToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- Month/Year Filter -->
+                        <select id="leaveFilterMonth" class="text-xs border border-gray-300 rounded px-2 py-1">
+                            <option value="">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="leaveFilterYear" class="text-xs border border-gray-300 rounded px-2 py-1">
+                            @for($year = 2020; $year <= 2030; $year++)
+                            <option value="{{ $year }}" {{ $year == now()->year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                        <button id="filterLeaveRequests" class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                        <!-- PDF Download Button -->
+                        <button id="downloadLeavePDF" class="inline-flex items-center px-2 py-1 border border-green-300 shadow-sm text-xs font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            PDF
+                        </button>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            {{ isset($approvedLeaveRequests) ? $approvedLeaveRequests->count() : 0 }} Approved
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div id="approvedLeaveContent" class="transition-all duration-300">
+                @if(isset($approvedLeaveRequests) && $approvedLeaveRequests->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($approvedLeaveRequests as $index => $request)
+                                <tr class="hover:bg-green-50 transition-colors duration-200 {{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }}">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                                    <span class="text-xs font-medium text-white">
+                                                        @if($request->user->personnel)
+                                                            {{ substr($request->user->personnel->first_name, 0, 1) }}{{ substr($request->user->personnel->last_name, 0, 1) }}
+                                                        @else
+                                                            {{ substr($request->user->name, 0, 2) }}
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    @if($request->user->personnel)
+                                                        {{ $request->user->personnel->first_name }} {{ $request->user->personnel->last_name }}
+                                                    @else
+                                                        {{ $request->user->name }}
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    @if($request->user->personnel && $request->user->personnel->position)
+                                                        {{ $request->user->personnel->position->title ?? 'N/A' }}
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
+                                            @elseif($request->user->role === 'teacher') bg-blue-100 text-blue-800
+                                            @else bg-gray-100 text-gray-800 @endif">
+                                            {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        @if($request->user->personnel && $request->user->personnel->school)
+                                            <div class="text-sm text-gray-900">{{ $request->user->personnel->school->school_name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $request->user->personnel->school->school_id }}</div>
+                                        @else
+                                            <span class="text-gray-400">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ $request->leave_type }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div>{{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }}</div>
+                                        <div class="text-xs text-gray-500">to {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                                            {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $request->updated_at->format('M d, Y') }}
+                                        <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <p class="text-gray-500 text-lg">No approved leave requests found</p>
+                    <p class="text-gray-400 text-sm mt-1">Approved leave requests will appear here</p>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Approved CTO Requests History Section -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 mr-10 ml-10 mb-8 overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-white">
+                <div class="flex items-center justify-between">
+                    <div id="approvedCtoHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-teal-100/50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
+                        <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-200">Approved CTO Requests</h3>
+                            <p class="text-sm text-gray-600">All approved CTO requests across all roles</p>
+                        </div>
+                        <svg id="approvedCtoToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- Month/Year Filter -->
+                        <select id="ctoFilterMonth" class="text-xs border border-gray-300 rounded px-2 py-1">
+                            <option value="">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="ctoFilterYear" class="text-xs border border-gray-300 rounded px-2 py-1">
+                            @for($year = 2020; $year <= 2030; $year++)
+                            <option value="{{ $year }}" {{ $year == now()->year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                        <button id="filterCTORequests" class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                        <!-- PDF Download Button -->
+                        <button id="downloadCTOPDF" class="inline-flex items-center px-2 py-1 border border-teal-300 shadow-sm text-xs font-medium rounded-md text-teal-700 bg-teal-50 hover:bg-teal-100">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            PDF
+                        </button>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
+                            {{ isset($approvedCTORequests) ? $approvedCTORequests->count() : 0 }} Approved
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div id="approvedCtoContent" class="transition-all duration-300">
+                @if(isset($approvedCTORequests) && $approvedCTORequests->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Hours</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Hours</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Days Earned</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+                                    
+                                </tr> 
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($approvedCTORequests as $index => $request)
+                                <tr class="hover:bg-teal-50 transition-colors duration-200 {{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }}">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                                                    <span class="text-xs font-medium text-white">
+                                                        @if($request->personnel)
+                                                            {{ substr($request->personnel->first_name, 0, 1) }}{{ substr($request->personnel->last_name, 0, 1) }}
+                                                        @elseif($request->user)
+                                                            {{ substr($request->user->name, 0, 2) }}
+                                                        @else
+                                                            N/A
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    @if($request->personnel)
+                                                        {{ $request->personnel->first_name }} {{ $request->personnel->last_name }}
+                                                    @elseif($request->user)
+                                                        {{ $request->user->name }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    @if($request->personnel && $request->personnel->position)
+                                                        {{ $request->personnel->position->title ?? 'N/A' }}
+                                                    @endif
+                                                </div>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-1">
+                                                    School Head
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        @if($request->personnel && $request->personnel->school)
+                                            <div class="text-sm text-gray-900">{{ $request->personnel->school->school_name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $request->personnel->school->school_id }}</div>
+                                        @else
+                                            <span class="text-gray-400">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div class="font-medium">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
+                                        <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($request->work_date)->format('l') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div>{{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }}</div>
+                                        <div class="text-xs text-gray-500">to {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">
+                                            {{ $request->requested_hours }} hours
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800 font-medium">
+                                            {{ number_format($request->cto_days_earned, 2) }} days
+                                        </span>
+                                    </td>
+                                 
+                                 
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $request->updated_at->format('M d, Y') }}
+                                        <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
+                                    </td>
+                                    
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-gray-500 text-lg">No approved CTO requests found</p>
+                    <p class="text-gray-400 text-sm mt-1">Approved CTO requests will appear here</p>
+                </div>
+                @endif
+            </div>
+        </div>
 
         <!-- Loyalty Award Recipients Table -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10">
@@ -847,5 +1166,358 @@
     <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300" style="z-index:5;">
         @livewire('right-sidebar')
     </div>
+
+    <!-- JavaScript for History Section Toggle Feature -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Approved Leave Requests toggle functionality
+            var approvedLeaveHeaderToggle = document.getElementById('approvedLeaveHeaderToggle');
+            var approvedLeaveToggleIcon = document.getElementById('approvedLeaveToggleIcon');
+            var approvedLeaveContent = document.getElementById('approvedLeaveContent');
+            var isApprovedLeaveMinimized = localStorage.getItem('approvedLeaveMinimized') === 'true';
+
+            // Set initial state based on localStorage
+            if (isApprovedLeaveMinimized && approvedLeaveHeaderToggle && approvedLeaveContent) {
+                approvedLeaveContent.style.height = '0';
+                approvedLeaveContent.style.overflow = 'hidden';
+                approvedLeaveContent.style.opacity = '0';
+                approvedLeaveToggleIcon.style.transform = 'rotate(-90deg)';
+            }
+
+            if (approvedLeaveHeaderToggle && approvedLeaveContent) {
+                approvedLeaveHeaderToggle.addEventListener('click', function() {
+                    if (isApprovedLeaveMinimized) {
+                        // Expand
+                        approvedLeaveContent.style.height = 'auto';
+                        approvedLeaveContent.style.overflow = 'visible';
+                        approvedLeaveContent.style.opacity = '1';
+                        approvedLeaveToggleIcon.style.transform = 'rotate(0deg)';
+                        localStorage.setItem('approvedLeaveMinimized', 'false');
+                    } else {
+                        // Minimize
+                        approvedLeaveContent.style.height = '0';
+                        approvedLeaveContent.style.overflow = 'hidden';
+                        approvedLeaveContent.style.opacity = '0';
+                        approvedLeaveToggleIcon.style.transform = 'rotate(-90deg)';
+                        localStorage.setItem('approvedLeaveMinimized', 'true');
+                    }
+                    isApprovedLeaveMinimized = !isApprovedLeaveMinimized;
+                });
+            }
+
+            // Approved CTO Requests toggle functionality
+            var approvedCtoHeaderToggle = document.getElementById('approvedCtoHeaderToggle');
+            var approvedCtoToggleIcon = document.getElementById('approvedCtoToggleIcon');
+            var approvedCtoContent = document.getElementById('approvedCtoContent');
+            var isApprovedCtoMinimized = localStorage.getItem('approvedCtoMinimized') === 'true';
+
+            // Set initial state based on localStorage for approved CTO
+            if (isApprovedCtoMinimized && approvedCtoHeaderToggle && approvedCtoContent) {
+                approvedCtoContent.style.height = '0';
+                approvedCtoContent.style.overflow = 'hidden';
+                approvedCtoContent.style.opacity = '0';
+                approvedCtoToggleIcon.style.transform = 'rotate(-90deg)';
+            }
+
+            if (approvedCtoHeaderToggle && approvedCtoContent) {
+                approvedCtoHeaderToggle.addEventListener('click', function() {
+                    if (isApprovedCtoMinimized) {
+                        // Expand
+                        approvedCtoContent.style.height = 'auto';
+                        approvedCtoContent.style.overflow = 'visible';
+                        approvedCtoContent.style.opacity = '1';
+                        approvedCtoToggleIcon.style.transform = 'rotate(0deg)';
+                        localStorage.setItem('approvedCtoMinimized', 'false');
+                    } else {
+                        // Minimize
+                        approvedCtoContent.style.height = '0';
+                        approvedCtoContent.style.overflow = 'hidden';
+                        approvedCtoContent.style.opacity = '0';
+                        approvedCtoToggleIcon.style.transform = 'rotate(-90deg)';
+                        localStorage.setItem('approvedCtoMinimized', 'true');
+                    }
+                    isApprovedCtoMinimized = !isApprovedCtoMinimized;
+                });
+            }
+
+            // Filter functionality for approved leave requests
+            const filterLeaveRequests = document.getElementById('filterLeaveRequests');
+            const leaveFilterMonth = document.getElementById('leaveFilterMonth');
+            const leaveFilterYear = document.getElementById('leaveFilterYear');
+            const downloadLeavePDF = document.getElementById('downloadLeavePDF');
+
+            if (filterLeaveRequests) {
+                filterLeaveRequests.addEventListener('click', function() {
+                    const month = leaveFilterMonth.value;
+                    const year = leaveFilterYear.value;
+                    
+                    // Show loading state
+                    filterLeaveRequests.disabled = true;
+                    filterLeaveRequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
+
+                    fetch(`/admin/approved-leave-requests/filter?month=${month}&year=${year}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            updateLeaveRequestsTable(data);
+                            updateLeaveRequestsCount(data.count);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to filter requests. Please try again.');
+                        })
+                        .finally(() => {
+                            filterLeaveRequests.disabled = false;
+                            filterLeaveRequests.innerHTML = '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" /></svg>Filter';
+                        });
+                });
+            }
+
+            // PDF download for leave requests
+            if (downloadLeavePDF) {
+                downloadLeavePDF.addEventListener('click', function() {
+                    const month = leaveFilterMonth.value;
+                    const year = leaveFilterYear.value;
+                    const url = `/admin/approved-leave-requests/download-pdf?month=${month}&year=${year}`;
+                    window.open(url, '_blank');
+                });
+            }
+
+            // Filter functionality for approved CTO requests
+            const filterCTORequests = document.getElementById('filterCTORequests');
+            const ctoFilterMonth = document.getElementById('ctoFilterMonth');
+            const ctoFilterYear = document.getElementById('ctoFilterYear');
+            const downloadCTOPDF = document.getElementById('downloadCTOPDF');
+
+            if (filterCTORequests) {
+                filterCTORequests.addEventListener('click', function() {
+                    const month = ctoFilterMonth.value;
+                    const year = ctoFilterYear.value;
+                    
+                    // Show loading state
+                    filterCTORequests.disabled = true;
+                    filterCTORequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
+
+                    fetch(`/admin/approved-cto-requests/filter?month=${month}&year=${year}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            updateCTORequestsTable(data);
+                            updateCTORequestsCount(data.count);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to filter requests. Please try again.');
+                        })
+                        .finally(() => {
+                            filterCTORequests.disabled = false;
+                            filterCTORequests.innerHTML = '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" /></svg>Filter';
+                        });
+                });
+            }
+
+            // PDF download for CTO requests
+            if (downloadCTOPDF) {
+                downloadCTOPDF.addEventListener('click', function() {
+                    const month = ctoFilterMonth.value;
+                    const year = ctoFilterYear.value;
+                    const url = `/admin/approved-cto-requests/download-pdf?month=${month}&year=${year}`;
+                    window.open(url, '_blank');
+                });
+            }
+
+            // Helper functions to update tables
+            function updateLeaveRequestsTable(data) {
+                const tableContainer = document.querySelector('#approvedLeaveContent .overflow-x-auto');
+                if (!tableContainer) return;
+
+                if (data.requests.length === 0) {
+                    tableContainer.innerHTML = `
+                        <div class="text-center py-12">
+                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                            <p class="text-gray-500 text-lg">No approved leave requests found</p>
+                            <p class="text-gray-400 text-sm mt-1">No requests match the selected filters</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let tableHTML = `
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                `;
+
+                data.requests.forEach((request, index) => {
+                    const roleClass = request.role === 'school_head' ? 'bg-purple-100 text-purple-800' : 
+                                     request.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                    
+                    tableHTML += `
+                        <tr class="hover:bg-green-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                            <span class="text-xs font-medium text-white">${request.personnel_initials}</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">${request.personnel_name}</div>
+                                        <div class="text-sm text-gray-500">${request.position_title}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleClass}">
+                                    ${request.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <div class="text-sm text-gray-900">${request.school_name}</div>
+                                <div class="text-xs text-gray-500">${request.school_id}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${request.leave_type}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <div>${new Date(request.start_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</div>
+                                <div class="text-xs text-gray-500">to ${new Date(request.end_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                                    ${request.days_count} day(s)
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${request.updated_at}
+                                <div class="text-xs text-gray-500">${request.updated_time}</div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += '</tbody></table>';
+                tableContainer.innerHTML = tableHTML;
+            }
+
+            function updateCTORequestsTable(data) {
+                const tableContainer = document.querySelector('#approvedCtoContent .overflow-x-auto');
+                if (!tableContainer) return;
+
+                if (data.requests.length === 0) {
+                    tableContainer.innerHTML = `
+                        <div class="text-center py-12">
+                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-gray-500 text-lg">No approved CTO requests found</p>
+                            <p class="text-gray-400 text-sm mt-1">No requests match the selected filters</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let tableHTML = `
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Hours</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Hours</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Days Earned</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Notes</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                `;
+
+                data.requests.forEach((request, index) => {
+                    tableHTML += `
+                        <tr class="hover:bg-teal-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                                            <span class="text-xs font-medium text-white">${request.personnel_initials}</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">${request.personnel_name}</div>
+                                        <div class="text-sm text-gray-500">${request.position_title}</div>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-1">School Head</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <div class="text-sm text-gray-900">${request.school_name}</div>
+                                <div class="text-xs text-gray-500">${request.school_id}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <div class="font-medium">${new Date(request.work_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</div>
+                                <div class="text-xs text-gray-500">${new Date(request.work_date).toLocaleDateString('en-US', {weekday: 'long'})}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <div>${request.start_time}</div>
+                                <div class="text-xs text-gray-500">to ${request.end_time}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">
+                                    ${request.requested_hours} hours
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800 font-medium">
+                                    ${request.cto_days_earned} days
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <div class="max-w-xs">
+                                    <p class="truncate" title="${request.reason}">${request.reason.length > 40 ? request.reason.substring(0, 40) + '...' : request.reason}</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                ${request.admin_notes ? `<div class="max-w-xs"><p class="truncate text-gray-600 italic" title="${request.admin_notes}">${request.admin_notes.length > 40 ? request.admin_notes.substring(0, 40) + '...' : request.admin_notes}</p></div>` : '<span class="text-gray-400">No notes</span>'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${request.updated_at}
+                                <div class="text-xs text-gray-500">${request.updated_time}</div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += '</tbody></table>';
+                tableContainer.innerHTML = tableHTML;
+            }
+
+            function updateLeaveRequestsCount(count) {
+                const countElement = document.querySelector('#approvedLeaveHeaderToggle').parentElement.parentElement.querySelector('.bg-green-100');
+                if (countElement) {
+                    countElement.textContent = `${count} Approved`;
+                }
+            }
+
+            function updateCTORequestsCount(count) {
+                const countElement = document.querySelector('#approvedCtoHeaderToggle').parentElement.parentElement.querySelector('.bg-teal-100');
+                if (countElement) {
+                    countElement.textContent = `${count} Approved`;
+                }
+            }
+        });
+    </script>
 </x-app-layout>
     
