@@ -696,30 +696,14 @@ class HomeController extends Controller
 
         $year = now()->year;
 
-        return view('teacher.dashboard', compact(
+        return view('non_teaching.dashboard', compact(
             'personalInfo',
             'workInfo',
             'governmentInfo',
-            'addresses',
-            'contactPersons',
-            'familyMembers',
-            'education',
-            'civilServiceEligibility',
-            'workExperience',
-            'voluntaryWork',
-            'trainingCertifications',
-            'references',
-            'assignmentDetails',
-            'awardsReceived',
-            'serviceRecords',
-            'otherInformation',
-            'personnelDetails',
             'yearsOfService',
             'canClaimLoyaltyAward',
             'maxClaims',
-            'nextAwardYear',
             'recentEvents',
-            'salaryInfo',
             'recentSalaryChanges',
             'leaveRequests',
             'teacherLeaveData',
