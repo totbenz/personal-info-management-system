@@ -22,8 +22,8 @@ class SchoolHeadLeave extends Model
     public static function defaultLeaves($soloParent = false, $userSex = null)
     {
         $leaves = [
-            'Vacation Leave' => 15,
-            'Sick Leave' => 15,
+            'Vacation Leave' => 15, // Base amount, will accrue 1.25/month + 15/year
+            'Sick Leave' => 15,     // Base amount, will accrue 1.25/month + 15/year
             'Special Privilege Leave' => 3,
             'Force Leave' => 5,
             'Compensatory Time Off' => 0,

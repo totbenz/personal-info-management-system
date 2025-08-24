@@ -106,49 +106,48 @@ class HomeController extends Controller
         // Initialize CTO service for enhanced CTO management
         $ctoService = app(\App\Services\CTOService::class);
         
+        // Initialize Leave Accrual service for automatic leave calculation
+        $accrualService = app(\App\Services\SchoolHeadLeaveAccrualService::class);
+        
         // School Head Leaves
         $year = now()->year;
         $soloParent = $schoolHead->is_solo_parent ?? false;
         $userSex = $schoolHead->sex ?? null;
         $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent, $userSex);
 
-        // Ensure all leave type records exist for this school head and year
-        foreach ($defaultLeaves as $leaveType => $maxDays) {
-            \App\Models\SchoolHeadLeave::firstOrCreate(
-                [
-                    'school_head_id' => $schoolHead->id,
-                    'leave_type' => $leaveType,
-                    'year' => $year
-                ],
-                [
-                    'available' => $maxDays,
-                    'used' => 0,
-                    'remarks' => 'Auto-initialized'
-                ]
-            );
-        }
+        // Automatically update leave records with calculated accruals
+        $accrualService->updateLeaveRecords($schoolHead->id, $year);
 
         // Update CTO balance using the new service
         $ctoService->updateSchoolHeadLeaveBalance($schoolHead->id);
 
-        // Get existing leave records for this year (now they should all exist)
+        // Get existing leave records for this year (now they should all exist and be updated)
         $leaves = \App\Models\SchoolHeadLeave::where('school_head_id', $schoolHead->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
 
         $leaveData = [];
-        foreach ($defaultLeaves as $type => $max) {
+        foreach ($defaultLeaves as $type => $defaultMax) {
             $leave = $leaves->get($type);
+            $available = $leave ? $leave->available : $defaultMax;
+            $used = $leave ? $leave->used : 0;
+            
+            // Calculate dynamic max: if available exceeds default, use available + used as the new max
+            $calculatedMax = max($defaultMax, $available + $used);
+            
             $leaveData[] = [
                 'type' => $type,
-                'max' => $max,
-                'available' => $leave ? $leave->available : $max,
-                'used' => $leave ? $leave->used : 0,
+                'max' => $calculatedMax,
+                'available' => $available,
+                'used' => $used,
                 'ctos_earned' => $leave ? $leave->ctos_earned : 0,
                 'remarks' => $leave ? $leave->remarks : '',
             ];
         }
+
+        // Get accrual summary for display
+        $accrualSummary = $accrualService->getAccrualSummary($schoolHead->id, $year);
 
         // Get detailed CTO balance information
         $ctoBalance = $ctoService->getCTOBalance($schoolHead->id);
@@ -298,6 +297,7 @@ class HomeController extends Controller
             'leaveRequests',
             'ctoRequests',
             'ctoBalance',
+            'accrualSummary',
             'year'
         ));
     }
@@ -431,61 +431,51 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        // Calculate years of service for leave calculations
-        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
-        $baseLeaveCredits = $yearsOfService * 15; // 15 days per year of service
+        // Get teacher leave data from database
+        $year = now()->year;
+        $soloParent = $personnel->is_solo_parent ?? false;
+        $userSex = $personnel->sex ?? null;
+        $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex);
 
-        // Teacher leave data (calculated based on years of service)
-        $teacherLeaveData = [
-            [
-                'type' => 'Personal Leave',
-                'description' => 'Based on years of service',
-                'max' => $baseLeaveCredits,
-                'available' => $baseLeaveCredits,
-                'used' => 0,
-                'color' => 'blue'
-            ],
-            [
-                'type' => 'Sick Leave',
-                'description' => 'Based on years of service',
-                'max' => $baseLeaveCredits,
-                'available' => $baseLeaveCredits,
-                'used' => 0,
-                'color' => 'emerald'
-            ],
-            [
-                'type' => 'Maternity Leave',
-                'description' => '105 days, +15 for solo parent',
-                'max' => $personnel->is_solo_parent ? 120 : 105,
-                'available' => $personnel->is_solo_parent ? 120 : 105,
-                'used' => 0,
-                'color' => 'pink'
-            ],
-            [
-                'type' => 'Rehabilitation Leave',
-                'description' => 'In case of accident in line of duty',
-                'max' => 180,
-                'available' => 180,
-                'used' => 0,
-                'color' => 'red'
-            ],
-            [
-                'type' => 'Solo Parent Leave',
-                'description' => 'Annual leave for solo parents',
-                'max' => 7,
-                'available' => $personnel->is_solo_parent ? 7 : 0,
-                'used' => 0,
-                'color' => 'amber'
-            ],
-            [
-                'type' => 'Study Leave',
-                'description' => 'For approved educational pursuits',
-                'max' => 180,
-                'available' => 180,
-                'used' => 0,
-                'color' => 'indigo'
-            ]
-        ];
+        // Ensure all leave type records exist for this teacher and year
+        foreach ($defaultLeaves as $leaveType => $maxDays) {
+            \App\Models\TeacherLeave::firstOrCreate(
+                [
+                    'teacher_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'year' => $year
+                ],
+                [
+                    'available' => $maxDays,
+                    'used' => 0,
+                    'remarks' => 'Auto-initialized'
+                ]
+            );
+        }
+
+        // Get existing leave records for this year
+        $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+            ->where('year', $year)
+            ->get()
+            ->keyBy('leave_type');
+
+        $teacherLeaveData = [];
+        foreach ($defaultLeaves as $type => $defaultMax) {
+            $leave = $leaves->get($type);
+            $available = $leave ? $leave->available : $defaultMax;
+            $used = $leave ? $leave->used : 0;
+            
+            // Calculate dynamic max: if available exceeds default, use available + used as the new max
+            $calculatedMax = max($defaultMax, $available + $used);
+            
+            $teacherLeaveData[] = [
+                'type' => $type,
+                'max' => $calculatedMax,
+                'available' => $available,
+                'used' => $used,
+                'remarks' => $leave ? $leave->remarks : '',
+            ];
+        }
 
         $year = now()->year;
 

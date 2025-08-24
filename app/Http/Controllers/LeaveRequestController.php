@@ -105,8 +105,30 @@ class LeaveRequestController extends Controller
                             ->withErrors(['leave_days' => "{$request->leave_type} is limited to 180 days."])
                             ->withInput();
                     }
+                } elseif ($request->leave_type === 'Force Leave') {
+                    if ($requestedDays > 5) {
+                        return redirect()->back()
+                            ->withErrors(['leave_days' => 'Force Leave is limited to 5 days per year.'])
+                            ->withInput();
+                    }
                 }
                 // Personal Leave and Sick Leave are unlimited for teachers (taken from service credit)
+            }
+        }
+
+        // For non-teaching staff, validate Force Leave limits
+        if ($user->role === 'non_teaching') {
+            $personnel = $user->personnel;
+            if ($personnel && $request->leave_type === 'Force Leave') {
+                $startDate = Carbon::parse($request->start_date);
+                $endDate = Carbon::parse($request->end_date);
+                $requestedDays = $startDate->diffInDays($endDate) + 1;
+                
+                if ($requestedDays > 5) {
+                    return redirect()->back()
+                        ->withErrors(['leave_days' => 'Force Leave is limited to 5 days per year.'])
+                        ->withInput();
+                }
             }
         }
 
@@ -162,13 +184,13 @@ class LeaveRequestController extends Controller
         $leave->status = $request->status;
         $leave->save();
 
-        // If approved, update school head's leave info
+        // If approved, update leave balance for all user types
         if ($request->status === 'approved') {
-            $this->updateSchoolHeadLeaveBalance($leave);
+            $this->updateLeaveBalance($leave);
         } 
         // If denied, restore job status to Active if it was previously pending
         elseif ($request->status === 'denied') {
-            $this->restoreSchoolHeadStatus($leave, $oldStatus);
+            $this->restoreUserStatus($leave, $oldStatus);
         }
         
         // Provide appropriate success message
@@ -179,6 +201,128 @@ class LeaveRequestController extends Controller
         };
         
         return back()->with('success', $message);
+    }
+
+    /**
+     * Update leave balance when leave is approved (for all user types)
+     */
+    private function updateLeaveBalance(LeaveRequest $leave)
+    {
+        $user = $leave->user;
+        if (!$user) {
+            return;
+        }
+
+        $personnel = $user->personnel;
+        if (!$personnel) {
+            return;
+        }
+
+        // Calculate the number of days for this leave request
+        $startDate = Carbon::parse($leave->start_date);
+        $endDate = Carbon::parse($leave->end_date);
+        $leaveDays = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end dates
+
+        // Update work info: set job_status to leave type
+        $personnel->job_status = $leave->leave_type;
+        $personnel->save();
+
+        // Handle different user roles
+        switch ($user->role) {
+            case 'school_head':
+                $this->updateSchoolHeadLeaveBalance($leave);
+                break;
+            case 'teacher':
+                $this->updateTeacherLeaveBalance($personnel, $leave->leave_type, $leaveDays);
+                break;
+            case 'non_teaching':
+                $this->updateNonTeachingLeaveBalance($personnel, $leave->leave_type, $leaveDays);
+                break;
+        }
+    }
+
+    /**
+     * Update teacher leave balance when leave is approved
+     */
+    private function updateTeacherLeaveBalance($personnel, $leaveType, $leaveDays)
+    {
+        $currentYear = now()->year;
+
+        // Ensure teacher leave records exist
+        $this->ensureTeacherLeaveRecordsExist($personnel);
+
+        // Handle Force Leave specially
+        if ($leaveType === 'Force Leave') {
+            $this->handleTeacherForceLeaveDeduction($personnel, $leaveDays, $currentYear);
+            return;
+        }
+
+        // Handle regular leave types
+        $teacherLeave = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+            ->where('leave_type', $leaveType)
+            ->where('year', $currentYear)
+            ->first();
+
+        if ($teacherLeave) {
+            $previousUsed = $teacherLeave->used;
+            $previousAvailable = $teacherLeave->available;
+            
+            $teacherLeave->used += $leaveDays;
+            $teacherLeave->available = max(0, $teacherLeave->available - $leaveDays);
+            $teacherLeave->save();
+
+            Log::info("Leave balance updated for teacher", [
+                'personnel_id' => $personnel->id,
+                'leave_type' => $leaveType,
+                'leave_days' => $leaveDays,
+                'previous_used' => $previousUsed,
+                'new_used' => $teacherLeave->used,
+                'previous_available' => $previousAvailable,
+                'new_available' => $teacherLeave->available
+            ]);
+        }
+    }
+
+    /**
+     * Update non-teaching staff leave balance when leave is approved
+     */
+    private function updateNonTeachingLeaveBalance($personnel, $leaveType, $leaveDays)
+    {
+        $currentYear = now()->year;
+
+        // Ensure non-teaching leave records exist
+        $this->ensureNonTeachingLeaveRecordsExist($personnel);
+
+        // Handle Force Leave specially
+        if ($leaveType === 'Force Leave') {
+            $this->handleNonTeachingForceLeaveDeduction($personnel, $leaveDays, $currentYear);
+            return;
+        }
+
+        // Handle regular leave types
+        $nonTeachingLeave = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
+            ->where('leave_type', $leaveType)
+            ->where('year', $currentYear)
+            ->first();
+
+        if ($nonTeachingLeave) {
+            $previousUsed = $nonTeachingLeave->used;
+            $previousAvailable = $nonTeachingLeave->available;
+            
+            $nonTeachingLeave->used += $leaveDays;
+            $nonTeachingLeave->available = max(0, $nonTeachingLeave->available - $leaveDays);
+            $nonTeachingLeave->save();
+
+            Log::info("Leave balance updated for non-teaching staff", [
+                'personnel_id' => $personnel->id,
+                'leave_type' => $leaveType,
+                'leave_days' => $leaveDays,
+                'previous_used' => $previousUsed,
+                'new_used' => $nonTeachingLeave->used,
+                'previous_available' => $previousAvailable,
+                'new_available' => $nonTeachingLeave->available
+            ]);
+        }
     }
 
     /**
@@ -231,6 +375,12 @@ class LeaveRequestController extends Controller
         // Get current year
         $currentYear = now()->year;
 
+        // Handle Force Leave specially - it deducts from both Force Leave and Vacation Leave
+        if ($leave->leave_type === 'Force Leave') {
+            $this->handleForceLeaveDeduction($personnel, $leaveDays, $currentYear);
+            return;
+        }
+
         // Now we can be sure the record exists, so get it and update
         $schoolHeadLeave = \App\Models\SchoolHeadLeave::where('school_head_id', $personnel->id)
             ->where('leave_type', $leave->leave_type)
@@ -267,21 +417,258 @@ class LeaveRequestController extends Controller
     }
 
     /**
-     * Restore school head's status when leave is denied
+     * Handle Force Leave deduction from both Force Leave and Vacation Leave
      */
-    private function restoreSchoolHeadStatus(LeaveRequest $leave, $oldStatus)
+    private function handleForceLeaveDeduction($personnel, $leaveDays, $currentYear)
+    {
+        // Get Force Leave record
+        $forceLeave = \App\Models\SchoolHeadLeave::where('school_head_id', $personnel->id)
+            ->where('leave_type', 'Force Leave')
+            ->where('year', $currentYear)
+            ->first();
+
+        // Get Vacation Leave record
+        $vacationLeave = \App\Models\SchoolHeadLeave::where('school_head_id', $personnel->id)
+            ->where('leave_type', 'Vacation Leave')
+            ->where('year', $currentYear)
+            ->first();
+
+        if ($forceLeave && $vacationLeave) {
+            // Update Force Leave
+            $previousForceUsed = $forceLeave->used;
+            $previousForceAvailable = $forceLeave->available;
+            
+            $forceLeave->used += $leaveDays;
+            $forceLeave->available = max(0, $forceLeave->available - $leaveDays);
+            $forceLeave->save();
+
+            // Also deduct from Vacation Leave
+            $previousVacationUsed = $vacationLeave->used;
+            $previousVacationAvailable = $vacationLeave->available;
+            
+            $vacationLeave->used += $leaveDays;
+            $vacationLeave->available = max(0, $vacationLeave->available - $leaveDays);
+            $vacationLeave->save();
+
+            // Log the changes
+            Log::info("Force Leave processed - deducted from both Force Leave and Vacation Leave", [
+                'personnel_id' => $personnel->id,
+                'leave_days' => $leaveDays,
+                'force_leave' => [
+                    'previous_used' => $previousForceUsed,
+                    'new_used' => $forceLeave->used,
+                    'previous_available' => $previousForceAvailable,
+                    'new_available' => $forceLeave->available
+                ],
+                'vacation_leave' => [
+                    'previous_used' => $previousVacationUsed,
+                    'new_used' => $vacationLeave->used,
+                    'previous_available' => $previousVacationAvailable,
+                    'new_available' => $vacationLeave->available
+                ]
+            ]);
+        } else {
+            Log::error("Force Leave or Vacation Leave record not found", [
+                'personnel_id' => $personnel->id,
+                'force_leave_exists' => $forceLeave ? true : false,
+                'vacation_leave_exists' => $vacationLeave ? true : false,
+                'year' => $currentYear
+            ]);
+        }
+    }
+
+    /**
+     * Handle Teacher Force Leave deduction from both Force Leave and Vacation Leave
+     */
+    private function handleTeacherForceLeaveDeduction($personnel, $leaveDays, $currentYear)
+    {
+        // Get Force Leave record
+        $forceLeave = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+            ->where('leave_type', 'Force Leave')
+            ->where('year', $currentYear)
+            ->first();
+
+        // Get Vacation Leave record
+        $vacationLeave = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+            ->where('leave_type', 'Vacation Leave')
+            ->where('year', $currentYear)
+            ->first();
+
+        if ($forceLeave && $vacationLeave) {
+            // Update Force Leave
+            $previousForceUsed = $forceLeave->used;
+            $previousForceAvailable = $forceLeave->available;
+            
+            $forceLeave->used += $leaveDays;
+            $forceLeave->available = max(0, $forceLeave->available - $leaveDays);
+            $forceLeave->save();
+
+            // Also deduct from Vacation Leave
+            $previousVacationUsed = $vacationLeave->used;
+            $previousVacationAvailable = $vacationLeave->available;
+            
+            $vacationLeave->used += $leaveDays;
+            $vacationLeave->available = max(0, $vacationLeave->available - $leaveDays);
+            $vacationLeave->save();
+
+            Log::info("Teacher Force Leave processed - deducted from both Force Leave and Vacation Leave", [
+                'personnel_id' => $personnel->id,
+                'leave_days' => $leaveDays,
+                'force_leave' => [
+                    'previous_used' => $previousForceUsed,
+                    'new_used' => $forceLeave->used,
+                    'previous_available' => $previousForceAvailable,
+                    'new_available' => $forceLeave->available
+                ],
+                'vacation_leave' => [
+                    'previous_used' => $previousVacationUsed,
+                    'new_used' => $vacationLeave->used,
+                    'previous_available' => $previousVacationAvailable,
+                    'new_available' => $vacationLeave->available
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * Handle Non-Teaching Staff Force Leave deduction from both Force Leave and Vacation Leave
+     */
+    private function handleNonTeachingForceLeaveDeduction($personnel, $leaveDays, $currentYear)
+    {
+        // Get Force Leave record
+        $forceLeave = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
+            ->where('leave_type', 'Force Leave')
+            ->where('year', $currentYear)
+            ->first();
+
+        // Get Vacation Leave record
+        $vacationLeave = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
+            ->where('leave_type', 'Vacation Leave')
+            ->where('year', $currentYear)
+            ->first();
+
+        if ($forceLeave && $vacationLeave) {
+            // Update Force Leave
+            $previousForceUsed = $forceLeave->used;
+            $previousForceAvailable = $forceLeave->available;
+            
+            $forceLeave->used += $leaveDays;
+            $forceLeave->available = max(0, $forceLeave->available - $leaveDays);
+            $forceLeave->save();
+
+            // Also deduct from Vacation Leave
+            $previousVacationUsed = $vacationLeave->used;
+            $previousVacationAvailable = $vacationLeave->available;
+            
+            $vacationLeave->used += $leaveDays;
+            $vacationLeave->available = max(0, $vacationLeave->available - $leaveDays);
+            $vacationLeave->save();
+
+            Log::info("Non-Teaching Staff Force Leave processed - deducted from both Force Leave and Vacation Leave", [
+                'personnel_id' => $personnel->id,
+                'leave_days' => $leaveDays,
+                'force_leave' => [
+                    'previous_used' => $previousForceUsed,
+                    'new_used' => $forceLeave->used,
+                    'previous_available' => $previousForceAvailable,
+                    'new_available' => $forceLeave->available
+                ],
+                'vacation_leave' => [
+                    'previous_used' => $previousVacationUsed,
+                    'new_used' => $vacationLeave->used,
+                    'previous_available' => $previousVacationAvailable,
+                    'new_available' => $vacationLeave->available
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * Ensure teacher leave records exist for the current year
+     */
+    private function ensureTeacherLeaveRecordsExist($personnel)
+    {
+        $currentYear = now()->year;
+        $yearsOfService = $personnel->employment_start ? 
+            Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
+        
+        $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves(
+            $yearsOfService,
+            $personnel->is_solo_parent ?? false,
+            $personnel->sex ?? null
+        );
+
+        foreach ($defaultLeaves as $leaveType => $defaultMax) {
+            \App\Models\TeacherLeave::firstOrCreate(
+                [
+                    'teacher_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'year' => $currentYear,
+                ],
+                [
+                    'available' => $defaultMax,
+                    'used' => 0,
+                    'remarks' => 'Auto-initialized for leave processing',
+                ]
+            );
+        }
+    }
+
+    /**
+     * Ensure non-teaching leave records exist for the current year
+     */
+    private function ensureNonTeachingLeaveRecordsExist($personnel)
+    {
+        $currentYear = now()->year;
+        $yearsOfService = $personnel->employment_start ? 
+            Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
+        
+        $defaultLeaves = \App\Models\NonTeachingLeave::defaultLeaves(
+            $yearsOfService,
+            $personnel->is_solo_parent ?? false,
+            $personnel->sex ?? null
+        );
+
+        foreach ($defaultLeaves as $leaveType => $defaultMax) {
+            \App\Models\NonTeachingLeave::firstOrCreate(
+                [
+                    'non_teaching_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'year' => $currentYear,
+                ],
+                [
+                    'available' => $defaultMax,
+                    'used' => 0,
+                    'remarks' => 'Auto-initialized for leave processing',
+                ]
+            );
+        }
+    }
+
+    /**
+     * Restore user's status when leave is denied
+     */
+    private function restoreUserStatus(LeaveRequest $leave, $oldStatus)
     {
         $user = $leave->user;
-        if (!$user || $user->role !== 'school_head') {
+        if (!$user) {
             return;
         }
 
         $personnel = $user->personnel;
         if ($personnel && $oldStatus === 'pending') {
-            // Restore job status to Active
             $personnel->job_status = 'Active';
             $personnel->save();
         }
+    }
+
+    /**
+     * Restore school head's status when leave is denied
+     */
+    private function restoreSchoolHeadStatus(LeaveRequest $leave, $oldStatus)
+    {
+        // This method now just calls the general restore method
+        $this->restoreUserStatus($leave, $oldStatus);
     }
 
     /**

@@ -14,6 +14,12 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('personnel:increment-step')->daily();
         $schedule->command('cto:expire-old')->daily()->at('00:30');
+        
+        // Process year-end force leave deductions on January 1st
+        $schedule->command('leave:process-year-end-force-leave')->yearly()->at('01:00');
+        
+        // Optional: Generate leave accrual reports (informational only)
+        // $schedule->command('school-head:accrue-leaves')->monthly()->at('09:00');
     }
 
     /**

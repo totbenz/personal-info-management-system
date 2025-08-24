@@ -38,6 +38,7 @@ class NonTeachingLeave extends Model
             'Vacation Leave' => $baseLeaveCredits,
             'Sick Leave' => $baseLeaveCredits,
             'Personal Leave' => $baseLeaveCredits,
+            'Force Leave' => 5,
             'Rehabilitation Leave' => 180,
             'Solo Parent Leave' => $soloParent ? 7 : 0,
             'Study Leave' => 180,

@@ -322,15 +322,27 @@
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
-                                    @if($leave['available'] == 0)
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        No Days
-                                    </span>
-                                    @elseif(is_numeric($leave['available']) && $leave['available'] <= 3)
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        Low
-                                        </span>
+                                    <div class="flex items-center space-x-2">
+                                        @if(in_array($leave['type'], ['Personal Leave', 'Sick Leave']))
+                                            <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" 
+                                                    data-leave-type="{{ $leave['type'] }}" 
+                                                    data-current-available="{{ $leave['available'] }}"
+                                                    title="Add {{ $leave['type'] }} days">
+                                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                            </button>
                                         @endif
+                                        @if($leave['available'] == 0)
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            No Days
+                                        </span>
+                                        @elseif(is_numeric($leave['available']) && $leave['available'] <= 3)
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Low
+                                            </span>
+                                            @endif
+                                    </div>
                                 </div>
                                 <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['max'] }}</p>
                                 <p class="text-sm text-gray-600">Used: {{ $leave['used'] }}</p>
@@ -410,6 +422,88 @@
                                 @error('reason')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                             </div>
                             <button type="submit" id="submitBtn" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">File Leave</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Add Leave Days Modal (hidden by default) -->
+                <div id="addLeaveModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+                    <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+                        <button id="closeAddLeaveModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Add <span id="addLeaveModalTitle">Leave</span> Days</h3>
+                        @if(session('success') && !session('cto_success'))
+                            <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+                        @if($errors->has('days_to_add') || $errors->has('reason') || $errors->has('year') || $errors->has('leave_type'))
+                            <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                                <ul class="list-disc list-inside space-y-1">
+                                    @if($errors->has('days_to_add'))
+                                        <li class="text-sm">{{ $errors->first('days_to_add') }}</li>
+                                    @endif
+                                    @if($errors->has('reason'))
+                                        <li class="text-sm">{{ $errors->first('reason') }}</li>
+                                    @endif
+                                    @if($errors->has('year'))
+                                        <li class="text-sm">{{ $errors->first('year') }}</li>
+                                    @endif
+                                    @if($errors->has('leave_type'))
+                                        <li class="text-sm">{{ $errors->first('leave_type') }}</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
+                        
+                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div class="text-sm text-blue-800">
+                                    <p class="font-medium">Current Balance: <span id="currentBalance">0</span> days</p>
+                                    <p class="text-xs mt-1">Adding leave days will increase your available balance for this leave type.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('teacher.leaves.add') }}" class="space-y-4">
+                            @csrf
+                            <input type="hidden" id="addLeaveType" name="leave_type" value="">
+                            <input type="hidden" name="year" value="{{ $year ?? date('Y') }}">
+                            
+                            <div>
+                                <label for="days_to_add" class="block text-sm font-medium text-gray-700">Days to Add</label>
+                                <input type="number" name="days_to_add" id="days_to_add" min="1" max="365" required 
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                                       value="{{ old('days_to_add') }}" 
+                                       placeholder="Enter number of days">
+                                <p class="text-xs text-gray-500 mt-1">Enter the number of days you want to add (1-365)</p>
+                            </div>
+                            
+                            <div>
+                                <label for="add_leave_reason" class="block text-sm font-medium text-gray-700">Reason for Adding Leave</label>
+                                <textarea name="reason" id="add_leave_reason" rows="3" required maxlength="255" 
+                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                                          placeholder="e.g., Earned from overtime, Special allocation, Year-end bonus...">{{ old('reason') }}</textarea>
+                                <p class="text-xs text-gray-500 mt-1">Briefly explain why you're adding these leave days</p>
+                            </div>
+                            
+                            <div id="addLeavePreview" class="hidden mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+                                <p class="font-medium">Preview:</p>
+                                <p>Current balance: <span id="previewCurrent">0</span> days</p>
+                                <p>Adding: <span id="previewAdding">0</span> days</p>
+                                <p class="font-bold">New balance: <span id="previewNew">0</span> days</p>
+                            </div>
+                            
+                            <button type="submit" id="addLeaveSubmitBtn" 
+                                    class="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition">
+                                Add Leave Days
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -845,6 +939,81 @@
                         console.log('Form submitted for teacher role');
                     });
                 }
+
+                // Add Leave Modal functionality
+                var addLeaveModal = document.getElementById('addLeaveModal');
+                var closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
+                var addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
+                var addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
+                var addLeaveType = document.getElementById('addLeaveType');
+                var currentBalance = document.getElementById('currentBalance');
+                var daysToAdd = document.getElementById('days_to_add');
+                var addLeavePreview = document.getElementById('addLeavePreview');
+                var previewCurrent = document.getElementById('previewCurrent');
+                var previewAdding = document.getElementById('previewAdding');
+                var previewNew = document.getElementById('previewNew');
+
+                // Add event listeners for add leave buttons
+                addLeaveBtns.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var leaveType = this.getAttribute('data-leave-type');
+                        var currentAvailable = this.getAttribute('data-current-available');
+                        
+                        // Set modal content
+                        addLeaveModalTitle.textContent = leaveType;
+                        addLeaveType.value = leaveType;
+                        currentBalance.textContent = currentAvailable;
+                        previewCurrent.textContent = currentAvailable;
+                        
+                        // Show modal
+                        addLeaveModal.classList.remove('hidden');
+                        addLeaveModal.classList.add('flex');
+                    });
+                });
+
+                // Close add leave modal
+                if (closeAddLeaveModal) {
+                    closeAddLeaveModal.addEventListener('click', function() {
+                        addLeaveModal.classList.add('hidden');
+                        addLeaveModal.classList.remove('flex');
+                    });
+                }
+
+                // Close modal when clicking outside
+                if (addLeaveModal) {
+                    addLeaveModal.addEventListener('click', function(e) {
+                        if (e.target === addLeaveModal) {
+                            addLeaveModal.classList.add('hidden');
+                            addLeaveModal.classList.remove('flex');
+                        }
+                    });
+                }
+
+                // Preview calculation for add leave
+                if (daysToAdd) {
+                    daysToAdd.addEventListener('input', function() {
+                        var adding = parseInt(this.value) || 0;
+                        var current = parseInt(previewCurrent.textContent) || 0;
+                        var newTotal = current + adding;
+                        
+                        previewAdding.textContent = adding;
+                        previewNew.textContent = newTotal;
+                        
+                        if (adding > 0) {
+                            addLeavePreview.classList.remove('hidden');
+                        } else {
+                            addLeavePreview.classList.add('hidden');
+                        }
+                    });
+                }
+
+                // Auto-open add leave modal if there are add leave validation errors
+                @if($errors->has('days_to_add') || $errors->has('reason') || $errors->has('year') || $errors->has('leave_type'))
+                    if (addLeaveModal) {
+                        addLeaveModal.classList.remove('hidden');
+                        addLeaveModal.classList.add('flex');
+                    }
+                @endif
 
                 // Initial validation
                 validateLeaveRequest();

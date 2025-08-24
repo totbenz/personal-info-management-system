@@ -63,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
         // Service Credit Routes
         Route::post('/service-credit-request', [ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
 
+        // Teacher Leave Routes
+        Route::post('teacher/leaves/add', [App\Http\Controllers\TeacherLeaveController::class, 'addLeave'])->name('teacher.leaves.add');
+
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
@@ -76,6 +79,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Service Credit Routes
         Route::post('/service-credit-request', [ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
+
+        // Non-Teaching Leave Routes
+        Route::post('non-teaching/leaves/add', [App\Http\Controllers\NonTeachingLeaveController::class, 'addLeave'])->name('non_teaching.leaves.add');
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
@@ -107,6 +113,7 @@ Route::middleware(['auth'])->group(function () {
 
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
+        Route::post('school-head/leaves/add', [App\Http\Controllers\SchoolHeadLeaveController::class, 'addLeave'])->name('school_head.leaves.add');
         // CTO Request Routes
         Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
 

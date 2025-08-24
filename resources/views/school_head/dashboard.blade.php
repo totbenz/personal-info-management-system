@@ -160,7 +160,12 @@
             </div>
 
             <!-- Available Leaves Section (moved up for prominence) -->
-            @include('school_head.partials.leaves', ['leaveData' => $leaveData ?? [], 'ctoBalance' => $ctoBalance ?? [], 'year' => $year ?? date('Y')])
+            @include('school_head.partials.leaves', [
+                'leaveData' => $leaveData ?? [], 
+                'ctoBalance' => $ctoBalance ?? [], 
+                'accrualSummary' => $accrualSummary ?? null,
+                'year' => $year ?? date('Y')
+            ])
 
             <!-- Leave Request History Section -->
             @if(isset($leaveRequests) && $leaveRequests->count() > 0)

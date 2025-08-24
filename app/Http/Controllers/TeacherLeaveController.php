@@ -2,75 +2,50 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\SchoolHeadLeave;
+use App\Models\TeacherLeave;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class SchoolHeadLeaveController extends Controller
+class TeacherLeaveController extends Controller
 {
-    public function index(Request $request)
-    {
-        $schoolHead = Auth::user()->personnel;
-        $year = $request->input('year', Carbon::now()->year);
-        $soloParent = $schoolHead->is_solo_parent ?? false;
-        $userSex = $schoolHead->sex ?? null;
-        $defaultLeaves = SchoolHeadLeave::defaultLeaves($soloParent, $userSex);
-
-        $leaves = SchoolHeadLeave::where('school_head_id', $schoolHead->id)
-            ->where('year', $year)
-            ->get()
-            ->keyBy('leave_type');
-
-        $leaveData = [];
-        foreach ($defaultLeaves as $type => $defaultMax) {
-            $leave = $leaves->get($type);
-            $available = $leave ? $leave->available : $defaultMax;
-            $used = $leave ? $leave->used : 0;
-            
-            // Calculate dynamic max: if available exceeds default, use available + used as the new max
-            $calculatedMax = max($defaultMax, $available + $used);
-            
-            $leaveData[] = [
-                'type' => $type,
-                'max' => $calculatedMax,
-                'available' => $available,
-                'used' => $used,
-                'ctos_earned' => $leave ? $leave->ctos_earned : 0,
-                'remarks' => $leave ? $leave->remarks : '',
-            ];
-        }
-
-        return view('school_head.partials.leaves', compact('leaveData', 'year'));
-    }
-
     /**
-     * Add available leave days for the current school head
+     * Add available leave days for the current teacher
      */
     public function addLeave(Request $request)
     {
         $request->validate([
-            'leave_type' => 'required|string|in:Vacation Leave,Sick Leave',
+            'leave_type' => 'required|string|in:Personal Leave,Sick Leave',
             'days_to_add' => 'required|integer|min:1|max:365',
             'reason' => 'required|string|max:255',
             'year' => 'required|integer|min:2020|max:2030',
         ]);
 
         try {
-            $schoolHead = Auth::user()->personnel;
+            $teacher = Auth::user()->personnel;
             $year = $request->year;
 
+            // Calculate years of service for default leaves
+            $yearsOfService = $teacher->employment_start ? 
+                Carbon::parse($teacher->employment_start)->diffInYears(Carbon::now()) : 0;
+
+            // Get default leaves to ensure we have proper max values
+            $defaultLeaves = TeacherLeave::defaultLeaves(
+                $yearsOfService,
+                $teacher->is_solo_parent ?? false,
+                $teacher->sex ?? null
+            );
+
             // Get or create the leave record
-            $leaveRecord = SchoolHeadLeave::firstOrCreate(
+            $leaveRecord = TeacherLeave::firstOrCreate(
                 [
-                    'school_head_id' => $schoolHead->id,
+                    'teacher_id' => $teacher->id,
                     'leave_type' => $request->leave_type,
                     'year' => $year,
                 ],
                 [
-                    'available' => 0,
+                    'available' => $defaultLeaves[$request->leave_type] ?? 0,
                     'used' => 0,
-                    'ctos_earned' => 0,
                     'remarks' => 'Self-initialized',
                 ]
             );
@@ -91,9 +66,9 @@ class SchoolHeadLeaveController extends Controller
             $leaveRecord->save();
 
             // Log the action
-            Log::info('School head self-added leave days', [
-                'school_head_id' => $schoolHead->id,
-                'school_head_name' => $schoolHead->first_name . ' ' . $schoolHead->last_name,
+            Log::info('Teacher self-added leave days', [
+                'teacher_id' => $teacher->id,
+                'teacher_name' => $teacher->first_name . ' ' . $teacher->last_name,
                 'leave_type' => $request->leave_type,
                 'days_added' => $request->days_to_add,
                 'previous_available' => $previousAvailable,
@@ -108,10 +83,10 @@ class SchoolHeadLeaveController extends Controller
             );
 
         } catch (\Exception $e) {
-            Log::error('Failed to add leave days for school head', [
+            Log::error('Failed to add leave days for teacher', [
                 'error' => $e->getMessage(),
                 'request_data' => $request->all(),
-                'school_head_id' => Auth::user()->personnel->id ?? null,
+                'teacher_id' => Auth::user()->personnel->id ?? null,
             ]);
 
             return redirect()->back()->withErrors([
