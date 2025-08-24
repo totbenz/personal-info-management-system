@@ -171,6 +171,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/cto-requests/{ctoRequest}/approve', [\App\Http\Controllers\CTORequestController::class, 'approve'])->name('admin.cto-requests.approve');
         Route::post('/admin/cto-requests/{ctoRequest}/deny', [\App\Http\Controllers\CTORequestController::class, 'deny'])->name('admin.cto-requests.deny');
 
+        // Leave Management admin interface
+        Route::get('/admin/leave-management', [\App\Http\Controllers\LeaveManagementController::class, 'index'])->name('admin.leave-management');
+        Route::post('/admin/leave-management/add', [\App\Http\Controllers\LeaveManagementController::class, 'addLeave'])->name('admin.leave-management.add');
+        Route::get('/admin/leave-management/personnel/{personnelId}', [\App\Http\Controllers\LeaveManagementController::class, 'getPersonnelLeaves'])->name('admin.leave-management.personnel');
+
         Route::controller(SchoolController::class)->group(function () {
             Route::get('schools/', 'index')->name('schools.index');
             Route::get('school/create', 'create')->name('schools.create');
