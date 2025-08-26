@@ -66,8 +66,8 @@ Route::middleware(['auth'])->group(function () {
         // Teacher Leave Routes
         Route::post('teacher/leaves/add', [App\Http\Controllers\TeacherLeaveController::class, 'addLeave'])->name('teacher.leaves.add');
 
-        // Leave request submission
-        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+    // Leave request submission
+    Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
 
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
@@ -82,6 +82,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Non-Teaching Leave Routes
         Route::post('non-teaching/leaves/add', [App\Http\Controllers\NonTeachingLeaveController::class, 'addLeave'])->name('non_teaching.leaves.add');
+
+    // (CTO request route defined once globally below to avoid duplicates)
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
@@ -114,15 +116,17 @@ Route::middleware(['auth'])->group(function () {
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
         Route::post('school-head/leaves/add', [App\Http\Controllers\SchoolHeadLeaveController::class, 'addLeave'])->name('school_head.leaves.add');
-        // CTO Request Routes
-        Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
+    // (Global CTO request route defined below)
 
         // Leave request submission for school heads
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
 
-    // Leave request submission - available to both teachers and school heads
+    // Leave request submission - available to all authenticated roles
     Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+    
+    // Global CTO request route (teacher, non_teaching, school_head)
+    Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');

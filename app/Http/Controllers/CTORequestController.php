@@ -36,10 +36,10 @@ class CTORequestController extends Controller
         $user = Auth::user();
         $personnel = $user->personnel;
 
-        // Verify user is a school head
-        if ($user->role !== 'school_head' || !$personnel) {
+        // Authorization: allow school heads and non-teaching personnel to request CTO
+        if (!in_array($user->role, ['school_head', 'non_teaching']) || !$personnel) {
             return redirect()->back()->withErrors([
-                'authorization' => 'Only school heads can submit CTO requests.'
+                'authorization' => 'Only school heads and non-teaching personnel can submit CTO requests.'
             ]);
         }
 
@@ -54,8 +54,8 @@ class CTORequestController extends Controller
             ])->withInput();
         }
 
-        // Check if there's already a request for the same date
-        $existingRequest = CTORequest::where('school_head_id', $personnel->id)
+    // Check if there's already a request for the same date (column name retained as school_head_id for legacy)
+    $existingRequest = CTORequest::where('school_head_id', $personnel->id)
             ->where('work_date', $request->work_date)
             ->whereIn('status', ['pending', 'approved'])
             ->first();
@@ -68,6 +68,7 @@ class CTORequestController extends Controller
 
         try {
             CTORequest::create([
+                // Reuse legacy column 'school_head_id' to store personnel id for both roles
                 'school_head_id' => $personnel->id,
                 'requested_hours' => $request->requested_hours,
                 'work_date' => $request->work_date,

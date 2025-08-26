@@ -632,69 +632,52 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        // Teacher's leave requests history
+        // Leave requests history
         $leaveRequests = LeaveRequest::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
-        // Calculate years of service for leave calculations
-        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
-        $baseLeaveCredits = $yearsOfService * 15; // 15 days per year of service
-
-        // Teacher leave data (calculated based on years of service)
-        $teacherLeaveData = [
-            [
-                'type' => 'Personal Leave',
-                'description' => 'Based on years of service',
-                'max' => $baseLeaveCredits,
-                'available' => $baseLeaveCredits,
-                'used' => 0,
-                'color' => 'blue'
-            ],
-            [
-                'type' => 'Sick Leave',
-                'description' => 'Based on years of service',
-                'max' => $baseLeaveCredits,
-                'available' => $baseLeaveCredits,
-                'used' => 0,
-                'color' => 'emerald'
-            ],
-            [
-                'type' => 'Maternity Leave',
-                'description' => '105 days, +15 for solo parent',
-                'max' => $personnel->is_solo_parent ? 120 : 105,
-                'available' => $personnel->is_solo_parent ? 120 : 105,
-                'used' => 0,
-                'color' => 'pink'
-            ],
-            [
-                'type' => 'Rehabilitation Leave',
-                'description' => 'In case of accident in line of duty',
-                'max' => 180,
-                'available' => 180,
-                'used' => 0,
-                'color' => 'red'
-            ],
-            [
-                'type' => 'Solo Parent Leave',
-                'description' => 'Annual leave for solo parents',
-                'max' => 7,
-                'available' => $personnel->is_solo_parent ? 7 : 0,
-                'used' => 0,
-                'color' => 'amber'
-            ],
-            [
-                'type' => 'Study Leave',
-                'description' => 'For approved educational pursuits',
-                'max' => 180,
-                'available' => 180,
-                'used' => 0,
-                'color' => 'indigo'
-            ]
-        ];
-
         $year = now()->year;
+
+        // Build full leave data similar to school head (excluding Personal Leave; including Special Privilege & CTO)
+        $soloParent = $personnel->is_solo_parent ?? false;
+        $userSex = $personnel->sex ?? null;
+        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent, $userSex); // reuse set for consistency
+
+        // Remove Personal Leave if present (requirement) and keep order
+        unset($defaultLeaves['Personal Leave']);
+
+        // Ensure Compensatory Time Off present
+        if (!array_key_exists('Compensatory Time Off', $defaultLeaves)) {
+            $defaultLeaves['Compensatory Time Off'] = 0;
+        }
+
+        // Fetch any existing NonTeachingLeave records if model/table exists (legacy compatibility)
+        $existingLeaves = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
+            ->where('year', $year)
+            ->get()
+            ->keyBy('leave_type');
+
+        $leaveData = [];
+        foreach ($defaultLeaves as $type => $defaultMax) {
+            $record = $existingLeaves->get($type);
+            $available = $record ? $record->available : $defaultMax;
+            $used = $record ? $record->used : 0;
+            $calculatedMax = max($defaultMax, $available + $used);
+            $leaveData[] = [
+                'type' => $type,
+                'max' => $calculatedMax,
+                'available' => $available,
+                'used' => $used,
+                'ctos_earned' => 0,
+                'remarks' => $record ? $record->remarks : '',
+            ];
+        }
+
+        // Placeholder CTO & accrual summary (if later services added, mimic school head)
+        $ctoBalance = ['entries' => [], 'total_available' => 0, 'expired_days' => 0];
+        $accrualSummary = null;
 
         return view('non_teaching.dashboard', compact(
             'personalInfo',
@@ -706,7 +689,9 @@ class HomeController extends Controller
             'recentEvents',
             'recentSalaryChanges',
             'leaveRequests',
-            'teacherLeaveData',
+            'leaveData',
+            'ctoBalance',
+            'accrualSummary',
             'year'
         ));
     }
