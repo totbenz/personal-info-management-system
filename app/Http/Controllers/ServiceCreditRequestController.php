@@ -7,6 +7,7 @@ use App\Models\TeacherLeave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ServiceCreditRequestController extends Controller
@@ -16,87 +17,108 @@ class ServiceCreditRequestController extends Controller
      */
     public function store(Request $request)
     {
+        // Validation similar structure to CTO request (explicit rules & messages)
         $request->validate([
             'work_date' => 'required|date|before_or_equal:today',
-            'morning_in' => 'nullable|date_format:H:i',
-            'morning_out' => 'nullable|date_format:H:i|after:morning_in',
-            'afternoon_in' => 'nullable|date_format:H:i',
-            'afternoon_out' => 'nullable|date_format:H:i|after:afternoon_in',
-            'reason' => 'required|string|max:255',
-            'description' => 'nullable|string'
-        ]);
-
-        Log::info('Service Credit store() invoked', [
-            'user_id' => Auth::id(),
-            'payload' => $request->only(['work_date','morning_in','morning_out','afternoon_in','afternoon_out','reason'])
+            // At least one complete in/out pair required
+            'morning_in' => 'nullable|date_format:H:i|required_with:morning_out',
+            'morning_out' => 'nullable|date_format:H:i|after:morning_in|required_with:morning_in',
+            'afternoon_in' => 'nullable|date_format:H:i|required_with:afternoon_out',
+            'afternoon_out' => 'nullable|date_format:H:i|after:afternoon_in|required_with:afternoon_in',
+            'reason' => 'required|string|min:5|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $user = Auth::user();
-        if ($user->role !== 'teacher') {
-            abort(403, 'Only teachers can request service credit.');
+        $personnel = $user->personnel;
+
+        // Authorization (teachers & non_teaching per routes) – keep strict teacher requirement here unless expanded
+        if (!in_array($user->role, ['teacher'])) {
+            return back()->withErrors(['authorization' => 'Only teachers may request Service Credit.'])->with('sc_modal', true);
+        }
+        if (!$personnel) {
+            return back()->withErrors(['error' => 'Personnel record not found.'])->with('sc_modal', true);
         }
 
-        $personnel = $user->personnel;
-        if (!$personnel) {
-            return back()->withErrors(['error' => 'Personnel record not found.']);
+        // Prevent duplicate request (pending or approved) on same work_date
+        $duplicate = ServiceCreditRequest::where('teacher_id', $personnel->id)
+            ->whereDate('work_date', $request->work_date)
+            ->whereIn('status', ['pending','approved'])
+            ->first();
+        if ($duplicate) {
+            return back()->withErrors(['work_date' => 'You already have a Service Credit request for this date.']).withInput()->with('sc_modal', true);
         }
+
+        // Collect time segments
+        $segments = [];
+        if ($request->filled(['morning_in','morning_out'])) {
+            $segments[] = ['in' => $request->morning_in, 'out' => $request->morning_out, 'label' => 'AM'];
+        }
+        if ($request->filled(['afternoon_in','afternoon_out'])) {
+            $segments[] = ['in' => $request->afternoon_in, 'out' => $request->afternoon_out, 'label' => 'PM'];
+        }
+        if (empty($segments)) {
+            return back()->withErrors(['time' => 'Provide at least one complete in/out pair.'])->withInput()->with('sc_modal', true);
+        }
+
+        // Compute total hours robustly
+        $totalHours = 0.0;
+        foreach ($segments as $seg) {
+            try {
+                $in = Carbon::createFromFormat('H:i', $seg['in']);
+                $out = Carbon::createFromFormat('H:i', $seg['out']);
+                $diff = $out->floatDiffInRealMinutes($in ?? Carbon::now()) / 60; // float hours
+                if ($diff <= 0) {
+                    return back()->withErrors(['time' => 'Invalid time range for segment '.$seg['label'].'.'])->withInput()->with('sc_modal', true);
+                }
+                $totalHours += $diff;
+            } catch (\Exception $e) {
+                return back()->withErrors(['time' => 'Failed to parse time segment '.$seg['label'].'.'])->withInput()->with('sc_modal', true);
+            }
+        }
+        $totalHours = round($totalHours, 2);
+        if ($totalHours > 16) {
+            return back()->withErrors(['time' => 'Total hours exceed allowable limit (16).'])->withInput()->with('sc_modal', true);
+        }
+        if ($totalHours <= 0) {
+            return back()->withErrors(['time' => 'Computed total hours is zero; check your time entries.'])->withInput()->with('sc_modal', true);
+        }
+
+        $requestedDays = round($totalHours / 8, 2);
 
         try {
-            // Compute total hours from time segments
-            $totalHours = 0;
-            $segments = [
-                ['in' => $request->morning_in, 'out' => $request->morning_out],
-                ['in' => $request->afternoon_in, 'out' => $request->afternoon_out],
-            ];
-            foreach ($segments as $seg) {
-                if ($seg['in'] && $seg['out']) {
-                    try {
-                        $in = Carbon::createFromFormat('H:i', $seg['in']);
-                        $out = Carbon::createFromFormat('H:i', $seg['out']);
-                        $diff = $out->diffInMinutes($in) / 60; // hours
-                        if ($diff > 0) {
-                            $totalHours += $diff;
-                        }
-                    } catch (\Exception $e) {
-                        // ignore segment parse errors (already validated)
-                    }
-                }
-            }
-            if ($totalHours <= 0) {
-                return back()->withErrors(['time' => 'Please provide valid in/out times to compute Service Credit hours.'])->withInput();
-            }
-            if ($totalHours > 16) { // safeguard
-                return back()->withErrors(['time' => 'Total hours exceed allowable limit (16).'])->withInput();
-            }
-            $requestedDays = round($totalHours / 8, 2); // convert to days
-
-            ServiceCreditRequest::create([
-                'teacher_id' => $personnel->id,
-                'requested_days' => $requestedDays,
-                'work_date' => $request->work_date,
-                'morning_in' => $request->morning_in,
-                'morning_out' => $request->morning_out,
-                'afternoon_in' => $request->afternoon_in,
-                'afternoon_out' => $request->afternoon_out,
-                'total_hours' => $totalHours,
-                'reason' => $request->reason,
-                'description' => $request->description,
-                'status' => 'pending',
-            ]);
+            DB::transaction(function() use ($personnel, $request, $totalHours, $requestedDays) {
+                ServiceCreditRequest::create([
+                    'teacher_id' => $personnel->id,
+                    'requested_days' => $requestedDays,
+                    'work_date' => $request->work_date,
+                    'morning_in' => $request->morning_in,
+                    'morning_out' => $request->morning_out,
+                    'afternoon_in' => $request->afternoon_in,
+                    'afternoon_out' => $request->afternoon_out,
+                    'total_hours' => $totalHours,
+                    'reason' => $request->reason,
+                    'description' => $request->description,
+                    'status' => 'pending',
+                ]);
+            });
 
             Log::info('Service Credit request created', [
                 'teacher_id' => $personnel->id,
                 'total_hours' => $totalHours,
-                'requested_days' => $requestedDays
+                'requested_days' => $requestedDays,
+                'work_date' => $request->work_date,
             ]);
 
-            return back()->with('success', 'Service Credit request submitted and pending approval.');
+            return back()->with('success', 'Service Credit request submitted and pending approval.')
+                ->with('sc_hours', $totalHours)
+                ->with('sc_days', $requestedDays);
         } catch (\Exception $e) {
             Log::error('Failed to submit service credit request', [
-                'user_id' => $user->id,
+                'teacher_id' => $personnel->id ?? null,
                 'error' => $e->getMessage(),
             ]);
-            return back()->withErrors(['error' => 'Failed to submit request.']);
+            return back()->withErrors(['error' => 'Failed to submit request.'])->withInput()->with('sc_modal', true);
         }
     }
 

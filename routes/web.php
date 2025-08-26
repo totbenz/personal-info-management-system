@@ -149,6 +149,21 @@ Route::middleware(['auth'])->group(function () {
     // JSON feed for Service Credit pending requests (AJAX refresh)
     Route::get('/admin/service-credit-requests/pending.json', [ServiceCreditRequestController::class, 'pendingJson'])->name('admin.service-credit-requests.pending-json');
 
+        // TEMP DEBUG: recent Service Credit requests (remove in production)
+        Route::get('/admin/_debug/service-credits', function(){
+            return \App\Models\ServiceCreditRequest::orderByDesc('id')->take(10)->get();
+        })->name('admin.debug.service-credits');
+
+        Route::get('/admin/_debug/service-credits-schema', function(){
+            $hasTable = \Illuminate\Support\Facades\Schema::hasTable('service_credit_requests');
+            $columns = $hasTable ? \Illuminate\Support\Facades\Schema::getColumnListing('service_credit_requests') : [];
+            return [
+                'has_table' => $hasTable,
+                'columns' => $columns,
+                'latest' => $hasTable ? \App\Models\ServiceCreditRequest::orderByDesc('id')->take(5)->get() : [],
+            ];
+        })->name('admin.debug.service-credits-schema');
+
         // Approved requests filtering and PDF downloads
         Route::get('/admin/approved-leave-requests/filter', [HomeController::class, 'filterApprovedLeaveRequests'])->name('admin.approved-leave-requests.filter');
         Route::get('/admin/approved-cto-requests/filter', [HomeController::class, 'filterApprovedCTORequests'])->name('admin.approved-cto-requests.filter');

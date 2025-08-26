@@ -35,7 +35,7 @@
         <div class="mx-4 px-4 sm:px-6">
 
             <!-- Key Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
                 <!-- Schools Card -->
                 <div @click="showSchools = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                     <div class="flex items-center justify-between">
@@ -148,6 +148,37 @@
                             </div>
                         </div>
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Credit Requests Card -->
+                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative" onclick="document.getElementById('serviceCreditRequestsSection').scrollIntoView({behavior: 'smooth'})">
+                    @if(isset($pendingServiceCreditRequests) && $pendingServiceCreditRequests->count() > 0)
+                    <div class="absolute -top-2 -right-2 flex">
+                        <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                    </div>
+                    @endif
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">Service Credits</span>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ isset($pendingServiceCreditRequests) ? $pendingServiceCreditRequests->count() : 0 }}</div>
+                            <div class="text-xs text-gray-500">
+                                @if(isset($pendingServiceCreditRequests) && $pendingServiceCreditRequests->count() > 0)
+                                    Pending approvals
+                                @else
+                                    All up to date
+                                @endif
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -850,7 +881,6 @@
             </div>
             <div class="overflow-x-auto">
                 <div class="hidden md:block">
-                    @if($pendingServiceCreditRequests->count() > 0)
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -865,7 +895,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($pendingServiceCreditRequests as $request)
+                            @forelse($pendingServiceCreditRequests as $request)
                             <tr class="hover:bg-gray-50 transition-colors duration-200">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
@@ -924,17 +954,17 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="8" class="p-8 text-center text-sm text-gray-500">No pending Service Credit requests.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
-                    @else
-                        <div class="p-8 text-center text-sm text-gray-500">No pending Service Credit requests.</div>
-                    @endif
                 </div>
                 <!-- Mobile cards -->
                 <div class="md:hidden space-y-4 p-4">
-                    @if($pendingServiceCreditRequests->count() > 0)
-                    @foreach($pendingServiceCreditRequests as $request)
+                    @forelse($pendingServiceCreditRequests as $request)
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center space-x-3">
@@ -984,10 +1014,9 @@
                             </form>
                         </div>
                     </div>
-                    @endforeach
-                    @else
+                    @empty
                         <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center text-sm text-gray-500">No pending Service Credit requests.</div>
-                    @endif
+                    @endforelse
                 </div>
             </div>
         </div>

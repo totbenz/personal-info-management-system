@@ -401,6 +401,9 @@
                         @if(session('success') && session('success') === 'Service Credit request submitted and pending approval.')
                         <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
                             {{ session('success') }}
+                            @if(session('sc_hours'))
+                                <div class="mt-1 text-xs">Logged: {{ number_format(session('sc_hours'),2) }} hour(s) = {{ number_format(session('sc_days'),2) }} day(s)</div>
+                            @endif
                         </div>
                         @endif
                         @if($errors->any())
@@ -456,6 +459,14 @@
                         </form>
                     </div>
                 </div>
+                @if($errors->has('time') || $errors->has('error') || session('sc_modal'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        var m=document.getElementById('serviceCreditRequestModal');
+                        if(m){m.classList.remove('hidden');m.classList.add('flex');}
+                    });
+                </script>
+                @endif
                 <div id="leavesContent" class="transition-all duration-300">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($displayLeaves as $leave)
