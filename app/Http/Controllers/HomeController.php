@@ -67,6 +67,13 @@ class HomeController extends Controller
             ->take(10)
             ->get();
 
+        // Pending Service Credit requests (teachers only)
+        $pendingServiceCreditRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')
+            ->with(['teacher'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
         // Approved leave requests from all roles
         $approvedLeaveRequests = LeaveRequest::where('status', 'approved')
             ->with(['user.personnel.school', 'user.personnel.position'])
@@ -76,6 +83,12 @@ class HomeController extends Controller
         // Approved CTO requests from all roles
         $approvedCTORequests = \App\Models\CTORequest::where('status', 'approved')
             ->with(['personnel.school', 'personnel.position', 'user'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // Approved Service Credit requests (for history / optional display)
+        $approvedServiceCreditRequests = \App\Models\ServiceCreditRequest::where('status', 'approved')
+            ->with(['teacher'])
             ->orderBy('updated_at', 'desc')
             ->get();
 
@@ -92,8 +105,10 @@ class HomeController extends Controller
             'schoolsPerDivision',
             'pendingLeaveRequests',
             'pendingCTORequests',
+            'pendingServiceCreditRequests',
             'approvedLeaveRequests',
             'approvedCTORequests',
+            'approvedServiceCreditRequests',
         ));
     }
 
@@ -479,6 +494,12 @@ class HomeController extends Controller
 
         $year = now()->year;
 
+        // Teacher Service Credit Requests (recent)
+        $serviceCreditRequests = \App\Models\ServiceCreditRequest::where('teacher_id', $personnel->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('teacher.dashboard', compact(
             'personalInfo',
             'workInfo',
@@ -506,6 +527,7 @@ class HomeController extends Controller
             'recentSalaryChanges',
             'leaveRequests',
             'teacherLeaveData',
+            'serviceCreditRequests',
             'year'
         ));
     }

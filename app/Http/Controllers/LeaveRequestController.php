@@ -112,7 +112,20 @@ class LeaveRequestController extends Controller
                             ->withInput();
                     }
                 }
-                // Personal Leave and Sick Leave are unlimited for teachers (taken from service credit)
+                // Personal & Sick Leave require sufficient Service Credit balance
+                if (in_array($request->leave_type, ['Personal Leave','Sick Leave'])) {
+                    $year = now()->year;
+                    $serviceCredit = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+                        ->where('leave_type', 'Service Credit')
+                        ->where('year', $year)
+                        ->first();
+                    $available = $serviceCredit?->available ?? 0;
+                    if ($available < $requestedDays) {
+                        return redirect()->back()
+                            ->withErrors(['leave_days' => "Insufficient Service Credit. You have {$available} day(s) available, requested {$requestedDays}."])
+                            ->withInput();
+                    }
+                }
             }
         }
 
@@ -248,7 +261,7 @@ class LeaveRequestController extends Controller
     {
         $currentYear = now()->year;
 
-        // Ensure teacher leave records exist
+    // Ensure teacher leave records exist
         $this->ensureTeacherLeaveRecordsExist($personnel);
 
         // Handle Force Leave specially
@@ -262,6 +275,29 @@ class LeaveRequestController extends Controller
             ->where('leave_type', $leaveType)
             ->where('year', $currentYear)
             ->first();
+
+        // If Personal or Sick leave, deduct from Service Credit pool instead of its own record
+        if (in_array($leaveType, ['Personal Leave','Sick Leave'])) {
+            $serviceCredit = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+                ->where('leave_type', 'Service Credit')
+                ->where('year', $currentYear)
+                ->first();
+            if ($serviceCredit) {
+                $previousAvailable = $serviceCredit->available;
+                $serviceCredit->used += $leaveDays; // track consumption
+                $serviceCredit->available = max(0, $serviceCredit->available - $leaveDays);
+                $serviceCredit->remarks = trim(($serviceCredit->remarks ? $serviceCredit->remarks.'; ' : '')."{$leaveType} used {$leaveDays} day(s) on ".now()->format('Y-m-d'));
+                $serviceCredit->save();
+                \Log::info('Service Credit deducted for leave', [
+                    'teacher_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'days_deducted' => $leaveDays,
+                    'previous_available' => $previousAvailable,
+                    'new_available' => $serviceCredit->available
+                ]);
+            }
+            return; // do not proceed with per-leave-type logic
+        }
 
         if ($teacherLeave) {
             $previousUsed = $teacherLeave->used;

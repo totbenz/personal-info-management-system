@@ -146,6 +146,8 @@ Route::middleware(['auth'])->group(function () {
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
+    // JSON feed for Service Credit pending requests (AJAX refresh)
+    Route::get('/admin/service-credit-requests/pending.json', [ServiceCreditRequestController::class, 'pendingJson'])->name('admin.service-credit-requests.pending-json');
 
         // Approved requests filtering and PDF downloads
         Route::get('/admin/approved-leave-requests/filter', [HomeController::class, 'filterApprovedLeaveRequests'])->name('admin.approved-leave-requests.filter');
@@ -179,6 +181,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/cto-requests', [\App\Http\Controllers\CTORequestController::class, 'index'])->name('admin.cto-requests');
         Route::post('/admin/cto-requests/{ctoRequest}/approve', [\App\Http\Controllers\CTORequestController::class, 'approve'])->name('admin.cto-requests.approve');
         Route::post('/admin/cto-requests/{ctoRequest}/deny', [\App\Http\Controllers\CTORequestController::class, 'deny'])->name('admin.cto-requests.deny');
+
+    // Service Credit Requests (teacher only) admin approval
+    Route::get('/admin/service-credit-requests', [ServiceCreditRequestController::class, 'index'])->name('admin.service-credit-requests');
+    Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
+    Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
 
         // Leave Management admin interface
         Route::get('/admin/leave-management', [\App\Http\Controllers\LeaveManagementController::class, 'index'])->name('admin.leave-management');

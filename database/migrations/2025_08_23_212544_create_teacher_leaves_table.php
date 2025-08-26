@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('teacher_leaves', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('teacher_id');
+            $table->string('leave_type');
+            $table->year('year');
+            $table->integer('available')->default(0);
+            $table->integer('used')->default(0);
+            $table->text('remarks')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('teacher_id')->references('id')->on('personnels')->onDelete('cascade');
+            $table->unique(['teacher_id', 'leave_type', 'year']);
         });
     }
 

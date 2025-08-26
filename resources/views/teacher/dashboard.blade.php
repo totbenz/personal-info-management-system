@@ -277,20 +277,86 @@
             'Study Leave' => 'indigo',
             ];
 
-            // Get user gender to filter maternity leave for male users
+            // Override: display only the mandated leave set with custom rules
             $userSex = Auth::user()->personnel->sex ?? null;
             $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
-            
-            // Filter leave data to exclude maternity leave for male users
-            $filteredTeacherLeaveData = array_filter($teacherLeaveData, function($leave) use ($userSex, $isSoloParent) {
-                if (!$isSoloParent && $leave['type'] === 'Solo Parent Leave') return false;
-                return !($leave['type'] === 'Maternity Leave' && $userSex === 'male');
-            });
 
-            // Create an array of leave balances for JavaScript access
+            $displayLeaves = [];
+
+            // Personal Leave (taken from Service Credit)
+            $displayLeaves[] = [
+                'type' => 'Personal Leave',
+                'available' => null, // null indicates service credit based
+                'max' => null,
+                'used' => null,
+                'source' => 'Service Credit',
+                'description' => 'Taken from Service Credit balance.'
+            ];
+
+            // Sick Leave (taken from Service Credit)
+            $displayLeaves[] = [
+                'type' => 'Sick Leave',
+                'available' => null,
+                'max' => null,
+                'used' => null,
+                'source' => 'Service Credit',
+                'description' => 'Taken from Service Credit balance.'
+            ];
+
+            // Maternity Leave (only for female; +15 days if solo parent)
+            if ($userSex === 'female') {
+                $maternityDays = $isSoloParent ? 120 : 105; // base 105 + 15 if solo parent
+                $displayLeaves[] = [
+                    'type' => 'Maternity Leave',
+                    'available' => $maternityDays,
+                    'max' => $maternityDays,
+                    'used' => 0,
+                    'description' => $isSoloParent ? '120 days (includes additional 15 days for Solo Parent).' : '105 days standard allocation.'
+                ];
+            }
+
+            // Rehabilitation Leave – 180 days (in case of accident in line of duty)
+            $displayLeaves[] = [
+                'type' => 'Rehabilitation Leave',
+                'available' => 180,
+                'max' => 180,
+                'used' => 0,
+                'description' => 'Up to 180 days for injury/accident in line of duty.'
+            ];
+
+            // Solo Parent Leave – 7 days (only if solo parent)
+            if ($isSoloParent) {
+                $displayLeaves[] = [
+                    'type' => 'Solo Parent Leave',
+                    'available' => 7,
+                    'max' => 7,
+                    'used' => 0,
+                    'description' => '7 days annual leave for solo parents.'
+                ];
+            }
+
+            // Study Leave – 180 days
+            $displayLeaves[] = [
+                'type' => 'Study Leave',
+                'available' => 180,
+                'max' => 180,
+                'used' => 0,
+                'description' => 'Up to 180 days for study purposes (per policy).'
+            ];
+
+            // Fetch current Service Credit balance
+            $serviceCreditRecord = \App\Models\TeacherLeave::where('teacher_id', Auth::user()->personnel->id)
+                ->where('leave_type', 'Service Credit')
+                ->where('year', now()->year)
+                ->first();
+            $serviceCreditBalance = $serviceCreditRecord?->available ?? 0;
+
+            // Prepare balances for JS (only numeric leaves)
             $leaveBalances = [];
-            foreach($filteredTeacherLeaveData as $leave) {
-            $leaveBalances[$leave['type']] = $leave['available'];
+            foreach($displayLeaves as $leave) {
+                if (is_numeric($leave['available'])) {
+                    $leaveBalances[$leave['type']] = $leave['available'];
+                }
             }
             @endphp
 
@@ -307,7 +373,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="px-3 py-1 bg-purple-50 border border-purple-200 rounded-md text-xs font-medium text-purple-700" title="Current Service Credit balance used for Personal & Sick Leave">Service Credit: {{ number_format($serviceCreditBalance,2) }} days</div>
+                        <button id="serviceCreditRequestBtn" class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Service Credit">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />
+                            </svg>
+                        </button>
                         <!-- Leave Request Icon Button -->
                         <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request">
                             <!-- Document with Plus Icon -->
@@ -317,25 +389,82 @@
                         </button>
                     </div>
                 </div>
+                <!-- Service Credit Request Modal -->
+                <div id="serviceCreditRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+                    <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+                        <button id="closeServiceCreditRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Request Service Credit</h3>
+                        @if(session('success') && session('success') === 'Service Credit request submitted and pending approval.')
+                        <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                            {{ session('success') }}
+                        </div>
+                        @endif
+                        @if($errors->any())
+                        <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                            <ul class="list-disc list-inside space-y-1">
+                                @foreach($errors->all() as $error)
+                                <li class="text-sm">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+                        <form method="POST" action="{{ route('service-credit-request.store') }}" class="space-y-4" id="serviceCreditForm">
+                            @csrf
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="work_date" class="block text-sm font-medium text-gray-700">Work Date</label>
+                                    <input type="date" name="work_date" id="work_date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                </div>
+                                <div class="flex flex-col justify-end">
+                                    <div class="text-xs text-gray-500">Provide your actual work times.</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600">Morning In</label>
+                                    <input type="time" name="morning_in" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600">Morning Out</label>
+                                    <input type="time" name="morning_out" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600">Afternoon In</label>
+                                    <input type="time" name="afternoon_in" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600">Afternoon Out</label>
+                                    <input type="time" name="afternoon_out" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                </div>
+                            </div>
+                            <div class="p-3 bg-purple-50 border border-purple-200 rounded-md text-xs text-purple-800" id="scSummary">
+                                <span class="font-semibold">Summary:</span> <span id="scHours">0</span> hour(s) = <span id="scDays">0</span> day(s)
+                            </div>
+                            <div>
+                                <label for="reason_sc" class="block text-sm font-medium text-gray-700">Reason</label>
+                                <input type="text" name="reason" id="reason_sc" maxlength="255" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Reason">
+                            </div>
+                            <div>
+                                <label for="description_sc" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+                                <textarea name="description" id="description_sc" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Additional details"></textarea>
+                            </div>
+                            <button type="submit" class="w-full px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition">Submit Service Credit Request</button>
+                        </form>
+                    </div>
+                </div>
                 <div id="leavesContent" class="transition-all duration-300">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($filteredTeacherLeaveData as $leave)
+                        @foreach($displayLeaves as $leave)
                         <div class="group flex flex-col justify-between p-4 bg-gradient-to-br from-{{ $colors[$leave['type']] ?? 'gray' }}-50 to-{{ $colors[$leave['type']] ?? 'gray' }}-100/50 rounded-xl border border-{{ $colors[$leave['type']] ?? 'gray' }}-200/50 hover:shadow-md transition-all duration-200">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
                                     <div class="flex items-center space-x-2">
-                                        @if(in_array($leave['type'], ['Personal Leave', 'Sick Leave']))
-                                            <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" 
-                                                    data-leave-type="{{ $leave['type'] }}" 
-                                                    data-current-available="{{ $leave['available'] }}"
-                                                    title="Add {{ $leave['type'] }} days">
-                                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                </svg>
-                                            </button>
-                                        @endif
-                                        @if($leave['available'] == 0)
+                                        @if($leave['available'] === 0)
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                             No Days
                                         </span>
@@ -346,10 +475,14 @@
                                             @endif
                                     </div>
                                 </div>
-                                <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} / {{ $leave['max'] }}</p>
-                                <p class="text-sm text-gray-600">Used: {{ $leave['used'] }}</p>
-                                @if(isset($leave['description']))
-                                <p class="text-xs text-gray-500 italic mt-1">{{ $leave['description'] }}</p>
+                                @if(is_null($leave['available']))
+                                    <p class="text-lg font-bold text-gray-900">Taken from Service Credit</p>
+                                @else
+                                    <p class="text-lg font-bold text-gray-900">Available: {{ $leave['available'] }} @if($leave['max']) / {{ $leave['max'] }} @endif</p>
+                                    <p class="text-sm text-gray-600">Used: {{ $leave['used'] ?? 0 }}</p>
+                                @endif
+                                @if(!empty($leave['description']))
+                                    <p class="text-xs text-gray-500 italic mt-1">{{ $leave['description'] }}</p>
                                 @endif
                             </div>
                         </div>
@@ -385,16 +518,16 @@
                                 <label for="leave_type" class="block text-sm font-medium text-gray-700">Type of Leave</label>
                                 <select name="leave_type" id="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                     <option value="">Select type</option>
-                                    @foreach($filteredTeacherLeaveData as $leave)
-                                    @if($leave['available'] > 0 || $leave['available'] === '0')
-                                    <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">
-                                        {{ $leave['type'] }} ({{ $leave['available'] }} days available)
-                                    </option>
-                                    @else
-                                    <option value="{{ $leave['type'] }}" disabled class="text-gray-400" data-available="0">
-                                        {{ $leave['type'] }} (No days available)
-                                    </option>
-                                    @endif
+                                    @foreach($displayLeaves as $leave)
+                                        @if(is_null($leave['available']))
+                                            <option value="{{ $leave['type'] }}" data-available="service-credit">
+                                                {{ $leave['type'] }} (Service Credit Based)
+                                            </option>
+                                        @else
+                                            <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">
+                                                {{ $leave['type'] }} ({{ $leave['available'] }} days available)
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
@@ -585,6 +718,83 @@
                                         {{ ucfirst($request->status) }}
                                     </span>
                                     <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if(isset($serviceCreditRequests) && $serviceCreditRequests->count() > 0)
+                <!-- Service Credit Requests History -->
+                <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-purple-200/50 p-8 mb-8 backdrop-blur-sm">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full -mr-16 -mt-16"></div>
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Recent Service Credit Requests</h3>
+                                    <p class="text-gray-600">Latest submitted requests and their status</p>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                {{ $serviceCreditRequests->where('status', 'pending')->count() }} Pending
+                            </span>
+                        </div>
+                        <div class="space-y-4">
+                            @foreach($serviceCreditRequests as $sc)
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r
+                            @if($sc->status === 'pending') from-purple-50 to-purple-100/50
+                            @elseif($sc->status === 'approved') from-green-50 to-green-100/50
+                            @else from-red-50 to-red-100/50 @endif
+                            rounded-xl border
+                            @if($sc->status === 'pending') border-purple-200/50
+                            @elseif($sc->status === 'approved') border-green-200/50
+                            @else border-red-200/50 @endif
+                            hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br
+                                    @if($sc->status === 'pending') from-purple-500 to-purple-600
+                                    @elseif($sc->status === 'approved') from-green-500 to-green-600
+                                    @else from-red-500 to-red-600 @endif
+                                    rounded-full flex items-center justify-center text-white">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            @if($sc->status === 'pending')
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            @elseif($sc->status === 'approved')
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            @else
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            @endif
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-gray-900">{{ $sc->work_date?->format('M d, Y') }} • {{ number_format($sc->total_hours,2) }} hrs ({{ number_format($sc->requested_days,2) }} days)</h4>
+                                        <p class="text-xs text-gray-600">Reason: {{ Str::limit($sc->reason, 60) }}</p>
+                                        <p class="text-[11px] text-gray-500 mt-1">
+                                            @if($sc->morning_in && $sc->morning_out)
+                                                AM: {{ \Carbon\Carbon::parse($sc->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($sc->morning_out)->format('g:i A') }}
+                                            @endif
+                                            @if($sc->afternoon_in && $sc->afternoon_out)
+                                                | PM: {{ \Carbon\Carbon::parse($sc->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($sc->afternoon_out)->format('g:i A') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if($sc->status === 'pending') bg-purple-100 text-purple-800
+                                    @elseif($sc->status === 'approved') bg-green-100 text-green-800
+                                    @else bg-red-100 text-red-800 @endif">
+                                        {{ ucfirst($sc->status) }}
+                                    </span>
+                                    <p class="text-xs text-gray-500 mt-1">{{ $sc->created_at->format('M d, Y') }}</p>
                                 </div>
                             </div>
                             @endforeach
@@ -1016,6 +1226,52 @@
                         addLeaveModal.classList.add('flex');
                     }
                 @endif
+
+                // Service Credit Modal logic & auto-calculation
+                (function(){
+                    const scBtn = document.getElementById('serviceCreditRequestBtn');
+                    const scModal = document.getElementById('serviceCreditRequestModal');
+                    const scClose = document.getElementById('closeServiceCreditRequestModal');
+                    const form = document.getElementById('serviceCreditForm');
+                    const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
+                    const hoursSpan = document.getElementById('scHours');
+                    const daysSpan = document.getElementById('scDays');
+
+                    function parseTime(val){ if(!val) return null; const [h,m]=val.split(':').map(Number); return h*60+m; }
+                    function diffHours(start,end){ if(start===null||end===null) return 0; const d=(end-start)/60; return d>0?d:0; }
+                    function recompute(){
+                        if(!form) return;
+                        const mi=parseTime(form.morning_in.value); const mo=parseTime(form.morning_out.value);
+                        const ai=parseTime(form.afternoon_in.value); const ao=parseTime(form.afternoon_out.value);
+                        let total = diffHours(mi,mo)+diffHours(ai,ao);
+                        // Cap at 16 for safety
+                        if(total>16) total=16;
+                        hoursSpan.textContent = total.toFixed(2);
+                        daysSpan.textContent = (total/8).toFixed(2);
+                    }
+                    timeInputs.forEach(inp=>inp.addEventListener('change',recompute));
+                    if(scBtn){ scBtn.addEventListener('click',()=>{ scModal.classList.remove('hidden'); scModal.classList.add('flex'); recompute(); }); }
+                    if(scClose){ scClose.addEventListener('click',()=>{ scModal.classList.add('hidden'); scModal.classList.remove('flex'); }); }
+                })();
+                var scBtn = document.getElementById('serviceCreditRequestBtn');
+                var scModal = document.getElementById('serviceCreditRequestModal');
+                var scClose = document.getElementById('closeServiceCreditRequestModal');
+                if (scBtn && scModal && scClose) {
+                    scBtn.addEventListener('click', function() {
+                        scModal.classList.remove('hidden');
+                        scModal.classList.add('flex');
+                    });
+                    scClose.addEventListener('click', function() {
+                        scModal.classList.add('hidden');
+                        scModal.classList.remove('flex');
+                    });
+                    scModal.addEventListener('click', function(e) {
+                        if (e.target === scModal) {
+                            scModal.classList.add('hidden');
+                            scModal.classList.remove('flex');
+                        }
+                    });
+                }
 
                 // Initial validation
                 validateLeaveRequest();

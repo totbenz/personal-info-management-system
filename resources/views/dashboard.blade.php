@@ -822,7 +822,223 @@
         </div>
         @endif
 
+        <!-- Service Credit Requests Section -->
+    @if(isset($pendingServiceCreditRequests))
+        <div id="serviceCreditRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
+            <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Pending Service Credit Requests</h3>
+                            <p class="text-sm text-gray-600 mt-1">Review and approve Service Credit requests from teachers</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {{ $pendingServiceCreditRequests->count() }} Pending
+                        </span>
+                        <a href="{{ route('admin.service-credit-requests') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <div class="hidden md:block">
+                    @if($pendingServiceCreditRequests->count() > 0)
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Segments</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Earned</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($pendingServiceCreditRequests as $request)
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-8 w-8">
+                                            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                                                <span class="text-xs font-medium text-white">
+                                                    {{ strtoupper(substr($request->teacher->first_name, 0, 1)) }}{{ strtoupper(substr($request->teacher->last_name, 0, 1)) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $request->teacher->first_name }} {{ $request->teacher->middle_name }} {{ $request->teacher->last_name }} {{ $request->teacher->name_ext }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ optional($request->work_date)->format('M d, Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
+                                    <div>
+                                        @if($request->morning_in && $request->morning_out)
+                                            AM: {{ \Carbon\Carbon::parse($request->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->morning_out)->format('g:i A') }}
+                                        @endif
+                                    </div>
+                                    <div>
+                                        @if($request->afternoon_in && $request->afternoon_out)
+                                            PM: {{ \Carbon\Carbon::parse($request->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->afternoon_out)->format('g:i A') }}
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ number_format($request->total_hours,2) }} hrs</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">{{ number_format($request->requested_days,2) }} days</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">{{ $request->reason }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div>{{ $request->created_at->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <form method="POST" action="{{ route('admin.service-credit-requests.approve', $request->id) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200" onclick="return confirm('Approve this Service Credit request?')">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                                Approve
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.service-credit-requests.deny', $request->id) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200" onclick="return confirm('Deny this Service Credit request?')">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                Deny
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
+                        <div class="p-8 text-center text-sm text-gray-500">No pending Service Credit requests.</div>
+                    @endif
+                </div>
+                <!-- Mobile cards -->
+                <div class="md:hidden space-y-4 p-4">
+                    @if($pendingServiceCreditRequests->count() > 0)
+                    @foreach($pendingServiceCreditRequests as $request)
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-white">{{ strtoupper(substr($request->teacher->first_name, 0, 1)) }}{{ strtoupper(substr($request->teacher->last_name, 0, 1)) }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $request->teacher->first_name }} {{ $request->teacher->last_name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $request->created_at->format('M d, Y h:i A') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <div class="text-xs text-gray-500">Work Date</div>
+                                <div class="text-sm font-medium text-gray-900">{{ optional($request->work_date)->format('M d, Y') }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Hours</div>
+                                <div class="text-sm font-medium text-gray-900">{{ number_format($request->total_hours,2) }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Days Earned</div>
+                                <div class="text-sm font-medium text-purple-600">{{ number_format($request->requested_days,2) }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Reason</div>
+                                <div class="text-sm font-medium text-gray-900 truncate" title="{{ $request->reason }}">{{ $request->reason }}</div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <form method="POST" action="{{ route('admin.service-credit-requests.approve', $request->id) }}" class="flex-1">
+                                @csrf
+                                <button type="submit" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200" onclick="return confirm('Approve this Service Credit request?')">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    Approve
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.service-credit-requests.deny', $request->id) }}" class="flex-1">
+                                @csrf
+                                <button type="submit" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200" onclick="return confirm('Deny this Service Credit request?')">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    Deny
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                    @else
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center text-sm text-gray-500">No pending Service Credit requests.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Approved Leave Requests History Section -->
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scSection = document.getElementById('serviceCreditRequestsSection');
+            if(!scSection) return;
+            const tableBodySelector = '#serviceCreditRequestsSection table tbody';
+            const badgeSelector = '#serviceCreditRequestsSection span.inline-flex';
+            async function refreshServiceCredits(){
+                try {
+                    const resp = await fetch('{{ route('admin.service-credit-requests.pending-json') }}', {headers:{'Accept':'application/json'}});
+                    if(!resp.ok) return;
+                    const data = await resp.json();
+                    const rows = data.data || [];
+                    const badge = scSection.querySelector(badgeSelector);
+                    if(badge){ badge.textContent = rows.length + ' Pending'; }
+                    const tbody = scSection.querySelector(tableBodySelector);
+                    if(!tbody) return;
+                    if(rows.length === 0){
+                        tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-sm text-gray-500">No pending Service Credit requests.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = rows.map(r => {
+                        const am = (r.morning_in && r.morning_out) ? `AM: ${r.morning_in} - ${r.morning_out}` : '';
+                        const pm = (r.afternoon_in && r.afternoon_out) ? `PM: ${r.afternoon_in} - ${r.afternoon_out}` : '';
+                        return `<tr class=\"hover:bg-gray-50 transition-colors duration-200\">`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap\">${r.teacher || 'N/A'}</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.work_date || ''}</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-xs\">${am}<br>${pm}</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">${Number(r.total_hours).toFixed(2)} hrs</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600\">${Number(r.requested_days).toFixed(2)} days</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm\" title=\"${r.reason}\">${r.reason}</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.created_at}</td>`
+                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">`
+                            + `<div class=\"flex space-x-2\">`
+                            + `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/approve\">@csrf<button class=\"px-3 py-1.5 text-xs rounded-md text-white bg-green-600 hover:bg-green-700\" onclick=\"return confirm('Approve this Service Credit request?')\">Approve</button></form>`
+                            + `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/deny\">@csrf<button class=\"px-3 py-1.5 text-xs rounded-md text-white bg-red-600 hover:bg-red-700\" onclick=\"return confirm('Deny this Service Credit request?')\">Deny</button></form>`
+                            + `</div></td>`
+                            + `</tr>`;
+                    }).join('');
+                } catch(e){ /* silent */ }
+            }
+            // Initial + periodic refresh
+            refreshServiceCredits();
+            setInterval(refreshServiceCredits, 15000); // 15s
+        });
+        </script>
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 mr-10 ml-10 mb-8 overflow-hidden">
             <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
                 <div class="flex items-center justify-between">
