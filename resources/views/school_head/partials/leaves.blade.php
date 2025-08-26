@@ -15,7 +15,9 @@
     $userSex = Auth::user()->personnel->sex ?? null;
     
     // Filter leave data to exclude maternity leave for male users
-    $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex) {
+    $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
+    $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex, $isSoloParent) {
+        if (!$isSoloParent && $leave['type'] === 'Solo Parent Leave') return false;
         return !($leave['type'] === 'Maternity Leave' && $userSex === 'male');
     });
 

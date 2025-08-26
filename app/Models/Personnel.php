@@ -47,6 +47,7 @@ class Personnel extends Model
         'salary',
         'leave_of_absence_without_pay_count',
         'pantilla_of_personnel',
+    'is_solo_parent',
 
         // Government Information
         'tin',
@@ -57,6 +58,10 @@ class Personnel extends Model
     ];
     protected $dates = [
         'employment_start_date',
+    ];
+
+    protected $casts = [
+        'is_solo_parent' => 'boolean',
     ];
 
     // Boot method to attach the saved event
@@ -443,5 +448,23 @@ class Personnel extends Model
     public function schoolHeadLeaves(): HasMany
     {
         return $this->hasMany(SchoolHeadLeave::class, 'school_head_id');
+    }
+
+    /**
+     * Accessor to expose a unified is_solo_parent flag across the app.
+     * Falls back to related questionnaire detail (personnel_details.solo_parent) if column not present.
+     * Returns boolean and defaults to false when data is missing.
+     */
+    public function getIsSoloParentAttribute(): bool
+    {
+        // If the attribute exists directly on the model (future migration), honor it first
+        if (array_key_exists('is_solo_parent', $this->attributes)) {
+            return (bool) $this->attributes['is_solo_parent'];
+        }
+        // Fallback to personnelDetail->solo_parent (1/0 or null)
+        if ($this->relationLoaded('personnelDetail') || method_exists($this, 'personnelDetail')) {
+            return (bool) optional($this->personnelDetail)->solo_parent;
+        }
+        return false;
     }
 }

@@ -48,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
         } elseif ($user->role === 'admin') {
             return redirect()->route('admin.home');
         } else {
-            return redirect()->route('/login');
+            return redirect()->route('login');
         }
     });
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
@@ -91,8 +91,6 @@ Route::middleware(['auth'])->group(function () {
 
     // SCHOOL HEAD ACCESS
     Route::middleware(['user-access:school_head'])->group(function () {
-        Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
-
         // school routes
         Route::get('/school-head-dashboard', [HomeController::class, 'schoolHeadDashboard'])->name('school_head.dashboard');
         Route::controller(SchoolController::class)->group(function () {

@@ -675,9 +675,36 @@ class HomeController extends Controller
             ];
         }
 
-        // Placeholder CTO & accrual summary (if later services added, mimic school head)
-        $ctoBalance = ['entries' => [], 'total_available' => 0, 'expired_days' => 0];
-        $accrualSummary = null;
+        // --- CTO Integration (reuse SchoolHeadLeave + CTOService for non-teaching) ---
+        // We store CTO credits in SchoolHeadLeave for backward compatibility even for non-teaching staff
+        $ctoService = app(\App\Services\CTOService::class);
+        // Ensure legacy record reflects current CTOEntry data (if any approval already happened)
+        $ctoService->updateSchoolHeadLeaveBalance($personnel->id);
+
+        // Fetch updated CTO legacy record (will be created on first approval)
+        $ctoLeaveRecord = \App\Models\SchoolHeadLeave::where('school_head_id', $personnel->id)
+            ->where('leave_type', 'Compensatory Time Off')
+            ->where('year', $year)
+            ->first();
+
+        // Override leaveData CTO slot with accurate values, including earned CTOs
+        if ($ctoLeaveRecord) {
+            foreach ($leaveData as &$ld) {
+                if ($ld['type'] === 'Compensatory Time Off') {
+                    $ld['available'] = $ctoLeaveRecord->available;
+                    $ld['used'] = $ctoLeaveRecord->used;
+                    $ld['max'] = max($ld['max'], $ctoLeaveRecord->available + $ctoLeaveRecord->used);
+                    $ld['ctos_earned'] = $ctoLeaveRecord->ctos_earned;
+                    $ld['remarks'] = $ctoLeaveRecord->remarks;
+                    break;
+                }
+            }
+            unset($ld); // break reference
+        }
+
+        // Detailed CTO balance (entries, totals, expiry info)
+        $ctoBalance = $ctoService->getCTOBalance($personnel->id);
+        $accrualSummary = null; // Not yet implemented for non-teaching
 
         return view('non_teaching.dashboard', compact(
             'personalInfo',

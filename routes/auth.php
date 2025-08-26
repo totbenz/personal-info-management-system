@@ -31,15 +31,6 @@ Route::middleware('auth')->group(function () {
         ->name('password.confirm');
 });
 
-// Role-based redirection
-Route::middleware(['user.access:admin'])->group(function () {
-    Route::get('dashboard', [HomeController::class, 'index'])->name('admin.home');
-});
-
-Route::middleware(['user.access:school_head'])->group(function () {
-    Route::get('school-profile', [HomeController::class, 'index'])->name('schools.show');
-});
-
-Route::middleware(['user.access:personnel'])->group(function () {
-    Route::get('profile', [HomeController::class, 'profile'])->name('personnels.show');
-});
+// Note: Legacy role-based redirection routes removed to prevent duplicate route names
+// and incorrect middleware alias usage ("user.access" vs registered "user-access").
+// Role-specific dashboards & profiles are defined in routes/web.php.

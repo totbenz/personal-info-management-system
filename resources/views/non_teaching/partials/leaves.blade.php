@@ -16,7 +16,9 @@
     $baseLeaveData = $leaveData ?? [];
 
     $userSex = Auth::user()->personnel->sex ?? null;
-    $filteredLeaveData = array_filter($baseLeaveData, function($leave) use ($userSex) {
+    $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
+    $filteredLeaveData = array_filter($baseLeaveData, function($leave) use ($userSex, $isSoloParent) {
+        if (!$isSoloParent && $leave['type'] === 'Solo Parent Leave') return false;
         return !($leave['type'] === 'Maternity Leave' && $userSex === 'male');
     });
 

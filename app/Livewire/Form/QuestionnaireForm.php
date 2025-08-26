@@ -224,6 +224,9 @@ class QuestionnaireForm extends PersonnelNavigation
                 PersonnelDetail::create($data);
             }
 
+            // Sync high-level personnel flag for quick access (new is_solo_parent column)
+            $this->personnel->update(['is_solo_parent' => (bool) ($data['solo_parent'] ?? false)]);
+
             session()->flash('flash.banner', 'Questionnaire saved successfully');
             session()->flash('flash.bannerStyle', 'save');
             // Set session to remember the active tab
