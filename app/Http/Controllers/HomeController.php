@@ -6,6 +6,7 @@ use App\Models\Personnel;
 use App\Models\School;
 use App\Models\User;
 use App\Models\LeaveRequest;
+use App\Models\ServiceCreditRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -68,11 +69,18 @@ class HomeController extends Controller
             ->get();
 
         // Pending Service Credit requests (teachers only)
-        $pendingServiceCreditRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')
+        $pendingServiceCreditRequests = ServiceCreditRequest::where('status', 'pending')
             ->with(['teacher'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
+        
+        // Debug logging
+        \Illuminate\Support\Facades\Log::info('Admin Dashboard - Service Credit Requests', [
+            'total_service_credit_requests' => ServiceCreditRequest::count(),
+            'pending_service_credit_requests' => $pendingServiceCreditRequests->count(),
+            'pending_requests_data' => $pendingServiceCreditRequests->toArray()
+        ]);
 
         // Approved leave requests from all roles
         $approvedLeaveRequests = LeaveRequest::where('status', 'approved')
@@ -87,7 +95,7 @@ class HomeController extends Controller
             ->get();
 
         // Approved Service Credit requests (for history / optional display)
-        $approvedServiceCreditRequests = \App\Models\ServiceCreditRequest::where('status', 'approved')
+        $approvedServiceCreditRequests = ServiceCreditRequest::where('status', 'approved')
             ->with(['teacher'])
             ->orderBy('updated_at', 'desc')
             ->get();

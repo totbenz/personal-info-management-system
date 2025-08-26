@@ -88,7 +88,7 @@ class ServiceCreditRequestController extends Controller
 
         try {
             DB::transaction(function() use ($personnel, $request, $totalHours, $requestedDays) {
-                ServiceCreditRequest::create([
+                $serviceCredit = ServiceCreditRequest::create([
                     'teacher_id' => $personnel->id,
                     'requested_days' => $requestedDays,
                     'work_date' => $request->work_date,
@@ -100,6 +100,19 @@ class ServiceCreditRequestController extends Controller
                     'reason' => $request->reason,
                     'description' => $request->description,
                     'status' => 'pending',
+                ]);
+                
+                // Additional debug logging
+                Log::info('Service Credit Request Successfully Created', [
+                    'service_credit_id' => $serviceCredit->id,
+                    'teacher_id' => $personnel->id,
+                    'teacher_name' => $personnel->first_name . ' ' . $personnel->last_name,
+                    'user_id' => Auth::id(),
+                    'requested_days' => $requestedDays,
+                    'total_hours' => $totalHours,
+                    'work_date' => $request->work_date,
+                    'status' => 'pending',
+                    'reason' => $request->reason
                 ]);
             });
 
