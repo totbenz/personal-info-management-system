@@ -4,56 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Approved Leave Requests - {{ $month }} {{ $year }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+
         @page {
-            size: legal landscape;
-            margin: 0.5in;
+            size: legal;
+            margin: 0.25in 0.5in 0 0.5in;
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-size: 12px;
-            font-family: Arial, sans-serif;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #333;
-        }
-
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 5px 0;
-            color: #333;
-        }
-
-        .header h2 {
+            min-height: 8.5in;
             font-size: 16px;
-            font-weight: normal;
-            margin: 5px 0;
-            color: #666;
+            font-family: Times New Roman, serif;
         }
 
-        .header h3 {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
-            color: #1865a6;
+        .unifraktur-font {
+            font-family: 'UnifrakturCook' !important;
+            font-weight: 700;
         }
 
-        .info-section {
+        .summary-stats {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             margin-bottom: 20px;
-            font-size: 11px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
 
-        .info-left, .info-right {
-            width: 48%;
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1865a6;
         }
 
         .table-container {
@@ -63,14 +54,14 @@
         .requests-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 10px;
+            font-size: 16px;
             margin-top: 10px;
         }
 
         .requests-table th,
         .requests-table td {
             border: 0.5px solid #333;
-            padding: 8px 4px;
+            padding: 10px 8px;
             text-align: center;
             vertical-align: middle;
         }
@@ -78,11 +69,11 @@
         .requests-table th {
             background-color: #f0f0f0;
             font-weight: bold;
-            font-size: 9px;
+            font-size: 14px;
         }
 
         .requests-table td {
-            font-size: 9px;
+            font-size: 13px;
         }
 
         .requests-table .text-left {
@@ -90,100 +81,67 @@
         }
 
         .role-badge {
-            padding: 2px 6px;
+            padding: 4px 10px;
             border-radius: 10px;
-            font-size: 8px;
+            font-size: 11px;
             font-weight: bold;
-            color: white;
+            color: #333;
         }
 
         .role-school-head {
-            background-color: #8B5CF6;
+            color: #8B5CF6;
         }
 
         .role-teacher {
-            background-color: #3B82F6;
+            color: #3B82F6;
         }
 
         .role-other {
-            background-color: #6B7280;
+            color: #6B7280;
         }
 
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ccc;
-            display: flex;
-            justify-content: space-between;
+        .days-badge {
+            padding: 4px 10px;
+            border-radius: 10px;
             font-size: 11px;
-        }
-
-        .footer-left {
-            width: 60%;
-        }
-
-        .footer-right {
-            width: 35%;
-            text-align: right;
-        }
-
-        .signature-section {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .signature-box {
-            width: 30%;
-            text-align: center;
-        }
-
-        .signature-line {
-            border-bottom: 1px solid #333;
-            margin-bottom: 5px;
-            height: 40px;
-        }
-
-        .total-summary {
-            background-color: #f8f9fa;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
             font-weight: bold;
+            color: white;
+            background-color: #10B981;
         }
     </style>
 </head>
 
-<body>
+<body class="text-gray-900">
     <!-- Header Section -->
-    <div class="header">
-        <h1>Republic of the Philippines</h1>
-        <h1>Department of Education</h1>
-        <h2>Region VIII - Eastern Visayas</h2>
-        <h2>SCHOOLS DIVISION OF BAYBAY CITY</h2>
-        <h2>Brgy. Gaas, Baybay City, Leyte</h2>
-        <h3>APPROVED LEAVE REQUESTS REPORT</h3>
+    <div class="text-center mb-6">
+        <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
+        <h2 class="unifraktur-font">Republic of the Philippines</h2>
+        <h1 class="font-semibold unifraktur-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px;">Department of Education</h1>
+        <p style="font-size: 13px;">REGION VIII</p>
+        <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
+        <hr class="border-gray-300 mt-3 border-t-2">
+        <p class="mt-2 text-left" style="font-size: 15px;">Office of the Schools Division Superintendent</p>
     </div>
 
-    <!-- Report Information -->
-    <div class="info-section">
-        <div class="info-left">
-            <strong>Report Period:</strong> {{ $month }} {{ $year }}<br>
-            <strong>Total Approved Requests:</strong> {{ $totalRequests }}<br>
-            <strong>Report Type:</strong> Approved Leave Requests
-        </div>
-        <div class="info-right">
-            <strong>Generated On:</strong> {{ $generatedAt }}<br>
-            <strong>Generated By:</strong> System Administrator<br>
-            <strong>Status:</strong> Official Report
-        </div>
+    <div class="text-center mb-6">
+        <h1 class="font-bold uppercase" style="font-size: 24px;">APPROVED LEAVE REQUESTS REPORT</h1>
+        <p class="mt-4" style="font-size: 16px;">{{ $month }} {{ $year }}</p>
     </div>
 
-    <!-- Summary Section -->
-    <div class="total-summary">
-        Total Approved Leave Requests: {{ $totalRequests }} requests for {{ $month }} {{ $year }}
+    <!-- Summary Statistics -->
+    <div class="summary-stats">
+        <div class="stat-box">
+            <div class="stat-number">{{ $totalRequests }}</div>
+            <div>Total Requests</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ $requests->unique('user.personnel.school.id')->count() }}</div>
+            <div>Schools Involved</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ $requests->sum(function($request) { return \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1; }) }}</div>
+            <div>Total Leave Days</div>
+        </div>
     </div>
 
     <!-- Requests Table -->
@@ -238,7 +196,9 @@
                         <br>to {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
                     </td>
                     <td>
-                        {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }}
+                        <span class="days-badge">
+                            {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }}
+                        </span>
                     </td>
                     <td>
                         {{ $request->updated_at->format('M d, Y') }}
@@ -257,37 +217,24 @@
     </div>
 
     <!-- Footer Section -->
-    <div class="footer">
-        <div class="footer-left">
-            <strong>Note:</strong> This report contains all leave requests that were approved during the specified period.
-            All data has been verified for accuracy and completeness.
-        </div>
-        <div class="footer-right">
-            <strong>Page 1 of 1</strong><br>
-            Generated by PIMS v1.0
-        </div>
-    </div>
+    <div style="margin-top: 50px; page-break-inside: avoid;">
+        <hr class="border-gray-300 mt-1 border-t-2 mb-2">
 
-    <!-- Signature Section -->
-    <div class="signature-section">
-        <div class="signature-box">
-            <div class="signature-line"></div>
-            <strong>Prepared by:</strong><br>
-            System Administrator<br>
-            {{ $generatedAt }}
+        <!-- Logo Section -->
+        <div style="width: 30%; float: left; display: inline-block;">
+            <img src="{{ public_path('image/deped-matatag.png') }}" alt="DepEd Matatag Logo" style="height: 70px; vertical-align: top; display: inline-block;">
+            <img src="{{ public_path('image/division-logo.png') }}" alt="Division Logo" style="height: 62px; vertical-align: top; margin-left: 10px; display: inline-block;">
         </div>
-        <div class="signature-box">
-            <div class="signature-line"></div>
-            <strong>Reviewed by:</strong><br>
-            Administrative Officer VI (HRMO II)<br>
-            Date: ________________
+
+        <!-- Contact Information -->
+        <div style="width: 70%; float: right; font-size: 13px; line-height: 1.5; color: #1f2937;">
+            <p><strong>Address:</strong> Diversion Road, Barangay Gaas, Baybay City, Leyte</p>
+            <p><strong>Telephone #:</strong> (53) 563-7615</p>
+            <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>
         </div>
-        <div class="signature-box">
-            <div class="signature-line"></div>
-            <strong>Approved by:</strong><br>
-            Schools Division Superintendent<br>
-            Date: ________________
-        </div>
+        
+        <!-- Clear floats -->
+        <div style="clear: both;"></div>
     </div>
 </body>
 
