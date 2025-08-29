@@ -654,168 +654,173 @@
                     </div>
                 </div>
 
-                <!-- Leave Request History Section -->
-                @if(isset($leaveRequests) && $leaveRequests->count() > 0)
-                <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-full -mr-16 -mt-16"></div>
-                    <div class="relative">
-                        <div class="flex items-center justify-between mb-6">
-                            <div id="historyHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
-                                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors duration-200">Your Leave Request History</h3>
-                                    <p class="text-gray-600">Track your submitted leave requests and their status</p>
-                                </div>
-                                <svg id="historyToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </div>
+
+            <!-- Leave Request History Section -->
+            @if(isset($leaveRequests) && $leaveRequests->count() > 0)
+            <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div id="historyHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
+                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                                 </svg>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    {{ $leaveRequests->where('status', 'pending')->count() }} Pending
-                                </span>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors duration-200">Your Leave Request History</h3>
+                                <p class="text-gray-600">Track your submitted leave requests and their status</p>
                             </div>
+                            <svg id="historyToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </div>
-                        <div id="leaveHistoryContent" class="space-y-4 transition-all duration-300">
-                            @foreach($leaveRequests as $request)
-                            <div class="flex items-center justify-between p-4 bg-gradient-to-r
-                            @if($request->status === 'pending') from-orange-50 to-orange-100/50
-                            @elseif($request->status === 'approved') from-green-50 to-green-100/50
-                            @else from-red-50 to-red-100/50 @endif
-                            rounded-xl border
-                            @if($request->status === 'pending') border-orange-200/50
-                            @elseif($request->status === 'approved') border-green-200/50
-                            @else border-red-200/50 @endif
-                            hover:shadow-md transition-all duration-200">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br
-                                    @if($request->status === 'pending') from-orange-500 to-orange-600
-                                    @elseif($request->status === 'approved') from-green-500 to-green-600
-                                    @else from-red-500 to-red-600 @endif
-                                    rounded-full flex items-center justify-center text-white">
-                                        @if($request->status === 'pending')
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        @elseif($request->status === 'approved')
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        @else
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <h4 class="text-sm font-semibold text-gray-900">{{ $request->leave_type }}</h4>
-                                        <p class="text-xs text-gray-600">
-                                            {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} -
-                                            {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
-                                            ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
-                                        </p>
-                                        <p class="text-xs text-gray-500 mt-1">{{ Str::limit($request->reason, 80) }}</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    @if($request->status === 'pending') bg-orange-100 text-orange-800
-                                    @elseif($request->status === 'approved') bg-green-100 text-green-800
-                                    @else bg-red-100 text-red-800 @endif">
-                                        {{ ucfirst($request->status) }}
-                                    </span>
-                                    <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
-                                </div>
-                            </div>
-                            @endforeach
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                {{ $leaveRequests->where('status', 'pending')->count() }} Pending
+                            </span>
                         </div>
                     </div>
-                </div>
-                @endif
-
-                @if(isset($serviceCreditRequests) && $serviceCreditRequests->count() > 0)
-                <!-- Service Credit Requests History -->
-                <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-purple-200/50 p-8 mb-8 backdrop-blur-sm">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full -mr-16 -mt-16"></div>
-                    <div class="relative">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div id="leaveHistoryContent" class="space-y-4 transition-all duration-300">
+                        @foreach($leaveRequests as $request)
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r
+                        @if($request->status === 'pending') from-orange-50 to-orange-100/50
+                        @elseif($request->status === 'approved') from-green-50 to-green-100/50
+                        @else from-red-50 to-red-100/50 @endif
+                        rounded-xl border
+                        @if($request->status === 'pending') border-orange-200/50
+                        @elseif($request->status === 'approved') border-green-200/50
+                        @else border-red-200/50 @endif
+                        hover:shadow-md transition-all duration-200">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-br
+                                @if($request->status === 'pending') from-orange-500 to-orange-600
+                                @elseif($request->status === 'approved') from-green-500 to-green-600
+                                @else from-red-500 to-red-600 @endif
+                                rounded-full flex items-center justify-center text-white">
+                                    @if($request->status === 'pending')
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
+                                    @elseif($request->status === 'approved')
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    @else
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    @endif
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Recent Service Credit Requests</h3>
-                                    <p class="text-gray-600">Latest submitted requests and their status</p>
+                                    <h4 class="text-sm font-semibold text-gray-900">{{ $request->leave_type }}</h4>
+                                    <p class="text-xs text-gray-600">
+                                        {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} -
+                                        {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
+                                        ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ Str::limit($request->reason, 80) }}</p>
                                 </div>
                             </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($request->status === 'pending') bg-orange-100 text-orange-800
+                                @elseif($request->status === 'approved') bg-green-100 text-green-800
+                                @else bg-red-100 text-red-800 @endif">
+                                    {{ ucfirst($request->status) }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Service Credit Requests History -->
+            @if(isset($serviceCreditRequests) && $serviceCreditRequests->count() > 0)
+            <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-purple-200/50 p-8 mb-8 backdrop-blur-sm">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div id="serviceCreditHistoryHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors duration-200">Recent Service Credit Requests</h3>
+                                <p class="text-gray-600">Latest submitted requests and their status</p>
+                            </div>
+                            <svg id="serviceCreditHistoryToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="flex items-center space-x-2">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                 {{ $serviceCreditRequests->where('status', 'pending')->count() }} Pending
                             </span>
                         </div>
-                        <div class="space-y-4">
-                            @foreach($serviceCreditRequests as $sc)
-                            <div class="flex items-center justify-between p-4 bg-gradient-to-r
-                            @if($sc->status === 'pending') from-purple-50 to-purple-100/50
-                            @elseif($sc->status === 'approved') from-green-50 to-green-100/50
-                            @else from-red-50 to-red-100/50 @endif
-                            rounded-xl border
-                            @if($sc->status === 'pending') border-purple-200/50
-                            @elseif($sc->status === 'approved') border-green-200/50
-                            @else border-red-200/50 @endif
-                            hover:shadow-md transition-all duration-200">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br
-                                    @if($sc->status === 'pending') from-purple-500 to-purple-600
-                                    @elseif($sc->status === 'approved') from-green-500 to-green-600
-                                    @else from-red-500 to-red-600 @endif
-                                    rounded-full flex items-center justify-center text-white">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            @if($sc->status === 'pending')
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            @elseif($sc->status === 'approved')
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                            @else
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            @endif
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-sm font-semibold text-gray-900">{{ $sc->work_date?->format('M d, Y') }} • {{ number_format($sc->total_hours,2) }} hrs ({{ number_format($sc->requested_days,2) }} days)</h4>
-                                        <p class="text-xs text-gray-600">Reason: {{ Str::limit($sc->reason, 60) }}</p>
-                                        <p class="text-[11px] text-gray-500 mt-1">
-                                            @if($sc->morning_in && $sc->morning_out)
-                                                AM: {{ \Carbon\Carbon::parse($sc->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($sc->morning_out)->format('g:i A') }}
-                                            @endif
-                                            @if($sc->afternoon_in && $sc->afternoon_out)
-                                                | PM: {{ \Carbon\Carbon::parse($sc->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($sc->afternoon_out)->format('g:i A') }}
-                                            @endif
-                                        </p>
-                                    </div>
+                    </div>
+                    <div id="serviceCreditHistoryContent" class="space-y-4 transition-all duration-300">
+                        @foreach($serviceCreditRequests as $sc)
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r
+                        @if($sc->status === 'pending') from-purple-50 to-purple-100/50
+                        @elseif($sc->status === 'approved') from-green-50 to-green-100/50
+                        @else from-red-50 to-red-100/50 @endif
+                        rounded-xl border
+                        @if($sc->status === 'pending') border-purple-200/50
+                        @elseif($sc->status === 'approved') border-green-200/50
+                        @else border-red-200/50 @endif
+                        hover:shadow-md transition-all duration-200">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-br
+                                @if($sc->status === 'pending') from-purple-500 to-purple-600
+                                @elseif($sc->status === 'approved') from-green-500 to-green-600
+                                @else from-red-500 to-red-600 @endif
+                                rounded-full flex items-center justify-center text-white">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        @if($sc->status === 'pending')
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        @elseif($sc->status === 'approved')
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        @else
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        @endif
+                                    </svg>
                                 </div>
-                                <div class="text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    @if($sc->status === 'pending') bg-purple-100 text-purple-800
-                                    @elseif($sc->status === 'approved') bg-green-100 text-green-800
-                                    @else bg-red-100 text-red-800 @endif">
-                                        {{ ucfirst($sc->status) }}
-                                    </span>
-                                    <p class="text-xs text-gray-500 mt-1">{{ $sc->created_at->format('M d, Y') }}</p>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900">{{ $sc->work_date?->format('M d, Y') }} • {{ number_format($sc->total_hours,2) }} hrs ({{ number_format($sc->requested_days,2) }} days)</h4>
+                                    <p class="text-xs text-gray-600">Reason: {{ Str::limit($sc->reason, 60) }}</p>
+                                    <p class="text-[11px] text-gray-500 mt-1">
+                                        @if($sc->morning_in && $sc->morning_out)
+                                            AM: {{ \Carbon\Carbon::parse($sc->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($sc->morning_out)->format('g:i A') }}
+                                        @endif
+                                        @if($sc->afternoon_in && $sc->afternoon_out)
+                                            | PM: {{ \Carbon\Carbon::parse($sc->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($sc->afternoon_out)->format('g:i A') }}
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
-                            @endforeach
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($sc->status === 'pending') bg-purple-100 text-purple-800
+                                @elseif($sc->status === 'approved') bg-green-100 text-green-800
+                                @else bg-red-100 text-red-800 @endif">
+                                    {{ ucfirst($sc->status) }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">{{ $sc->created_at->format('M d, Y') }}</p>
+                            </div>
                         </div>
+                        @endforeach
                     </div>
                 </div>
-                @endif
-
-
             </div>
+            @endif
+
             <!-- Loyalty Award Information -->
             @if($yearsOfService >= 10)
             <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
@@ -823,11 +828,11 @@
                 <div class="relative">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Loyalty Award Status</h3>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Loyalty Award Status</h3>
                             <p class="text-gray-600">Your loyalty award eligibility and claims information</p>
                         </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                             </svg>
                         </div>
@@ -878,11 +883,11 @@
                 <div class="relative">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Upcoming Events</h3>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Upcoming Events</h3>
                             <p class="text-gray-600">Recent and upcoming events in your school</p>
                         </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
@@ -916,11 +921,11 @@
                 <div class="relative">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Recent Salary Changes</h3>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Recent Salary Changes</h3>
                             <p class="text-gray-600">Your recent salary adjustments and updates</p>
                         </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
@@ -977,6 +982,12 @@
                 var leaveHistoryContent = document.getElementById('leaveHistoryContent');
                 var isHistoryMinimized = localStorage.getItem('teacherLeaveHistoryMinimized') === 'true';
 
+                // Minimize functionality for service credit history section
+                var serviceCreditHistoryHeaderToggle = document.getElementById('serviceCreditHistoryHeaderToggle');
+                var serviceCreditHistoryToggleIcon = document.getElementById('serviceCreditHistoryToggleIcon');
+                var serviceCreditHistoryContent = document.getElementById('serviceCreditHistoryContent');
+                var isServiceCreditHistoryMinimized = localStorage.getItem('teacherServiceCreditHistoryMinimized') === 'true';
+
                 // Set initial state for leaves section based on localStorage
                 if (isLeavesMinimized) {
                     leavesContent.style.height = '0';
@@ -991,6 +1002,14 @@
                     leaveHistoryContent.style.overflow = 'hidden';
                     leaveHistoryContent.style.opacity = '0';
                     historyToggleIcon.style.transform = 'rotate(-90deg)';
+                }
+
+                // Set initial state for service credit history section based on localStorage
+                if (isServiceCreditHistoryMinimized && serviceCreditHistoryContent) {
+                    serviceCreditHistoryContent.style.height = '0';
+                    serviceCreditHistoryContent.style.overflow = 'hidden';
+                    serviceCreditHistoryContent.style.opacity = '0';
+                    serviceCreditHistoryToggleIcon.style.transform = 'rotate(-90deg)';
                 }
 
                 // Leaves section toggle
@@ -1034,6 +1053,28 @@
                             localStorage.setItem('teacherLeaveHistoryMinimized', 'true');
                         }
                         isHistoryMinimized = !isHistoryMinimized;
+                    });
+                }
+
+                // Service Credit History section toggle
+                if (serviceCreditHistoryHeaderToggle && serviceCreditHistoryContent) {
+                    serviceCreditHistoryHeaderToggle.addEventListener('click', function() {
+                        if (isServiceCreditHistoryMinimized) {
+                            // Expand
+                            serviceCreditHistoryContent.style.height = 'auto';
+                            serviceCreditHistoryContent.style.overflow = 'visible';
+                            serviceCreditHistoryContent.style.opacity = '1';
+                            serviceCreditHistoryToggleIcon.style.transform = 'rotate(0deg)';
+                            localStorage.setItem('teacherServiceCreditHistoryMinimized', 'false');
+                        } else {
+                            // Minimize
+                            serviceCreditHistoryContent.style.height = '0';
+                            serviceCreditHistoryContent.style.overflow = 'hidden';
+                            serviceCreditHistoryContent.style.opacity = '0';
+                            serviceCreditHistoryToggleIcon.style.transform = 'rotate(-90deg)';
+                            localStorage.setItem('teacherServiceCreditHistoryMinimized', 'true');
+                        }
+                        isServiceCreditHistoryMinimized = !isServiceCreditHistoryMinimized;
                     });
                 }
 
