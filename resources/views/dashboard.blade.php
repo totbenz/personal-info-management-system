@@ -3,7 +3,7 @@
     <x-slot name="header">
         <div class="flex items-center space-x-2">
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z" />
             </svg>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Dashboard') }}
@@ -13,7 +13,7 @@
 
     <!-- Dashboard Content -->
     <div x-data="{ showSchools: false, showPersonnels: false, showUsers: false, showJobStatus: false, showDistrict: false, showDivision: false, selectedStatus: '', selectedDistrict: '', selectedDivision: '' }" class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pr-80">
-        
+
         <!-- Success Message -->
         @if(session('success'))
         <div class="mx-4 px-4 sm:px-6 mb-4">
@@ -31,7 +31,7 @@
             </div>
         </div>
         @endif
-        
+
         <div class="mx-4 px-4 sm:px-6">
 
             <!-- Key Metrics Cards -->
@@ -110,9 +110,9 @@
                             <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingLeaveRequests->count() }}</div>
                             <div class="text-xs text-gray-500">
                                 @if($pendingLeaveRequests->count() > 0)
-                                    Pending approvals
+                                Pending approvals
                                 @else
-                                    All up to date
+                                All up to date
                                 @endif
                             </div>
                         </div>
@@ -141,9 +141,9 @@
                             <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingCTORequests->count() }}</div>
                             <div class="text-xs text-gray-500">
                                 @if($pendingCTORequests->count() > 0)
-                                    Pending approvals
+                                Pending approvals
                                 @else
-                                    All up to date
+                                All up to date
                                 @endif
                             </div>
                         </div>
@@ -172,9 +172,9 @@
                             <div class="text-2xl font-bold text-gray-900 mb-1">{{ isset($pendingServiceCreditRequests) ? $pendingServiceCreditRequests->count() : 0 }}</div>
                             <div class="text-xs text-gray-500">
                                 @if(isset($pendingServiceCreditRequests) && $pendingServiceCreditRequests->count() > 0)
-                                    Pending approvals
+                                Pending approvals
                                 @else
-                                    All up to date
+                                All up to date
                                 @endif
                             </div>
                         </div>
@@ -425,118 +425,118 @@
                 @if($pendingLeaveRequests->count() > 0)
                 <div class="hidden md:block">
                     <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Personnel
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Role
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Leave Type
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Duration
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Reason
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Requested Date
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($pendingLeaveRequests as $request)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-8 w-8">
-                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                            <span class="text-xs font-medium text-white">
-                                                {{ strtoupper(substr($request->user->personnel->first_name ?? $request->user->name, 0, 1)) }}{{ strtoupper(substr($request->user->personnel->last_name ?? '', 0, 1)) }}
-                                            </span>
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Personnel
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Role
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Leave Type
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Duration
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Reason
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Requested Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($pendingLeaveRequests as $request)
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-8 w-8">
+                                            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                                <span class="text-xs font-medium text-white">
+                                                    {{ strtoupper(substr($request->user->personnel->first_name ?? $request->user->name, 0, 1)) }}{{ strtoupper(substr($request->user->personnel->last_name ?? '', 0, 1)) }}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="ml-3">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            @if($request->user->personnel)
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                @if($request->user->personnel)
                                                 {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
-                                            @else
+                                                @else
                                                 {{ $request->user->name }}
-                                            @endif
+                                                @endif
+                                            </div>
+                                            <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
                                         </div>
-                                        <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                     @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
                                     @elseif($request->user->role === 'teacher') bg-green-100 text-green-800
                                     @else bg-blue-100 text-blue-800 @endif">
-                                    {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} - 
-                                    {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">
-                                    {{ $request->reason }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y') }}</div>
-                                <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="status" value="approved">
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                                                onclick="return confirm('Are you sure you want to approve this leave request?')">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            Approve
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="status" value="denied">
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                                                onclick="return confirm('Are you sure you want to deny this leave request?')">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                            Deny
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                        {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} -
+                                        {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">
+                                        {{ $request->reason }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
+                                            @csrf
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="button"
+                                                onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Approve
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
+                                            @csrf
+                                            <input type="hidden" name="status" value="denied">
+                                            <button type="button"
+                                                onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12"></path>
+                                                </svg>
+                                                Deny
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                
+
                 <!-- Mobile view -->
                 <div class="md:hidden space-y-4">
                     @foreach($pendingLeaveRequests as $request)
@@ -553,12 +553,12 @@
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">
                                         @if($request->user->personnel)
-                                            {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
+                                        {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
                                         @else
-                                            {{ $request->user->name }}
+                                        {{ $request->user->name }}
                                         @endif
                                     </div>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
                                         @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
                                         @elseif($request->user->role === 'teacher') bg-green-100 text-green-800
                                         @else bg-blue-100 text-blue-800 @endif">
@@ -567,42 +567,42 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="space-y-2 mb-4">
                             <div>
                                 <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Leave Type</span>
                                 <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
                             </div>
-                            
+
                             <div>
                                 <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Duration</span>
                                 <div class="text-sm text-gray-900">
-                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} - 
+                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} -
                                     {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
                                     <span class="text-xs text-gray-500">
                                         ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Reason</span>
                                 <div class="text-sm text-gray-900">{{ $request->reason }}</div>
                             </div>
-                            
+
                             <div>
                                 <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Requested</span>
                                 <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y h:i A') }}</div>
                             </div>
                         </div>
-                        
+
                         <div class="flex space-x-2">
                             <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="flex-1">
                                 @csrf
                                 <input type="hidden" name="status" value="approved">
-                                <button type="submit" 
-                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                                        onclick="return confirm('Are you sure you want to approve this leave request?')">
+                                <button type="button"
+                                    onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                    class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
@@ -612,9 +612,9 @@
                             <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="flex-1">
                                 @csrf
                                 <input type="hidden" name="status" value="denied">
-                                <button type="submit" 
-                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                                        onclick="return confirm('Are you sure you want to deny this leave request?')">
+                                <button type="button"
+                                    onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                    class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -668,105 +668,105 @@
                 @if($pendingCTORequests->count() > 0)
                 <div class="hidden md:block">
                     <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                School Head
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Work Details
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Hours
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                CTO Days Earned
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Reason
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Requested Date
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($pendingCTORequests as $request)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-8 w-8">
-                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
-                                            <span class="text-xs font-medium text-white">
-                                                {{ strtoupper(substr($request->personnel->first_name, 0, 1)) }}{{ strtoupper(substr($request->personnel->last_name, 0, 1)) }}
-                                            </span>
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    School Head
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Work Details
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Hours
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    CTO Days Earned
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Reason
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Requested Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($pendingCTORequests as $request)
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-8 w-8">
+                                            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                                                <span class="text-xs font-medium text-white">
+                                                    {{ strtoupper(substr($request->personnel->first_name, 0, 1)) }}{{ strtoupper(substr($request->personnel->last_name, 0, 1)) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $request->personnel->first_name }} {{ $request->personnel->middle_name }} {{ $request->personnel->last_name }} {{ $request->personnel->name_ext }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
                                         </div>
                                     </div>
-                                    <div class="ml-3">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $request->personnel->first_name }} {{ $request->personnel->middle_name }} {{ $request->personnel->last_name }} {{ $request->personnel->name_ext }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 font-medium">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">
+                                        {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} -
+                                        {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
                                     </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 font-medium">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
-                                <div class="text-xs text-gray-500">
-                                    {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - 
-                                    {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 font-medium">{{ $request->requested_hours }} hours</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-blue-600">{{ $request->cto_days_earned }} days</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">
-                                    {{ $request->reason }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y') }}</div>
-                                <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                                                onclick="return confirm('Are you sure you want to approve this CTO request?')">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            Approve
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                                                onclick="return confirm('Are you sure you want to deny this CTO request?')">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                            Deny
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 font-medium">{{ $request->requested_hours }} hours</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-blue-600">{{ $request->cto_days_earned }} days</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $request->reason }}">
+                                        {{ $request->reason }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $request->created_at->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="inline">
+                                            @csrf
+                                            <button type="button"
+                                                onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Approve
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="inline">
+                                            @csrf
+                                            <button type="button"
+                                                onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12"></path>
+                                                </svg>
+                                                Deny
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                
+
                 <!-- Mobile view for CTO requests -->
                 <div class="md:hidden space-y-4">
                     @foreach($pendingCTORequests as $request)
@@ -804,7 +804,7 @@
                             <div>
                                 <div class="text-xs text-gray-500">Time</div>
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - 
+                                    {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} -
                                     {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
                                 </div>
                             </div>
@@ -816,9 +816,9 @@
                         <div class="flex space-x-2">
                             <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="submit" 
-                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                                        onclick="return confirm('Are you sure you want to approve this CTO request?')">
+                                <button type="button"
+                                    onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                    class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
@@ -827,11 +827,11 @@
                             </form>
                             <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="submit" 
-                                        class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                                        onclick="return confirm('Are you sure you want to deny this CTO request?')">
+                                <button type="button"
+                                    onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                    class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12"></path>
                                     </svg>
                                     Deny
                                 </button>
@@ -854,7 +854,7 @@
         @endif
 
         <!-- Service Credit Requests Section -->
-    @if(isset($pendingServiceCreditRequests))
+        @if(isset($pendingServiceCreditRequests))
         <div id="serviceCreditRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-white">
                 <div class="flex items-center justify-between">
@@ -919,12 +919,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
                                     <div>
                                         @if($request->morning_in && $request->morning_out)
-                                            AM: {{ \Carbon\Carbon::parse($request->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->morning_out)->format('g:i A') }}
+                                        AM: {{ \Carbon\Carbon::parse($request->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->morning_out)->format('g:i A') }}
                                         @endif
                                     </div>
                                     <div>
                                         @if($request->afternoon_in && $request->afternoon_out)
-                                            PM: {{ \Carbon\Carbon::parse($request->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->afternoon_out)->format('g:i A') }}
+                                        PM: {{ \Carbon\Carbon::parse($request->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->afternoon_out)->format('g:i A') }}
                                         @endif
                                     </div>
                                 </td>
@@ -939,15 +939,19 @@
                                     <div class="flex space-x-2">
                                         <form method="POST" action="{{ route('admin.service-credit-requests.approve', $request->id) }}" class="inline">
                                             @csrf
-                                            <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200" onclick="return confirm('Approve this Service Credit request?')">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            <button type="button" onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
                                                 Approve
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('admin.service-credit-requests.deny', $request->id) }}" class="inline">
                                             @csrf
-                                            <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200" onclick="return confirm('Deny this Service Credit request?')">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            <button type="button" onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12" />
+                                                </svg>
                                                 Deny
                                             </button>
                                         </form>
@@ -1000,22 +1004,26 @@
                         <div class="flex space-x-2">
                             <form method="POST" action="{{ route('admin.service-credit-requests.approve', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="submit" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200" onclick="return confirm('Approve this Service Credit request?')">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                <button type="button" onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
                                     Approve
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('admin.service-credit-requests.deny', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="submit" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200" onclick="return confirm('Deny this Service Credit request?')">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                <button type="button" onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12" />
+                                    </svg>
                                     Deny
                                 </button>
                             </form>
                         </div>
                     </div>
                     @empty
-                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center text-sm text-gray-500">No pending Service Credit requests.</div>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center text-sm text-gray-500">No pending Service Credit requests.</div>
                     @endforelse
                 </div>
             </div>
@@ -1024,49 +1032,57 @@
 
         <!-- Approved Leave Requests History Section -->
         <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const scSection = document.getElementById('serviceCreditRequestsSection');
-            if(!scSection) return;
-            const tableBodySelector = '#serviceCreditRequestsSection table tbody';
-            const badgeSelector = '#serviceCreditRequestsSection span.inline-flex';
-            async function refreshServiceCredits(){
-                try {
-                    const resp = await fetch('{{ route('admin.service-credit-requests.pending-json') }}', {headers:{'Accept':'application/json'}});
-                    if(!resp.ok) return;
-                    const data = await resp.json();
-                    const rows = data.data || [];
-                    const badge = scSection.querySelector(badgeSelector);
-                    if(badge){ badge.textContent = rows.length + ' Pending'; }
-                    const tbody = scSection.querySelector(tableBodySelector);
-                    if(!tbody) return;
-                    if(rows.length === 0){
-                        tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-sm text-gray-500">No pending Service Credit requests.</td></tr>';
-                        return;
+            document.addEventListener('DOMContentLoaded', () => {
+                const scSection = document.getElementById('serviceCreditRequestsSection');
+                if (!scSection) return;
+                const tableBodySelector = '#serviceCreditRequestsSection table tbody';
+                const badgeSelector = '#serviceCreditRequestsSection span.inline-flex';
+                async function refreshServiceCredits() {
+                    try {
+                        const resp = await fetch('{{ route('admin.service-credit-requests.pending-json') }}', {
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                        if (!resp.ok) return;
+                        const data = await resp.json();
+                        const rows = data.data || [];
+                        const badge = scSection.querySelector(badgeSelector);
+                        if (badge) {
+                            badge.textContent = rows.length + ' Pending';
+                        }
+                        const tbody = scSection.querySelector(tableBodySelector);
+                        if (!tbody) return;
+                        if (rows.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-sm text-gray-500">No pending Service Credit requests.</td></tr>';
+                            return;
+                        }
+                        tbody.innerHTML = rows.map(r => {
+                            const am = (r.morning_in && r.morning_out) ? `AM: ${r.morning_in} - ${r.morning_out}` : '';
+                            const pm = (r.afternoon_in && r.afternoon_out) ? `PM: ${r.afternoon_in} - ${r.afternoon_out}` : '';
+                            return `<tr class=\"hover:bg-gray-50 transition-colors duration-200\">` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap\">${r.teacher || 'N/A'}</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.work_date || ''}</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-xs\">${am}<br>${pm}</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">${Number(r.total_hours).toFixed(2)} hrs</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600\">${Number(r.requested_days).toFixed(2)} days</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-sm\" title=\"${r.reason}\">${r.reason}</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.created_at}</td>` +
+                                `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">` +
+                                `<div class=\"flex space-x-2\">` +
+                                `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/approve\">@csrf<button type=\"button\" class=\"px-3 py-1.5 text-xs rounded-md text-white bg-green-600 hover:bg-green-700\" onclick=\"showConfirmModal('approve', function() { this.closest('form').submit(); })\">Approve</button></form>` +
+                                `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/deny\">@csrf<button type=\"button\" class=\"px-3 py-1.5 text-xs rounded-md text-white bg-red-600 hover:bg-red-700\" onclick=\"showConfirmModal('deny', function() { this.closest('form').submit(); })\">Deny</button></form>` +
+                                `</div></td>` +
+                                `</tr>`;
+                        }).join('');
+                    } catch (e) {
+                        /* silent */
                     }
-                    tbody.innerHTML = rows.map(r => {
-                        const am = (r.morning_in && r.morning_out) ? `AM: ${r.morning_in} - ${r.morning_out}` : '';
-                        const pm = (r.afternoon_in && r.afternoon_out) ? `PM: ${r.afternoon_in} - ${r.afternoon_out}` : '';
-                        return `<tr class=\"hover:bg-gray-50 transition-colors duration-200\">`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap\">${r.teacher || 'N/A'}</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.work_date || ''}</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-xs\">${am}<br>${pm}</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">${Number(r.total_hours).toFixed(2)} hrs</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600\">${Number(r.requested_days).toFixed(2)} days</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm\" title=\"${r.reason}\">${r.reason}</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.created_at}</td>`
-                            + `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">`
-                            + `<div class=\"flex space-x-2\">`
-                            + `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/approve\">@csrf<button class=\"px-3 py-1.5 text-xs rounded-md text-white bg-green-600 hover:bg-green-700\" onclick=\"return confirm('Approve this Service Credit request?')\">Approve</button></form>`
-                            + `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/deny\">@csrf<button class=\"px-3 py-1.5 text-xs rounded-md text-white bg-red-600 hover:bg-red-700\" onclick=\"return confirm('Deny this Service Credit request?')\">Deny</button></form>`
-                            + `</div></td>`
-                            + `</tr>`;
-                    }).join('');
-                } catch(e){ /* silent */ }
-            }
-            // Initial + periodic refresh
-            refreshServiceCredits();
-            setInterval(refreshServiceCredits, 15000); // 15s
-        });
+                }
+                // Initial + periodic refresh
+                refreshServiceCredits();
+                setInterval(refreshServiceCredits, 15000); // 15s
+            });
         </script>
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 mr-10 ml-10 mb-8 overflow-hidden">
             <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
@@ -1104,8 +1120,8 @@
                         </select>
                         <select id="leaveFilterYear" class="text-xs border border-gray-300 rounded px-2 py-1">
                             @for($year = 2020; $year <= 2030; $year++)
-                            <option value="{{ $year }}" {{ $year == now()->year ? 'selected' : '' }}>{{ $year }}</option>
-                            @endfor
+                                <option value="{{ $year }}" {{ $year == now()->year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endfor
                         </select>
                         <button id="filterLeaveRequests" class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1128,88 +1144,88 @@
             </div>
             <div id="approvedLeaveContent" class="transition-all duration-300">
                 @if(isset($approvedLeaveRequests) && $approvedLeaveRequests->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($approvedLeaveRequests as $index => $request)
-                                <tr class="hover:bg-green-50 transition-colors duration-200 {{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }}">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                                                    <span class="text-xs font-medium text-white">
-                                                        @if($request->user->personnel)
-                                                            {{ substr($request->user->personnel->first_name, 0, 1) }}{{ substr($request->user->personnel->last_name, 0, 1) }}
-                                                        @else
-                                                            {{ substr($request->user->name, 0, 2) }}
-                                                        @endif
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($approvedLeaveRequests as $index => $request)
+                            <tr class="hover:bg-green-50 transition-colors duration-200 {{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }}">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                                <span class="text-xs font-medium text-white">
                                                     @if($request->user->personnel)
-                                                        {{ $request->user->personnel->first_name }} {{ $request->user->personnel->last_name }}
+                                                    {{ substr($request->user->personnel->first_name, 0, 1) }}{{ substr($request->user->personnel->last_name, 0, 1) }}
                                                     @else
-                                                        {{ $request->user->name }}
+                                                    {{ substr($request->user->name, 0, 2) }}
                                                     @endif
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    @if($request->user->personnel && $request->user->personnel->position)
-                                                        {{ $request->user->personnel->position->title ?? 'N/A' }}
-                                                    @endif
-                                                </div>
+                                                </span>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                @if($request->user->personnel)
+                                                {{ $request->user->personnel->first_name }} {{ $request->user->personnel->last_name }}
+                                                @else
+                                                {{ $request->user->name }}
+                                                @endif
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                @if($request->user->personnel && $request->user->personnel->position)
+                                                {{ $request->user->personnel->position->title ?? 'N/A' }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                             @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
                                             @elseif($request->user->role === 'teacher') bg-blue-100 text-blue-800
                                             @else bg-gray-100 text-gray-800 @endif">
-                                            {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        @if($request->user->personnel && $request->user->personnel->school)
-                                            <div class="text-sm text-gray-900">{{ $request->user->personnel->school->school_name }}</div>
-                                            <div class="text-xs text-gray-500">{{ $request->user->personnel->school->school_id }}</div>
-                                        @else
-                                            <span class="text-gray-400">N/A</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $request->leave_type }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div>{{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }}</div>
-                                        <div class="text-xs text-gray-500">to {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                                            {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $request->updated_at->format('M d, Y') }}
-                                        <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                        {{ ucfirst(str_replace('_', ' ', $request->user->role)) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($request->user->personnel && $request->user->personnel->school)
+                                    <div class="text-sm text-gray-900">{{ $request->user->personnel->school->school_name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $request->user->personnel->school->school_id }}</div>
+                                    @else
+                                    <span class="text-gray-400">N/A</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ $request->leave_type }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div>{{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">to {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                                        {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $request->updated_at->format('M d, Y') }}
+                                    <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 @else
                 <div class="text-center py-12">
                     <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1259,8 +1275,8 @@
                         </select>
                         <select id="ctoFilterYear" class="text-xs border border-gray-300 rounded px-2 py-1">
                             @for($year = 2020; $year <= 2030; $year++)
-                            <option value="{{ $year }}" {{ $year == now()->year ? 'selected' : '' }}>{{ $year }}</option>
-                            @endfor
+                                <option value="{{ $year }}" {{ $year == now()->year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endfor
                         </select>
                         <button id="filterCTORequests" class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1283,97 +1299,97 @@
             </div>
             <div id="approvedCtoContent" class="transition-all duration-300">
                 @if(isset($approvedCTORequests) && $approvedCTORequests->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Hours</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Hours</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Days Earned</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
-                                    
-                                </tr> 
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($approvedCTORequests as $index => $request)
-                                <tr class="hover:bg-teal-50 transition-colors duration-200 {{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }}">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-                                                    <span class="text-xs font-medium text-white">
-                                                        @if($request->personnel)
-                                                            {{ substr($request->personnel->first_name, 0, 1) }}{{ substr($request->personnel->last_name, 0, 1) }}
-                                                        @elseif($request->user)
-                                                            {{ substr($request->user->name, 0, 2) }}
-                                                        @else
-                                                            N/A
-                                                        @endif
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personnel</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Hours</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Hours</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTO Days Earned</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($approvedCTORequests as $index => $request)
+                            <tr class="hover:bg-teal-50 transition-colors duration-200 {{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }}">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                                                <span class="text-xs font-medium text-white">
                                                     @if($request->personnel)
-                                                        {{ $request->personnel->first_name }} {{ $request->personnel->last_name }}
+                                                    {{ substr($request->personnel->first_name, 0, 1) }}{{ substr($request->personnel->last_name, 0, 1) }}
                                                     @elseif($request->user)
-                                                        {{ $request->user->name }}
+                                                    {{ substr($request->user->name, 0, 2) }}
                                                     @else
-                                                        N/A
+                                                    N/A
                                                     @endif
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    @if($request->personnel && $request->personnel->position)
-                                                        {{ $request->personnel->position->title ?? 'N/A' }}
-                                                    @endif
-                                                </div>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-1">
-                                                    School Head
                                                 </span>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        @if($request->personnel && $request->personnel->school)
-                                            <div class="text-sm text-gray-900">{{ $request->personnel->school->school_name }}</div>
-                                            <div class="text-xs text-gray-500">{{ $request->personnel->school->school_id }}</div>
-                                        @else
-                                            <span class="text-gray-400">N/A</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div class="font-medium">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
-                                        <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($request->work_date)->format('l') }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div>{{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }}</div>
-                                        <div class="text-xs text-gray-500">to {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">
-                                            {{ $request->requested_hours }} hours
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800 font-medium">
-                                            {{ number_format($request->cto_days_earned, 2) }} days
-                                        </span>
-                                    </td>
-                                 
-                                 
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $request->updated_at->format('M d, Y') }}
-                                        <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
-                                    </td>
-                                    
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                @if($request->personnel)
+                                                {{ $request->personnel->first_name }} {{ $request->personnel->last_name }}
+                                                @elseif($request->user)
+                                                {{ $request->user->name }}
+                                                @else
+                                                N/A
+                                                @endif
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                @if($request->personnel && $request->personnel->position)
+                                                {{ $request->personnel->position->title ?? 'N/A' }}
+                                                @endif
+                                            </div>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-1">
+                                                School Head
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($request->personnel && $request->personnel->school)
+                                    <div class="text-sm text-gray-900">{{ $request->personnel->school->school_name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $request->personnel->school->school_id }}</div>
+                                    @else
+                                    <span class="text-gray-400">N/A</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div class="font-medium">{{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($request->work_date)->format('l') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div>{{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }}</div>
+                                    <div class="text-xs text-gray-500">to {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">
+                                        {{ $request->requested_hours }} hours
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-teal-100 text-teal-800 font-medium">
+                                        {{ number_format($request->cto_days_earned, 2) }} days
+                                    </span>
+                                </td>
+
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $request->updated_at->format('M d, Y') }}
+                                    <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
+                                </td>
+
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 @else
                 <div class="text-center py-12">
                     <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1495,7 +1511,7 @@
                 filterLeaveRequests.addEventListener('click', function() {
                     const month = leaveFilterMonth.value;
                     const year = leaveFilterYear.value;
-                    
+
                     // Show loading state
                     filterLeaveRequests.disabled = true;
                     filterLeaveRequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
@@ -1537,7 +1553,7 @@
                 filterCTORequests.addEventListener('click', function() {
                     const month = ctoFilterMonth.value;
                     const year = ctoFilterYear.value;
-                    
+
                     // Show loading state
                     filterCTORequests.disabled = true;
                     filterCTORequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
@@ -1604,9 +1620,9 @@
                 `;
 
                 data.requests.forEach((request, index) => {
-                    const roleClass = request.role === 'school_head' ? 'bg-purple-100 text-purple-800' : 
-                                     request.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
-                    
+                    const roleClass = request.role === 'school_head' ? 'bg-purple-100 text-purple-800' :
+                        request.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+
                     tableHTML += `
                         <tr class="hover:bg-green-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -1765,4 +1781,3 @@
         });
     </script>
 </x-app-layout>
-    

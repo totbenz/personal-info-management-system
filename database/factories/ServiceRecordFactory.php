@@ -31,7 +31,7 @@ class ServiceRecordFactory extends Factory
             'salary' => $this->faker->randomFloat(2, 20000, 100000),
             'station' => $this->faker->numberBetween(1,10),
             'branch' => $this->faker->numberBetween(1,10),
-            'lv_wo_pay' => $this->faker->optional()->numberBetween(1, 30) . ' days',
+            'lv_wo_pay' => $this->faker->optional()->numberBetween(1, 30),
             'separation_date_cause' => $this->faker->optional()->sentence(),
         ];
     }

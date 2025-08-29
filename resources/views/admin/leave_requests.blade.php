@@ -55,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     @if($requests->count() > 0)
                     <table class="min-w-full divide-y divide-gray-200">
@@ -99,9 +99,9 @@
                                         <div class="ml-3">
                                             <div class="text-sm font-medium text-gray-900">
                                                 @if($request->user->personnel)
-                                                    {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
+                                                {{ $request->user->personnel->first_name }} {{ $request->user->personnel->middle_name }} {{ $request->user->personnel->last_name }} {{ $request->user->personnel->name_ext }}
                                                 @else
-                                                    {{ $request->user->name }}
+                                                {{ $request->user->name }}
                                                 @endif
                                             </div>
                                             <div class="text-sm text-gray-500">{{ $request->user->email }}</div>
@@ -109,7 +109,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         @if($request->user->role === 'school_head') bg-purple-100 text-purple-800
                                         @elseif($request->user->role === 'teacher') bg-green-100 text-green-800
                                         @else bg-blue-100 text-blue-800 @endif">
@@ -121,7 +121,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">
-                                        {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} - 
+                                        {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }} -
                                         {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
                                     </div>
                                     <div class="text-xs text-gray-500">
@@ -139,24 +139,24 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
+                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" id="approveForm{{$request->id}}" class="inline">
                                             @csrf
                                             <input type="hidden" name="status" value="approved">
-                                            <button type="submit" 
-                                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                                                    onclick="return confirm('Are you sure you want to approve this leave request?')">
+                                            <button type="button"
+                                                onclick="showConfirmModal('approve', function() { document.getElementById('approveForm{{$request->id}}').submit(); })"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                                 Approve
                                             </button>
                                         </form>
-                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
+                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" id="denyForm{{$request->id}}" class="inline">
                                             @csrf
                                             <input type="hidden" name="status" value="denied">
-                                            <button type="submit" 
-                                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                                                    onclick="return confirm('Are you sure you want to deny this leave request?')">
+                                            <button type="button"
+                                                onclick="showConfirmModal('deny', function() { document.getElementById('denyForm{{$request->id}}').submit(); })"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>

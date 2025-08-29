@@ -22,6 +22,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SalaryChangesSeeder::class,
             SignatureSeeder::class,
+            LeaveRequestSeeder::class,
+            ServiceCreditRequestSeeder::class,
+            ServiceRecordSeeder::class,
+            EventSeeder::class,
         ]);
     }
 }
