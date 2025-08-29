@@ -508,8 +508,8 @@
                                         <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
                                             @csrf
                                             <input type="hidden" name="status" value="approved">
-                                            <button type="button"
-                                                onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to approve this leave request?')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -520,8 +520,8 @@
                                         <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="inline">
                                             @csrf
                                             <input type="hidden" name="status" value="denied">
-                                            <button type="button"
-                                                onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to deny this leave request?')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12"></path>
@@ -600,8 +600,8 @@
                             <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="flex-1">
                                 @csrf
                                 <input type="hidden" name="status" value="approved">
-                                <button type="button"
-                                    onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                <button type="submit"
+                                    onclick="return confirm('Are you sure you want to approve this leave request?')"
                                     class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -612,8 +612,8 @@
                             <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" class="flex-1">
                                 @csrf
                                 <input type="hidden" name="status" value="denied">
-                                <button type="button"
-                                    onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                <button type="submit"
+                                    onclick="return confirm('Are you sure you want to deny this leave request?')"
                                     class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -739,8 +739,8 @@
                                     <div class="flex space-x-2">
                                         <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="inline">
                                             @csrf
-                                            <button type="button"
-                                                onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to approve this CTO request?')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -750,8 +750,8 @@
                                         </form>
                                         <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="inline">
                                             @csrf
-                                            <button type="button"
-                                                onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to deny this CTO request?')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12"></path>
@@ -816,8 +816,8 @@
                         <div class="flex space-x-2">
                             <form method="POST" action="{{ route('admin.cto-requests.approve', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="button"
-                                    onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })"
+                                <button type="submit"
+                                    onclick="return confirm('Are you sure you want to approve this CTO request?')"
                                     class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -827,8 +827,8 @@
                             </form>
                             <form method="POST" action="{{ route('admin.cto-requests.deny', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="button"
-                                    onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })"
+                                <button type="submit"
+                                    onclick="return confirm('Are you sure you want to deny this CTO request?')"
                                     class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12"></path>
@@ -939,7 +939,7 @@
                                     <div class="flex space-x-2">
                                         <form method="POST" action="{{ route('admin.service-credit-requests.approve', $request->id) }}" class="inline">
                                             @csrf
-                                            <button type="button" onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to approve this service credit request?')" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                 </svg>
@@ -948,7 +948,7 @@
                                         </form>
                                         <form method="POST" action="{{ route('admin.service-credit-requests.deny', $request->id) }}" class="inline">
                                             @csrf
-                                            <button type="button" onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to deny this service credit request?')" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12" />
                                                 </svg>
@@ -1004,7 +1004,7 @@
                         <div class="flex space-x-2">
                             <form method="POST" action="{{ route('admin.service-credit-requests.approve', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="button" onclick="showConfirmModal('approve', function() { this.closest('form').submit(); })" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                <button type="submit" onclick="return confirm('Are you sure you want to approve this service credit request?')" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                     </svg>
@@ -1013,7 +1013,7 @@
                             </form>
                             <form method="POST" action="{{ route('admin.service-credit-requests.deny', $request->id) }}" class="flex-1">
                                 @csrf
-                                <button type="button" onclick="showConfirmModal('deny', function() { this.closest('form').submit(); })" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                <button type="submit" onclick="return confirm('Are you sure you want to deny this service credit request?')" class="w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L6 6l12 12" />
                                     </svg>
@@ -1070,8 +1070,8 @@
                                 `<td class=\"px-6 py-4 whitespace-nowrap text-sm\">${r.created_at}</td>` +
                                 `<td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">` +
                                 `<div class=\"flex space-x-2\">` +
-                                `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/approve\">@csrf<button type=\"button\" class=\"px-3 py-1.5 text-xs rounded-md text-white bg-green-600 hover:bg-green-700\" onclick=\"showConfirmModal('approve', function() { this.closest('form').submit(); })\">Approve</button></form>` +
-                                `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/deny\">@csrf<button type=\"button\" class=\"px-3 py-1.5 text-xs rounded-md text-white bg-red-600 hover:bg-red-700\" onclick=\"showConfirmModal('deny', function() { this.closest('form').submit(); })\">Deny</button></form>` +
+                                `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/approve\">@csrf<button type=\"submit\" class=\"px-3 py-1.5 text-xs rounded-md text-white bg-green-600 hover:bg-green-700\" onclick=\"return confirm('Are you sure you want to approve this request?')\">Approve</button></form>` +
+                                `<form method=\"POST\" action=\"/admin/service-credit-requests/${r.id}/deny\">@csrf<button type=\"submit\" class=\"px-3 py-1.5 text-xs rounded-md text-white bg-red-600 hover:bg-red-700\" onclick=\"return confirm('Are you sure you want to deny this request?')\">Deny</button></form>` +
                                 `</div></td>` +
                                 `</tr>`;
                         }).join('');
@@ -1480,10 +1480,6 @@
             });
             @endphp
 
-            @foreach ($processedPersonnels as $personnel)
-            <x-loyalty-award-modal :personnel="$personnel" />
-            @endforeach
-
             <!-- Right Sidebar -->
             <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300" style="z-index:5;">
                 @livewire('right-sidebar')
@@ -1839,6 +1835,9 @@
                             countElement.textContent = `${count} Approved`;
                         }
                     }
-                });
-            </script>
+            });
+        </script>
+
+    <!-- Confirm Modal Component -->
+    <x-confirm-modal />
 </x-app-layout>

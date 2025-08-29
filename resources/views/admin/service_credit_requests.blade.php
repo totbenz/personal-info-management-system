@@ -118,18 +118,23 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <form method="POST" action="{{ route('admin.service-credit-requests.approve', $req) }}" id="approveForm{{$req->id}}" class="inline">
+                                        <!-- Direct form submission without JavaScript -->
+                                        <form method="POST" action="{{ route('admin.service-credit-requests.approve', $req) }}" class="inline">
                                             @csrf
-                                            <button type="button" onclick="showConfirmModal('approve', function() { document.getElementById('approveForm{{$req->id}}').submit(); })" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                            <button type="submit" 
+                                                onclick="return confirm('Are you sure you want to approve this service credit request?')"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                                 Approve
                                             </button>
                                         </form>
-                                        <form method="POST" action="{{ route('admin.service-credit-requests.deny', $req) }}" id="denyForm{{$req->id}}" class="inline">
+                                        <form method="POST" action="{{ route('admin.service-credit-requests.deny', $req) }}" class="inline">
                                             @csrf
-                                            <button type="button" onclick="showConfirmModal('deny', function() { document.getElementById('denyForm{{$req->id}}').submit(); })" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to deny this service credit request?')"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>
@@ -155,4 +160,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Confirm Modal Component -->
+    <x-confirm-modal />
 </x-app-layout>

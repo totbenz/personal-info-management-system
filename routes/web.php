@@ -356,9 +356,6 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
 
-        // Service Credit Routes
-        Route::post('/service-credit-request', [ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
-
         // Non-Teaching Leave Routes
         Route::post('non-teaching/leaves/add', [App\Http\Controllers\NonTeachingLeaveController::class, 'addLeave'])->name('non_teaching.leaves.add');
 

@@ -26,63 +26,80 @@
 </div>
 
 <script>
+    // Global variables for modal state
+    window.currentConfirmAction = null;
+
     function showConfirmModal(action, callback) {
+        console.log('showConfirmModal called with action:', action);
+        
         const modal = document.getElementById('confirmModal');
         const actionSpan = document.getElementById('confirmAction');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const confirmBtn = document.getElementById('confirmBtn');
+        
+        if (!modal || !actionSpan) {
+            console.error('Modal elements not found');
+            // Fallback to browser confirm
+            if (confirm(`Are you sure you want to ${action} this request?`)) {
+                callback();
+            }
+            return;
+        }
+
+        // Store the callback globally
+        window.currentConfirmAction = callback;
 
         // Set the action text
         actionSpan.textContent = action;
 
         // Show the modal
         modal.classList.remove('hidden');
-
-        // Handle cancel
-        const handleCancel = () => {
-            modal.classList.add('hidden');
-            cleanup();
-        };
-
-        // Handle confirm
-        const handleConfirm = () => {
-            modal.classList.add('hidden');
-            cleanup();
-            if (callback) callback();
-        };
-
-        // Cleanup function
-        const cleanup = () => {
-            cancelBtn.removeEventListener('click', handleCancel);
-            confirmBtn.removeEventListener('click', handleConfirm);
-            modal.removeEventListener('click', handleBackdropClick);
-        };
-
-        // Handle backdrop click
-        const handleBackdropClick = (e) => {
-            if (e.target === modal) {
-                handleCancel();
-            }
-        };
-
-        // Add event listeners
-        cancelBtn.addEventListener('click', handleCancel);
-        confirmBtn.addEventListener('click', handleConfirm);
-        modal.addEventListener('click', handleBackdropClick);
-
-        // Handle escape key
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                handleCancel();
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-
-        // Cleanup escape key listener when modal is closed
-        const originalCleanup = cleanup;
-        cleanup = () => {
-            originalCleanup();
-            document.removeEventListener('keydown', handleEscape);
-        };
     }
+
+    function handleConfirmModalCancel() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.add('hidden');
+        window.currentConfirmAction = null;
+    }
+
+    function handleConfirmModalConfirm() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.add('hidden');
+        
+        const callback = window.currentConfirmAction;
+        window.currentConfirmAction = null;
+        
+        if (callback && typeof callback === 'function') {
+            setTimeout(callback, 50); // Small delay to ensure modal is hidden
+        }
+    }
+
+    // Set up event listeners when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('confirmModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', handleConfirmModalCancel);
+        }
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', handleConfirmModalConfirm);
+        }
+
+        if (modal) {
+            // Close on backdrop click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    handleConfirmModalCancel();
+                }
+            });
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                handleConfirmModalCancel();
+            }
+        });
+    });
 </script>
