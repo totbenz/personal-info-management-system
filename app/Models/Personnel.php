@@ -46,8 +46,9 @@ class Personnel extends Model
         'employment_end',
         'salary',
         'leave_of_absence_without_pay_count',
+        'loyalty_award_claim_count',
         'pantilla_of_personnel',
-    'is_solo_parent',
+        'is_solo_parent',
 
         // Government Information
         'tin',

@@ -1039,11 +1039,11 @@
                 const badgeSelector = '#serviceCreditRequestsSection span.inline-flex';
                 async function refreshServiceCredits() {
                     try {
-                        const resp = await fetch('{{ route('admin.service-credit-requests.pending-json') }}', {
-                                headers: {
-                                    'Accept': 'application/json'
-                                }
-                            });
+                        const resp = await fetch("{{ route('admin.service-credit-requests.pending-json') }}", {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
                         if (!resp.ok) return;
                         const data = await resp.json();
                         const rows = data.data || [];
@@ -1423,175 +1423,236 @@
         </div>
     </div>
 
-    <!-- Right Sidebar -->
-    <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300" style="z-index:5;">
-        @livewire('right-sidebar')
-    </div>
+    <!-- Loyalty Claims Modals -->
+    @php
+    // Get all eligible personnels for modals (filter by employment start date to calculate years of service)
+    $tenYearsAgo = now()->subYears(10);
+    $eligiblePersonnels = \App\Models\Personnel::with(['position', 'school'])
+    ->where('employment_start', '<=', $tenYearsAgo)
+        ->get();
 
-    <!-- JavaScript for History Section Toggle Feature -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Approved Leave Requests toggle functionality
-            var approvedLeaveHeaderToggle = document.getElementById('approvedLeaveHeaderToggle');
-            var approvedLeaveToggleIcon = document.getElementById('approvedLeaveToggleIcon');
-            var approvedLeaveContent = document.getElementById('approvedLeaveContent');
-            var isApprovedLeaveMinimized = localStorage.getItem('approvedLeaveMinimized') === 'true';
+        // Calculate loyalty award data for each personnel
+        $processedPersonnels = $eligiblePersonnels->map(function ($personnel) {
+        // Calculate years of service from employment start date
+        $employmentStart = \Carbon\Carbon::parse($personnel->employment_start);
+        $currentDate = \Carbon\Carbon::now();
+        $yearsOfService = $employmentStart->diffInYears($currentDate);
 
-            // Set initial state based on localStorage
-            if (isApprovedLeaveMinimized && approvedLeaveHeaderToggle && approvedLeaveContent) {
-                approvedLeaveContent.style.height = '0';
-                approvedLeaveContent.style.overflow = 'hidden';
-                approvedLeaveContent.style.opacity = '0';
-                approvedLeaveToggleIcon.style.transform = 'rotate(-90deg)';
+        // Calculate max possible claims and available claims
+        $maxClaims = 0;
+        $availableClaims = [];
+
+        if ($yearsOfService >= 10) {
+        $maxClaims = 1 + floor(max(0, $yearsOfService - 10) / 5);
+
+        for ($i = 0; $i < $maxClaims; $i++) {
+            $isClaimed=$i < ($personnel->loyalty_award_claim_count ?? 0);
+
+            if ($i == 0) {
+            // First claim (10 years)
+            $availableClaims[] = [
+            'label' => '10 Years Service Award',
+            'amount' => 10000,
+            'years' => 10,
+            'is_claimed' => $isClaimed,
+            'claim_index' => $i
+            ];
+            } else {
+            // Subsequent claims (every 5 years)
+            $years = 10 + ($i * 5);
+            $availableClaims[] = [
+            'label' => $years . ' Years Service Award',
+            'amount' => 5000,
+            'years' => $years,
+            'is_claimed' => $isClaimed,
+            'claim_index' => $i
+            ];
+            }
+            }
             }
 
-            if (approvedLeaveHeaderToggle && approvedLeaveContent) {
-                approvedLeaveHeaderToggle.addEventListener('click', function() {
-                    if (isApprovedLeaveMinimized) {
-                        // Expand
-                        approvedLeaveContent.style.height = 'auto';
-                        approvedLeaveContent.style.overflow = 'visible';
-                        approvedLeaveContent.style.opacity = '1';
-                        approvedLeaveToggleIcon.style.transform = 'rotate(0deg)';
-                        localStorage.setItem('approvedLeaveMinimized', 'false');
-                    } else {
-                        // Minimize
+            // Add calculated data to personnel object
+            $personnel->years_of_service = $yearsOfService;
+            $personnel->max_claims = $maxClaims;
+            $personnel->available_claims = $availableClaims;
+
+            return $personnel;
+            });
+            @endphp
+
+            @foreach ($processedPersonnels as $personnel)
+            <x-loyalty-award-modal :personnel="$personnel" />
+            @endforeach
+
+            <!-- Right Sidebar -->
+            <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300" style="z-index:5;">
+                @livewire('right-sidebar')
+            </div>
+
+            <!-- JavaScript for History Section Toggle Feature -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Approved Leave Requests toggle functionality
+                    var approvedLeaveHeaderToggle = document.getElementById('approvedLeaveHeaderToggle');
+                    var approvedLeaveToggleIcon = document.getElementById('approvedLeaveToggleIcon');
+                    var approvedLeaveContent = document.getElementById('approvedLeaveContent');
+                    var isApprovedLeaveMinimized = localStorage.getItem('approvedLeaveMinimized') === 'true';
+
+                    // Set initial state based on localStorage
+                    if (isApprovedLeaveMinimized && approvedLeaveHeaderToggle && approvedLeaveContent) {
                         approvedLeaveContent.style.height = '0';
                         approvedLeaveContent.style.overflow = 'hidden';
                         approvedLeaveContent.style.opacity = '0';
                         approvedLeaveToggleIcon.style.transform = 'rotate(-90deg)';
-                        localStorage.setItem('approvedLeaveMinimized', 'true');
                     }
-                    isApprovedLeaveMinimized = !isApprovedLeaveMinimized;
-                });
-            }
 
-            // Approved CTO Requests toggle functionality
-            var approvedCtoHeaderToggle = document.getElementById('approvedCtoHeaderToggle');
-            var approvedCtoToggleIcon = document.getElementById('approvedCtoToggleIcon');
-            var approvedCtoContent = document.getElementById('approvedCtoContent');
-            var isApprovedCtoMinimized = localStorage.getItem('approvedCtoMinimized') === 'true';
+                    if (approvedLeaveHeaderToggle && approvedLeaveContent) {
+                        approvedLeaveHeaderToggle.addEventListener('click', function() {
+                            if (isApprovedLeaveMinimized) {
+                                // Expand
+                                approvedLeaveContent.style.height = 'auto';
+                                approvedLeaveContent.style.overflow = 'visible';
+                                approvedLeaveContent.style.opacity = '1';
+                                approvedLeaveToggleIcon.style.transform = 'rotate(0deg)';
+                                localStorage.setItem('approvedLeaveMinimized', 'false');
+                            } else {
+                                // Minimize
+                                approvedLeaveContent.style.height = '0';
+                                approvedLeaveContent.style.overflow = 'hidden';
+                                approvedLeaveContent.style.opacity = '0';
+                                approvedLeaveToggleIcon.style.transform = 'rotate(-90deg)';
+                                localStorage.setItem('approvedLeaveMinimized', 'true');
+                            }
+                            isApprovedLeaveMinimized = !isApprovedLeaveMinimized;
+                        });
+                    }
 
-            // Set initial state based on localStorage for approved CTO
-            if (isApprovedCtoMinimized && approvedCtoHeaderToggle && approvedCtoContent) {
-                approvedCtoContent.style.height = '0';
-                approvedCtoContent.style.overflow = 'hidden';
-                approvedCtoContent.style.opacity = '0';
-                approvedCtoToggleIcon.style.transform = 'rotate(-90deg)';
-            }
+                    // Approved CTO Requests toggle functionality
+                    var approvedCtoHeaderToggle = document.getElementById('approvedCtoHeaderToggle');
+                    var approvedCtoToggleIcon = document.getElementById('approvedCtoToggleIcon');
+                    var approvedCtoContent = document.getElementById('approvedCtoContent');
+                    var isApprovedCtoMinimized = localStorage.getItem('approvedCtoMinimized') === 'true';
 
-            if (approvedCtoHeaderToggle && approvedCtoContent) {
-                approvedCtoHeaderToggle.addEventListener('click', function() {
-                    if (isApprovedCtoMinimized) {
-                        // Expand
-                        approvedCtoContent.style.height = 'auto';
-                        approvedCtoContent.style.overflow = 'visible';
-                        approvedCtoContent.style.opacity = '1';
-                        approvedCtoToggleIcon.style.transform = 'rotate(0deg)';
-                        localStorage.setItem('approvedCtoMinimized', 'false');
-                    } else {
-                        // Minimize
+                    // Set initial state based on localStorage for approved CTO
+                    if (isApprovedCtoMinimized && approvedCtoHeaderToggle && approvedCtoContent) {
                         approvedCtoContent.style.height = '0';
                         approvedCtoContent.style.overflow = 'hidden';
                         approvedCtoContent.style.opacity = '0';
                         approvedCtoToggleIcon.style.transform = 'rotate(-90deg)';
-                        localStorage.setItem('approvedCtoMinimized', 'true');
                     }
-                    isApprovedCtoMinimized = !isApprovedCtoMinimized;
-                });
-            }
 
-            // Filter functionality for approved leave requests
-            const filterLeaveRequests = document.getElementById('filterLeaveRequests');
-            const leaveFilterMonth = document.getElementById('leaveFilterMonth');
-            const leaveFilterYear = document.getElementById('leaveFilterYear');
-            const downloadLeavePDF = document.getElementById('downloadLeavePDF');
-
-            if (filterLeaveRequests) {
-                filterLeaveRequests.addEventListener('click', function() {
-                    const month = leaveFilterMonth.value;
-                    const year = leaveFilterYear.value;
-
-                    // Show loading state
-                    filterLeaveRequests.disabled = true;
-                    filterLeaveRequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
-
-                    fetch(`/admin/approved-leave-requests/filter?month=${month}&year=${year}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            updateLeaveRequestsTable(data);
-                            updateLeaveRequestsCount(data.count);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Failed to filter requests. Please try again.');
-                        })
-                        .finally(() => {
-                            filterLeaveRequests.disabled = false;
-                            filterLeaveRequests.innerHTML = '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" /></svg>Filter';
+                    if (approvedCtoHeaderToggle && approvedCtoContent) {
+                        approvedCtoHeaderToggle.addEventListener('click', function() {
+                            if (isApprovedCtoMinimized) {
+                                // Expand
+                                approvedCtoContent.style.height = 'auto';
+                                approvedCtoContent.style.overflow = 'visible';
+                                approvedCtoContent.style.opacity = '1';
+                                approvedCtoToggleIcon.style.transform = 'rotate(0deg)';
+                                localStorage.setItem('approvedCtoMinimized', 'false');
+                            } else {
+                                // Minimize
+                                approvedCtoContent.style.height = '0';
+                                approvedCtoContent.style.overflow = 'hidden';
+                                approvedCtoContent.style.opacity = '0';
+                                approvedCtoToggleIcon.style.transform = 'rotate(-90deg)';
+                                localStorage.setItem('approvedCtoMinimized', 'true');
+                            }
+                            isApprovedCtoMinimized = !isApprovedCtoMinimized;
                         });
-                });
-            }
+                    }
 
-            // PDF download for leave requests
-            if (downloadLeavePDF) {
-                downloadLeavePDF.addEventListener('click', function() {
-                    const month = leaveFilterMonth.value;
-                    const year = leaveFilterYear.value;
-                    const url = `/admin/approved-leave-requests/download-pdf?month=${month}&year=${year}`;
-                    window.open(url, '_blank');
-                });
-            }
+                    // Filter functionality for approved leave requests
+                    const filterLeaveRequests = document.getElementById('filterLeaveRequests');
+                    const leaveFilterMonth = document.getElementById('leaveFilterMonth');
+                    const leaveFilterYear = document.getElementById('leaveFilterYear');
+                    const downloadLeavePDF = document.getElementById('downloadLeavePDF');
 
-            // Filter functionality for approved CTO requests
-            const filterCTORequests = document.getElementById('filterCTORequests');
-            const ctoFilterMonth = document.getElementById('ctoFilterMonth');
-            const ctoFilterYear = document.getElementById('ctoFilterYear');
-            const downloadCTOPDF = document.getElementById('downloadCTOPDF');
+                    if (filterLeaveRequests) {
+                        filterLeaveRequests.addEventListener('click', function() {
+                            const month = leaveFilterMonth.value;
+                            const year = leaveFilterYear.value;
 
-            if (filterCTORequests) {
-                filterCTORequests.addEventListener('click', function() {
-                    const month = ctoFilterMonth.value;
-                    const year = ctoFilterYear.value;
+                            // Show loading state
+                            filterLeaveRequests.disabled = true;
+                            filterLeaveRequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
 
-                    // Show loading state
-                    filterCTORequests.disabled = true;
-                    filterCTORequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
-
-                    fetch(`/admin/approved-cto-requests/filter?month=${month}&year=${year}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            updateCTORequestsTable(data);
-                            updateCTORequestsCount(data.count);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Failed to filter requests. Please try again.');
-                        })
-                        .finally(() => {
-                            filterCTORequests.disabled = false;
-                            filterCTORequests.innerHTML = '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" /></svg>Filter';
+                            fetch(`/admin/approved-leave-requests/filter?month=${month}&year=${year}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    updateLeaveRequestsTable(data);
+                                    updateLeaveRequestsCount(data.count);
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('Failed to filter requests. Please try again.');
+                                })
+                                .finally(() => {
+                                    filterLeaveRequests.disabled = false;
+                                    filterLeaveRequests.innerHTML = '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" /></svg>Filter';
+                                });
                         });
-                });
-            }
+                    }
 
-            // PDF download for CTO requests
-            if (downloadCTOPDF) {
-                downloadCTOPDF.addEventListener('click', function() {
-                    const month = ctoFilterMonth.value;
-                    const year = ctoFilterYear.value;
-                    const url = `/admin/approved-cto-requests/download-pdf?month=${month}&year=${year}`;
-                    window.open(url, '_blank');
-                });
-            }
+                    // PDF download for leave requests
+                    if (downloadLeavePDF) {
+                        downloadLeavePDF.addEventListener('click', function() {
+                            const month = leaveFilterMonth.value;
+                            const year = leaveFilterYear.value;
+                            const url = `/admin/approved-leave-requests/download-pdf?month=${month}&year=${year}`;
+                            window.open(url, '_blank');
+                        });
+                    }
 
-            // Helper functions to update tables
-            function updateLeaveRequestsTable(data) {
-                const tableContainer = document.querySelector('#approvedLeaveContent .overflow-x-auto');
-                if (!tableContainer) return;
+                    // Filter functionality for approved CTO requests
+                    const filterCTORequests = document.getElementById('filterCTORequests');
+                    const ctoFilterMonth = document.getElementById('ctoFilterMonth');
+                    const ctoFilterYear = document.getElementById('ctoFilterYear');
+                    const downloadCTOPDF = document.getElementById('downloadCTOPDF');
 
-                if (data.requests.length === 0) {
-                    tableContainer.innerHTML = `
+                    if (filterCTORequests) {
+                        filterCTORequests.addEventListener('click', function() {
+                            const month = ctoFilterMonth.value;
+                            const year = ctoFilterYear.value;
+
+                            // Show loading state
+                            filterCTORequests.disabled = true;
+                            filterCTORequests.innerHTML = '<svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
+
+                            fetch(`/admin/approved-cto-requests/filter?month=${month}&year=${year}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    updateCTORequestsTable(data);
+                                    updateCTORequestsCount(data.count);
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('Failed to filter requests. Please try again.');
+                                })
+                                .finally(() => {
+                                    filterCTORequests.disabled = false;
+                                    filterCTORequests.innerHTML = '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.586V4z" /></svg>Filter';
+                                });
+                        });
+                    }
+
+                    // PDF download for CTO requests
+                    if (downloadCTOPDF) {
+                        downloadCTOPDF.addEventListener('click', function() {
+                            const month = ctoFilterMonth.value;
+                            const year = ctoFilterYear.value;
+                            const url = `/admin/approved-cto-requests/download-pdf?month=${month}&year=${year}`;
+                            window.open(url, '_blank');
+                        });
+                    }
+
+                    // Helper functions to update tables
+                    function updateLeaveRequestsTable(data) {
+                        const tableContainer = document.querySelector('#approvedLeaveContent .overflow-x-auto');
+                        if (!tableContainer) return;
+
+                        if (data.requests.length === 0) {
+                            tableContainer.innerHTML = `
                         <div class="text-center py-12">
                             <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -1600,10 +1661,10 @@
                             <p class="text-gray-400 text-sm mt-1">No requests match the selected filters</p>
                         </div>
                     `;
-                    return;
-                }
+                            return;
+                        }
 
-                let tableHTML = `
+                        let tableHTML = `
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -1619,11 +1680,11 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                 `;
 
-                data.requests.forEach((request, index) => {
-                    const roleClass = request.role === 'school_head' ? 'bg-purple-100 text-purple-800' :
-                        request.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                        data.requests.forEach((request, index) => {
+                            const roleClass = request.role === 'school_head' ? 'bg-purple-100 text-purple-800' :
+                                request.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
 
-                    tableHTML += `
+                            tableHTML += `
                         <tr class="hover:bg-green-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -1665,18 +1726,18 @@
                             </td>
                         </tr>
                     `;
-                });
+                        });
 
-                tableHTML += '</tbody></table>';
-                tableContainer.innerHTML = tableHTML;
-            }
+                        tableHTML += '</tbody></table>';
+                        tableContainer.innerHTML = tableHTML;
+                    }
 
-            function updateCTORequestsTable(data) {
-                const tableContainer = document.querySelector('#approvedCtoContent .overflow-x-auto');
-                if (!tableContainer) return;
+                    function updateCTORequestsTable(data) {
+                        const tableContainer = document.querySelector('#approvedCtoContent .overflow-x-auto');
+                        if (!tableContainer) return;
 
-                if (data.requests.length === 0) {
-                    tableContainer.innerHTML = `
+                        if (data.requests.length === 0) {
+                            tableContainer.innerHTML = `
                         <div class="text-center py-12">
                             <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1685,10 +1746,10 @@
                             <p class="text-gray-400 text-sm mt-1">No requests match the selected filters</p>
                         </div>
                     `;
-                    return;
-                }
+                            return;
+                        }
 
-                let tableHTML = `
+                        let tableHTML = `
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -1706,8 +1767,8 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                 `;
 
-                data.requests.forEach((request, index) => {
-                    tableHTML += `
+                        data.requests.forEach((request, index) => {
+                            tableHTML += `
                         <tr class="hover:bg-teal-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -1759,25 +1820,25 @@
                             </td>
                         </tr>
                     `;
+                        });
+
+                        tableHTML += '</tbody></table>';
+                        tableContainer.innerHTML = tableHTML;
+                    }
+
+                    function updateLeaveRequestsCount(count) {
+                        const countElement = document.querySelector('#approvedLeaveHeaderToggle').parentElement.parentElement.querySelector('.bg-green-100');
+                        if (countElement) {
+                            countElement.textContent = `${count} Approved`;
+                        }
+                    }
+
+                    function updateCTORequestsCount(count) {
+                        const countElement = document.querySelector('#approvedCtoHeaderToggle').parentElement.parentElement.querySelector('.bg-teal-100');
+                        if (countElement) {
+                            countElement.textContent = `${count} Approved`;
+                        }
+                    }
                 });
-
-                tableHTML += '</tbody></table>';
-                tableContainer.innerHTML = tableHTML;
-            }
-
-            function updateLeaveRequestsCount(count) {
-                const countElement = document.querySelector('#approvedLeaveHeaderToggle').parentElement.parentElement.querySelector('.bg-green-100');
-                if (countElement) {
-                    countElement.textContent = `${count} Approved`;
-                }
-            }
-
-            function updateCTORequestsCount(count) {
-                const countElement = document.querySelector('#approvedCtoHeaderToggle').parentElement.parentElement.querySelector('.bg-teal-100');
-                if (countElement) {
-                    countElement.textContent = `${count} Approved`;
-                }
-            }
-        });
-    </script>
+            </script>
 </x-app-layout>

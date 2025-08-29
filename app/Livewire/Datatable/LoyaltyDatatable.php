@@ -12,7 +12,7 @@ class LoyaltyDatatable extends Component
 {
     use WithPagination;
 
-    public $selectedSchool = null, $selectedCategory = null, $selectedClassification = null, $selectedPosition = null, $selectedJobStatus = null;
+    public $selectedSchool = null, $selectedPosition = null;
     public $search = '';
     public $sortDirection = 'ASC';
     public $sortColumn = 'id';
@@ -20,42 +20,51 @@ class LoyaltyDatatable extends Component
     public function doSort($column)
     {
         if ($this->sortColumn == $column) {
-            $this->sortDirection = $this->sortDirection ? 'DESC' : 'ASC';
-            return;
+            $this->sortDirection = $this->sortDirection == 'ASC' ? 'DESC' : 'ASC';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'ASC';
         }
-        $this->sortColumn = $column;
     }
 
+    public function resetFilters()
+    {
+        $this->selectedSchool = null;
+        $this->selectedPosition = null;
+        $this->search = '';
+        $this->resetPage();
+    }
 
-    private function getEligiblePersonnels($paginated = true)
+    private function getPersonnels($paginated = true)
     {
         $query = Personnel::with(['school', 'position'])
             ->whereNotNull('employment_start')
             ->when($this->selectedSchool, function ($query) {
                 $query->where('school_id', $this->selectedSchool);
             })
-            ->when($this->selectedCategory, function ($query) {
-                $query->where('category', $this->selectedCategory);
-            })
             ->when($this->selectedPosition, function ($query) {
                 $query->where('position_id', $this->selectedPosition);
             })
-            ->when($this->selectedJobStatus, function ($query) {
-                $query->where('job_status', $this->selectedJobStatus);
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('personnel_id', 'like', '%' . $this->search . '%')
+                        ->orWhere('first_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                });
             })
-            ->search($this->search)
             ->orderBy($this->sortColumn, $this->sortDirection);
 
-        $personnels = $paginated ? $query->paginate(10) : $query->get();
+        $personnels = $paginated ? $query->paginate(15) : $query->get();
 
         // Calculate loyalty award eligibility for each personnel
         $collection = $paginated ? $personnels->getCollection() : $personnels;
 
-        $eligiblePersonnels = $collection->map(function ($personnel) {
+        $processedPersonnels = $collection->map(function ($personnel) {
             $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
             $personnel->years_of_service = $yearsOfService;
             $personnel->can_claim = $this->canClaimLoyaltyAward($yearsOfService);
             $personnel->next_award_year = $this->getNextAwardYear($yearsOfService);
+            $personnel->award_type = $this->getAwardType($yearsOfService);
 
             // Calculate max possible claims and available claims
             $personnel->max_claims = $this->calculateMaxClaims($yearsOfService);
@@ -77,16 +86,14 @@ class LoyaltyDatatable extends Component
             }
 
             return $personnel;
-        })->filter(function ($personnel) {
-            return $personnel->can_claim;
         });
 
         if ($paginated) {
-            $personnels->setCollection($eligiblePersonnels);
+            $personnels->setCollection($processedPersonnels);
             return $personnels;
         }
 
-        return $eligiblePersonnels;
+        return $processedPersonnels;
     }
 
     private function sanitizeUtf8($string)
@@ -125,6 +132,16 @@ class LoyaltyDatatable extends Component
         return false;
     }
 
+    public function getAwardType($yearsOfService)
+    {
+        if ($yearsOfService == 10) {
+            return '10 Years Award';
+        } elseif ($yearsOfService > 10 && ($yearsOfService - 10) % 5 == 0) {
+            return $yearsOfService . ' Years Award';
+        }
+        return 'Not Eligible';
+    }
+
     public function getNextAwardYear($yearsOfService)
     {
         if ($yearsOfService < 10) {
@@ -150,12 +167,12 @@ class LoyaltyDatatable extends Component
         $yearsOfService = $personnel->years_of_service;
         $claimedCount = $personnel->loyalty_award_claim_count ?? 0;
         $maxClaims = $this->calculateMaxClaims($yearsOfService);
-        
+
         $allClaims = [];
-        
+
         for ($i = 0; $i < $maxClaims; $i++) {
             $isClaimed = $i < $claimedCount;
-            
+
             if ($i == 0) {
                 // First claim (10 years)
                 $allClaims[] = [
@@ -177,7 +194,7 @@ class LoyaltyDatatable extends Component
                 ];
             }
         }
-        
+
         return $allClaims;
     }
 
@@ -186,61 +203,23 @@ class LoyaltyDatatable extends Component
     {
         $maxClaims = $this->calculateMaxClaims($yearsOfService);
         if ($maxClaims == 0) return 0;
-        
+
         $totalAmount = 10000; // First 10 years
         if ($maxClaims > 1) {
             $totalAmount += ($maxClaims - 1) * 5000; // Each subsequent 5 years
         }
-        
+
         return $totalAmount;
     }
 
-    public function claimLoyaltyAward($personnelId, $claimIndex = null)
-    {
-        $personnel = Personnel::find($personnelId);
-        if (!$personnel) return;
-        
-        $yearsOfService = $this->calculateYearsOfService($personnel->employment_start);
-        $maxClaims = $this->calculateMaxClaims($yearsOfService);
-        $currentClaims = $personnel->loyalty_award_claim_count ?? 0;
-        
-        if ($currentClaims < $maxClaims) {
-            $personnel->loyalty_award_claim_count = $currentClaims + 1;
-            $personnel->save();
-            
-            // Determine the amount claimed
-            $amount = ($currentClaims == 0) ? 10000 : 5000;
-            $years = ($currentClaims == 0) ? 10 : (10 + ($currentClaims * 5));
-            
-            session()->flash('success', "Loyalty award claimed! ₱" . number_format($amount) . " for {$years} years of service.");
-        }
-    }
+    // This method is no longer needed as claims are now handled by the dedicated controller
+    // public function claimLoyaltyAward($personnelId, $claimIndex = null) { ... }
 
-    public function exportPdf()
-    {
-        $personnels = $this->getEligiblePersonnels(false); // not paginated, all eligible
-        $date = now()->format('F d, Y');
-        
-        // Fetch signatures
-        $schools_division_superintendent_signature = \App\Models\Signature::where('position', 'Schools Division Superintendent')->first();
-        $oic_assistant_schools_division_superintendent_signature = \App\Models\Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
-        $administrative_officer_vi_signature = \App\Models\Signature::where('position', 'Administrative Officer VI (HRMO II)')->first();
-        
-        $pdf = Pdf::loadView('pdf.loyalty-awards', [
-            'personnels' => $personnels,
-            'date' => $date,
-            'schools_division_superintendent_signature' => $schools_division_superintendent_signature,
-            'oic_assistant_schools_division_superintendent_signature' => $oic_assistant_schools_division_superintendent_signature,
-            'administrative_officer_vi_signature' => $administrative_officer_vi_signature,
-        ])->setPaper('a4', 'portrait');
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'loyalty_awardees.pdf');
-    }
+
 
     public function render()
     {
-        $personnels = $this->getEligiblePersonnels(true);
+        $personnels = $this->getPersonnels(true);
 
         return view('livewire.datatable.loyalty-datatable', [
             'personnels' => $personnels

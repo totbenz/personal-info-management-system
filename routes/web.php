@@ -21,23 +21,23 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\SalaryChangesController;
 
 // Debug route to show current service credit requests
-Route::get('/debug/current-service-credits', function(){
+Route::get('/debug/current-service-credits', function () {
     try {
         $allRequests = \App\Models\ServiceCreditRequest::with('teacher')->orderBy('created_at', 'desc')->get();
         $pendingRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')->with('teacher')->orderBy('created_at', 'desc')->get();
-        
+
         // Test admin dashboard query
         $adminDashboardQuery = \App\Models\ServiceCreditRequest::where('status', 'pending')
             ->with(['teacher'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-        
+
         return [
             'total_requests' => $allRequests->count(),
             'pending_requests' => $pendingRequests->count(),
             'admin_dashboard_query_count' => $adminDashboardQuery->count(),
-            'all_requests' => $allRequests->map(function($r) {
+            'all_requests' => $allRequests->map(function ($r) {
                 return [
                     'id' => $r->id,
                     'teacher_id' => $r->teacher_id,
@@ -48,7 +48,7 @@ Route::get('/debug/current-service-credits', function(){
                     'created_at' => $r->created_at->toDateTimeString()
                 ];
             }),
-            'pending_details' => $pendingRequests->map(function($r) {
+            'pending_details' => $pendingRequests->map(function ($r) {
                 return [
                     'id' => $r->id,
                     'teacher_id' => $r->teacher_id,
@@ -61,7 +61,7 @@ Route::get('/debug/current-service-credits', function(){
                     'created_at' => $r->created_at->toDateTimeString()
                 ];
             }),
-            'admin_dashboard_data' => $adminDashboardQuery->map(function($r) {
+            'admin_dashboard_data' => $adminDashboardQuery->map(function ($r) {
                 return [
                     'id' => $r->id,
                     'teacher_name' => $r->teacher ? $r->teacher->first_name . ' ' . $r->teacher->last_name : 'No teacher',
@@ -71,7 +71,6 @@ Route::get('/debug/current-service-credits', function(){
                 ];
             })
         ];
-        
     } catch (\Exception $e) {
         return [
             'error' => true,
@@ -82,21 +81,20 @@ Route::get('/debug/current-service-credits', function(){
 })->name('debug.current-service-credits');
 
 // Debug route to clear all test data and start fresh
-Route::get('/debug/reset-service-credits', function(){
+Route::get('/debug/reset-service-credits', function () {
     try {
         // Delete all service credit requests
         $deletedCount = \App\Models\ServiceCreditRequest::truncate();
-        
+
         // Verify deletion
         $remainingCount = \App\Models\ServiceCreditRequest::count();
-        
+
         return [
             'success' => true,
             'message' => 'All service credit requests cleared',
             'remaining_count' => $remainingCount,
             'instruction' => 'Now test: 1) Login as teacher, 2) Submit service credit request, 3) Login as admin, 4) Check dashboard'
         ];
-        
     } catch (\Exception $e) {
         return [
             'error' => true,
@@ -106,18 +104,18 @@ Route::get('/debug/reset-service-credits', function(){
 })->name('debug.reset-service-credits');
 
 // Debug route to test teacher service credit submission
-Route::get('/debug/test-teacher-service-credit', function(){
+Route::get('/debug/test-teacher-service-credit', function () {
     try {
         // Find a teacher user
         $teacher = \App\Models\User::where('role', 'teacher')->whereHas('personnel')->first();
-        
+
         if (!$teacher) {
             return ['error' => 'No teacher found'];
         }
-        
+
         // Log in as this teacher for the test
         \Illuminate\Support\Facades\Auth::login($teacher);
-        
+
         // Create a test service credit request as if submitted by teacher
         $serviceCredit = \App\Models\ServiceCreditRequest::create([
             'teacher_id' => $teacher->personnel->id,
@@ -132,14 +130,14 @@ Route::get('/debug/test-teacher-service-credit', function(){
             'description' => 'Supervised student activity during weekend',
             'status' => 'pending',
         ]);
-        
+
         // Test if the admin query picks it up
         $adminQuery = \App\Models\ServiceCreditRequest::where('status', 'pending')
             ->with(['teacher'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-        
+
         return [
             'success' => true,
             'teacher_id' => $teacher->id,
@@ -157,7 +155,6 @@ Route::get('/debug/test-teacher-service-credit', function(){
                 'teacher_name' => $serviceCredit->teacher ? $serviceCredit->teacher->first_name . ' ' . $serviceCredit->teacher->last_name : 'No teacher relationship'
             ]
         ];
-        
     } catch (\Exception $e) {
         return [
             'error' => true,
@@ -168,48 +165,48 @@ Route::get('/debug/test-teacher-service-credit', function(){
 })->name('debug.test-teacher-service-credit');
 
 // Public debug route (remove in production)
-Route::get('/debug/create-service-credit-data', function(){
+Route::get('/debug/create-service-credit-data', function () {
     try {
         $result = [];
-        
+
         // Check if table exists
         if (!\Illuminate\Support\Facades\Schema::hasTable('service_credit_requests')) {
             return ['error' => 'service_credit_requests table does not exist. Run migrations first.'];
         }
-        
+
         $result['table_exists'] = true;
-        
+
         // Count existing requests
         $totalRequests = \App\Models\ServiceCreditRequest::count();
         $pendingRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')->count();
-        
+
         $result['existing_total'] = $totalRequests;
         $result['existing_pending'] = $pendingRequests;
-        
+
         // Check for teachers with personnel
         $teachersCount = \App\Models\User::where('role', 'teacher')->whereHas('personnel')->count();
         $result['teachers_with_personnel'] = $teachersCount;
-        
+
         if ($teachersCount === 0) {
             // Create a test teacher
             $personnel = \App\Models\Personnel::first();
             if (!$personnel) {
                 return ['error' => 'No personnel records found. Create personnel data first.'];
             }
-            
+
             $teacher = \App\Models\User::create([
                 'email' => 'debug.teacher@example.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'role' => 'teacher',
                 'personnel_id' => $personnel->id,
             ]);
-            
+
             $result['created_teacher'] = $teacher->email;
         } else {
             $teacher = \App\Models\User::where('role', 'teacher')->whereHas('personnel')->first();
             $result['using_teacher'] = $teacher->email;
         }
-        
+
         // Create test requests if none exist
         if ($pendingRequests === 0) {
             $testRequests = [
@@ -240,29 +237,29 @@ Route::get('/debug/create-service-credit-data', function(){
                     'status' => 'pending',
                 ]
             ];
-            
+
             $created = [];
             foreach ($testRequests as $requestData) {
                 $request = \App\Models\ServiceCreditRequest::create($requestData);
                 $created[] = $request->id;
             }
-            
+
             $result['created_requests'] = $created;
         }
-        
+
         // Final count
         $result['final_total'] = \App\Models\ServiceCreditRequest::count();
         $result['final_pending'] = \App\Models\ServiceCreditRequest::where('status', 'pending')->count();
-        
+
         // Test the dashboard query
         $dashboardQuery = \App\Models\ServiceCreditRequest::where('status', 'pending')
             ->with(['teacher'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-        
+
         $result['dashboard_query_count'] = $dashboardQuery->count();
-        $result['dashboard_data'] = $dashboardQuery->map(function($req) {
+        $result['dashboard_data'] = $dashboardQuery->map(function ($req) {
             return [
                 'id' => $req->id,
                 'teacher_name' => $req->teacher ? $req->teacher->first_name . ' ' . $req->teacher->last_name : 'Unknown',
@@ -271,12 +268,11 @@ Route::get('/debug/create-service-credit-data', function(){
                 'requested_days' => $req->requested_days,
             ];
         });
-        
+
         $result['success'] = true;
         $result['message'] = 'Test data created successfully. Check admin dashboard at /dashboard';
-        
+
         return $result;
-        
     } catch (\Exception $e) {
         return [
             'error' => true,
@@ -287,11 +283,11 @@ Route::get('/debug/create-service-credit-data', function(){
     }
 })->name('debug.create-service-credit-data');
 
-Route::get('/debug/check-admin-users', function(){
+Route::get('/debug/check-admin-users', function () {
     try {
         $adminUsers = \App\Models\User::where('role', 'admin')->get(['id', 'email', 'role', 'created_at']);
         $allRoles = \App\Models\User::selectRaw('role, COUNT(*) as count')->groupBy('role')->get();
-        
+
         return [
             'admin_users' => $adminUsers->toArray(),
             'all_user_roles' => $allRoles->toArray(),
@@ -349,8 +345,8 @@ Route::middleware(['auth'])->group(function () {
         // Teacher Leave Routes
         Route::post('teacher/leaves/add', [App\Http\Controllers\TeacherLeaveController::class, 'addLeave'])->name('teacher.leaves.add');
 
-    // Leave request submission
-    Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+        // Leave request submission
+        Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
     });
 
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
@@ -366,7 +362,7 @@ Route::middleware(['auth'])->group(function () {
         // Non-Teaching Leave Routes
         Route::post('non-teaching/leaves/add', [App\Http\Controllers\NonTeachingLeaveController::class, 'addLeave'])->name('non_teaching.leaves.add');
 
-    // (CTO request route defined once globally below to avoid duplicates)
+        // (CTO request route defined once globally below to avoid duplicates)
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
@@ -397,7 +393,7 @@ Route::middleware(['auth'])->group(function () {
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
         Route::post('school-head/leaves/add', [App\Http\Controllers\SchoolHeadLeaveController::class, 'addLeave'])->name('school_head.leaves.add');
-    // (Global CTO request route defined below)
+        // (Global CTO request route defined below)
 
         // Leave request submission for school heads
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
@@ -405,7 +401,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Leave request submission - available to all authenticated roles
     Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
-    
+
     // Global CTO request route (teacher, non_teaching, school_head)
     Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
     // SERVICE RECORD
@@ -429,15 +425,15 @@ Route::middleware(['auth'])->group(function () {
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
-    // JSON feed for Service Credit pending requests (AJAX refresh)
-    Route::get('/admin/service-credit-requests/pending.json', [ServiceCreditRequestController::class, 'pendingJson'])->name('admin.service-credit-requests.pending-json');
+        // JSON feed for Service Credit pending requests (AJAX refresh)
+        Route::get('/admin/service-credit-requests/pending.json', [ServiceCreditRequestController::class, 'pendingJson'])->name('admin.service-credit-requests.pending-json');
 
         // TEMP DEBUG: recent Service Credit requests (remove in production)
-        Route::get('/admin/_debug/service-credits', function(){
+        Route::get('/admin/_debug/service-credits', function () {
             return \App\Models\ServiceCreditRequest::orderByDesc('id')->take(10)->get();
         })->name('admin.debug.service-credits');
 
-        Route::get('/admin/_debug/service-credits-schema', function(){
+        Route::get('/admin/_debug/service-credits-schema', function () {
             $hasTable = \Illuminate\Support\Facades\Schema::hasTable('service_credit_requests');
             $columns = $hasTable ? \Illuminate\Support\Facades\Schema::getColumnListing('service_credit_requests') : [];
             return [
@@ -447,21 +443,21 @@ Route::middleware(['auth'])->group(function () {
             ];
         })->name('admin.debug.service-credits-schema');
 
-        Route::get('/admin/_debug/create-test-service-credit', function(){
+        Route::get('/admin/_debug/create-test-service-credit', function () {
             try {
                 // Find a teacher user with personnel
                 $teacher = \App\Models\User::where('role', 'teacher')
                     ->whereHas('personnel')
                     ->with('personnel')
                     ->first();
-                
+
                 if (!$teacher) {
                     // Create a test teacher if none exists
                     $personnel = \App\Models\Personnel::first();
                     if (!$personnel) {
                         return ['error' => 'No personnel records found. Create personnel first.'];
                     }
-                    
+
                     $teacher = \App\Models\User::create([
                         'email' => 'debug.teacher@test.com',
                         'password' => \Illuminate\Support\Facades\Hash::make('password'),
@@ -469,21 +465,21 @@ Route::middleware(['auth'])->group(function () {
                         'personnel_id' => $personnel->id,
                     ]);
                 }
-                
+
                 // Check if test request already exists
                 $existing = \App\Models\ServiceCreditRequest::where('teacher_id', $teacher->personnel->id)
                     ->where('reason', 'LIKE', 'DEBUG%')
                     ->first();
-                
+
                 if ($existing) {
                     return [
-                        'message' => 'DEBUG test request already exists', 
+                        'message' => 'DEBUG test request already exists',
                         'request_id' => $existing->id,
                         'status' => $existing->status,
                         'teacher' => $teacher->personnel->first_name . ' ' . $teacher->personnel->last_name
                     ];
                 }
-                
+
                 // Create test request
                 $request = \App\Models\ServiceCreditRequest::create([
                     'teacher_id' => $teacher->personnel->id,
@@ -498,13 +494,13 @@ Route::middleware(['auth'])->group(function () {
                     'description' => 'This is a debug test request to verify the admin dashboard displays service credit requests',
                     'status' => 'pending',
                 ]);
-                
+
                 // Verify the request can be fetched
                 $testFetch = \App\Models\ServiceCreditRequest::where('status', 'pending')
                     ->with(['teacher'])
                     ->orderBy('created_at', 'desc')
                     ->get();
-                
+
                 return [
                     'success' => true,
                     'message' => 'DEBUG service credit request created successfully',
@@ -556,10 +552,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/cto-requests/{ctoRequest}/approve', [\App\Http\Controllers\CTORequestController::class, 'approve'])->name('admin.cto-requests.approve');
         Route::post('/admin/cto-requests/{ctoRequest}/deny', [\App\Http\Controllers\CTORequestController::class, 'deny'])->name('admin.cto-requests.deny');
 
-    // Service Credit Requests (teacher only) admin approval
-    Route::get('/admin/service-credit-requests', [ServiceCreditRequestController::class, 'index'])->name('admin.service-credit-requests');
-    Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
-    Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
+        // Service Credit Requests (teacher only) admin approval
+        Route::get('/admin/service-credit-requests', [ServiceCreditRequestController::class, 'index'])->name('admin.service-credit-requests');
+        Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
+        Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
 
         // Leave Management admin interface
         Route::get('/admin/leave-management', [\App\Http\Controllers\LeaveManagementController::class, 'index'])->name('admin.leave-management');
@@ -609,6 +605,9 @@ Route::middleware(['auth'])->group(function () {
     })->name('settings');
     Route::post('/settings/change-password', [UserController::class, 'changePassword'])->name('settings.changePassword');
 
-    // Add this route for loyalty awards PDF export
-    Route::get('/loyalty-awards/export-pdf', [\App\Livewire\Datatable\LoyaltyDatatable::class, 'exportPdf'])->name('loyalty-awards.export-pdf');
+    // Loyalty awards routes
+    Route::get('/loyalty-awards/export-10year-pdf', [\App\Http\Controllers\LoyaltyAwardController::class, 'export10YearPdf'])->name('loyalty-awards.export-10year-pdf');
+    Route::get('/loyalty-awards/export-5year-pdf', [\App\Http\Controllers\LoyaltyAwardController::class, 'export5YearPdf'])->name('loyalty-awards.export-5year-pdf');
+    Route::post('/loyalty-awards/claim', [\App\Http\Controllers\LoyaltyAwardController::class, 'claim'])->name('loyalty-awards.claim');
+    Route::get('/personnels/{personnel}/loyalty-awards', [\App\Http\Controllers\LoyaltyAwardController::class, 'show'])->name('loyalty-awards.show');
 });
