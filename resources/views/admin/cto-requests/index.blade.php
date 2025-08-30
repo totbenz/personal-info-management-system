@@ -151,12 +151,22 @@
                                         {{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}
                                     </div>
                                     <div class="text-xs text-gray-500">
+                                        @if($request->morning_in && $request->morning_out)
+                                        AM: {{ \Carbon\Carbon::parse($request->morning_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->morning_out)->format('g:i A') }}
+                                        @endif
+                                        @if($request->afternoon_in && $request->afternoon_out)
+                                        PM: {{ \Carbon\Carbon::parse($request->afternoon_in)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->afternoon_out)->format('g:i A') }}
+                                        @endif
+                                        @if(!$request->morning_in && !$request->afternoon_in)
                                         {{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - 
                                         {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }}
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $request->requested_hours }} hours</div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ $request->total_hours ? number_format($request->total_hours, 2) : $request->requested_hours }} hours
+                                    </div>
                                     <div class="text-xs text-teal-600 font-medium">{{ number_format($request->cto_days_earned, 2) }} CTO days</div>
                                 </td>
                                 <td class="px-6 py-4">

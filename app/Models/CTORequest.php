@@ -18,6 +18,11 @@ class CTORequest extends Model
         'work_date',
         'start_time',
         'end_time',
+        'morning_in',
+        'morning_out',
+        'afternoon_in',
+        'afternoon_out',
+        'total_hours',
         'reason',
         'description',
         'status',
@@ -30,6 +35,11 @@ class CTORequest extends Model
         'work_date' => 'date',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
+        'morning_in' => 'datetime:H:i',
+        'morning_out' => 'datetime:H:i',
+        'afternoon_in' => 'datetime:H:i',
+        'afternoon_out' => 'datetime:H:i',
+        'total_hours' => 'float',
         'approved_at' => 'datetime',
     ];
 

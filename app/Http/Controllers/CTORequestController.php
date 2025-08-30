@@ -25,10 +25,12 @@ class CTORequestController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'requested_hours' => 'required|integer|min:1|max:24',
             'work_date' => 'required|date|before_or_equal:today',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            // Time segment validation - at least one complete pair required
+            'morning_in' => 'nullable|date_format:H:i|required_with:morning_out',
+            'morning_out' => 'nullable|date_format:H:i|after:morning_in|required_with:morning_in',
+            'afternoon_in' => 'nullable|date_format:H:i|required_with:afternoon_out',
+            'afternoon_out' => 'nullable|date_format:H:i|after:afternoon_in|required_with:afternoon_in',
             'reason' => 'required|string|min:10|max:500',
             'description' => 'nullable|string|max:1000',
         ]);
@@ -43,19 +45,8 @@ class CTORequestController extends Controller
             ]);
         }
 
-        // Validate that the calculated hours match the time difference
-        $startTime = Carbon::createFromFormat('H:i', $request->start_time);
-        $endTime = Carbon::createFromFormat('H:i', $request->end_time);
-        $calculatedHours = $endTime->diffInHours($startTime);
-
-        if ($calculatedHours != $request->requested_hours) {
-            return redirect()->back()->withErrors([
-                'requested_hours' => 'The requested hours must match the time difference between start and end time.'
-            ])->withInput();
-        }
-
-    // Check if there's already a request for the same date (column name retained as school_head_id for legacy)
-    $existingRequest = CTORequest::where('school_head_id', $personnel->id)
+        // Prevent duplicate request for same work date
+        $existingRequest = CTORequest::where('school_head_id', $personnel->id)
             ->where('work_date', $request->work_date)
             ->whereIn('status', ['pending', 'approved'])
             ->first();
@@ -66,14 +57,69 @@ class CTORequestController extends Controller
             ])->withInput();
         }
 
+        // Collect time segments (similar to ServiceCreditRequest)
+        $segments = [];
+        if ($request->filled(['morning_in', 'morning_out'])) {
+            $segments[] = ['in' => $request->morning_in, 'out' => $request->morning_out, 'label' => 'AM'];
+        }
+        if ($request->filled(['afternoon_in', 'afternoon_out'])) {
+            $segments[] = ['in' => $request->afternoon_in, 'out' => $request->afternoon_out, 'label' => 'PM'];
+        }
+        
+        if (empty($segments)) {
+            return redirect()->back()->withErrors([
+                'time' => 'Provide at least one complete in/out time pair.'
+            ])->withInput();
+        }
+
+        // Compute total hours robustly
+        $totalHours = 0.0;
+        foreach ($segments as $seg) {
+            try {
+                $in = Carbon::createFromFormat('H:i', $seg['in']);
+                $out = Carbon::createFromFormat('H:i', $seg['out']);
+                $diff = $out->floatDiffInRealMinutes($in) / 60; // float hours
+                if ($diff <= 0) {
+                    return redirect()->back()->withErrors([
+                        'time' => 'Invalid time range for ' . $seg['label'] . ' segment.'
+                    ])->withInput();
+                }
+                $totalHours += $diff;
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors([
+                    'time' => 'Failed to parse time segment ' . $seg['label'] . '.'
+                ])->withInput();
+            }
+        }
+        
+        $totalHours = round($totalHours, 2);
+        if ($totalHours > 16) {
+            return redirect()->back()->withErrors([
+                'time' => 'Total hours exceed allowable limit (16 hours).'
+            ])->withInput();
+        }
+        if ($totalHours <= 0) {
+            return redirect()->back()->withErrors([
+                'time' => 'Computed total hours is zero; check your time entries.'
+            ])->withInput();
+        }
+
+        $requestedHours = (int) ceil($totalHours); // For backward compatibility
+
         try {
             CTORequest::create([
                 // Reuse legacy column 'school_head_id' to store personnel id for both roles
                 'school_head_id' => $personnel->id,
-                'requested_hours' => $request->requested_hours,
+                'requested_hours' => $requestedHours, // For backward compatibility
                 'work_date' => $request->work_date,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
+                'morning_in' => $request->morning_in,
+                'morning_out' => $request->morning_out,
+                'afternoon_in' => $request->afternoon_in,
+                'afternoon_out' => $request->afternoon_out,
+                'total_hours' => $totalHours,
+                // Keep legacy fields for backward compatibility during transition
+                'start_time' => $request->morning_in ?? '08:00', // Default fallback
+                'end_time' => $request->afternoon_out ?? ($request->morning_out ?? '17:00'), // Default fallback
                 'reason' => $request->reason,
                 'description' => $request->description,
                 'status' => 'pending',

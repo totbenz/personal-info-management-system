@@ -400,7 +400,7 @@
                     {{ session('cto_success') }}
                 </div>
             @endif
-            @if($errors->has('cto_error') || $errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description'))
+            @if($errors->has('cto_error') || $errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description'))
                 <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
                     <ul class="list-disc list-inside space-y-1">
                         @if($errors->has('cto_error'))
@@ -412,11 +412,23 @@
                         @if($errors->has('work_date'))
                             <li class="text-sm">{{ $errors->first('work_date') }}</li>
                         @endif
-                        @if($errors->has('start_time'))
-                            <li class="text-sm">{{ $errors->first('start_time') }}</li>
+                        @if($errors->has('total_hours'))
+                            <li class="text-sm">{{ $errors->first('total_hours') }}</li>
                         @endif
-                        @if($errors->has('end_time'))
-                            <li class="text-sm">{{ $errors->first('end_time') }}</li>
+                        @if($errors->has('morning_in'))
+                            <li class="text-sm">{{ $errors->first('morning_in') }}</li>
+                        @endif
+                        @if($errors->has('morning_out'))
+                            <li class="text-sm">{{ $errors->first('morning_out') }}</li>
+                        @endif
+                        @if($errors->has('afternoon_in'))
+                            <li class="text-sm">{{ $errors->first('afternoon_in') }}</li>
+                        @endif
+                        @if($errors->has('afternoon_out'))
+                            <li class="text-sm">{{ $errors->first('afternoon_out') }}</li>
+                        @endif
+                        @if($errors->has('time'))
+                            <li class="text-sm">{{ $errors->first('time') }}</li>
                         @endif
                         @if($errors->has('reason'))
                             <li class="text-sm">{{ $errors->first('reason') }}</li>
@@ -437,27 +449,52 @@
                     <p class="text-xs text-gray-500 mt-1">The date you performed extra work</p>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
-                        <input type="time" name="start_time" id="cto_start_time" required 
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
-                               value="{{ old('start_time') }}">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Morning Time</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="morning_in" class="block text-xs text-gray-500">Time In</label>
+                                    <input type="time" name="morning_in" id="morning_in" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('morning_in') }}">
+                                </div>
+                                <div>
+                                    <label for="morning_out" class="block text-xs text-gray-500">Time Out</label>
+                                    <input type="time" name="morning_out" id="morning_out" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('morning_out') }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Afternoon Time</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="afternoon_in" class="block text-xs text-gray-500">Time In</label>
+                                    <input type="time" name="afternoon_in" id="afternoon_in" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('afternoon_in') }}">
+                                </div>
+                                <div>
+                                    <label for="afternoon_out" class="block text-xs text-gray-500">Time Out</label>
+                                    <input type="time" name="afternoon_out" id="afternoon_out" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('afternoon_out') }}">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
-                        <input type="time" name="end_time" id="cto_end_time" required 
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
-                               value="{{ old('end_time') }}">
-                    </div>
+                    <p class="text-xs text-gray-500">Provide at least one complete morning or afternoon time in/out pair</p>
                 </div>
                 
                 <div>
-                    <label for="requested_hours" class="block text-sm font-medium text-gray-700">Hours Worked</label>
-                    <input type="number" name="requested_hours" id="requested_hours" min="1" max="24" required 
+                    <label for="total_hours" class="block text-sm font-medium text-gray-700">Total Hours Worked</label>
+                    <input type="number" name="total_hours" id="total_hours" min="0" max="16" step="0.25" 
                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
-                           value="{{ old('requested_hours') }}" readonly>
-                    <p class="text-xs text-gray-500 mt-1">Automatically calculated from start and end time</p>
+                           value="{{ old('total_hours') }}" readonly>
+                    <p class="text-xs text-gray-500 mt-1">Automatically calculated from time segments</p>
                     <div id="cto_hours_info" class="mt-2 p-2 bg-teal-50 border border-teal-200 rounded text-sm text-teal-800 hidden">
                         You will earn <span id="cto_days_earned">0</span> CTO day(s) from <span id="cto_hours_display">0</span> hour(s) of work.
                     </div>
@@ -645,9 +682,11 @@
         var ctoBtn = document.getElementById('ctoRequestBtn');
         var ctoModal = document.getElementById('ctoRequestModal');
         var ctoCloseBtn = document.getElementById('closeCtoRequestModal');
-        var ctoStartTime = document.getElementById('cto_start_time');
-        var ctoEndTime = document.getElementById('cto_end_time');
-        var ctoHoursInput = document.getElementById('requested_hours');
+        var ctoMorningIn = document.getElementById('morning_in');
+        var ctoMorningOut = document.getElementById('morning_out');
+        var ctoAfternoonIn = document.getElementById('afternoon_in');
+        var ctoAfternoonOut = document.getElementById('afternoon_out');
+        var ctoTotalHoursInput = document.getElementById('total_hours');
         var ctoHoursInfo = document.getElementById('cto_hours_info');
         var ctoHoursDisplay = document.getElementById('cto_hours_display');
         var ctoDaysEarned = document.getElementById('cto_days_earned');
@@ -675,43 +714,54 @@
 
         // CTO time calculation
         function calculateCTOHours() {
-            if (!ctoStartTime || !ctoEndTime || !ctoStartTime.value || !ctoEndTime.value) {
+            var totalHours = 0;
+
+            // Calculate morning hours
+            if (ctoMorningIn && ctoMorningOut && ctoMorningIn.value && ctoMorningOut.value) {
+                const morningStart = new Date('2000-01-01 ' + ctoMorningIn.value);
+                const morningEnd = new Date('2000-01-01 ' + ctoMorningOut.value);
+                if (morningEnd > morningStart) {
+                    totalHours += (morningEnd.getTime() - morningStart.getTime()) / (1000 * 60 * 60);
+                }
+            }
+
+            // Calculate afternoon hours
+            if (ctoAfternoonIn && ctoAfternoonOut && ctoAfternoonIn.value && ctoAfternoonOut.value) {
+                const afternoonStart = new Date('2000-01-01 ' + ctoAfternoonIn.value);
+                const afternoonEnd = new Date('2000-01-01 ' + ctoAfternoonOut.value);
+                if (afternoonEnd > afternoonStart) {
+                    totalHours += (afternoonEnd.getTime() - afternoonStart.getTime()) / (1000 * 60 * 60);
+                }
+            }
+
+            // Round to 2 decimal places
+            totalHours = Math.round(totalHours * 100) / 100;
+
+            if (totalHours <= 0) {
                 if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
-                if (ctoHoursInput) ctoHoursInput.value = '';
+                if (ctoTotalHoursInput) ctoTotalHoursInput.value = '';
                 if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
                 return 0;
             }
 
-            const startTime = new Date('2000-01-01 ' + ctoStartTime.value);
-            const endTime = new Date('2000-01-01 ' + ctoEndTime.value);
+            const days = (totalHours / 8).toFixed(2);
             
-            if (endTime <= startTime) {
-                if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
-                if (ctoHoursInput) ctoHoursInput.value = '';
-                if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
-                return 0;
-            }
-
-            const timeDiff = endTime.getTime() - startTime.getTime();
-            const hours = Math.round(timeDiff / (1000 * 60 * 60));
-            const days = (hours / 8).toFixed(2);
-            
-            if (ctoHoursInput) ctoHoursInput.value = hours;
-            if (ctoHoursDisplay) ctoHoursDisplay.textContent = hours;
+            if (ctoTotalHoursInput) ctoTotalHoursInput.value = totalHours;
+            if (ctoHoursDisplay) ctoHoursDisplay.textContent = totalHours;
             if (ctoDaysEarned) ctoDaysEarned.textContent = days;
             if (ctoHoursInfo) ctoHoursInfo.classList.remove('hidden');
             
             // Enable submit if all required fields are filled
             validateCTOForm();
             
-            return hours;
+            return totalHours;
         }
 
         // CTO form validation
         function validateCTOForm() {
             const workDate = document.getElementById('work_date');
             const reason = document.getElementById('cto_reason');
-            const hours = ctoHoursInput ? ctoHoursInput.value : '';
+            const hours = ctoTotalHoursInput ? ctoTotalHoursInput.value : '';
             
             const isValid = workDate && workDate.value && 
                            reason && reason.value.trim().length >= 10 && 
@@ -723,12 +773,20 @@
         }
 
         // Event listeners for CTO calculation
-        if (ctoStartTime) {
-            ctoStartTime.addEventListener('change', calculateCTOHours);
+        if (ctoMorningIn) {
+            ctoMorningIn.addEventListener('change', calculateCTOHours);
         }
 
-        if (ctoEndTime) {
-            ctoEndTime.addEventListener('change', calculateCTOHours);
+        if (ctoMorningOut) {
+            ctoMorningOut.addEventListener('change', calculateCTOHours);
+        }
+
+        if (ctoAfternoonIn) {
+            ctoAfternoonIn.addEventListener('change', calculateCTOHours);
+        }
+
+        if (ctoAfternoonOut) {
+            ctoAfternoonOut.addEventListener('change', calculateCTOHours);
         }
 
         // Event listeners for CTO form validation
@@ -743,7 +801,7 @@
         }
 
         // Auto-open CTO modal if there are CTO validation errors
-        @if($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description'))
+        @if($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description'))
             if (ctoModal) {
                 ctoModal.classList.remove('hidden');
                 ctoModal.classList.add('flex');
@@ -759,7 +817,7 @@
         @endif
 
         // Auto-open leave modal if there are leave validation errors
-        @if($errors->any() && !($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add')))
+        @if($errors->any() && !($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add')))
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');

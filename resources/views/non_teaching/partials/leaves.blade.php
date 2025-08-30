@@ -343,13 +343,17 @@
             @if(session('cto_success'))
                 <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">{{ session('cto_success') }}</div>
             @endif
-            @if($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description'))
+            @if($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description'))
                 <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
                     <ul class="list-disc list-inside space-y-1">
                         @if($errors->has('requested_hours'))<li class="text-sm">{{ $errors->first('requested_hours') }}</li>@endif
                         @if($errors->has('work_date'))<li class="text-sm">{{ $errors->first('work_date') }}</li>@endif
-                        @if($errors->has('start_time'))<li class="text-sm">{{ $errors->first('start_time') }}</li>@endif
-                        @if($errors->has('end_time'))<li class="text-sm">{{ $errors->first('end_time') }}</li>@endif
+                        @if($errors->has('total_hours'))<li class="text-sm">{{ $errors->first('total_hours') }}</li>@endif
+                        @if($errors->has('morning_in'))<li class="text-sm">{{ $errors->first('morning_in') }}</li>@endif
+                        @if($errors->has('morning_out'))<li class="text-sm">{{ $errors->first('morning_out') }}</li>@endif
+                        @if($errors->has('afternoon_in'))<li class="text-sm">{{ $errors->first('afternoon_in') }}</li>@endif
+                        @if($errors->has('afternoon_out'))<li class="text-sm">{{ $errors->first('afternoon_out') }}</li>@endif
+                        @if($errors->has('time'))<li class="text-sm">{{ $errors->first('time') }}</li>@endif
                         @if($errors->has('reason'))<li class="text-sm">{{ $errors->first('reason') }}</li>@endif
                         @if($errors->has('description'))<li class="text-sm">{{ $errors->first('description') }}</li>@endif
                     </ul>
@@ -361,19 +365,48 @@
                     <label for="work_date" class="block text-sm font-medium text-gray-700">Date of Work</label>
                     <input type="date" name="work_date" id="work_date" required max="{{ date('Y-m-d') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="cto_start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
-                        <input type="time" name="start_time" id="cto_start_time" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Morning Time</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="morning_in" class="block text-xs text-gray-500">Time In</label>
+                                    <input type="time" name="morning_in" id="morning_in" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('morning_in') }}">
+                                </div>
+                                <div>
+                                    <label for="morning_out" class="block text-xs text-gray-500">Time Out</label>
+                                    <input type="time" name="morning_out" id="morning_out" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('morning_out') }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Afternoon Time</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="afternoon_in" class="block text-xs text-gray-500">Time In</label>
+                                    <input type="time" name="afternoon_in" id="afternoon_in" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('afternoon_in') }}">
+                                </div>
+                                <div>
+                                    <label for="afternoon_out" class="block text-xs text-gray-500">Time Out</label>
+                                    <input type="time" name="afternoon_out" id="afternoon_out" 
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                           value="{{ old('afternoon_out') }}">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label for="cto_end_time" class="block text-sm font-medium text-gray-700">End Time</label>
-                        <input type="time" name="end_time" id="cto_end_time" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                    </div>
+                    <p class="text-xs text-gray-500">Provide at least one complete morning or afternoon time in/out pair</p>
                 </div>
                 <div>
-                    <label for="requested_hours" class="block text-sm font-medium text-gray-700">Hours Worked</label>
-                    <input type="number" name="requested_hours" id="requested_hours" min="1" max="24" required readonly class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <label for="total_hours" class="block text-sm font-medium text-gray-700">Total Hours Worked</label>
+                    <input type="number" name="total_hours" id="total_hours" min="0" max="16" step="0.25" readonly class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                     <div id="cto_hours_info" class="mt-2 p-2 bg-teal-50 border border-teal-200 rounded text-sm text-teal-800 hidden">You will earn <span id="cto_days_earned">0</span> CTO day(s) from <span id="cto_hours_display">0</span> hour(s) of work.</div>
                 </div>
                 <div>
@@ -496,9 +529,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctoBtn = document.getElementById('ctoRequestBtn');
     const ctoModal = document.getElementById('ctoRequestModal');
     const ctoCloseBtn = document.getElementById('closeCtoRequestModal');
-    const ctoStartTime = document.getElementById('cto_start_time');
-    const ctoEndTime = document.getElementById('cto_end_time');
-    const ctoHoursInput = document.getElementById('requested_hours');
+    const ctoMorningIn = document.getElementById('morning_in');
+    const ctoMorningOut = document.getElementById('morning_out');
+    const ctoAfternoonIn = document.getElementById('afternoon_in');
+    const ctoAfternoonOut = document.getElementById('afternoon_out');
+    const ctoTotalHoursInput = document.getElementById('total_hours');
     const ctoHoursInfo = document.getElementById('cto_hours_info');
     const ctoHoursDisplay = document.getElementById('cto_hours_display');
     const ctoDaysEarned = document.getElementById('cto_days_earned');
@@ -509,26 +544,58 @@ document.addEventListener('DOMContentLoaded', function() {
         ctoModal.addEventListener('click', e => { if (e.target === ctoModal) { ctoModal.classList.add('hidden'); ctoModal.classList.remove('flex'); } });
     }
     function calculateCTOHours() {
-        if (!ctoStartTime.value || !ctoEndTime.value) { if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden'); if (ctoHoursInput) ctoHoursInput.value=''; if (ctoSubmitBtn) ctoSubmitBtn.disabled=true; return 0; }
-        const startTime = new Date('2000-01-01 ' + ctoStartTime.value);
-        const endTime = new Date('2000-01-01 ' + ctoEndTime.value);
-        if (endTime <= startTime) { if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden'); if (ctoHoursInput) ctoHoursInput.value=''; if (ctoSubmitBtn) ctoSubmitBtn.disabled=true; return 0; }
-        const hours = Math.round((endTime - startTime) / (1000*60*60));
-        const days = (hours/8).toFixed(2);
-        ctoHoursInput.value = hours; ctoHoursDisplay.textContent = hours; ctoDaysEarned.textContent = days; ctoHoursInfo.classList.remove('hidden');
+        var totalHours = 0;
+
+        // Calculate morning hours
+        if (ctoMorningIn && ctoMorningOut && ctoMorningIn.value && ctoMorningOut.value) {
+            const morningStart = new Date('2000-01-01 ' + ctoMorningIn.value);
+            const morningEnd = new Date('2000-01-01 ' + ctoMorningOut.value);
+            if (morningEnd > morningStart) {
+                totalHours += (morningEnd.getTime() - morningStart.getTime()) / (1000 * 60 * 60);
+            }
+        }
+
+        // Calculate afternoon hours
+        if (ctoAfternoonIn && ctoAfternoonOut && ctoAfternoonIn.value && ctoAfternoonOut.value) {
+            const afternoonStart = new Date('2000-01-01 ' + ctoAfternoonIn.value);
+            const afternoonEnd = new Date('2000-01-01 ' + ctoAfternoonOut.value);
+            if (afternoonEnd > afternoonStart) {
+                totalHours += (afternoonEnd.getTime() - afternoonStart.getTime()) / (1000 * 60 * 60);
+            }
+        }
+
+        // Round to 2 decimal places
+        totalHours = Math.round(totalHours * 100) / 100;
+
+        if (totalHours <= 0) {
+            if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
+            if (ctoTotalHoursInput) ctoTotalHoursInput.value = '';
+            if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
+            return 0;
+        }
+
+        const days = (totalHours / 8).toFixed(2);
+        if (ctoTotalHoursInput) ctoTotalHoursInput.value = totalHours;
+        if (ctoHoursDisplay) ctoHoursDisplay.textContent = totalHours;
+        if (ctoDaysEarned) ctoDaysEarned.textContent = days;
+        if (ctoHoursInfo) ctoHoursInfo.classList.remove('hidden');
         validateCTOForm();
-        return hours;
+        return totalHours;
     }
     function validateCTOForm() {
         const workDate = document.getElementById('work_date');
         const reason = document.getElementById('cto_reason');
-        const hours = ctoHoursInput.value;
-        const isValid = workDate.value && reason.value.trim().length >= 10 && hours > 0;
+        const hours = ctoTotalHoursInput ? ctoTotalHoursInput.value : '';
+        const isValid = workDate && workDate.value && reason && reason.value.trim().length >= 10 && hours > 0;
         if (ctoSubmitBtn) ctoSubmitBtn.disabled = !isValid;
         return isValid;
     }
-    if (ctoStartTime) ctoStartTime.addEventListener('change', calculateCTOHours);
-    if (ctoEndTime) ctoEndTime.addEventListener('change', calculateCTOHours);
+    
+    // Event listeners for time calculation
+    if (ctoMorningIn) ctoMorningIn.addEventListener('change', calculateCTOHours);
+    if (ctoMorningOut) ctoMorningOut.addEventListener('change', calculateCTOHours);
+    if (ctoAfternoonIn) ctoAfternoonIn.addEventListener('change', calculateCTOHours);
+    if (ctoAfternoonOut) ctoAfternoonOut.addEventListener('change', calculateCTOHours);
     const ctoWorkDate = document.getElementById('work_date');
     if (ctoWorkDate) ctoWorkDate.addEventListener('change', validateCTOForm);
     const ctoReason = document.getElementById('cto_reason');
@@ -577,13 +644,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('#leaveRequestModal form');
     if (form) form.addEventListener('submit', e => { if (!validateLeaveRequest()) { e.preventDefault(); alert('Please fix the validation errors before submitting.'); } });
     // Auto-open modals on validation errors (mirroring school head logic)
-    @if($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description'))
+    @if($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description'))
         if (ctoModal) { ctoModal.classList.remove('hidden'); ctoModal.classList.add('flex'); }
     @endif
     @if($errors->has('days_to_add') || $errors->has('leave_type'))
         if (addLeaveModal) { addLeaveModal.classList.remove('hidden'); addLeaveModal.classList.add('flex'); }
     @endif
-    @if($errors->any() && !($errors->has('requested_hours') || $errors->has('work_date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add')))
+    @if($errors->any() && !($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add')))
         if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
     @endif
     validateLeaveRequest();
