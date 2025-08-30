@@ -6,6 +6,7 @@ use App\Models\Personnel;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LoyaltyDatatable extends Component
@@ -35,6 +36,21 @@ class LoyaltyDatatable extends Component
         $this->resetPage();
     }
 
+    public function updatedSelectedSchool()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedPosition()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     private function getPersonnels($paginated = true)
     {
         $query = Personnel::with(['school', 'position'])
@@ -51,8 +67,15 @@ class LoyaltyDatatable extends Component
                         ->orWhere('first_name', 'like', '%' . $this->search . '%')
                         ->orWhere('last_name', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->orderBy($this->sortColumn, $this->sortDirection);
+            });
+
+        // Handle sorting, including computed years_of_service
+        if ($this->sortColumn === 'years_of_service') {
+            $direction = strtoupper($this->sortDirection) === 'DESC' ? 'DESC' : 'ASC';
+            $query->orderByRaw("TIMESTAMPDIFF(YEAR, employment_start, NOW()) $direction");
+        } else {
+            $query->orderBy($this->sortColumn, $this->sortDirection);
+        }
 
         $personnels = $paginated ? $query->paginate(15) : $query->get();
 

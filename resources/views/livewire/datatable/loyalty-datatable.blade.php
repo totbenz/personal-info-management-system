@@ -59,12 +59,12 @@
             </svg>
             @php
             // Count eligible personnels who can actually claim awards
-            $eligible10Year = $personnels->filter(function($personnel) {
+            $eligible10Year = $personnels->getCollection()->filter(function($personnel) {
             $claimedCount = $personnel->loyalty_award_claim_count ?? 0;
             return $personnel->years_of_service >= 10 && $claimedCount == 0;
             })->count();
 
-            $eligible5Year = $personnels->filter(function($personnel) {
+            $eligible5Year = $personnels->getCollection()->filter(function($personnel) {
             $claimedCount = $personnel->loyalty_award_claim_count ?? 0;
             $maxClaims = $personnel->max_claims ?? 0;
             $yearsOfService = $personnel->years_of_service;
@@ -102,6 +102,22 @@
                     @endif
                 </div>
         </div>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="mt-4 text-sm text-gray-600">
+        <p>Showing {{ $personnels->count() }} of {{ $personnels->total() }} personnel records</p>
+        @if($search || $selectedSchool || $selectedPosition)
+        <p class="text-blue-600 mt-1">
+            <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+            </svg>
+            Filters applied:
+            @if($search) <span class="font-medium">Search: "{{ $search }}"</span> @endif
+            @if($selectedSchool) <span class="font-medium">School: {{ \App\Models\School::find($selectedSchool)->school_name ?? 'Unknown' }}</span> @endif
+            @if($selectedPosition) <span class="font-medium">Position: {{ \App\Models\Position::find($selectedPosition)->title ?? 'Unknown' }}</span> @endif
+        </p>
+        @endif
     </div>
 
     <!-- Summary Cards -->
@@ -198,37 +214,83 @@
             </div>
 
             <!-- Table -->
-            <div class="mt-5 overflow-x-auto">
+            <div class="mt-5 overflow-x-auto relative">
+                <!-- Table loading overlay -->
+                <div wire:loading class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <div class="text-center">
+                        <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-sm text-gray-600">Updating results...</p>
+                    </div>
+                </div>
                 <table class="table-auto w-full">
                     <thead class="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
                         <tr>
-                            <th wire:click="doSort('personnel_id')" class="w-1/12 p-2 whitespace-nowrap">
+                            <th class="w-1/12 p-2 whitespace-nowrap">
                                 <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="personnel_id">
+                                    <button wire:click="doSort('personnel_id')" class="flex items-center gap-x-2">
                                         <span class="font-semibold text-left">Employee ID</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
+                                        @if ($sortColumn === 'personnel_id')
+                                            @if ($sortDirection === 'ASC')
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-gray-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                            </svg>
+                                        @endif
                                     </button>
                                 </div>
                             </th>
-                            <th wire:click="doSort('personnel_id')" class="w-2/12 p-2 whitespace-nowrap">
+                            <th class="w-2/12 p-2 whitespace-nowrap">
                                 <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="personnel_id">
+                                    <button wire:click="doSort('first_name')" class="flex items-center gap-x-2">
                                         <span class="font-semibold text-left">Name</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
+                                        @if ($sortColumn === 'first_name')
+                                            @if ($sortDirection === 'ASC')
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-gray-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                            </svg>
+                                        @endif
                                     </button>
                                 </div>
                             </th>
-                            <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('years_of_service')">
+                            <th class="p-2 whitespace-nowrap w-1/12">
                                 <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="years_of_service">
+                                    <button wire:click="doSort('years_of_service')" class="flex items-center gap-x-2">
                                         <span class="font-semibold text-left">Years of Service</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
+                                        @if ($sortColumn === 'years_of_service')
+                                            @if ($sortDirection === 'ASC')
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-gray-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                            </svg>
+                                        @endif
                                     </button>
                                 </div>
                             </th>
@@ -240,39 +302,55 @@
                                 </div>
                             </th>
 
-                            <th class="p-2 whitespace-nowrap w-2/12" wire:click="doSort('position_id')">
+                            <th class="p-2 whitespace-nowrap w-2/12">
                                 <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="position_id">
+                                    <button wire:click="doSort('position_id')" class="flex items-center gap-x-2">
                                         <span class="font-semibold text-left">Position</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
+                                        @if ($sortColumn === 'position_id')
+                                            @if ($sortDirection === 'ASC')
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-gray-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                            </svg>
+                                        @endif
                                     </button>
                                 </div>
                             </th>
-                            <th class="p-2 whitespace-nowrap w-1/12" wire:click="doSort('school_id')">
+                            <th class="p-2 whitespace-nowrap w-1/12">
                                 <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2" sortColumn="$sortColumn" sortDirection="$sortDirection" columnName="school_id">
+                                    <button wire:click="doSort('school_id')" class="flex items-center gap-x-2">
                                         <span class="font-semibold text-left">School Name</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
+                                        @if ($sortColumn === 'school_id')
+                                            @if ($sortDirection === 'ASC')
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-blue-500">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-gray-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                            </svg>
+                                        @endif
                                     </button>
                                 </div>
                             </th>
                             <th class="p-2 whitespace-nowrap w-1/12">
-                                <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2">
-                                        <span class="font-semibold text-left">Claims Status</span>
-                                    </button>
-                                </div>
+                                <div class="font-semibold text-left">Claims Status</div>
                             </th>
                             <th class="p-2 whitespace-nowrap w-1/12">
-                                <div class="flex items-center gap-x-3">
-                                    <button class="flex items-center gap-x-2">
-                                        <span class="font-semibold text-left">Actions</span>
-                                    </button>
-                                </div>
+                                <div class="font-semibold text-left">Actions</div>
                             </th>
                         </tr>
                     </thead>
