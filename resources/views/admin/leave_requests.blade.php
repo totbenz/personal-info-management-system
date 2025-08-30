@@ -183,6 +183,4 @@
         </div>
     </div>
 
-    <!-- Confirm Modal Component -->
-    <x-confirm-modal />
 </x-app-layout>
