@@ -23,7 +23,28 @@ class PersonnelDataExport
         try {
             Log::info('PersonnelDataExport constructor called with id: ' . $id);
 
-            $this->personnel = Personnel::findOrFail($id);
+            $this->personnel = Personnel::with([
+                'school',
+                'position',
+                'salaryGrade',
+                'user',
+                // Eager-load specific address relations used by sheets
+                'residentialAddress',
+                'permanentAddress',
+                'contactPerson',
+                'families',
+                'educations',
+                'civilServiceEligibilities',
+                'workExperiences',
+                'voluntaryWorks',
+                'trainingCertifications',
+                'otherInformations',
+                'references',
+                'assignmentDetails',
+                'awardsReceived',
+                'salaryChanges',
+                'personnelDetail'
+            ])->findOrFail($id);
             Log::info('Personnel found: ', ['personnel' => $this->personnel]);
 
             $this->filename = public_path('report/macro_enabled_cs_form_no_2122.xlsx');

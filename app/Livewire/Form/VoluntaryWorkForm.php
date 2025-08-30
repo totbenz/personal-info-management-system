@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 class VoluntaryWorkForm extends Component
 {
+    // ...existing code...
+
     public $personnel;
     public $old_voluntary_works = [], $new_voluntary_works = [];
     public $showMode = false, $updateMode = false;
@@ -25,13 +27,13 @@ class VoluntaryWorkForm extends Component
         'new_voluntary_works.*.hours' => 'required',
     ];
 
-    public function  mount($id, $showMode=true)
+    public function  mount($id, $showMode = true)
     {
-        if($id) {
+        if ($id) {
             $this->personnel = Personnel::findOrFail($id);
             // $this->old_voluntary_works = $this->personnel->workExperiences;
 
-            $this->old_voluntary_works = $this->personnel->voluntaryWorks()->get()->map(function($voluntary_work) {
+            $this->old_voluntary_works = $this->personnel->voluntaryWorks()->get()->map(function ($voluntary_work) {
                 return [
                     'id' => $voluntary_work->id,
                     'organization' => $voluntary_work->organization,
@@ -83,17 +85,13 @@ class VoluntaryWorkForm extends Component
             session()->flash('flash.banner', 'Failed to delete Voluntary Work');
             session()->flash('flash.bannerStyle', 'danger');
         }
-        session(['active_personnel_tab' => 'voluntary_work']);
+        // ...existing code...
+    }
 
-        if(Auth::user()->role === "teacher")
-        {
-            return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
-        } else {
-            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
-        }
+    public function back()
+    {
+        $this->updateMode = false;
+        $this->showMode = true;
     }
 
     public function edit()
@@ -105,11 +103,9 @@ class VoluntaryWorkForm extends Component
     public function cancel()
     {
         $this->resetModes();
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
@@ -137,8 +133,7 @@ class VoluntaryWorkForm extends Component
                     ]);
             }
         }
-        if($this->new_voluntary_works != null)
-        {
+        if ($this->new_voluntary_works != null) {
             foreach ($this->new_voluntary_works as $voluntary_work) {
                 $this->personnel->voluntaryWorks()->create([
                     'organization' => $voluntary_work['organization'],
@@ -157,11 +152,9 @@ class VoluntaryWorkForm extends Component
         session()->flash('flash.bannerStyle', 'success');
         session(['active_personnel_tab' => 'voluntary_work']);
 
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);

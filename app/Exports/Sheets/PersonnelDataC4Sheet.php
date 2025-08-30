@@ -65,34 +65,35 @@ class PersonnelDataC4Sheet
         $worksheet = $this->worksheet;
 
         // Check if personnelDetail relationship exists
-        if ($this->personnel->personnelDetail) {
-            // Populate specific cells with data
-            $worksheet->setCellValue('G6', $this->personnel->personnelDetail->consanguinity_third_degree ?? 'N/A');
-            $worksheet->setCellValue('G8', $this->personnel->personnelDetail->consanguinity_fourth_degree ?? 'N/A');
+            // Helper function to render checkboxes
+            $checkbox = function($value) {
+                return $value ? '☑ Yes   ☐ No' : '☐ Yes   ☑ No';
+            };
+
+            $worksheet->setCellValue('G6', $checkbox($this->personnel->personnelDetail->consanguinity_third_degree));
+            $worksheet->setCellValue('G8', $checkbox($this->personnel->personnelDetail->consanguinity_fourth_degree));
             $worksheet->setCellValue('H11', $this->personnel->personnelDetail->consanguinity_third_degree_details ?? 'N/A');
-            $worksheet->setCellValue('G13', $this->personnel->personnelDetail->found_guilty_administrative_offense ?? 'N/A');
+            $worksheet->setCellValue('G13', $checkbox($this->personnel->personnelDetail->found_guilty_administrative_offense));
             $worksheet->setCellValue('H15', $this->personnel->personnelDetail->administrative_offense_details ?? 'N/A');
-            $worksheet->setCellValue('G18', $this->personnel->personnelDetail->criminally_charged ?? 'N/A');
+            $worksheet->setCellValue('G18', $checkbox($this->personnel->personnelDetail->criminally_charged));
             $worksheet->setCellValue('K20', $this->personnel->personnelDetail->criminally_charged_date_filed ? Carbon::parse($this->personnel->personnelDetail->criminally_charged_date_filed)->format('m/d/Y') : 'N/A');
             $worksheet->setCellValue('K21', $this->personnel->personnelDetail->criminally_charged_status ?? 'N/A');
-            $worksheet->setCellValue('G23', $this->personnel->personnelDetail->convicted_crime ?? 'N/A');
+            $worksheet->setCellValue('G23', $checkbox($this->personnel->personnelDetail->convicted_crime));
             $worksheet->setCellValue('H25', $this->personnel->personnelDetail->convicted_crime_details ?? 'N/A');
-            $worksheet->setCellValue('G27', $this->personnel->personnelDetail->separated_from_service ?? 'N/A');
+            $worksheet->setCellValue('G27', $checkbox($this->personnel->personnelDetail->separated_from_service));
             $worksheet->setCellValue('H29', $this->personnel->personnelDetail->separation_details ?? 'N/A');
-            $worksheet->setCellValue('G31', $this->personnel->personnelDetail->candidate_last_year ?? 'N/A');
+            $worksheet->setCellValue('G31', $checkbox($this->personnel->personnelDetail->candidate_last_year));
             $worksheet->setCellValue('K32', $this->personnel->personnelDetail->candidate_details ?? 'N/A');
-            $worksheet->setCellValue('G34', $this->personnel->personnelDetail->resigned_to_campaign ?? 'N/A');
+            $worksheet->setCellValue('G34', $checkbox($this->personnel->personnelDetail->resigned_to_campaign));
             $worksheet->setCellValue('K35', $this->personnel->personnelDetail->resigned_campaign_details ?? 'N/A');
-            $worksheet->setCellValue('G37', $this->personnel->personnelDetail->immigrant_status ?? 'N/A');
+            $worksheet->setCellValue('G37', $checkbox($this->personnel->personnelDetail->immigrant_status));
             $worksheet->setCellValue('H39', $this->personnel->personnelDetail->immigrant_country_details ?? 'N/A');
-            $worksheet->setCellValue('G43', $this->personnel->personnelDetail->member_indigenous_group ?? 'N/A');
+            $worksheet->setCellValue('G43', $checkbox($this->personnel->personnelDetail->member_indigenous_group));
             $worksheet->setCellValue('L44', $this->personnel->personnelDetail->indigenous_group_details ?? 'N/A');
-            $worksheet->setCellValue('G45', $this->personnel->personnelDetail->person_with_disability ?? 'N/A');
+            $worksheet->setCellValue('G45', $checkbox($this->personnel->personnelDetail->person_with_disability));
             $worksheet->setCellValue('L46', $this->personnel->personnelDetail->disability_id_no ?? 'N/A');
-            $worksheet->setCellValue('G47', $this->personnel->personnelDetail->solo_parent ?? 'N/A');
-        } else {
-            $this->setDefaultQuestionnaireValues($worksheet);
-        }
+            $worksheet->setCellValue('G47', $checkbox($this->personnel->personnelDetail->solo_parent));
+            $worksheet->setCellValue('L48', $this->personnel->personnelDetail->solo_parent_id_no ?? 'N/A');
     }
 
     private function setDefaultQuestionnaireValues($worksheet)

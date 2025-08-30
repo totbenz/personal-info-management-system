@@ -12,6 +12,12 @@ class CivilServiceEligibilityForm extends Component
     public $old_civil_services = [], $new_civil_services = [];
     public $showMode = false, $updateMode = false;
 
+    public function back()
+    {
+        $this->updateMode = false;
+        $this->showMode = true;
+    }
+
     protected $rules = [
         'old_civil_services.*.title' => 'required',
         'old_civil_services.*.rating' => 'required',
@@ -27,13 +33,13 @@ class CivilServiceEligibilityForm extends Component
         'new_civil_services.*.license_date_of_validity' => 'required'
     ];
 
-    public function  mount($id, $showMode=true)
+    public function  mount($id, $showMode = true)
     {
-        if($id) {
+        if ($id) {
             $this->personnel = Personnel::findOrFail($id);
             $this->old_civil_services = $this->personnel->civilServiceEligibilities;
 
-            $this->old_civil_services = $this->personnel->civilServiceEligibilities()->get()->map(function($child) {
+            $this->old_civil_services = $this->personnel->civilServiceEligibilities()->get()->map(function ($child) {
                 return [
                     'id' => $child->id,
                     'title' => $child->title,
@@ -90,11 +96,9 @@ class CivilServiceEligibilityForm extends Component
         }
         session(['active_personnel_tab' => 'civil_service_eligibility']);
 
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
@@ -110,11 +114,9 @@ class CivilServiceEligibilityForm extends Component
     public function cancel()
     {
         $this->resetModes();
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
@@ -145,8 +147,7 @@ class CivilServiceEligibilityForm extends Component
             }
         }
 
-        if($this->new_civil_services != null)
-        {
+        if ($this->new_civil_services != null) {
             foreach ($this->new_civil_services as $civil_service) {
                 $this->personnel->civilServiceEligibilities()->create([
                     'title' => $civil_service['title'],
@@ -165,11 +166,9 @@ class CivilServiceEligibilityForm extends Component
         session()->flash('flash.banner', 'Civil Service Eligibility saved successfully');
         session()->flash('flash.bannerStyle', 'success');
 
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);

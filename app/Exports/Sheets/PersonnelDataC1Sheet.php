@@ -44,7 +44,30 @@ class PersonnelDataC1Sheet
         $worksheet->setCellValue('D15', $this->personnel->place_of_birth ?? 'N/A');
 
 
-        $worksheet->setCellValue('D17', $this->personnel->civil_status ?? 'N/A');
+        // Mark civil status checkbox - Use existing macros in the template
+        if ($this->personnel->civil_status === 'single') {
+            // For single, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('D17', '☑Single ☐Married ☐Widowed');
+            $worksheet->setCellValue('D20', '☐Separated ☐Others:');
+        } elseif ($this->personnel->civil_status === 'married') {
+            // For married, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('D17', '☐Single ☑Married ☐Widowed');
+            $worksheet->setCellValue('D20', '☐Separated ☐Others:');
+        } elseif ($this->personnel->civil_status === 'widowed') {
+            // For widowed, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('D17', '☐Single ☐Married ☑Widowed');
+        } elseif ($this->personnel->civil_status === 'separated') {
+            // For separated, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('D17', '☐Single ☐Married ☐Widowed');
+            $worksheet->setCellValue('D20', '☑Separated ☐Others:');
+        } elseif ($this->personnel->civil_status === 'others') {
+            // For others, we'll set the cell value that the macro expects
+            $worksheet->setCellValue('D17', '☐Single ☐Married ☐Widowed');
+            $worksheet->setCellValue('D20', '☐Separated ☑Others:');
+        } else {
+            // For any other value, we'll leave the cell empty
+            $worksheet->setCellValue('D17', '');
+        }
         $worksheet->setCellValue('J13', $this->personnel->citizenship ?? 'N/A');
 
         $worksheet->setCellValue('D22', $this->personnel->height ?? 'N/A');
@@ -76,39 +99,33 @@ class PersonnelDataC1Sheet
     {
         $worksheet = $this->worksheet;
 
-        // Check if addresses relationship exists and has data
-        if ($this->personnel->addresses && $this->personnel->addresses->count() > 0) {
-            $residentialAddress = $this->personnel->addresses->where('type', 'residential')->first();
-            $permanentAddress = $this->personnel->addresses->where('type', 'permanent')->first();
+        // Use dedicated relations defined on Personnel model
+        $residentialAddress = $this->personnel->residentialAddress;
+        $permanentAddress   = $this->personnel->permanentAddress;
 
-            if ($residentialAddress) {
-                // Residential Address
-                $worksheet->setCellValue('I17', $residentialAddress->house_no ?? 'N/A');
-                $worksheet->setCellValue('L17', $residentialAddress->street ?? 'N/A');
-                $worksheet->setCellValue('I19', $residentialAddress->subdivision ?? 'N/A');
-                $worksheet->setCellValue('L19', $residentialAddress->barangay ?? 'N/A');
-                $worksheet->setCellValue('I22', $residentialAddress->city ?? 'N/A');
-                $worksheet->setCellValue('L22', $residentialAddress->province ?? 'N/A');
-                $worksheet->setCellValue('I24', $residentialAddress->zip_code ?? 'N/A');
-            } else {
-                $this->setDefaultAddressValues($worksheet, 'I17', 'L17', 'I19', 'L19', 'I22', 'L22', 'I24');
-            }
-
-            if ($permanentAddress) {
-                // Permanent Address
-                $worksheet->setCellValue('I25', $permanentAddress->house_no ?? 'N/A');
-                $worksheet->setCellValue('L25', $permanentAddress->street ?? 'N/A');
-                $worksheet->setCellValue('I27', $permanentAddress->subdivision ?? 'N/A');
-                $worksheet->setCellValue('L27', $permanentAddress->barangay ?? 'N/A');
-                $worksheet->setCellValue('I29', $permanentAddress->city ?? 'N/A');
-                $worksheet->setCellValue('L29', $permanentAddress->province ?? 'N/A');
-                $worksheet->setCellValue('I31', $permanentAddress->zip_code ?? 'N/A');
-            } else {
-                $this->setDefaultAddressValues($worksheet, 'I25', 'L25', 'I27', 'L27', 'I29', 'L29', 'I31');
-            }
+        if ($residentialAddress) {
+            // Residential Address
+            $worksheet->setCellValue('I17', $residentialAddress->house_no ?? 'N/A');
+            $worksheet->setCellValue('L17', $residentialAddress->street ?? 'N/A');
+            $worksheet->setCellValue('I19', $residentialAddress->subdivision ?? 'N/A');
+            $worksheet->setCellValue('L19', $residentialAddress->barangay ?? 'N/A');
+            $worksheet->setCellValue('I22', $residentialAddress->city ?? 'N/A');
+            $worksheet->setCellValue('L22', $residentialAddress->province ?? 'N/A');
+            $worksheet->setCellValue('I24', $residentialAddress->zip_code ?? 'N/A');
         } else {
-            // Set default values if no addresses
             $this->setDefaultAddressValues($worksheet, 'I17', 'L17', 'I19', 'L19', 'I22', 'L22', 'I24');
+        }
+
+        if ($permanentAddress) {
+            // Permanent Address
+            $worksheet->setCellValue('I25', $permanentAddress->house_no ?? 'N/A');
+            $worksheet->setCellValue('L25', $permanentAddress->street ?? 'N/A');
+            $worksheet->setCellValue('I27', $permanentAddress->subdivision ?? 'N/A');
+            $worksheet->setCellValue('L27', $permanentAddress->barangay ?? 'N/A');
+            $worksheet->setCellValue('I29', $permanentAddress->city ?? 'N/A');
+            $worksheet->setCellValue('L29', $permanentAddress->province ?? 'N/A');
+            $worksheet->setCellValue('I31', $permanentAddress->zip_code ?? 'N/A');
+        } else {
             $this->setDefaultAddressValues($worksheet, 'I25', 'L25', 'I27', 'L27', 'I29', 'L29', 'I31');
         }
     }

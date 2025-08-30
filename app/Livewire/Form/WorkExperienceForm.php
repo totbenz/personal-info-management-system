@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class WorkExperienceForm extends Component
 {
+    // ...existing code...
+
+    public function back()
+    {
+        $this->updateMode = false;
+        $this->showMode = true;
+    }
     public $personnel;
     public $old_work_experiences = [], $new_work_experiences = [];
     public $showMode = false, $updateMode = false;
@@ -31,13 +38,13 @@ class WorkExperienceForm extends Component
         'new_work_experiences.*.is_gov_service' => 'required',
     ];
 
-    public function  mount($id, $showMode=true)
+    public function  mount($id, $showMode = true)
     {
-        if($id) {
+        if ($id) {
             $this->personnel = Personnel::findOrFail($id);
             $this->old_work_experiences = $this->personnel->workExperiences;
 
-            $this->old_work_experiences = $this->personnel->workExperiences()->get()->map(function($work_experience) {
+            $this->old_work_experiences = $this->personnel->workExperiences()->get()->map(function ($work_experience) {
                 return [
                     'id' => $work_experience->id,
                     'title' => $work_experience->title,
@@ -100,11 +107,9 @@ class WorkExperienceForm extends Component
         }
         session(['active_personnel_tab' => 'work_experience']);
 
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
@@ -120,11 +125,9 @@ class WorkExperienceForm extends Component
     public function cancel()
     {
         $this->resetModes();
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
@@ -157,8 +160,7 @@ class WorkExperienceForm extends Component
             }
         }
 
-        if($this->new_work_experiences != null)
-        {
+        if ($this->new_work_experiences != null) {
             foreach ($this->new_work_experiences as $work_experience) {
                 $this->personnel->workExperiences()->create([
                     'title' => $work_experience['title'],
@@ -178,11 +180,9 @@ class WorkExperienceForm extends Component
 
         session()->flash('flash.banner', 'Work Experience saved successfully');
         session()->flash('flash.bannerStyle', 'success');
-        if(Auth::user()->role === "teacher")
-        {
+        if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
