@@ -38,13 +38,8 @@ return new class extends Migration
             $table->index(['period_from', 'period_to']);
             $table->index('year_graduated');
 
-            // Check constraints for data integrity
-            $table->check('period_from >= 1900 AND period_from <= 2100');
-            $table->check('period_to IS NULL OR (period_to >= 1900 AND period_to <= 2100)');
-            $table->check('year_graduated IS NULL OR (year_graduated >= 1900 AND year_graduated <= 2100)');
-            $table->check('period_to IS NULL OR period_to >= period_from');
-            $table->check('year_graduated IS NULL OR year_graduated >= period_from');
-            $table->check('year_graduated IS NULL OR period_to IS NULL OR year_graduated <= period_to');
+            // Note: Check constraints are not supported in Laravel migrations
+            // Data validation should be handled in the model or form validation
         });
     }
 

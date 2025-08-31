@@ -194,6 +194,19 @@
                                 <span class="ml-2 text-sm">Signatures Settings</span>
                             </a>
                         </li>
+
+                        <!-- CSV Export Button - Only for Admin -->
+                        <li class="border-gray-400">
+                            <button
+                                onclick="exportDatabaseToCsv()"
+                                class="flex items-center px-3 py-1.5 hover:bg-gray-200 w-full text-left"
+                                id="csv-export-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                                <span class="ml-2 text-sm">Export Database to CSV</span>
+                            </button>
+                        </li>
                         @endif
                         <li class="border-gray-400">
                             <button type="button" onclick="confirmLogout(event)" class="flex items-center px-3 py-1.5 hover:bg-gray-200 w-full text-left">
@@ -229,6 +242,61 @@
                                             // Fallback if Toaster is not available
                                             window.location.href = "{{ route('logout') }}";
                                         }
+                                    }
+                                });
+                            }
+
+                            function exportDatabaseToCsv() {
+                                const button = document.getElementById('csv-export-btn');
+                                const originalText = button.innerHTML;
+
+                                // Show loading state
+                                button.innerHTML = `
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span class="ml-2 text-sm">Exporting...</span>
+                                `;
+                                button.disabled = true;
+
+                                // Show confirmation dialog
+                                Swal.fire({
+                                    title: 'Export Database',
+                                    text: 'This will export all database tables to CSV files. The process may take a few minutes depending on data size. Continue?',
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Export',
+                                    cancelButtonText: 'Cancel'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Show progress dialog
+                                        Swal.fire({
+                                            title: 'Exporting Database',
+                                            html: `
+                                                <div class="text-center">
+                                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                                    <p>Exporting all database tables to CSV...</p>
+                                                    <p class="text-sm text-gray-500 mt-2">Please wait, this may take a few minutes.</p>
+                                                </div>
+                                            `,
+                                            allowOutsideClick: false,
+                                            showConfirmButton: false
+                                        });
+
+                                        // Start the export
+                                        window.location.href = "{{ route('csv.export.all') }}";
+
+                                        // Close the progress dialog after a delay
+                                        setTimeout(() => {
+                                            Swal.close();
+                                        }, 3000);
+                                    } else {
+                                        // Restore button state
+                                        button.innerHTML = originalText;
+                                        button.disabled = false;
                                     }
                                 });
                             }

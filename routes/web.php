@@ -595,6 +595,37 @@ Route::middleware(['auth'])->group(function () {
         // Signatures Settings (admin only)
         Route::get('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'edit'])->name('admin.signatures.edit');
         Route::post('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'update'])->name('admin.signatures.update');
+
+        // CSV Export (admin only)
+        Route::get('/csv-export/all', [\App\Http\Controllers\CsvExportController::class, 'exportAllTables'])->name('csv.export.all');
+        Route::get('/csv-export/tables/info', [\App\Http\Controllers\CsvExportController::class, 'getTableInfo'])->name('csv.export.tables.info');
+
+        // Test route for CSV export (remove in production)
+        Route::get('/csv-export/test', function () {
+            try {
+                $controller = new \App\Http\Controllers\CsvExportController();
+                $reflection = new ReflectionClass($controller);
+                $methods = $reflection->getMethods(ReflectionMethod::IS_PRIVATE);
+                $methodNames = array_map(function ($method) {
+                    return $method->getName();
+                }, $methods);
+
+                return [
+                    'status' => 'success',
+                    'message' => 'CsvExportController loaded successfully',
+                    'private_methods' => $methodNames,
+                    'php_version' => PHP_VERSION,
+                    'zip_extension' => extension_loaded('zip'),
+                    'storage_path' => storage_path('app/temp')
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ];
+            }
+        })->name('csv.export.test');
     });
     // SETTINGS ROUTE
     Route::get('/settings', function () {
