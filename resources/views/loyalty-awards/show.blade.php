@@ -109,12 +109,21 @@
             <!-- Available Claims Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-xl font-semibold text-gray-900">Loyalty Service Awards</h2>
-                    <p class="mt-1 text-sm text-gray-600">Available awards based on your years of service</p>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Loyalty Service Awards</h2>
+                            <p class="mt-1 text-sm text-gray-600">Available awards based on your years of service</p>
+                        </div>
+                        @if(!empty($paginatedClaims) && $pagination['last_page'] > 1)
+                        <div class="text-sm text-gray-500">
+                            Page {{ $pagination['current_page'] }} of {{ $pagination['last_page'] }}
+                        </div>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="p-6">
-                    @if(empty($personnel->available_claims))
+                    @if(empty($paginatedClaims))
                     <div class="text-center py-12">
                         <div class="text-gray-400 mb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto">
@@ -126,7 +135,7 @@
                     </div>
                     @else
                     <div class="space-y-4">
-                        @foreach($personnel->available_claims as $index => $claim)
+                        @foreach($paginatedClaims as $index => $claim)
                         <div class="border border-gray-200 rounded-lg p-6 {{ $claim['is_claimed'] ? 'bg-gray-50' : 'hover:bg-gray-50' }} transition-colors" data-claim-index="{{ $index }}">
                             <div class="flex items-center justify-between">
                                 <div class="flex-1">
@@ -191,6 +200,71 @@
                             </div>
                         </div>
                         @endforeach
+                    </div>
+                    @endif
+
+                    <!-- Pagination Controls -->
+                    @if(!empty($paginatedClaims) && $pagination['last_page'] > 1)
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Showing <span class="font-medium">{{ $pagination['from'] }}</span> to <span class="font-medium">{{ $pagination['to'] }}</span> of <span class="font-medium">{{ $pagination['total'] }}</span> results
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <!-- Previous Page Button -->
+                            @if($pagination['has_previous_pages'])
+                            <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) }}"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                </svg>
+                                Previous
+                            </a>
+                            @else
+                            <button disabled class="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                </svg>
+                                Previous
+                            </button>
+                            @endif
+
+                            <!-- Page Numbers -->
+                            <div class="flex items-center space-x-1">
+                                @for($i = 1; $i <= $pagination['last_page']; $i++)
+                                    @if($i==$pagination['current_page'])
+                                    <span class="inline-flex items-center px-3 py-2 border border-indigo-500 rounded-md text-sm font-medium text-indigo-600 bg-indigo-50">
+                                    {{ $i }}
+                                    </span>
+                                    @elseif($i == 1 || $i == $pagination['last_page'] || ($i >= $pagination['current_page'] - 1 && $i <= $pagination['current_page'] + 1))
+                                        <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                        class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        {{ $i }}
+                                        </a>
+                                        @elseif($i == $pagination['current_page'] - 2 || $i == $pagination['current_page'] + 2)
+                                        <span class="inline-flex items-center px-3 py-2 text-sm text-gray-500">...</span>
+                                        @endif
+                                        @endfor
+                            </div>
+
+                            <!-- Next Page Button -->
+                            @if($pagination['has_more_pages'])
+                            <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) }}"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </a>
+                            @else
+                            <button disabled class="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </button>
+                            @endif
+                        </div>
                     </div>
                     @endif
                 </div>

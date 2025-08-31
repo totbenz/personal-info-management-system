@@ -314,6 +314,27 @@ class LoyaltyAwardController extends Controller
         $personnel->max_claims = $this->calculateMaxClaims($yearsOfService);
         $personnel->available_claims = $this->getAvailableClaims($personnel, $yearsOfService);
 
-        return view('loyalty-awards.show', compact('personnel'));
+        // Paginate the available claims (show 5 per page)
+        $perPage = 5;
+        $currentPage = request()->get('page', 1);
+        $totalClaims = count($personnel->available_claims);
+        $offset = ($currentPage - 1) * $perPage;
+
+        $paginatedClaims = array_slice($personnel->available_claims, $offset, $perPage);
+
+        // Create pagination data
+        $lastPage = ceil($totalClaims / $perPage);
+        $pagination = [
+            'current_page' => $currentPage,
+            'last_page' => $lastPage,
+            'per_page' => $perPage,
+            'total' => $totalClaims,
+            'from' => $offset + 1,
+            'to' => min($offset + $perPage, $totalClaims),
+            'has_more_pages' => $currentPage < $lastPage,
+            'has_previous_pages' => $currentPage > 1,
+        ];
+
+        return view('loyalty-awards.show', compact('personnel', 'paginatedClaims', 'pagination'));
     }
 }
