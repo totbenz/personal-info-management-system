@@ -27,14 +27,14 @@ class FamilyForm extends PersonnelNavigation
         'mothers_first_name' => 'required',
         'mothers_middle_name' => 'required',
         'mothers_last_name' => 'required',
-        'spouse_first_name' => 'required',
-        'spouse_middle_name' => 'required',
-        'spouse_last_name' => 'required',
+        'spouse_first_name' => 'nullable',
+        'spouse_middle_name' => 'nullable',
+        'spouse_last_name' => 'nullable',
         'spouse_name_ext' => 'nullable',
-        'spouse_occupation' => 'required',
-        'spouse_business_name' => 'required',
-        'spouse_business_address' => 'required',
-        'spouse_tel_no' => 'required',
+        'spouse_occupation' => 'nullable',
+        'spouse_business_name' => 'nullable',
+        'spouse_business_address' => 'nullable',
+        'spouse_tel_no' => 'nullable',
         'old_children.*.first_name' => 'required',
         'old_children.*.middle_name' => 'required',
         'old_children.*.last_name' => 'required',
@@ -50,6 +50,17 @@ class FamilyForm extends PersonnelNavigation
     public function mount($id = null)
     {
         $this->personnel = Personnel::findOrFail($id);
+        $this->loadFamilyData();
+    }
+
+    /**
+     * Load family data from database
+     */
+    public function loadFamilyData()
+    {
+        if (!$this->personnel) {
+            return;
+        }
 
         $this->father = $this->personnel->father;
         $this->mother = $this->personnel->mother;
@@ -90,15 +101,95 @@ class FamilyForm extends PersonnelNavigation
                 'date_of_birth' => $child->date_of_birth,
             ];
         })->toArray();
-
-        // $this->new_children[] = [
-        //     'first_name' => '',
-        //     'middle_name' => '',
-        //     'last_name' => '',
-        //     'name_ext' => '',
-        //     'date_of_birth' => ''
-        // ];
     }
+
+    /**
+     * Live validation on field changes
+     */
+    public function updated($field)
+    {
+        // Validate only the specific field that changed
+        $this->validateOnly($field);
+
+        // Force UI refresh for live updates
+        $this->dispatch('$refresh');
+    }
+
+    /**
+     * Check if all required fields are filled
+     */
+    public function isFormValid()
+    {
+        // Check father fields
+        if (empty($this->fathers_first_name) || empty($this->fathers_middle_name) || empty($this->fathers_last_name)) {
+            return false;
+        }
+
+        // Check mother fields
+        if (empty($this->mothers_first_name) || empty($this->mothers_middle_name) || empty($this->mothers_last_name)) {
+            return false;
+        }
+
+        // Check children fields (if any children exist)
+        foreach ($this->old_children as $child) {
+            if (empty($child['first_name']) || empty($child['middle_name']) || empty($child['last_name']) || empty($child['date_of_birth'])) {
+                return false;
+            }
+        }
+
+        foreach ($this->new_children as $child) {
+            if (empty($child['first_name']) || empty($child['middle_name']) || empty($child['last_name']) || empty($child['date_of_birth'])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Count missing required fields
+     */
+    public function getMissingFieldsCount()
+    {
+        $count = 0;
+
+        // Count father fields
+        if (empty($this->fathers_first_name)) $count++;
+        if (empty($this->fathers_middle_name)) $count++;
+        if (empty($this->fathers_last_name)) $count++;
+
+        // Count mother fields
+        if (empty($this->mothers_first_name)) $count++;
+        if (empty($this->mothers_middle_name)) $count++;
+        if (empty($this->mothers_last_name)) $count++;
+
+        // Count children fields
+        foreach ($this->old_children as $child) {
+            if (empty($child['first_name'])) $count++;
+            if (empty($child['middle_name'])) $count++;
+            if (empty($child['last_name'])) $count++;
+            if (empty($child['date_of_birth'])) $count++;
+        }
+
+        foreach ($this->new_children as $child) {
+            if (empty($child['first_name'])) $count++;
+            if (empty($child['middle_name'])) $count++;
+            if (empty($child['last_name'])) $count++;
+            if (empty($child['date_of_birth'])) $count++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Specific field update methods for live validation
+     */
+    public function updatedFathersFirstName() { $this->updated('fathers_first_name'); }
+    public function updatedFathersMiddleName() { $this->updated('fathers_middle_name'); }
+    public function updatedFathersLastName() { $this->updated('fathers_last_name'); }
+    public function updatedMothersFirstName() { $this->updated('mothers_first_name'); }
+    public function updatedMothersMiddleName() { $this->updated('mothers_middle_name'); }
+    public function updatedMothersLastName() { $this->updated('mothers_last_name'); }
 
     public function addField()
     {
@@ -148,6 +239,22 @@ class FamilyForm extends PersonnelNavigation
         return view('livewire.form.family-form');
     }
 
+    public function cancel()
+    {
+        $this->showMode = true;
+        $this->updateMode = false;
+
+        if(Auth::user()->role === "teacher")
+        {
+            return redirect()->route('personnel.profile');
+        } elseif(Auth::user()->role === "school_head")
+        {
+            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
+        } else {
+            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
+        }
+    }
+
     public function resetModes()
     {
         $this->updateMode = false;
@@ -156,9 +263,10 @@ class FamilyForm extends PersonnelNavigation
 
     public function save()
     {
-        $this->validate();
-
         try {
+            $this->validate();
+
+            // Save father information
             if ($this->father != null) {
                 $this->personnel->father()->update([
                     'relationship' => 'father',
@@ -179,6 +287,7 @@ class FamilyForm extends PersonnelNavigation
                 ]);
             }
 
+            // Save mother information
             if ($this->mother != null) {
                 $this->personnel->mother()->update([
                     'relationship' => 'mother',
@@ -197,34 +306,38 @@ class FamilyForm extends PersonnelNavigation
                 ]);
             }
 
-            if ($this->spouse != null) {
-                $this->personnel->spouse()->update([
-                    'relationship' => 'spouse',
-                    'personnel_id' => $this->personnel->id,
-                    'first_name' => $this->spouse_first_name,
-                    'middle_name' => $this->spouse_middle_name,
-                    'last_name' => $this->spouse_last_name,
-                    'name_extension' => $this->spouse_name_ext,
-                    'occupation' => $this->spouse_occupation,
-                    'employer_business_name' => $this->spouse_business_name,
-                    'business_address' => $this->spouse_business_address,
-                    'telephone_number' => $this->spouse_tel_no
-                ]);
-            } else {
-                $this->personnel->spouse()->create([
-                    'relationship' => 'spouse',
-                    'personnel_id' => $this->personnel->id,
-                    'first_name' => $this->spouse_first_name,
-                    'middle_name' => $this->spouse_middle_name,
-                    'last_name' => $this->spouse_last_name,
-                    'name_extension' => $this->spouse_name_ext,
-                    'occupation' => $this->spouse_occupation,
-                    'employer_business_name' => $this->spouse_business_name,
-                    'business_address' => $this->spouse_business_address,
-                    'telephone_number' => $this->spouse_tel_no
-                ]);
+            // Save spouse information (only if spouse fields are filled)
+            if (!empty($this->spouse_first_name) || !empty($this->spouse_middle_name) || !empty($this->spouse_last_name)) {
+                if ($this->spouse != null) {
+                    $this->personnel->spouse()->update([
+                        'relationship' => 'spouse',
+                        'personnel_id' => $this->personnel->id,
+                        'first_name' => $this->spouse_first_name,
+                        'middle_name' => $this->spouse_middle_name,
+                        'last_name' => $this->spouse_last_name,
+                        'name_extension' => $this->spouse_name_ext,
+                        'occupation' => $this->spouse_occupation,
+                        'employer_business_name' => $this->spouse_business_name,
+                        'business_address' => $this->spouse_business_address,
+                        'telephone_number' => $this->spouse_tel_no
+                    ]);
+                } else {
+                    $this->personnel->spouse()->create([
+                        'relationship' => 'spouse',
+                        'personnel_id' => $this->personnel->id,
+                        'first_name' => $this->spouse_first_name,
+                        'middle_name' => $this->spouse_middle_name,
+                        'last_name' => $this->spouse_last_name,
+                        'name_extension' => $this->spouse_name_ext,
+                        'occupation' => $this->spouse_occupation,
+                        'employer_business_name' => $this->spouse_business_name,
+                        'business_address' => $this->spouse_business_address,
+                        'telephone_number' => $this->spouse_tel_no
+                    ]);
+                }
             }
 
+            // Save children information
             if ($this->personnel->children()->exists()) {
                 foreach ($this->old_children as $child) {
                     $this->personnel->children()->where('id', $child['id'])
@@ -242,6 +355,11 @@ class FamilyForm extends PersonnelNavigation
             if($this->new_children != null)
             {
                 foreach ($this->new_children as $new_child) {
+                    // Skip empty children entries
+                    if (empty($new_child['first_name']) && empty($new_child['last_name'])) {
+                        continue;
+                    }
+
                     $this->personnel->children()->create([
                         'relationship' => 'children',
                         'first_name' => $new_child['first_name'],
@@ -253,15 +371,35 @@ class FamilyForm extends PersonnelNavigation
                 }
             }
 
+            // Refresh data after successful save
+            $this->loadFamilyData();
+
             $this->showMode = true;
             $this->updateMode = false;
 
             session()->flash('flash.banner', 'Family information saved successfully');
             session()->flash('flash.bannerStyle', 'success');
-        } catch (\Exception $ex) {
-            session()->flash('flash.banner', 'Failed to save Address and Contact Person');
-            session()->flash('flash.bannerStyle', 'danger');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors - don't change component state
+            $errorMessages = [];
+            foreach ($e->errors() as $field => $messages) {
+                foreach ($messages as $message) {
+                    $errorMessages[] = $message;
+                }
+            }
+
+            $this->dispatch('show-error-alert', [
+                'message' => implode('; ', $errorMessages)
+            ]);
+            return;
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', [
+                'message' => 'An error occurred while saving family information.'
+            ]);
+            return;
         }
+
         session(['active_personnel_tab' => 'family']);
 
         if(Auth::user()->role === "teacher")
