@@ -554,6 +554,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
         Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
 
+        // Loyalty Awards Management
+        Route::get('/admin/loyalty-awards', [HomeController::class, 'loyaltyAwards'])->name('admin.loyalty-awards');
+
         // Leave Management admin interface
         Route::get('/admin/leave-management', [\App\Http\Controllers\LeaveManagementController::class, 'index'])->name('admin.leave-management');
         Route::post('/admin/leave-management/add', [\App\Http\Controllers\LeaveManagementController::class, 'addLeave'])->name('admin.leave-management.add');

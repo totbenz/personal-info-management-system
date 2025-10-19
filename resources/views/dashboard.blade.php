@@ -107,7 +107,7 @@
                                 <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
                                 <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">Leave Requests</span>
                             </div>
-                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingLeaveRequests->count() }}</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingLeaveRequests->total() }}</div>
                             <div class="text-xs text-gray-500">
                                 @if($pendingLeaveRequests->count() > 0)
                                 Pending approvals
@@ -138,7 +138,7 @@
                                 <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
                                 <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">CTO Requests</span>
                             </div>
-                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingCTORequests->count() }}</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ $pendingCTORequests->total() }}</div>
                             <div class="text-xs text-gray-500">
                                 @if($pendingCTORequests->count() > 0)
                                 Pending approvals
@@ -169,7 +169,7 @@
                                 <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
                                 <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">Service Credits</span>
                             </div>
-                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ isset($pendingServiceCreditRequests) ? $pendingServiceCreditRequests->count() : 0 }}</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-1">{{ isset($pendingServiceCreditRequests) ? $pendingServiceCreditRequests->total() : 0 }}</div>
                             <div class="text-xs text-gray-500">
                                 @if(isset($pendingServiceCreditRequests) && $pendingServiceCreditRequests->count() > 0)
                                 Pending approvals
@@ -413,7 +413,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            {{ $pendingLeaveRequests->count() }} Pending
+                            {{ $pendingLeaveRequests->total() }} Pending
                         </span>
                         <a href="{{ route('admin.leave-requests') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
                             View All
@@ -635,6 +635,11 @@
                 </div>
                 @endif
             </div>
+
+            <!-- Pagination for Pending Leave Requests -->
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                {{ $pendingLeaveRequests->links() }}
+            </div>
         </div>
         @endif
 
@@ -656,7 +661,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {{ $pendingCTORequests->count() }} Pending
+                            {{ $pendingCTORequests->total() }} Pending
                         </span>
                         <a href="{{ route('admin.cto-requests') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             View All
@@ -850,6 +855,11 @@
                 </div>
                 @endif
             </div>
+
+            <!-- Pagination for Pending CTO Requests -->
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                {{ $pendingCTORequests->links() }}
+            </div>
         </div>
         @endif
 
@@ -871,7 +881,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            {{ $pendingServiceCreditRequests->count() }} Pending
+                            {{ $pendingServiceCreditRequests->total() }} Pending
                         </span>
                         <a href="{{ route('admin.service-credit-requests') }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                             View All
@@ -1027,6 +1037,11 @@
                     @endforelse
                 </div>
             </div>
+
+            <!-- Pagination for Pending Service Credit Requests -->
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                {{ $pendingServiceCreditRequests->links() }}
+            </div>
         </div>
         @endif
 
@@ -1108,7 +1123,7 @@
                             PDF
                         </button>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                            {{ isset($approvedLeaveRequests) ? $approvedLeaveRequests->count() : 0 }} Approved
+                            {{ isset($approvedLeaveRequests) ? $approvedLeaveRequests->total() : 0 }} Approved
                         </span>
                     </div>
                 </div>
@@ -1206,6 +1221,11 @@
                     <p class="text-gray-400 text-sm mt-1">Approved leave requests will appear here</p>
                 </div>
                 @endif
+
+                <!-- Pagination for Approved Leave Requests -->
+                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                    {{ $approvedLeaveRequests->links() }}
+                </div>
             </div>
         </div>
 
@@ -1263,7 +1283,7 @@
                             PDF
                         </button>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
-                            {{ isset($approvedCTORequests) ? $approvedCTORequests->count() : 0 }} Approved
+                            {{ isset($approvedCTORequests) ? $approvedCTORequests->total() : 0 }} Approved
                         </span>
                     </div>
                 </div>
@@ -1370,86 +1390,16 @@
                     <p class="text-gray-400 text-sm mt-1">Approved CTO requests will appear here</p>
                 </div>
                 @endif
-            </div>
-        </div>
 
-        <!-- Loyalty Award Recipients Table -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10">
-            <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Loyalty Award Recipients</h3>
-                        <p class="text-sm text-gray-600 mt-1">Recognizing excellence in {{ date("Y") }}</p>
-                    </div>
+                <!-- Pagination for Approved CTO Requests -->
+                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                    {{ $approvedCTORequests->links() }}
                 </div>
             </div>
-            <div class="p-4">
-                @livewire('datatable.loyalty-datatable')
-            </div>
         </div>
+
     </div>
 
-    <!-- Loyalty Claims Modals -->
-    @php
-    // Get all eligible personnels for modals (filter by employment start date to calculate years of service)
-    $tenYearsAgo = now()->subYears(10);
-    $eligiblePersonnels = \App\Models\Personnel::with(['position', 'school'])
-    ->where('employment_start', '<=', $tenYearsAgo)
-        ->get();
-
-        // Calculate loyalty award data for each personnel
-        $processedPersonnels = $eligiblePersonnels->map(function ($personnel) {
-        // Calculate years of service from employment start date
-        $employmentStart = \Carbon\Carbon::parse($personnel->employment_start);
-        $currentDate = \Carbon\Carbon::now();
-        $yearsOfService = $employmentStart->diffInYears($currentDate);
-
-        // Calculate max possible claims and available claims
-        $maxClaims = 0;
-        $availableClaims = [];
-
-        if ($yearsOfService >= 10) {
-        $maxClaims = 1 + floor(max(0, $yearsOfService - 10) / 5);
-
-        for ($i = 0; $i < $maxClaims; $i++) {
-            $isClaimed=$i < ($personnel->loyalty_award_claim_count ?? 0);
-
-            if ($i == 0) {
-            // First claim (10 years)
-            $availableClaims[] = [
-            'label' => '10 Years Service Award',
-            'amount' => 10000,
-            'years' => 10,
-            'is_claimed' => $isClaimed,
-            'claim_index' => $i
-            ];
-            } else {
-            // Subsequent claims (every 5 years)
-            $years = 10 + ($i * 5);
-            $availableClaims[] = [
-            'label' => $years . ' Years Service Award',
-            'amount' => 5000,
-            'years' => $years,
-            'is_claimed' => $isClaimed,
-            'claim_index' => $i
-            ];
-            }
-            }
-            }
-
-            // Add calculated data to personnel object
-            $personnel->years_of_service = $yearsOfService;
-            $personnel->max_claims = $maxClaims;
-            $personnel->available_claims = $availableClaims;
-
-            return $personnel;
-            });
-            @endphp
 
             <!-- Right Sidebar -->
             <div class="fixed right-0 top-12 h-screen z-10 bg-slate-300" style="z-index:5;">
@@ -1616,6 +1566,7 @@
                     // Helper functions to update tables
                     function updateLeaveRequestsTable(data) {
                         const tableContainer = document.querySelector('#approvedLeaveContent .overflow-x-auto');
+                        const paginationContainer = document.querySelector('#approvedLeaveContent .px-4.py-3.border-t.border-gray-200.bg-gray-50');
                         if (!tableContainer) return;
 
                         if (data.requests.length === 0) {
@@ -1628,6 +1579,10 @@
                             <p class="text-gray-400 text-sm mt-1">No requests match the selected filters</p>
                         </div>
                     `;
+                            // Hide pagination when no results
+                            if (paginationContainer) {
+                                paginationContainer.style.display = 'none';
+                            }
                             return;
                         }
 
@@ -1697,10 +1652,19 @@
 
                         tableHTML += '</tbody></table>';
                         tableContainer.innerHTML = tableHTML;
+
+                        // Update pagination if it exists
+                        if (paginationContainer && data.pagination) {
+                            paginationContainer.innerHTML = data.pagination;
+                            paginationContainer.style.display = 'block';
+                        } else if (paginationContainer) {
+                            paginationContainer.style.display = 'none';
+                        }
                     }
 
                     function updateCTORequestsTable(data) {
                         const tableContainer = document.querySelector('#approvedCtoContent .overflow-x-auto');
+                        const paginationContainer = document.querySelector('#approvedCtoContent .px-4.py-3.border-t.border-gray-200.bg-gray-50');
                         if (!tableContainer) return;
 
                         if (data.requests.length === 0) {
@@ -1713,6 +1677,10 @@
                             <p class="text-gray-400 text-sm mt-1">No requests match the selected filters</p>
                         </div>
                     `;
+                            // Hide pagination when no results
+                            if (paginationContainer) {
+                                paginationContainer.style.display = 'none';
+                            }
                             return;
                         }
 
@@ -1791,6 +1759,14 @@
 
                         tableHTML += '</tbody></table>';
                         tableContainer.innerHTML = tableHTML;
+
+                        // Update pagination if it exists
+                        if (paginationContainer && data.pagination) {
+                            paginationContainer.innerHTML = data.pagination;
+                            paginationContainer.style.display = 'block';
+                        } else if (paginationContainer) {
+                            paginationContainer.style.display = 'none';
+                        }
                     }
 
                     function updateLeaveRequestsCount(count) {

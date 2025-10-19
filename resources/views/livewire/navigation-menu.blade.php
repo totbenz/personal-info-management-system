@@ -148,6 +148,15 @@
                         inactive-class="hover:bg-[#1a223a] hover:text-white">
                         {{ __('Salary Table') }}
                     </x-nav-link>
+                    <x-nav-link
+                        href="{{ route('admin.loyalty-awards') }}"
+                        :active="request()->routeIs('admin.loyalty-awards')"
+                        wire:navigate
+                        class="relative px-3 py-1.5 rounded transition-colors duration-200"
+                        active-class="bg-white text-[#0f152a] shadow font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white">
+                        {{ __('Loyalty Awards') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>

@@ -58,23 +58,20 @@ class HomeController extends Controller
         $pendingLeaveRequests = LeaveRequest::where('status', 'pending')
             ->with(['user.personnel'])
             ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(5, ['*'], 'pending_leave_page');
 
         // Pending CTO requests from school heads
         $pendingCTORequests = \App\Models\CTORequest::where('status', 'pending')
             ->with(['personnel', 'user'])
             ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(5, ['*'], 'pending_cto_page');
 
         // Pending Service Credit requests (teachers only)
         $pendingServiceCreditRequests = ServiceCreditRequest::where('status', 'pending')
             ->with(['teacher'])
             ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-        
+            ->paginate(5, ['*'], 'pending_service_credit_page');
+
         // Debug logging
         \Illuminate\Support\Facades\Log::info('Admin Dashboard - Service Credit Requests', [
             'total_service_credit_requests' => ServiceCreditRequest::count(),
@@ -86,13 +83,13 @@ class HomeController extends Controller
         $approvedLeaveRequests = LeaveRequest::where('status', 'approved')
             ->with(['user.personnel.school', 'user.personnel.position'])
             ->orderBy('updated_at', 'desc')
-            ->get();
+            ->paginate(5, ['*'], 'approved_leave_page');
 
         // Approved CTO requests from all roles
         $approvedCTORequests = \App\Models\CTORequest::where('status', 'approved')
             ->with(['personnel.school', 'personnel.position', 'user'])
             ->orderBy('updated_at', 'desc')
-            ->get();
+            ->paginate(5, ['*'], 'approved_cto_page');
 
         // Approved Service Credit requests (for history / optional display)
         $approvedServiceCreditRequests = ServiceCreditRequest::where('status', 'approved')
@@ -125,13 +122,13 @@ class HomeController extends Controller
         $user = Auth::user();
         $schoolHead = $user->personnel;
         $school = $schoolHead->school;
-        
+
         // Initialize CTO service for enhanced CTO management
         $ctoService = app(\App\Services\CTOService::class);
-        
+
         // Initialize Leave Accrual service for automatic leave calculation
         $accrualService = app(\App\Services\SchoolHeadLeaveAccrualService::class);
-        
+
         // School Head Leaves
         $year = now()->year;
         $soloParent = $schoolHead->is_solo_parent ?? false;
@@ -155,10 +152,10 @@ class HomeController extends Controller
             $leave = $leaves->get($type);
             $available = $leave ? $leave->available : $defaultMax;
             $used = $leave ? $leave->used : 0;
-            
+
             // Calculate dynamic max: if available exceeds default, use available + used as the new max
             $calculatedMax = max($defaultMax, $available + $used);
-            
+
             $leaveData[] = [
                 'type' => $type,
                 'max' => $calculatedMax,
@@ -487,10 +484,10 @@ class HomeController extends Controller
             $leave = $leaves->get($type);
             $available = $leave ? $leave->available : $defaultMax;
             $used = $leave ? $leave->used : 0;
-            
+
             // Calculate dynamic max: if available exceeds default, use available + used as the new max
             $calculatedMax = max($defaultMax, $available + $used);
-            
+
             $teacherLeaveData[] = [
                 'type' => $type,
                 'max' => $calculatedMax,
@@ -880,27 +877,27 @@ class HomeController extends Controller
             $query->whereYear('updated_at', $year);
         }
 
-        $approvedLeaveRequests = $query->orderBy('updated_at', 'desc')->get();
+        $approvedLeaveRequests = $query->orderBy('updated_at', 'desc')->paginate(5, ['*'], 'approved_leave_page');
 
         return response()->json([
             'requests' => $approvedLeaveRequests->map(function ($request) {
                 return [
                     'id' => $request->id,
-                    'personnel_name' => $request->user->personnel 
-                        ? $request->user->personnel->first_name . ' ' . $request->user->personnel->last_name 
+                    'personnel_name' => $request->user->personnel
+                        ? $request->user->personnel->first_name . ' ' . $request->user->personnel->last_name
                         : $request->user->name,
-                    'personnel_initials' => $request->user->personnel 
-                        ? substr($request->user->personnel->first_name, 0, 1) . substr($request->user->personnel->last_name, 0, 1) 
+                    'personnel_initials' => $request->user->personnel
+                        ? substr($request->user->personnel->first_name, 0, 1) . substr($request->user->personnel->last_name, 0, 1)
                         : substr($request->user->name, 0, 2),
-                    'position_title' => $request->user->personnel && $request->user->personnel->position 
-                        ? $request->user->personnel->position->title 
+                    'position_title' => $request->user->personnel && $request->user->personnel->position
+                        ? $request->user->personnel->position->title
                         : 'N/A',
                     'role' => $request->user->role,
-                    'school_name' => $request->user->personnel && $request->user->personnel->school 
-                        ? $request->user->personnel->school->school_name 
+                    'school_name' => $request->user->personnel && $request->user->personnel->school
+                        ? $request->user->personnel->school->school_name
                         : 'N/A',
-                    'school_id' => $request->user->personnel && $request->user->personnel->school 
-                        ? $request->user->personnel->school->school_id 
+                    'school_id' => $request->user->personnel && $request->user->personnel->school
+                        ? $request->user->personnel->school->school_id
                         : 'N/A',
                     'leave_type' => $request->leave_type,
                     'start_date' => $request->start_date,
@@ -910,7 +907,8 @@ class HomeController extends Controller
                     'updated_time' => $request->updated_at->format('g:i A'),
                 ];
             }),
-            'count' => $approvedLeaveRequests->count()
+            'count' => $approvedLeaveRequests->total(),
+            'pagination' => $approvedLeaveRequests->links()->render()
         ]);
     }
 
@@ -932,26 +930,26 @@ class HomeController extends Controller
             $query->whereYear('updated_at', $year);
         }
 
-        $approvedCTORequests = $query->orderBy('updated_at', 'desc')->get();
+        $approvedCTORequests = $query->orderBy('updated_at', 'desc')->paginate(5, ['*'], 'approved_cto_page');
 
         return response()->json([
             'requests' => $approvedCTORequests->map(function ($request) {
                 return [
                     'id' => $request->id,
-                    'personnel_name' => $request->personnel 
-                        ? $request->personnel->first_name . ' ' . $request->personnel->last_name 
+                    'personnel_name' => $request->personnel
+                        ? $request->personnel->first_name . ' ' . $request->personnel->last_name
                         : ($request->user ? $request->user->name : 'N/A'),
-                    'personnel_initials' => $request->personnel 
-                        ? substr($request->personnel->first_name, 0, 1) . substr($request->personnel->last_name, 0, 1) 
+                    'personnel_initials' => $request->personnel
+                        ? substr($request->personnel->first_name, 0, 1) . substr($request->personnel->last_name, 0, 1)
                         : ($request->user ? substr($request->user->name, 0, 2) : 'N/A'),
-                    'position_title' => $request->personnel && $request->personnel->position 
-                        ? $request->personnel->position->title 
+                    'position_title' => $request->personnel && $request->personnel->position
+                        ? $request->personnel->position->title
                         : 'N/A',
-                    'school_name' => $request->personnel && $request->personnel->school 
-                        ? $request->personnel->school->school_name 
+                    'school_name' => $request->personnel && $request->personnel->school
+                        ? $request->personnel->school->school_name
                         : 'N/A',
-                    'school_id' => $request->personnel && $request->personnel->school 
-                        ? $request->personnel->school->school_id 
+                    'school_id' => $request->personnel && $request->personnel->school
+                        ? $request->personnel->school->school_id
                         : 'N/A',
                     'work_date' => $request->work_date,
                     'start_time' => Carbon::parse($request->start_time)->format('g:i A'),
@@ -964,7 +962,8 @@ class HomeController extends Controller
                     'updated_time' => $request->updated_at->format('g:i A'),
                 ];
             }),
-            'count' => $approvedCTORequests->count()
+            'count' => $approvedCTORequests->total(),
+            'pagination' => $approvedCTORequests->links()->render()
         ]);
     }
 
@@ -1034,5 +1033,13 @@ class HomeController extends Controller
         ]);
 
         return $pdf->download($fileName);
+    }
+
+    /**
+     * Display loyalty awards management page
+     */
+    public function loyaltyAwards()
+    {
+        return view('admin.loyalty-awards');
     }
 }

@@ -77,7 +77,7 @@ class LoyaltyDatatable extends Component
             $query->orderBy($this->sortColumn, $this->sortDirection);
         }
 
-        $personnels = $paginated ? $query->paginate(15) : $query->get();
+        $personnels = $paginated ? $query->paginate(5) : $query->get();
 
         // Calculate loyalty award eligibility for each personnel
         $collection = $paginated ? $personnels->getCollection() : $personnels;
