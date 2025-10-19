@@ -324,6 +324,6 @@
         </button>
     </div>
 
-    @livewire('form.update-education-form', ['id' => $personnel->id])
+    @livewire('form.update-education-form', ['id' => $personnel->id, 'showMode' => false])
     @endif
 </div>

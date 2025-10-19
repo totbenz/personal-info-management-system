@@ -73,73 +73,91 @@ class EducationForm extends Component
 
     public function mount($id = null, $showMode = true)
     {
-
         if ($id) {
             $this->personnel = Personnel::findOrFail($id);
             $this->updateMode = !$showMode;
             $this->showMode = $showMode;
 
-            $this->elementary = $this->personnel->elementaryEducation;
-            $this->secondary = $this->personnel->secondaryEducation;
-            $this->vocational = $this->personnel->vocationalEducation;
-            $this->graduate = $this->personnel->graduateEducation;
-            $this->graduate_studies = $this->personnel->graduateStudiesEducation;
+            // Load education data
+            $this->loadEducationData();
+        }
+    }
 
-            if ($this->personnel) {
-                if ($this->personnel->elementaryEducation != null) {
-                    $this->elementary_school_name = $this->elementary->school_name;
-                    $this->elementary_degree_course = $this->elementary->degree_course;
-                    $this->elementary_period_from = $this->elementary->period_from;
-                    $this->elementary_period_to = $this->elementary->period_to;
-                    $this->elementary_highest_level_units = $this->elementary->highest_level_units;
-                    $this->elementary_year_graduated = $this->elementary->year_graduated;
-                    $this->elementary_scholarship_honors = $this->elementary->scholarship_honors;
-                }
+    /**
+     * Load education data from database
+     */
+    public function loadEducationData()
+    {
+        if (!$this->personnel) {
+            return;
+        }
 
-                if ($this->personnel->secondaryEducation != null) {
-                    $this->secondary_school_name = $this->secondary->school_name;
-                    $this->secondary_degree_course = $this->secondary->degree_course;
-                    $this->secondary_period_from = $this->secondary->period_from;
-                    $this->secondary_period_to = $this->secondary->period_to;
-                    $this->secondary_highest_level_units = $this->secondary->highest_level_units;
-                    $this->secondary_year_graduated = $this->secondary->year_graduated;
-                    $this->secondary_scholarship_honors = $this->secondary->scholarship_honors;
-                }
+        // Refresh the relationships to get latest data
+        $this->personnel->load(['educations']);
 
-                if ($this->personnel->vocationalEducation != null) {
-                    $this->vocational_school_name = $this->vocational->school_name;
-                    $this->vocational_degree_course = $this->vocational->degree_course;
-                    $this->vocational_period_from = $this->vocational->period_from;
-                    $this->vocational_period_to = $this->vocational->period_to;
-                    $this->vocational_highest_level_units = $this->vocational->highest_level_units;
-                    $this->vocational_year_graduated = $this->vocational->year_graduated;
-                    $this->vocational_scholarship_honors = $this->vocational->scholarship_honors;
-                }
+        $this->elementary = $this->personnel->elementaryEducation;
+        $this->secondary = $this->personnel->secondaryEducation;
+        $this->vocational = $this->personnel->vocationalEducation;
+        $this->graduate = $this->personnel->graduateEducation;
+        $this->graduate_studies = $this->personnel->graduateStudiesEducation;
 
-                if ($this->personnel->graduateEducation != null) {
-                    $this->graduate_school_name = $this->graduate->school_name;
-                    $this->graduate_degree_course = $this->graduate->degree_course;
-                    $this->graduate_major = $this->graduate->major;
-                    $this->graduate_minor = $this->graduate->minor;
-                    $this->graduate_period_from = $this->graduate->period_from;
-                    $this->graduate_period_to = $this->graduate->period_to;
-                    $this->graduate_highest_level_units = $this->graduate->highest_level_units;
-                    $this->graduate_year_graduated = $this->graduate->year_graduated;
-                    $this->graduate_scholarship_honors = $this->graduate->scholarship_honors;
-                }
+        // Load Elementary Education
+        if ($this->elementary) {
+            $this->elementary_school_name = $this->elementary->school_name;
+            $this->elementary_degree_course = $this->elementary->degree_course;
+            $this->elementary_period_from = $this->elementary->period_from;
+            $this->elementary_period_to = $this->elementary->period_to;
+            $this->elementary_highest_level_units = $this->elementary->highest_level_units;
+            $this->elementary_year_graduated = $this->elementary->year_graduated;
+            $this->elementary_scholarship_honors = $this->elementary->scholarship_honors;
+        }
 
-                if ($this->personnel->graduateStudiesEducation != null) {
-                    $this->graduate_studies_school_name = $this->graduate_studies->school_name;
-                    $this->graduate_studies_degree_course = $this->graduate_studies->degree_course;
-                    $this->graduate_studies_major = $this->graduate_studies->major;
-                    $this->graduate_studies_minor = $this->graduate_studies->minor;
-                    $this->graduate_studies_period_from = $this->graduate_studies->period_from;
-                    $this->graduate_studies_period_to = $this->graduate_studies->period_to;
-                    $this->graduate_studies_highest_level_units = $this->graduate_studies->highest_level_units;
-                    $this->graduate_studies_year_graduated = $this->graduate_studies->year_graduated;
-                    $this->graduate_studies_scholarship_honors = $this->graduate_studies->scholarship_honors;
-                }
-            }
+        // Load Secondary Education
+        if ($this->secondary) {
+            $this->secondary_school_name = $this->secondary->school_name;
+            $this->secondary_degree_course = $this->secondary->degree_course;
+            $this->secondary_period_from = $this->secondary->period_from;
+            $this->secondary_period_to = $this->secondary->period_to;
+            $this->secondary_highest_level_units = $this->secondary->highest_level_units;
+            $this->secondary_year_graduated = $this->secondary->year_graduated;
+            $this->secondary_scholarship_honors = $this->secondary->scholarship_honors;
+        }
+
+        // Load Vocational Education
+        if ($this->vocational) {
+            $this->vocational_school_name = $this->vocational->school_name;
+            $this->vocational_degree_course = $this->vocational->degree_course;
+            $this->vocational_period_from = $this->vocational->period_from;
+            $this->vocational_period_to = $this->vocational->period_to;
+            $this->vocational_highest_level_units = $this->vocational->highest_level_units;
+            $this->vocational_year_graduated = $this->vocational->year_graduated;
+            $this->vocational_scholarship_honors = $this->vocational->scholarship_honors;
+        }
+
+        // Load Graduate Education
+        if ($this->graduate) {
+            $this->graduate_school_name = $this->graduate->school_name;
+            $this->graduate_degree_course = $this->graduate->degree_course;
+            $this->graduate_major = $this->graduate->major;
+            $this->graduate_minor = $this->graduate->minor;
+            $this->graduate_period_from = $this->graduate->period_from;
+            $this->graduate_period_to = $this->graduate->period_to;
+            $this->graduate_highest_level_units = $this->graduate->highest_level_units;
+            $this->graduate_year_graduated = $this->graduate->year_graduated;
+            $this->graduate_scholarship_honors = $this->graduate->scholarship_honors;
+        }
+
+        // Load Graduate Studies Education
+        if ($this->graduate_studies) {
+            $this->graduate_studies_school_name = $this->graduate_studies->school_name;
+            $this->graduate_studies_degree_course = $this->graduate_studies->degree_course;
+            $this->graduate_studies_major = $this->graduate_studies->major;
+            $this->graduate_studies_minor = $this->graduate_studies->minor;
+            $this->graduate_studies_period_from = $this->graduate_studies->period_from;
+            $this->graduate_studies_period_to = $this->graduate_studies->period_to;
+            $this->graduate_studies_highest_level_units = $this->graduate_studies->highest_level_units;
+            $this->graduate_studies_year_graduated = $this->graduate_studies->year_graduated;
+            $this->graduate_studies_scholarship_honors = $this->graduate_studies->scholarship_honors;
         }
     }
 
@@ -184,6 +202,9 @@ class EducationForm extends Component
 
     public function edit()
     {
+        // Refresh data before entering edit mode
+        $this->loadEducationData();
+
         $this->updateMode = true;
         $this->storeMode = false;
         $this->showMode = false;
@@ -191,8 +212,6 @@ class EducationForm extends Component
 
     public function save()
     {
-        $this->resetErrorBag();
-
         try {
             // Validate all required fields
             $validated = $this->validate();
@@ -268,18 +287,28 @@ class EducationForm extends Component
                 ]);
             }
 
+            // Refresh data after successful save
+            $this->loadEducationData();
+
+            // Only change mode on successful save
             $this->updateMode = false;
             $this->showMode = true;
 
             session()->flash('flash.banner', 'Education information saved successfully!');
             session()->flash('flash.bannerStyle', 'success');
             session(['active_personnel_tab' => 'education']);
+
         } catch (ValidationException $e) {
-            // Handle validation errors
+            // Handle validation errors - don't change component state
             $errorMessages = [];
             foreach ($e->errors() as $field => $messages) {
                 $errorMessages[] = ucfirst(str_replace('_', ' ', $field)) . ': ' . implode(', ', $messages);
             }
+
+            // Use Livewire's dispatch for better error communication
+            $this->dispatch('show-error-alert', message: 'Please correct the following errors: ' . implode('; ', $errorMessages));
+
+            // Also set session flash for banner display
             session()->flash('flash.banner', 'Please correct the following errors: ' . implode('; ', $errorMessages));
             session()->flash('flash.bannerStyle', 'danger');
 
@@ -288,8 +317,9 @@ class EducationForm extends Component
                 'personnel_id' => $this->personnel->id ?? 'unknown',
                 'errors' => $e->errors()
             ]);
+
         } catch (\Exception $ex) {
-            // Handle other errors
+            // Handle other errors - don't change component state
             Log::error('Education save error: ' . $ex->getMessage(), [
                 'personnel_id' => $this->personnel->id ?? 'unknown',
                 'trace' => $ex->getTraceAsString(),
@@ -306,6 +336,10 @@ class EducationForm extends Component
                 $errorMessage = 'Permission denied. Please contact your administrator.';
             }
 
+            // Use Livewire's dispatch for better error communication
+            $this->dispatch('show-error-alert', message: $errorMessage . ' Please try again or contact support if the problem persists.');
+
+            // Also set session flash for banner display
             session()->flash('flash.banner', $errorMessage . ' Please try again or contact support if the problem persists.');
             session()->flash('flash.bannerStyle', 'danger');
         }
@@ -471,6 +505,52 @@ class EducationForm extends Component
     }
 
     /**
+     * Check if all required fields are filled
+     */
+    public function isFormValid()
+    {
+        // Check elementary required fields
+        if (empty($this->elementary_school_name) ||
+            empty($this->elementary_period_from) ||
+            empty($this->elementary_period_to) ||
+            empty($this->elementary_year_graduated)) {
+            return false;
+        }
+
+        // Check secondary required fields
+        if (empty($this->secondary_school_name) ||
+            empty($this->secondary_period_from) ||
+            empty($this->secondary_period_to) ||
+            empty($this->secondary_year_graduated)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the count of missing required fields
+     */
+    public function getMissingFieldsCount()
+    {
+        $missing = 0;
+
+        // Count missing elementary fields
+        if (empty($this->elementary_school_name)) $missing++;
+        if (empty($this->elementary_period_from)) $missing++;
+        if (empty($this->elementary_period_to)) $missing++;
+        if (empty($this->elementary_year_graduated)) $missing++;
+
+        // Count missing secondary fields
+        if (empty($this->secondary_school_name)) $missing++;
+        if (empty($this->secondary_period_from)) $missing++;
+        if (empty($this->secondary_period_to)) $missing++;
+        if (empty($this->secondary_year_graduated)) $missing++;
+
+        return $missing;
+    }
+
+    /**
      * Get all error messages as a formatted string
      */
     public function getAllErrorMessages()
@@ -487,14 +567,63 @@ class EducationForm extends Component
      */
     public function updated($field)
     {
-        $this->resetErrorBag();
-
-        // Validate only the updated field
+        // Only validate the specific field being updated
+        // Don't reset the entire error bag as it clears all validation errors
         try {
             $this->validateOnly($field);
+
+            // Clear any existing error for this field if validation passes
+            if (!$this->getErrorBag()->has($field)) {
+                $this->dispatch('field-validated', field: $field);
+            }
         } catch (ValidationException $e) {
             // Error will be automatically added to the error bag
+            $this->dispatch('field-invalid', field: $field, message: $e->errors()[$field][0] ?? 'Invalid input');
         }
+
+        // Force re-render to update the UI
+        $this->dispatch('$refresh');
+    }
+
+    // Specific updated methods for required fields to ensure live updates
+    public function updatedElementarySchoolName()
+    {
+        $this->updated('elementary_school_name');
+    }
+
+    public function updatedElementaryPeriodFrom()
+    {
+        $this->updated('elementary_period_from');
+    }
+
+    public function updatedElementaryPeriodTo()
+    {
+        $this->updated('elementary_period_to');
+    }
+
+    public function updatedElementaryYearGraduated()
+    {
+        $this->updated('elementary_year_graduated');
+    }
+
+    public function updatedSecondarySchoolName()
+    {
+        $this->updated('secondary_school_name');
+    }
+
+    public function updatedSecondaryPeriodFrom()
+    {
+        $this->updated('secondary_period_from');
+    }
+
+    public function updatedSecondaryPeriodTo()
+    {
+        $this->updated('secondary_period_to');
+    }
+
+    public function updatedSecondaryYearGraduated()
+    {
+        $this->updated('secondary_year_graduated');
     }
 
     /**

@@ -27,7 +27,7 @@ class WorkExperienceForm extends Component
         'old_work_experiences.*.monthly_salary' => 'nullable',
         'old_work_experiences.*.paygrade_step_increment' => 'nullable',
         'old_work_experiences.*.appointment' => 'required',
-        'old_work_experiences.*.is_gov_service' => 'required',
+        'old_work_experiences.*.is_gov_service' => 'required|in:0,1',
         'new_work_experiences.*.title' => 'required',
         'new_work_experiences.*.company' => 'required',
         'new_work_experiences.*.inclusive_from' => 'required',
@@ -35,7 +35,7 @@ class WorkExperienceForm extends Component
         'new_work_experiences.*.monthly_salary' => 'required',
         'new_work_experiences.*.paygrade_step_increment' => 'required',
         'new_work_experiences.*.appointment' => 'required',
-        'new_work_experiences.*.is_gov_service' => 'required',
+        'new_work_experiences.*.is_gov_service' => 'required|in:0,1',
     ];
 
     public function  mount($id, $showMode = true)
@@ -66,7 +66,7 @@ class WorkExperienceForm extends Component
                 'monthly_salary' => '',
                 'paygrade_step_increment' => '',
                 'appointment' => '',
-                'is_gov_service' => ''
+                'is_gov_service' => '1' // Default to "Yes"
             ];
         }
     }
@@ -81,7 +81,7 @@ class WorkExperienceForm extends Component
             'monthly_salary' => '',
             'paygrade_step_increment' => '',
             'appointment' => '',
-            'is_gov_service' => ''
+            'is_gov_service' => '1' // Default to "Yes"
         ];
     }
 
@@ -142,12 +142,33 @@ class WorkExperienceForm extends Component
 
     public function save()
     {
-        $this->validate();
-        if ($this->personnel->workExperiences()->exists()) {
-            foreach ($this->old_work_experiences as $work_experience) {
-                // dd($work_experience);
-                $this->personnel->workExperiences()->where('id', $work_experience['id'])
-                    ->update([
+        try {
+            $this->validate();
+
+            if ($this->personnel->workExperiences()->exists()) {
+                foreach ($this->old_work_experiences as $work_experience) {
+                    $this->personnel->workExperiences()->where('id', $work_experience['id'])
+                        ->update([
+                            'title' => $work_experience['title'],
+                            'company' => $work_experience['company'],
+                            'inclusive_from' => $work_experience['inclusive_from'],
+                            'inclusive_to' => $work_experience['inclusive_to'],
+                            'monthly_salary' => $work_experience['monthly_salary'],
+                            'paygrade_step_increment' => $work_experience['paygrade_step_increment'],
+                            'appointment' => $work_experience['appointment'],
+                            'is_gov_service' => $work_experience['is_gov_service']
+                        ]);
+                }
+            }
+
+            if ($this->new_work_experiences != null) {
+                foreach ($this->new_work_experiences as $work_experience) {
+                    // Skip empty entries
+                    if (empty($work_experience['title']) && empty($work_experience['company'])) {
+                        continue;
+                    }
+
+                    $this->personnel->workExperiences()->create([
                         'title' => $work_experience['title'],
                         'company' => $work_experience['company'],
                         'inclusive_from' => $work_experience['inclusive_from'],
@@ -157,29 +178,25 @@ class WorkExperienceForm extends Component
                         'appointment' => $work_experience['appointment'],
                         'is_gov_service' => $work_experience['is_gov_service']
                     ]);
+                }
             }
+
+            $this->updateMode = false;
+            $this->showMode = true;
+
+            session()->flash('flash.banner', 'Work Experience saved successfully');
+            session()->flash('flash.bannerStyle', 'success');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            session()->flash('flash.banner', 'Please correct the validation errors and try again.');
+            session()->flash('flash.bannerStyle', 'danger');
+            return;
+        } catch (\Exception $e) {
+            session()->flash('flash.banner', 'An error occurred while saving work experience.');
+            session()->flash('flash.bannerStyle', 'danger');
+            return;
         }
 
-        if ($this->new_work_experiences != null) {
-            foreach ($this->new_work_experiences as $work_experience) {
-                $this->personnel->workExperiences()->create([
-                    'title' => $work_experience['title'],
-                    'company' => $work_experience['company'],
-                    'inclusive_from' => $work_experience['inclusive_from'],
-                    'inclusive_to' => $work_experience['inclusive_to'],
-                    'monthly_salary' => $work_experience['monthly_salary'],
-                    'paygrade_step_increment' => $work_experience['paygrade_step_increment'],
-                    'appointment' => $work_experience['appointment'],
-                    'is_gov_service' => $work_experience['is_gov_service']
-                ]);
-            }
-        }
-
-        $this->updateMode = false;
-        $this->showMode = true;
-
-        session()->flash('flash.banner', 'Work Experience saved successfully');
-        session()->flash('flash.bannerStyle', 'success');
         if (Auth::user()->role === "teacher") {
             return redirect()->route('personnel.profile');
         } elseif (Auth::user()->role === "school_head") {

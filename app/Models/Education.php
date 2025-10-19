@@ -14,6 +14,7 @@ class Education extends Model
     protected $table = 'educations';
 
     protected $fillable = [
+        'personnel_id',
         'type',
         'school_name',
         'degree_course',

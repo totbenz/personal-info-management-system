@@ -97,7 +97,7 @@ class OtherInformationForm extends PersonnelNavigation
                 // Reset the array to remove gaps
                 $this->old_skills = array_values($this->old_skills);
             } elseif($type == "nonacademic_distinction"){
-                $nonacademicDistinctionsModel = $this->personnel->skills()->findOrFail($this->old_nonacademic_distinctions[$index]['id']);
+                $nonacademicDistinctionsModel = $this->personnel->nonacademicDistinctions()->findOrFail($this->old_nonacademic_distinctions[$index]['id']);
                 $nonacademicDistinctionsModel->delete();
 
                 unset($this->old_nonacademic_distinctions[$index]);
@@ -105,7 +105,7 @@ class OtherInformationForm extends PersonnelNavigation
                 // Reset the array to remove gaps
                 $this->old_nonacademic_distinctions = array_values($this->old_nonacademic_distinctions);
             } elseif($type == "association"){
-                $associationModel = $this->personnel->skills()->findOrFail($this->old_associations[$index]['id']);
+                $associationModel = $this->personnel->associations()->findOrFail($this->old_associations[$index]['id']);
                 $associationModel->delete();
 
                 unset($this->old_associations[$index]);
@@ -127,6 +127,22 @@ class OtherInformationForm extends PersonnelNavigation
             } else {
                 return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
             };
+        }
+    }
+
+    public function cancel()
+    {
+        $this->showMode = true;
+        $this->updateMode = false;
+
+        if(Auth::user()->role === "teacher")
+        {
+            return redirect()->route('personnel.profile');
+        } elseif(Auth::user()->role === "school_head")
+        {
+            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
+        } else {
+            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
         }
     }
 

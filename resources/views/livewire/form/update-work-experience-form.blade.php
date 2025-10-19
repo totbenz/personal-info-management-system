@@ -96,8 +96,8 @@
                                 <x-native-select id="new_work_experiences.{{ $index }}.is_gov_service"
                                                  wire:model="new_work_experiences.{{ $index }}.is_gov_service"
                                                  name="new_work_experiences.{{ $index }}.is_gov_service" class="form-control" label="Govn't Service?">
-                                    <option value="1">Yes</option>
-                                    <option value="0">No</option>
+                                    <option value="1" {{ $work_experience['is_gov_service'] == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $work_experience['is_gov_service'] == '0' ? 'selected' : '' }}>No</option>
                                 </x-native-select>
                             </div>
                         </div>
@@ -116,7 +116,7 @@
             <x-button wire:click.prevent="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-red-600 hover:scale-105 duration-150"/>
         </div>
         <div class="w-2/12">
-            <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-primary font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-primary-hover"/>
+            <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover hover:scale-105 duration-150"/>
         </div>
     </div>
 </div>

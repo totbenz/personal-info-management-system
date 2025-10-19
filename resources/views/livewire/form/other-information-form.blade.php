@@ -70,7 +70,7 @@
     @else
         @isset($personnel)
             <div class="flex justify-between">
-                <h4 class="font-bold text-2xl text-gray-darkest">Edit Family</h4>
+                <h4 class="font-bold text-2xl text-gray-darkest">Edit Other Information</h4>
 
                 <button wire:click.prevent="back" type="button" class="inline-flex items-center px-5 py-2 mb-2 mr-2 text-sm font-medium text-center text-gray-900 bg-gray-50 border border-slate-200 rounded-lg hover:bg-white hover:scale-105 duration-300">
                     <span class="flex items-center">
