@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\SalaryGrade;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use App\Utils\BladeOptimization;
 
 class HomeController extends Controller
 {
@@ -28,15 +29,30 @@ class HomeController extends Controller
 
     public function adminHome()
     {
+        // Set timeout and memory limits for dashboard operations
+        set_time_limit(90); // 1.5 minutes
+        ini_set('memory_limit', '256M');
+
         $personnelCount = Personnel::count();
         $schoolCount = School::count();
         $userCount = User::count();
-        $activePersonnels = Personnel::where('job_status', 'Active')->get(['id', 'first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
-        $schools = School::all(['id', 'school_id', 'school_name', 'district_id', 'division']);
-        $allPersonnels = Personnel::all(['id', 'first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
+
+        // Limit data to prevent timeout - only load what's needed for dashboard
+        $activePersonnels = Personnel::where('job_status', 'Active')
+            ->limit(100) // Limit to prevent timeout
+            ->get(['id', 'first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
+
+        $schools = School::limit(100) // Limit to prevent timeout
+            ->get(['id', 'school_id', 'school_name', 'district_id', 'division']);
+
+        $allPersonnels = Personnel::limit(100) // Limit to prevent timeout
+            ->get(['id', 'first_name', 'middle_name', 'last_name', 'name_ext', 'job_status']);
+
         $users = User::with(['personnel' => function ($q) {
             $q->select('id', 'first_name', 'middle_name', 'last_name', 'name_ext');
-        }])->get(['id', 'email', 'created_at', 'personnel_id']);
+        }])
+        ->limit(100) // Limit to prevent timeout
+        ->get(['id', 'email', 'created_at', 'personnel_id']);
 
         // Job status counts
         $jobStatusCounts = Personnel::selectRaw('job_status, COUNT(*) as count')
@@ -91,13 +107,14 @@ class HomeController extends Controller
             ->orderBy('updated_at', 'desc')
             ->paginate(5, ['*'], 'approved_cto_page');
 
-        // Approved Service Credit requests (for history / optional display)
+        // Approved Service Credit requests (for history / optional display) - limit to prevent timeout
         $approvedServiceCreditRequests = ServiceCreditRequest::where('status', 'approved')
             ->with(['teacher'])
             ->orderBy('updated_at', 'desc')
+            ->limit(50) // Limit to prevent timeout
             ->get();
 
-        return view('dashboard', compact(
+        return view('dashboard', BladeOptimization::optimizeViewData(compact(
             'personnelCount',
             'schoolCount',
             'userCount',
@@ -114,7 +131,7 @@ class HomeController extends Controller
             'approvedLeaveRequests',
             'approvedCTORequests',
             'approvedServiceCreditRequests',
-        ));
+        ), 100));
     }
 
     public function schoolHeadDashboard()

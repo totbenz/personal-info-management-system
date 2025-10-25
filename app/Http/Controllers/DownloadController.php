@@ -13,7 +13,10 @@ class DownloadController extends Controller
 {
     public function downloadAll($personnelId)
     {
-        ini_set('memory_limit', '512M'); // or '1024M' for 1GB
+        // Set timeout and memory limits for download operations
+        set_time_limit(120); // 2 minutes
+        ini_set('memory_limit', '1024M'); // 1GB
+
         try {
             // Fetch the personnel and their service records
             $personnel = Personnel::findOrFail($personnelId);

@@ -44,11 +44,16 @@ class ReferencesForm extends Component
                 ];
             })->toArray();
 
-            $this->new_references[] = [
-                'full_name' => '',
-                'address' => '',
-                'tel_no' => ''
-            ];
+            // Auto-add field only if no existing entries
+            if (empty($this->old_references)) {
+                $this->new_references[] = [
+                    'full_name' => '',
+                    'address' => '',
+                    'tel_no' => ''
+                ];
+            } else {
+                $this->new_references = [];
+            }
         }
     }
 

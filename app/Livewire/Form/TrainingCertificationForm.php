@@ -46,14 +46,19 @@ class TrainingCertificationForm extends PersonnelNavigation
                 ];
             })->toArray();
 
-            $this->new_training_certifications[] =[
-                'training_seminar_title' => '',
-                'type' => '',
-                'inclusive_from' => '',
-                'inclusive_to' => '',
-                'sponsored' => '',
-                'hours' => ''
-            ];
+            // Auto-add field only if no existing entries
+            if (empty($this->old_training_certifications)) {
+                $this->new_training_certifications[] = [
+                    'training_seminar_title' => '',
+                    'type' => '',
+                    'inclusive_from' => '',
+                    'inclusive_to' => '',
+                    'sponsored' => '',
+                    'hours' => ''
+                ];
+            } else {
+                $this->new_training_certifications = [];
+            }
         }
     }
 
@@ -77,16 +82,16 @@ class TrainingCertificationForm extends PersonnelNavigation
     public function removeOldField($index)
     {
         try {
-            $workExperienceId = $this->old_training_certifications[$index]['id'];
-            $workExperienceModel = $this->personnel->trainingCertifications()->findOrFail($workExperienceId);
+            $trainingCertificationId = $this->old_training_certifications[$index]['id'];
+            $trainingCertificationModel = $this->personnel->trainingCertifications()->findOrFail($trainingCertificationId);
 
-            // Delete the child from the database
-            $workExperienceModel->delete();
+            // Delete the training certification from the database
+            $trainingCertificationModel->delete();
 
-            session()->flash('flash.banner', 'Work Experience deleted successfully');
+            session()->flash('flash.banner', 'Training Certification deleted successfully');
             session()->flash('flash.bannerStyle', 'success');
         } catch (\Throwable $th) {
-            session()->flash('flash.banner', 'Failed to deleteWork Experience ');
+            session()->flash('flash.banner', 'Failed to delete Training Certification');
             session()->flash('flash.bannerStyle', 'danger');
         }
         session(['active_personnel_tab' => 'training_certification']);

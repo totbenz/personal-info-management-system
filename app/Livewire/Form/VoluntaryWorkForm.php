@@ -44,13 +44,18 @@ class VoluntaryWorkForm extends Component
                 ];
             })->toArray();
 
-            $this->new_voluntary_works[] = [
-                'organization' => '',
-                'position' => '',
-                'hours' => '',
-                'inclusive_from' => '',
-                'inclusive_to' => '',
-            ];
+            // Auto-add field only if no existing entries
+            if (empty($this->old_voluntary_works)) {
+                $this->new_voluntary_works[] = [
+                    'organization' => '',
+                    'position' => '',
+                    'hours' => '',
+                    'inclusive_from' => '',
+                    'inclusive_to' => '',
+                ];
+            } else {
+                $this->new_voluntary_works = [];
+            }
         }
     }
 

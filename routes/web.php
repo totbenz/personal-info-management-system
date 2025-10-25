@@ -22,9 +22,26 @@ use App\Http\Controllers\SalaryChangesController;
 
 // Debug route to show current service credit requests
 Route::get('/debug/current-service-credits', function () {
+    // Set timeout and memory limits for debug operations
+    set_time_limit(60);
+    ini_set('memory_limit', '256M');
+
     try {
-        $allRequests = \App\Models\ServiceCreditRequest::with('teacher')->orderBy('created_at', 'desc')->get();
-        $pendingRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')->with('teacher')->orderBy('created_at', 'desc')->get();
+        // Use chunking for large datasets to prevent timeout
+        $allRequestsCount = \App\Models\ServiceCreditRequest::count();
+        $pendingRequestsCount = \App\Models\ServiceCreditRequest::where('status', 'pending')->count();
+
+        // Limit results to prevent timeout
+        $allRequests = \App\Models\ServiceCreditRequest::with('teacher')
+            ->orderBy('created_at', 'desc')
+            ->limit(100) // Limit to prevent timeout
+            ->get();
+
+        $pendingRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')
+            ->with(['teacher'])
+            ->orderBy('created_at', 'desc')
+            ->limit(50) // Limit to prevent timeout
+            ->get();
 
         // Test admin dashboard query
         $adminDashboardQuery = \App\Models\ServiceCreditRequest::where('status', 'pending')
@@ -34,9 +51,10 @@ Route::get('/debug/current-service-credits', function () {
             ->get();
 
         return [
-            'total_requests' => $allRequests->count(),
-            'pending_requests' => $pendingRequests->count(),
+            'total_requests' => $allRequestsCount,
+            'pending_requests' => $pendingRequestsCount,
             'admin_dashboard_query_count' => $adminDashboardQuery->count(),
+            'limited_results' => true, // Indicate results are limited
             'all_requests' => $allRequests->map(function ($r) {
                 return [
                     'id' => $r->id,
@@ -82,9 +100,25 @@ Route::get('/debug/current-service-credits', function () {
 
 // Debug route to clear all test data and start fresh
 Route::get('/debug/reset-service-credits', function () {
+    // Set timeout and memory limits for bulk operations
+    set_time_limit(120);
+    ini_set('memory_limit', '512M');
+
     try {
-        // Delete all service credit requests
-        $deletedCount = \App\Models\ServiceCreditRequest::truncate();
+        // Use chunked deletion instead of truncate to prevent timeout
+        $totalCount = \App\Models\ServiceCreditRequest::count();
+
+        if ($totalCount > 1000) {
+            // For large datasets, use chunked deletion
+            \App\Models\ServiceCreditRequest::chunk(500, function ($requests) {
+                foreach ($requests as $request) {
+                    $request->delete();
+                }
+            });
+        } else {
+            // For smaller datasets, use truncate
+            \App\Models\ServiceCreditRequest::truncate();
+        }
 
         // Verify deletion
         $remainingCount = \App\Models\ServiceCreditRequest::count();
@@ -92,13 +126,15 @@ Route::get('/debug/reset-service-credits', function () {
         return [
             'success' => true,
             'message' => 'All service credit requests cleared',
+            'original_count' => $totalCount,
             'remaining_count' => $remainingCount,
             'instruction' => 'Now test: 1) Login as teacher, 2) Submit service credit request, 3) Login as admin, 4) Check dashboard'
         ];
     } catch (\Exception $e) {
         return [
             'error' => true,
-            'message' => $e->getMessage()
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ];
     }
 })->name('debug.reset-service-credits');
@@ -166,6 +202,10 @@ Route::get('/debug/test-teacher-service-credit', function () {
 
 // Public debug route (remove in production)
 Route::get('/debug/create-service-credit-data', function () {
+    // Set timeout and memory limits for data creation operations
+    set_time_limit(90);
+    ini_set('memory_limit', '256M');
+
     try {
         $result = [];
 
@@ -176,14 +216,14 @@ Route::get('/debug/create-service-credit-data', function () {
 
         $result['table_exists'] = true;
 
-        // Count existing requests
+        // Count existing requests with timeout protection
         $totalRequests = \App\Models\ServiceCreditRequest::count();
         $pendingRequests = \App\Models\ServiceCreditRequest::where('status', 'pending')->count();
 
         $result['existing_total'] = $totalRequests;
         $result['existing_pending'] = $pendingRequests;
 
-        // Check for teachers with personnel
+        // Check for teachers with personnel - limit query to prevent timeout
         $teachersCount = \App\Models\User::where('role', 'teacher')->whereHas('personnel')->count();
         $result['teachers_with_personnel'] = $teachersCount;
 
@@ -207,7 +247,7 @@ Route::get('/debug/create-service-credit-data', function () {
             $result['using_teacher'] = $teacher->email;
         }
 
-        // Create test requests if none exist
+        // Create test requests if none exist - limit to prevent timeout
         if ($pendingRequests === 0) {
             $testRequests = [
                 [
@@ -247,11 +287,11 @@ Route::get('/debug/create-service-credit-data', function () {
             $result['created_requests'] = $created;
         }
 
-        // Final count
+        // Final count with timeout protection
         $result['final_total'] = \App\Models\ServiceCreditRequest::count();
         $result['final_pending'] = \App\Models\ServiceCreditRequest::where('status', 'pending')->count();
 
-        // Test the dashboard query
+        // Test the dashboard query with limits
         $dashboardQuery = \App\Models\ServiceCreditRequest::where('status', 'pending')
             ->with(['teacher'])
             ->orderBy('created_at', 'desc')
@@ -298,6 +338,10 @@ Route::get('/debug/check-admin-users', function () {
         return ['error' => $e->getMessage()];
     }
 })->name('debug.check-admin-users');
+
+// Recovery route - accessible without authentication with timeout prevention
+Route::get('/recovery', [\App\Http\Controllers\RecoveryController::class, 'index'])->name('recovery.index')->middleware('timeout.prevention');
+Route::post('/recovery/restore', [\App\Http\Controllers\RecoveryController::class, 'restore'])->name('recovery.restore')->middleware('timeout.prevention');
 
 Route::middleware('guest')->group(function () {
     Route::controller('App\\Http\\Controllers\\Auth\\LoginController'::class)->group(function () {
@@ -413,15 +457,15 @@ Route::middleware(['auth'])->group(function () {
     // //NOSI
     // Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download');
     // Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview');
-    //DOWNLOAD ALL
-    Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download');
+    //DOWNLOAD ALL with timeout prevention
+    Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download')->middleware('timeout.prevention');
 
-    //DOWNLOAD SPECIFIC TYPE
-    Route::get('/personnels/{personnelId}/download/{type}', [DownloadController::class, 'downloadSpecific'])->name('download-specific.download');
+    //DOWNLOAD SPECIFIC TYPE with timeout prevention
+    Route::get('/personnels/{personnelId}/download/{type}', [DownloadController::class, 'downloadSpecific'])->name('download-specific.download')->middleware('timeout.prevention');
 
     // ADMIN ACCESS
     Route::middleware(['user-access:admin'])->group(function () {
-        Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home');
+        Route::get('/dashboard', [HomeController::class, 'adminHome'])->name('admin.home')->middleware('timeout.prevention');
         // JSON feed for Service Credit pending requests (AJAX refresh)
         Route::get('/admin/service-credit-requests/pending.json', [ServiceCreditRequestController::class, 'pendingJson'])->name('admin.service-credit-requests.pending-json');
 
@@ -441,8 +485,12 @@ Route::middleware(['auth'])->group(function () {
         })->name('admin.debug.service-credits-schema');
 
         Route::get('/admin/_debug/create-test-service-credit', function () {
+            // Set timeout and memory limits for debug operations
+            set_time_limit(60);
+            ini_set('memory_limit', '256M');
+
             try {
-                // Find a teacher user with personnel
+                // Find a teacher user with personnel - limit query to prevent timeout
                 $teacher = \App\Models\User::where('role', 'teacher')
                     ->whereHas('personnel')
                     ->with('personnel')
@@ -463,7 +511,7 @@ Route::middleware(['auth'])->group(function () {
                     ]);
                 }
 
-                // Check if test request already exists
+                // Check if test request already exists - limit query
                 $existing = \App\Models\ServiceCreditRequest::where('teacher_id', $teacher->personnel->id)
                     ->where('reason', 'LIKE', 'DEBUG%')
                     ->first();
@@ -492,10 +540,11 @@ Route::middleware(['auth'])->group(function () {
                     'status' => 'pending',
                 ]);
 
-                // Verify the request can be fetched
+                // Verify the request can be fetched - limit query to prevent timeout
                 $testFetch = \App\Models\ServiceCreditRequest::where('status', 'pending')
                     ->with(['teacher'])
                     ->orderBy('created_at', 'desc')
+                    ->limit(50) // Limit to prevent timeout
                     ->get();
 
                 return [
@@ -599,12 +648,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'edit'])->name('admin.signatures.edit');
         Route::post('/admin/signatures', [\App\Http\Controllers\SignatureController::class, 'update'])->name('admin.signatures.update');
 
-        // CSV Export (admin only)
-        Route::get('/csv-export/all', [\App\Http\Controllers\CsvExportController::class, 'exportAllTables'])->name('csv.export.all');
-        Route::get('/csv-export/tables/info', [\App\Http\Controllers\CsvExportController::class, 'getTableInfo'])->name('csv.export.tables.info');
+        // CSV Export (admin only) with timeout prevention
+        Route::get('/csv-export/all', [\App\Http\Controllers\CsvExportController::class, 'exportAllTables'])->name('csv.export.all')->middleware('timeout.prevention');
+        Route::get('/csv-export/tables/info', [\App\Http\Controllers\CsvExportController::class, 'getTableInfo'])->name('csv.export.tables.info')->middleware('timeout.prevention');
 
-        // Test route for CSV export (remove in production)
+        // Test route for CSV export (remove in production) with timeout prevention
         Route::get('/csv-export/test', function () {
+            // Set timeout and memory limits for CSV operations
+            set_time_limit(120);
+            ini_set('memory_limit', '512M');
+
             try {
                 $controller = new \App\Http\Controllers\CsvExportController();
                 $reflection = new ReflectionClass($controller);
@@ -619,7 +672,9 @@ Route::middleware(['auth'])->group(function () {
                     'private_methods' => $methodNames,
                     'php_version' => PHP_VERSION,
                     'zip_extension' => extension_loaded('zip'),
-                    'storage_path' => storage_path('app/temp')
+                    'storage_path' => storage_path('app/temp'),
+                    'timeout_set' => true,
+                    'memory_limit' => ini_get('memory_limit')
                 ];
             } catch (\Exception $e) {
                 return [
@@ -628,7 +683,7 @@ Route::middleware(['auth'])->group(function () {
                     'trace' => $e->getTraceAsString()
                 ];
             }
-        })->name('csv.export.test');
+        })->name('csv.export.test')->middleware('timeout.prevention');
     });
     // SETTINGS ROUTE
     Route::get('/settings', function () {

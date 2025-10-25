@@ -51,14 +51,19 @@ class CivilServiceEligibilityForm extends Component
                 ];
             })->toArray();
 
-            $this->new_civil_services[] = [
-                'title' => '',
-                'rating' => '',
-                'date_of_exam' => '',
-                'place_of_exam' => '',
-                'license_num' => '',
-                'license_date_of_validity' => ''
-            ];
+            // Auto-add field only if no existing entries
+            if (empty($this->old_civil_services)) {
+                $this->new_civil_services[] = [
+                    'title' => '',
+                    'rating' => '',
+                    'date_of_exam' => '',
+                    'place_of_exam' => '',
+                    'license_num' => '',
+                    'license_date_of_validity' => ''
+                ];
+            } else {
+                $this->new_civil_services = [];
+            }
         }
     }
 
@@ -83,16 +88,16 @@ class CivilServiceEligibilityForm extends Component
     {
         try {
             $civilServiceId = $this->old_civil_services[$index]['id'];
-            $civilServiceModel = $this->personnel->children()->findOrFail($civilServiceId);
+            $civilServiceModel = $this->personnel->civilServiceEligibilities()->findOrFail($civilServiceId);
 
-            // Delete the child from the database
+            // Delete the civil service eligibility from the database
             $civilServiceModel->delete();
 
             session()->flash('flash.banner', 'Civil Service Eligibility deleted successfully');
             session()->flash('flash.bannerStyle', 'success');
         } catch (\Throwable $th) {
             session()->flash('flash.banner', 'Failed to delete Civil Service Eligibility');
-            session()->flash('flash.bannerStyle', 'success');
+            session()->flash('flash.bannerStyle', 'danger');
         }
         session(['active_personnel_tab' => 'civil_service_eligibility']);
 

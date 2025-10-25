@@ -16,6 +16,10 @@ class CsvExportController extends Controller
      */
     public function exportAllTables()
     {
+        // Set timeout and memory limits for CSV export operations
+        set_time_limit(300); // 5 minutes
+        ini_set('memory_limit', '1024M'); // 1GB
+
         try {
             $tables = $this->getAllTables();
             $tempDir = storage_path('app/temp/csv_export_' . time());
@@ -211,6 +215,10 @@ class CsvExportController extends Controller
      */
     public function getTableInfo()
     {
+        // Set timeout and memory limits for table info operations
+        set_time_limit(60); // 1 minute
+        ini_set('memory_limit', '256M'); // 256MB
+
         try {
             $tables = $this->getAllTables();
             $tableInfo = [];
