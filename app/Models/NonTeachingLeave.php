@@ -30,7 +30,7 @@ class NonTeachingLeave extends Model
     /**
      * Default leave allocations for non-teaching staff
      */
-    public static function defaultLeaves($yearsOfService = 0, $soloParent = false, $userSex = null)
+    public static function defaultLeaves($yearsOfService = 0, $soloParent = false, $userSex = null, $civilStatus = null)
     {
         $baseLeaveCredits = max(15, $yearsOfService * 15); // 15 days per year of service, minimum 15
 
@@ -42,7 +42,24 @@ class NonTeachingLeave extends Model
             'Rehabilitation Leave' => 180,
             'Solo Parent Leave' => $soloParent ? 7 : 0,
             'Study Leave' => 180,
+            'Compensatory Time Off' => 0,
+            'Paternity Leave' => ($userSex === 'female') ? 7 : 0, // Only visible to women
+            'VAWC Leave' => 10, // Visible to all
+            'Special Leave Benefits for Women' => ($userSex === 'female') ? 60 : 0, // Up to 2 months, only for women
+            'Calamity Leave' => 5, // Per calamity declaration
         ];
+
+        // Adoption Leave logic
+        // 60 days for female and single male employees, 7 days for male spouse
+        if ($userSex === 'female') {
+            $leaves['Adoption Leave'] = 60;
+        } elseif ($userSex === 'male') {
+            if ($civilStatus === 'single') {
+                $leaves['Adoption Leave'] = 60;
+            } else {
+                $leaves['Adoption Leave'] = 7;
+            }
+        }
 
         // Only add Maternity Leave for female staff
         if ($userSex === 'female') {

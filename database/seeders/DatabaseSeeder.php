@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ServiceCreditRequestSeeder::class,
             ServiceRecordSeeder::class,
             EventSeeder::class,
+            NonTeachingLeaveSeeder::class,
         ]);
     }
 }

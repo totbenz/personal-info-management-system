@@ -11,15 +11,36 @@
         'Rehabilitation Leave' => 'red',
         'Solo Parent Leave' => 'amber',
         'Study Leave' => 'indigo',
+        'Paternity Leave' => 'fuchsia',
+        'VAWC Leave' => 'rose',
+        'Special Leave Benefits for Women' => 'pink',
+        'Calamity Leave' => 'yellow',
+        'Adoption Leave' => 'cyan',
     ];
 
     $baseLeaveData = $leaveData ?? [];
 
     $userSex = Auth::user()->personnel->sex ?? null;
+    $civilStatus = Auth::user()->personnel->civil_status ?? null;
     $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
-    $filteredLeaveData = array_filter($baseLeaveData, function($leave) use ($userSex, $isSoloParent) {
+    $filteredLeaveData = array_filter($baseLeaveData, function($leave) use ($userSex, $isSoloParent, $civilStatus) {
+        // Solo Parent Leave only for solo parents
         if (!$isSoloParent && $leave['type'] === 'Solo Parent Leave') return false;
-        return !($leave['type'] === 'Maternity Leave' && $userSex === 'male');
+        // Maternity Leave only for women
+        if ($leave['type'] === 'Maternity Leave' && $userSex === 'male') return false;
+        // Paternity Leave only for women
+        if ($leave['type'] === 'Paternity Leave' && $userSex !== 'female') return false;
+        // Special Leave Benefits for Women only for women
+        if ($leave['type'] === 'Special Leave Benefits for Women' && $userSex !== 'female') return false;
+        // Adoption Leave: 60 days for female and single male, 7 days for male spouse
+        if ($leave['type'] === 'Adoption Leave') {
+            if ($userSex === 'female') return true;
+            if ($userSex === 'male' && $civilStatus === 'single') return true;
+            if ($userSex === 'male' && $civilStatus !== 'single') return true;
+            return false;
+        }
+        // VAWC and Calamity Leave visible to all
+        return true;
     });
 
     $leaveBalances = [];
@@ -83,6 +104,18 @@
                     <p class="text-sm text-gray-600">Used: {{ (int) $leave['used'] }}</p>
                     @if(isset($leave['ctos_earned']) && $leave['ctos_earned'])
                         <p class="text-sm text-teal-600">CTO Earned: {{ $leave['ctos_earned'] }}</p>
+                    @endif
+                    {{-- Proof requirements for special leaves --}}
+                    @if($leave['type'] === 'Paternity Leave')
+                        <p class="text-xs text-fuchsia-700 mt-2">Proof required: Birth certificate, medical certificate, marriage contract</p>
+                    @elseif($leave['type'] === 'VAWC Leave')
+                        <p class="text-xs text-rose-700 mt-2">Proof required: VAWC case documentation</p>
+                    @elseif($leave['type'] === 'Special Leave Benefits for Women')
+                        <p class="text-xs text-pink-700 mt-2">Proof required: Medical certificate, supporting documents</p>
+                    @elseif($leave['type'] === 'Calamity Leave')
+                        <p class="text-xs text-yellow-700 mt-2">Proof required: Calamity declaration, supporting documents</p>
+                    @elseif($leave['type'] === 'Adoption Leave')
+                        <p class="text-xs text-cyan-700 mt-2">Proof required: Adoption papers, court order</p>
                     @endif
                 </div>
             </div>

@@ -76,16 +76,14 @@ class LeaveManagementController extends Controller
             );
 
             foreach ($defaultLeaves as $type => $max) {
-                if (in_array($type, ['Vacation Leave', 'Sick Leave'])) {
-                    $leave = $leaves->get($type);
-                    $personnelLeaves[] = [
-                        'type' => $type,
-                        'max' => $max,
-                        'available' => $leave ? $leave->available : $max,
-                        'used' => $leave ? $leave->used : 0,
-                        'record_id' => $leave ? $leave->id : null,
-                    ];
-                }
+                $leave = $leaves->get($type);
+                $personnelLeaves[] = [
+                    'type' => $type,
+                    'max' => $max,
+                    'available' => $leave ? $leave->available : $max,
+                    'used' => $leave ? $leave->used : 0,
+                    'record_id' => $leave ? $leave->id : null,
+                ];
             }
         } elseif ($user->role === 'teacher') {
             $leaves = TeacherLeave::where('teacher_id', $personnel->id)
@@ -104,16 +102,14 @@ class LeaveManagementController extends Controller
             );
 
             foreach ($defaultLeaves as $type => $max) {
-                if (in_array($type, ['Vacation Leave', 'Sick Leave'])) {
-                    $leave = $leaves->get($type);
-                    $personnelLeaves[] = [
-                        'type' => $type,
-                        'max' => $max,
-                        'available' => $leave ? $leave->available : $max,
-                        'used' => $leave ? $leave->used : 0,
-                        'record_id' => $leave ? $leave->id : null,
-                    ];
-                }
+                $leave = $leaves->get($type);
+                $personnelLeaves[] = [
+                    'type' => $type,
+                    'max' => $max,
+                    'available' => $leave ? $leave->available : $max,
+                    'used' => $leave ? $leave->used : 0,
+                    'record_id' => $leave ? $leave->id : null,
+                ];
             }
         } elseif ($user->role === 'non_teaching') {
             $leaves = NonTeachingLeave::where('non_teaching_id', $personnel->id)
@@ -124,24 +120,24 @@ class LeaveManagementController extends Controller
             // Calculate years of service for default leaves
             $yearsOfService = $personnel->employment_start ? 
                 Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
+            $civilStatus = $personnel->civil_status ?? null;
 
             $defaultLeaves = NonTeachingLeave::defaultLeaves(
                 $yearsOfService,
                 $personnel->is_solo_parent ?? false,
-                $personnel->sex ?? null
+                $personnel->sex ?? null,
+                $civilStatus
             );
 
             foreach ($defaultLeaves as $type => $max) {
-                if (in_array($type, ['Vacation Leave', 'Sick Leave'])) {
-                    $leave = $leaves->get($type);
-                    $personnelLeaves[] = [
-                        'type' => $type,
-                        'max' => $max,
-                        'available' => $leave ? $leave->available : $max,
-                        'used' => $leave ? $leave->used : 0,
-                        'record_id' => $leave ? $leave->id : null,
-                    ];
-                }
+                $leave = $leaves->get($type);
+                $personnelLeaves[] = [
+                    'type' => $type,
+                    'max' => $max,
+                    'available' => $leave ? $leave->available : $max,
+                    'used' => $leave ? $leave->used : 0,
+                    'record_id' => $leave ? $leave->id : null,
+                ];
             }
         }
 

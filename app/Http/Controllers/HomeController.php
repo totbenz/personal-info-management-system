@@ -687,15 +687,9 @@ class HomeController extends Controller
         // Build full leave data similar to school head (excluding Personal Leave; including Special Privilege & CTO)
         $soloParent = $personnel->is_solo_parent ?? false;
         $userSex = $personnel->sex ?? null;
-        $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent, $userSex); // reuse set for consistency
-
-        // Remove Personal Leave if present (requirement) and keep order
-        unset($defaultLeaves['Personal Leave']);
-
-        // Ensure Compensatory Time Off present
-        if (!array_key_exists('Compensatory Time Off', $defaultLeaves)) {
-            $defaultLeaves['Compensatory Time Off'] = 0;
-        }
+        $civilStatus = $personnel->civil_status ?? null;
+        $yearsOfService = $personnel->employment_start ? \Carbon\Carbon::parse($personnel->employment_start)->diffInYears(now()) : 0;
+        $defaultLeaves = \App\Models\NonTeachingLeave::defaultLeaves($yearsOfService, $soloParent, $userSex, $civilStatus);
 
         // Fetch any existing NonTeachingLeave records if model/table exists (legacy compatibility)
         $existingLeaves = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
