@@ -396,7 +396,7 @@ Route::middleware(['auth'])->group(function () {
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
     Route::middleware(['user-access:non_teaching'])->group(function () {
         Route::get('/non-teaching-dashboard', [HomeController::class, 'nonTeachingDashboard'])->name('non_teaching.dashboard');
-        Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile2');
+        Route::get('/profile', [PersonnelController::class, 'profile'])->middleware('timeout.prevention')->name('personnel.profile2');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
 
@@ -444,7 +444,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
 
     // Global CTO request route (teacher, non_teaching, school_head)
-    Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])->name('cto-request.store');
+    Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])
+        ->middleware('timeout.prevention')
+        ->name('cto-request.store');
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
