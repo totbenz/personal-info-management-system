@@ -604,7 +604,7 @@
                                 </ul>
                             </div>
                         @endif
-                        
+
                         <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -621,32 +621,32 @@
                             @csrf
                             <input type="hidden" id="addLeaveType" name="leave_type" value="">
                             <input type="hidden" name="year" value="{{ $year ?? date('Y') }}">
-                            
+
                             <div>
                                 <label for="days_to_add" class="block text-sm font-medium text-gray-700">Days to Add</label>
-                                <input type="number" name="days_to_add" id="days_to_add" min="1" max="365" required 
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
-                                       value="{{ old('days_to_add') }}" 
+                                <input type="number" name="days_to_add" id="days_to_add" min="1" max="365" required
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                       value="{{ old('days_to_add') }}"
                                        placeholder="Enter number of days">
                                 <p class="text-xs text-gray-500 mt-1">Enter the number of days you want to add (1-365)</p>
                             </div>
-                            
+
                             <div>
                                 <label for="add_leave_reason" class="block text-sm font-medium text-gray-700">Reason for Adding Leave</label>
-                                <textarea name="reason" id="add_leave_reason" rows="3" required maxlength="255" 
-                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                                <textarea name="reason" id="add_leave_reason" rows="3" required maxlength="255"
+                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                           placeholder="e.g., Earned from overtime, Special allocation, Year-end bonus...">{{ old('reason') }}</textarea>
                                 <p class="text-xs text-gray-500 mt-1">Briefly explain why you're adding these leave days</p>
                             </div>
-                            
+
                             <div id="addLeavePreview" class="hidden mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
                                 <p class="font-medium">Preview:</p>
                                 <p>Current balance: <span id="previewCurrent">0</span> days</p>
                                 <p>Adding: <span id="previewAdding">0</span> days</p>
                                 <p class="font-bold">New balance: <span id="previewNew">0</span> days</p>
                             </div>
-                            
-                            <button type="submit" id="addLeaveSubmitBtn" 
+
+                            <button type="submit" id="addLeaveSubmitBtn"
                                     class="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition">
                                 Add Leave Days
                             </button>
@@ -656,7 +656,7 @@
 
             </div>
 
-            <!-- Leave Request History Section -->
+            <!-- Your requested leaves and their status Section -->
             @if(isset($leaveRequests) && $leaveRequests->count() > 0)
             <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-full -mr-16 -mt-16"></div>
@@ -1222,13 +1222,13 @@
                     btn.addEventListener('click', function() {
                         var leaveType = this.getAttribute('data-leave-type');
                         var currentAvailable = this.getAttribute('data-current-available');
-                        
+
                         // Set modal content
                         addLeaveModalTitle.textContent = leaveType;
                         addLeaveType.value = leaveType;
                         currentBalance.textContent = currentAvailable;
                         previewCurrent.textContent = currentAvailable;
-                        
+
                         // Show modal
                         addLeaveModal.classList.remove('hidden');
                         addLeaveModal.classList.add('flex');
@@ -1259,10 +1259,10 @@
                         var adding = parseInt(this.value) || 0;
                         var current = parseInt(previewCurrent.textContent) || 0;
                         var newTotal = current + adding;
-                        
+
                         previewAdding.textContent = adding;
                         previewNew.textContent = newTotal;
-                        
+
                         if (adding > 0) {
                             addLeavePreview.classList.remove('hidden');
                         } else {

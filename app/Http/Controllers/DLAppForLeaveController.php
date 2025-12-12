@@ -49,14 +49,14 @@ class DLAppForLeaveController extends Controller
 
             // Calculate and fill salary
             $salary = $this->calculateSalary($personnel->salary_grade_id, $personnel->step_increment);
-            $sheet->setCellValue('O14', number_format($salary, 2));
+            $sheet->setCellValue('O14', 'PHP ' . number_format($salary, 2));
 
             // Fill position
-            $sheet->setCellValue('H14', $personnel->position->position_name ?? '');
+            $sheet->setCellValue('H14', $personnel->position->title ?? '');
 
             // Fill date filing (created_at of leave request) - Assuming it goes in cell that makes sense for date filing
             // You may need to adjust this cell reference based on the actual template layout
-            $sheet->setCellValue('G14', $leaveRequest->created_at->format('m/d/Y'));
+            $sheet->setCellValue('F14', $leaveRequest->created_at->format('m/d/Y'));
 
             // Calculate working days
             $workingDays = $this->calculateWorkingDays($leaveRequest->start_date, $leaveRequest->end_date);
@@ -86,6 +86,24 @@ class DLAppForLeaveController extends Controller
                     break;
                 case 'study leave':
                     $sheet->setCellValue('C27', '✓');
+                    break;
+                case 'adoption leave':
+                    $sheet->setCellValue('C32', '✓');
+                    break;
+                case 'rehabilitation leave':
+                    $sheet->setCellValue('C29', '✓');
+                    break;
+                case 'vacation leave':
+                    $sheet->setCellValue('C20', '✓');
+                    break;
+                case 'special leave benefits for women':
+                    $sheet->setCellValue('C30', '✓');
+                    break;
+                case 'calamity leave':
+                    $sheet->setCellValue('C31', '✓');
+                    break;
+                case 'vawc leave':
+                    $sheet->setCellValue('C28', '✓');
                     break;
             }
 
