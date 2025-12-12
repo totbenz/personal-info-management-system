@@ -51,8 +51,8 @@ class HomeController extends Controller
         $users = User::with(['personnel' => function ($q) {
             $q->select('id', 'first_name', 'middle_name', 'last_name', 'name_ext');
         }])
-        ->limit(100) // Limit to prevent timeout
-        ->get(['id', 'email', 'created_at', 'personnel_id']);
+            ->limit(100) // Limit to prevent timeout
+            ->get(['id', 'email', 'created_at', 'personnel_id']);
 
         // Job status counts
         $jobStatusCounts = Personnel::selectRaw('job_status, COUNT(*) as count')
@@ -682,6 +682,12 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
+        // CTO requests history (for this non-teaching personnel)
+        $ctoRequests = \App\Models\CTORequest::where('school_head_id', $personnel->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         $year = now()->year;
 
         // Build full leave data similar to school head (excluding Personal Leave; including Special Privilege & CTO)
@@ -754,6 +760,7 @@ class HomeController extends Controller
             'recentEvents',
             'recentSalaryChanges',
             'leaveRequests',
+            'ctoRequests',
             'leaveData',
             'ctoBalance',
             'accrualSummary',
