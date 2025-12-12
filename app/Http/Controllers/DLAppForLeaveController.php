@@ -66,6 +66,10 @@ class DLAppForLeaveController extends Controller
             $fullName = trim($personnel->first_name . ' ' . ($personnel->middle_name ? $personnel->middle_name . ' ' : '') . $personnel->last_name);
             $sheet->setCellValue('I38', $fullName);
 
+            // Fill inclusive dates in E38
+            $inclusiveDates = $leaveRequest->start_date . ' - ' . $leaveRequest->end_date;
+            $sheet->setCellValue('E38', $inclusiveDates);
+
             // Add check marks based on leave type
             $leaveType = strtolower($leaveRequest->leave_type);
             switch ($leaveType) {
