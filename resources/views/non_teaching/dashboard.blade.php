@@ -199,68 +199,79 @@
                 'year' => $year ?? date('Y')
             ])
 
-                        <!-- Leave Request History Table -->
-
-
-                        <!-- <div x-data="{ open: true }" class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-green-200/50 p-8 mb-8 backdrop-blur-sm">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/10 to-emerald-400/10 rounded-full -mr-16 -mt-16"></div>
-                            <div class="relative">
-                                <div class="flex items-center justify-between mb-6">
-                                    <div>
-                                        <h3 class="text-2xl font-bold text-green-900 mb-2">Leave Request History</h3>
-                                        <p class="text-gray-600">Your requested leaves and their status</p>
-                                    </div>
-                                    <div class="flex space-x-2">
-                                        <button @click="open = false" x-show="open" type="button" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold shadow hover:bg-green-200 transition flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                                        </button>
-                                        <button @click="open = true" x-show="!open" type="button" class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold shadow hover:bg-emerald-200 transition flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="overflow-x-auto" x-show="open" x-transition>
-                                    <table class="min-w-full divide-y divide-green-200 rounded-xl overflow-hidden">
-                                        <thead class="bg-gradient-to-r from-green-100 to-emerald-100">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Leave Type</th>
-                                                <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Date Requested</th>
-                                                <th class="px-6 py-3 text-center text-xs font-bold text-green-700 uppercase tracking-wider">Number of Days</th>
-                                                <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-green-100">
-                                            @forelse($leaveRequests as $leave)
-                                                <tr class="hover:bg-green-50 transition duration-150">
-                                                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">{{ $leave->leave_type ?? $leave->type ?? '-' }}</td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $leave->created_at->format('M d, Y') }}</td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
-                                                        @if(!empty($leave->start_date) && !empty($leave->end_date))
-                                                            {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold
-                                                            @if($leave->status === 'approved') bg-green-100 text-green-700
-                                                            @elseif($leave->status === 'pending') bg-yellow-100 text-yellow-700
-                                                            @elseif($leave->status === 'rejected') bg-red-100 text-red-700
-                                                            @else bg-gray-100 text-gray-700 @endif">
-                                                            {{ ucfirst($leave->status) }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No leave requests found.</td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div> -->
+            <!-- Leave Request History Table -->
+            <div x-data="{ open: true }" class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-green-200/50 p-8 mb-8 backdrop-blur-sm">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/10 to-emerald-400/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-green-900 mb-2">Leave Request History</h3>
+                            <p class="text-gray-600">Your requested leaves and their status</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button @click="open = false" x-show="open" type="button" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold shadow hover:bg-green-200 transition flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </button>
+                            <button @click="open = true" x-show="!open" type="button" class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold shadow hover:bg-emerald-200 transition flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto" x-show="open" x-transition>
+                        <table class="min-w-full divide-y divide-green-200 rounded-xl overflow-hidden">
+                            <thead class="bg-gradient-to-r from-green-100 to-emerald-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Leave Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Filed Date</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-green-700 uppercase tracking-wider">Number of Days</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-green-700 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-green-100">
+                                @forelse($leaveRequests as $leave)
+                                    <tr class="hover:bg-green-50 transition duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">{{ $leave->leave_type ?? $leave->type ?? '-' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $leave->created_at->format('M d, Y') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
+                                            @if(!empty($leave->start_date) && !empty($leave->end_date))
+                                                {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold
+                                                @if($leave->status === 'approved') bg-green-100 text-green-700
+                                                @elseif($leave->status === 'pending') bg-yellow-100 text-yellow-700
+                                                @elseif($leave->status === 'rejected') bg-red-100 text-red-700
+                                                @else bg-gray-100 text-gray-700 @endif">
+                                                {{ ucfirst($leave->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if($leave->status === 'approved')
+                                                <button type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                                    </svg>
+                                                    <span class="ml-1">Download</span>
+                                                </button>
+                                            @else
+                                                <span class="text-xs text-gray-400">N/A</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">No leave requests found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <!-- Government Information Card -->
             <div class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8 mb-8 backdrop-blur-sm">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-pink-500/10 rounded-full -mr-16 -mt-16"></div>
