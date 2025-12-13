@@ -375,6 +375,10 @@ Route::middleware(['auth'])->group(function () {
         }
     });
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
+
+    // Leave Application Excel Download (accessible to all authenticated users)
+    Route::get('/leave-application/download/{leaveRequestId}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
+
     // PERSONNEL ACCESS - TEACHER
     Route::middleware(['user-access:teacher'])->group(function () {
         Route::get('/teacher-dashboard', [HomeController::class, 'teacherDashboard'])->name('teacher.dashboard');
@@ -391,9 +395,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
-
-        // Leave Application Excel Download
-        Route::get('/leave-application/download/{leaveRequestId}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
     });
 
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
@@ -410,9 +411,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
-
-        // Leave Application Excel Download
-        Route::get('/leave-application/download/{leaveRequestId}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
     });
 
     // SCHOOL HEAD ACCESS

@@ -659,8 +659,7 @@
 
             </div>
 
-            <!-- Leave Request History Table (copied from non-teaching dashboard) -->
-            @if(isset($leaveRequests) && $leaveRequests->count() > 0)
+            <!-- Your requested leaves and their status Section -->
             <div x-data="{ open: true }" class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-green-200/50 p-8 mb-8 backdrop-blur-sm">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/10 to-emerald-400/10 rounded-full -mr-16 -mt-16"></div>
                 <div class="relative">
@@ -737,7 +736,6 @@
                     </div>
                 </div>
             </div>
-            @endif
 
             <!-- Service Credit Requests History -->
             @if(isset($serviceCreditRequests) && $serviceCreditRequests->count() > 0)
