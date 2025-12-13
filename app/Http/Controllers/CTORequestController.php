@@ -11,8 +11,50 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
+use PhpOffice\PhpWord\TemplateProcessor;
+
+
 class CTORequestController extends Controller
 {
+
+    /**
+     * Download a CTO request as a Word document using the provided template
+     */
+    public function download($ctoRequestId)
+    {
+        $ctoRequest = CTORequest::with(['schoolHead.position', 'schoolHead.school', 'schoolHead.user'])->findOrFail($ctoRequestId);
+        $personnel = $ctoRequest->schoolHead;
+
+        // Only allow download if the user is the owner or admin
+        $user = Auth::user();
+        if (!($user->role === 'admin' || ($personnel && $user->personnel && $user->personnel->id === $personnel->id))) {
+            abort(403, 'Unauthorized to download this CTO request.');
+        }
+
+        $templatePath = resource_path('views/forms/CTO.docx');
+        $templateProcessor = new TemplateProcessor($templatePath);
+
+        // Fill in template variables (update these to match your template placeholders)
+        $templateProcessor->setValue('name', $personnel->full_name ?? '-');
+        $templateProcessor->setValue('position', $personnel->position->name ?? '-');
+        $templateProcessor->setValue('school', $personnel->school->name ?? '-');
+        $templateProcessor->setValue('date_filed', $ctoRequest->created_at ? $ctoRequest->created_at->format('M d, Y') : '-');
+        $templateProcessor->setValue('work_date', $ctoRequest->work_date ? $ctoRequest->work_date->format('M d, Y') : '-');
+        $templateProcessor->setValue('morning_in', $ctoRequest->morning_in ?? '-');
+        $templateProcessor->setValue('morning_out', $ctoRequest->morning_out ?? '-');
+        $templateProcessor->setValue('afternoon_in', $ctoRequest->afternoon_in ?? '-');
+        $templateProcessor->setValue('afternoon_out', $ctoRequest->afternoon_out ?? '-');
+        $templateProcessor->setValue('total_hours', $ctoRequest->total_hours ?? '-');
+        $templateProcessor->setValue('reason', $ctoRequest->reason ?? '-');
+        $templateProcessor->setValue('description', $ctoRequest->description ?? '-');
+        $templateProcessor->setValue('status', ucfirst($ctoRequest->status));
+        $templateProcessor->setValue('approved_at', $ctoRequest->approved_at ? $ctoRequest->approved_at->format('M d, Y') : '-');
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'cto_request_') . '.docx';
+        $templateProcessor->saveAs($tempFile);
+
+        return response()->download($tempFile, 'CTO_Request_' . $ctoRequest->id . '.docx')->deleteFileAfterSend(true);
+    }
     protected $ctoService;
 
     public function __construct(CTOService $ctoService)
@@ -65,7 +107,7 @@ class CTORequestController extends Controller
         if ($request->filled(['afternoon_in', 'afternoon_out'])) {
             $segments[] = ['in' => $request->afternoon_in, 'out' => $request->afternoon_out, 'label' => 'PM'];
         }
-        
+
         if (empty($segments)) {
             return redirect()->back()->withErrors([
                 'time' => 'Provide at least one complete in/out time pair.'
@@ -91,7 +133,7 @@ class CTORequestController extends Controller
                 ])->withInput();
             }
         }
-        
+
         $totalHours = round($totalHours, 2);
         if ($totalHours > 16) {
             return redirect()->back()->withErrors([
@@ -126,7 +168,6 @@ class CTORequestController extends Controller
             ]);
 
             return redirect()->back()->with('success', 'CTO request submitted successfully! You will be notified once it\'s reviewed.');
-
         } catch (\Exception $e) {
             Log::error('CTO request creation failed', [
                 'user_id' => Auth::id(),
@@ -189,7 +230,6 @@ class CTORequestController extends Controller
             ]);
 
             return redirect()->back()->with('success', 'CTO request approved successfully! CTO has been added to the school head\'s leave balance.');
-
         } catch (\Exception $e) {
             Log::error('CTO request approval failed', [
                 'cto_request_id' => $ctoRequest->id,
@@ -233,7 +273,6 @@ class CTORequestController extends Controller
             ]);
 
             return redirect()->back()->with('success', 'CTO request denied successfully.');
-
         } catch (\Exception $e) {
             Log::error('CTO request denial failed', [
                 'cto_request_id' => $ctoRequest->id,

@@ -330,12 +330,12 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($request->status === 'approved')
-                                        <button type="button" class="inline-flex items-center px-3 py-1 border border-teal-600 text-teal-700 text-xs font-semibold rounded-full hover:bg-teal-50 transition">
+                                        <a href="{{ route('cto-request.download', ['ctoRequestId' => $request->id]) }}" target="_blank" class="inline-flex items-center px-3 py-1 border border-teal-600 text-teal-700 text-xs font-semibold rounded-full hover:bg-teal-50 transition">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
                                             </svg>
                                             <span class="ml-1">Download</span>
-                                        </button>
+                                        </a>
                                         @else
                                         <span class="text-xs text-gray-400">N/A</span>
                                         @endif

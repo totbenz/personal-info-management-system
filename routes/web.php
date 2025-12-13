@@ -453,6 +453,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])
         ->middleware('timeout.prevention')
         ->name('cto-request.store');
+
+    // CTO Request Download (PDF)
+    Route::get('/cto-request/download/{ctoRequestId}', [\App\Http\Controllers\CTORequestController::class, 'download'])->name('cto-request.download');
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
