@@ -183,12 +183,15 @@ class EducationForm extends Component
             $this->showMode = false;
         }
 
+        // Set the active tab to education before redirecting
+        session(['active_personnel_tab' => 'education']);
+
         if (Auth::user()->role === "teacher") {
-            return redirect()->route('personnel.profile');
+            return redirect()->route('personnel.profile', ['personnel' => $this->personnel->id]) . '#education';
         } elseif (Auth::user()->role === "school_head") {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
+            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]) . '#education';
         } else {
-            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
+            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]) . '#education';
         }
     }
 

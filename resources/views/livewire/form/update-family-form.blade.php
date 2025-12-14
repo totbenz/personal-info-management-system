@@ -49,6 +49,7 @@
                         Father's First Name <span class="text-red-500">*</span>
                     </label>
                     <input id="fathers_first_name" wire:model.live="fathers_first_name" type="text" name="fathers_first_name" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('fathers_first_name') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" required/>
+                    <p class="text-xs text-gray-500 mt-1">Enter your father's legal first name</p>
                     @error('fathers_first_name')
                     <span class="text-red-600 text-xs flex items-center mt-1">
                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -57,12 +58,14 @@
                         {{ $message }}
                     </span>
                     @enderror
+                    <div wire:loading wire:target="fathers_first_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/4">
                     <label for="fathers_middle_name" class="block text-sm font-medium text-gray-700 mb-1">
                         Father's Middle Name <span class="text-red-500">*</span>
                     </label>
                     <input id="fathers_middle_name" wire:model.live="fathers_middle_name" type="text" name="fathers_middle_name" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('fathers_middle_name') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" required/>
+                    <p class="text-xs text-gray-500 mt-1">Enter your father's middle name</p>
                     @error('fathers_middle_name')
                     <span class="text-red-600 text-xs flex items-center mt-1">
                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -71,12 +74,14 @@
                         {{ $message }}
                     </span>
                     @enderror
+                    <div wire:loading wire:target="fathers_middle_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/4">
                     <label for="fathers_last_name" class="block text-sm font-medium text-gray-700 mb-1">
                         Father's Last Name <span class="text-red-500">*</span>
                     </label>
                     <input id="fathers_last_name" wire:model.live="fathers_last_name" type="text" name="fathers_last_name" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('fathers_last_name') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" required/>
+                    <p class="text-xs text-gray-500 mt-1">Enter your father's family name/last name</p>
                     @error('fathers_last_name')
                     <span class="text-red-600 text-xs flex items-center mt-1">
                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -85,12 +90,23 @@
                         {{ $message }}
                     </span>
                     @enderror
+                    <div wire:loading wire:target="fathers_last_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/4">
                     <label for="fathers_name_ext" class="block text-sm font-medium text-gray-700 mb-1">
                         Father's Name Extension
                     </label>
-                    <input id="fathers_name_ext" wire:model="fathers_name_ext" type="text" name="fathers_name_ext" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"/>
+                    <input id="fathers_name_ext" wire:model="fathers_name_ext" wire:model.live="fathers_name_ext" type="text" name="fathers_name_ext" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('fathers_name_ext') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}"/>
+                    <p class="text-xs text-gray-500 mt-1">e.g., Jr., Sr., III (if applicable)</p>
+                    @error('fathers_name_ext')
+                    <span class="text-red-600 text-xs flex items-center mt-1">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        {{ $message }}
+                    </span>
+                    @enderror
+                    <div wire:loading wire:target="fathers_name_ext" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
             </div>
             <div class="m-0 mb-4 p-0 flex space-x-3">
@@ -99,6 +115,7 @@
                         Mother's First Name <span class="text-red-500">*</span>
                     </label>
                     <input id="mothers_first_name" wire:model.live="mothers_first_name" type="text" name="mothers_first_name" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('mothers_first_name') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" required/>
+                    <p class="text-xs text-gray-500 mt-1">Enter your mother's legal first name</p>
                     @error('mothers_first_name')
                     <span class="text-red-600 text-xs flex items-center mt-1">
                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -107,12 +124,14 @@
                         {{ $message }}
                     </span>
                     @enderror
+                    <div wire:loading wire:target="mothers_first_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/4">
                     <label for="mothers_middle_name" class="block text-sm font-medium text-gray-700 mb-1">
                         Mother's Middle Name <span class="text-red-500">*</span>
                     </label>
                     <input id="mothers_middle_name" wire:model.live="mothers_middle_name" type="text" name="mothers_middle_name" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('mothers_middle_name') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" required/>
+                    <p class="text-xs text-gray-500 mt-1">Enter your mother's middle name</p>
                     @error('mothers_middle_name')
                     <span class="text-red-600 text-xs flex items-center mt-1">
                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -121,12 +140,14 @@
                         {{ $message }}
                     </span>
                     @enderror
+                    <div wire:loading wire:target="mothers_middle_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/4">
                     <label for="mothers_last_name" class="block text-sm font-medium text-gray-700 mb-1">
                         Mother's Maiden Name <span class="text-red-500">*</span>
                     </label>
                     <input id="mothers_last_name" wire:model.live="mothers_last_name" type="text" name="mothers_last_name" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('mothers_last_name') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" required/>
+                    <p class="text-xs text-gray-500 mt-1">Enter your mother's maiden name</p>
                     @error('mothers_last_name')
                     <span class="text-red-600 text-xs flex items-center mt-1">
                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -135,6 +156,7 @@
                         {{ $message }}
                     </span>
                     @enderror
+                    <div wire:loading wire:target="mothers_last_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
             </div>
         </div>
@@ -144,32 +166,72 @@
             <section>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-1/4">
-                        <x-input id="spouse_first_name" wire:model="spouse_first_name" label="First Name" type="text" name="spouse_first_name"/>
+                        <x-input id="spouse_first_name" wire:model="spouse_first_name" wire:model.live="spouse_first_name" label="First Name" type="text" name="spouse_first_name" />
+                        <p class="text-xs text-gray-500 mt-1">First name of spouse (if applicable)</p>
+                        @error('spouse_first_name')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_first_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="spouse_middle_name" wire:model="spouse_middle_name" label="Middle Name" type="text" name="spouse_middle_name"/>
+                        <x-input id="spouse_middle_name" wire:model="spouse_middle_name" wire:model.live="spouse_middle_name" label="Middle Name" type="text" name="spouse_middle_name" />
+                        <p class="text-xs text-gray-500 mt-1">Middle name or initial</p>
+                        @error('spouse_middle_name')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_middle_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="spouse_last_name" wire:model="spouse_last_name" label="Last Name" type="text" name="spouse_last_name"/>
+                        <x-input id="spouse_last_name" wire:model="spouse_last_name" wire:model.live="spouse_last_name" label="Last Name" type="text" name="spouse_last_name" />
+                        <p class="text-xs text-gray-500 mt-1">Family name/last name</p>
+                        @error('spouse_last_name')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_last_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="spouse_name_ext" wire:model="spouse_name_ext" label="Name Extension" type="text" name="spouse_name_ext"/>
+                        <x-input id="spouse_name_ext" wire:model="spouse_name_ext" wire:model.live="spouse_name_ext" label="Name Extension" type="text" name="spouse_name_ext" />
+                        <p class="text-xs text-gray-500 mt-1">e.g., Jr., Sr., III (if applicable)</p>
+                        @error('spouse_name_ext')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_name_ext" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                 </div>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-1/2">
-                        <x-input id="spouse_occupation" wire:model="spouse_occupation" label="Occupation" type="text" name="spouse_occupation"/>
+                        <x-input id="spouse_occupation" wire:model="spouse_occupation" wire:model.live="spouse_occupation" label="Occupation" type="text" name="spouse_occupation" />
+                        <p class="text-xs text-gray-500 mt-1">Current job or profession</p>
+                        @error('spouse_occupation')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_occupation" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/2">
-                        <x-input id="spouse_business_name" wire:model="spouse_business_name" label="Employer/Business Name" type="text" name="spouse_business_name"/>
+                        <x-input id="spouse_business_name" wire:model="spouse_business_name" wire:model.live="spouse_business_name" label="Employer/Business Name" type="text" name="spouse_business_name" />
+                        <p class="text-xs text-gray-500 mt-1">Company name or business name</p>
+                        @error('spouse_business_name')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_business_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                 </div>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-1/2">
-                        <x-input id="spouse_business_address" wire:model="spouse_business_address" label="Business Address" type="text" name="spouse_business_address"/>
+                        <x-input id="spouse_business_address" wire:model="spouse_business_address" wire:model.live="spouse_business_address" label="Business Address" type="text" name="spouse_business_address" />
+                        <p class="text-xs text-gray-500 mt-1">Work or business address</p>
+                        @error('spouse_business_address')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_business_address" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/2">
-                        <x-input id="spouse_tel_no" wire:model="spouse_tel_no" label="Telephone No." type="text" name="spouse_tel_no"/>
+                        <x-input id="spouse_tel_no" wire:model="spouse_tel_no" wire:model.live="spouse_tel_no" label="Telephone No." type="text" name="spouse_tel_no" />
+                        <p class="text-xs text-gray-500 mt-1">Contact telephone number</p>
+                        @error('spouse_tel_no')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div wire:loading wire:target="spouse_tel_no" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                 </div>
             </section>
