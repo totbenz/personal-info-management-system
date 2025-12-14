@@ -377,7 +377,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
 
     // Leave Application Excel Download (accessible to all authenticated users)
-    Route::get('/leave-application/download/{leaveRequestId}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
+    Route::get('/leave-application/download/{leaveRequestId}/{signatureChoice?}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
 
     // PERSONNEL ACCESS - TEACHER
     Route::middleware(['user-access:teacher'])->group(function () {

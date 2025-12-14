@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\LeaveRequest;
 use App\Models\Personnel;
 use App\Models\SalaryStep;
+use App\Models\Signature;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class DLAppForLeaveController extends Controller
 {
-    public function downloadExcel($leaveRequestId)
+    public function downloadExcel($leaveRequestId, $signatureChoice = null)
     {
         try {
             // Get the leave request
@@ -109,6 +110,48 @@ class DLAppForLeaveController extends Controller
                 case 'vawc leave':
                     $sheet->setCellValue('C28', '✓');
                     break;
+            }
+
+            // Get Administrative Officer VI signature from signatures table
+            $adminOfficerSignature = Signature::where('position', 'Administrative Officer VI (HRMO II)')->first();
+            if ($adminOfficerSignature) {
+                $sheet->setCellValue('E53', $adminOfficerSignature->full_name);
+            }
+
+            // Get School Head based on logged-in user's school
+            if ($personnel->school_id) {
+                $schoolHead = Personnel::where('school_id', $personnel->school_id)
+                    ->where('category', 'School Head')
+                    ->first();
+
+                if ($schoolHead) {
+                    $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
+                        ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
+                        $schoolHead->last_name);
+                    $sheet->setCellValue('L53', $schoolHeadFullName);
+                }
+            }
+
+            // Get Division Superintendent signature based on user choice
+            if ($signatureChoice === 'assistant') {
+                $divisionSuperintendent = Signature::where('position', 'Assistant School Division Superintendent')->first();
+                if ($divisionSuperintendent) {
+                    $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
+                    $sheet->setCellValue('G62', $divisionSuperintendent->position_name);
+                }
+            } elseif ($signatureChoice === 'schools') {
+                $divisionSuperintendent = Signature::where('position', 'Schools Division Superintendent')->first();
+                if ($divisionSuperintendent) {
+                    $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
+                    $sheet->setCellValue('G62', $divisionSuperintendent->position_name);
+                }
+            } else {
+                // Default to Assistant School Division Superintendent if no choice specified
+                $divisionSuperintendent = Signature::where('position', 'Assistant School Division Superintendent')->first();
+                if ($divisionSuperintendent) {
+                    $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
+                    $sheet->setCellValue('G62', $divisionSuperintendent->position_name);
+                }
             }
 
             // Create the Excel file

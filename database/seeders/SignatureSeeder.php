@@ -29,6 +29,11 @@ class SignatureSeeder extends Seeder
                 'position_name' => 'Administrative Officer VI (HRMO II)',
                 'full_name' => 'JULIUS CAESAR C. DE LA CERNA'
             ],
+            [
+                'position' => 'Assistant School Division Superintendent',
+                'position_name' => 'Assistant School Division Superintendent',
+                'full_name' => 'JOSEMILO P. RUIZ EdD, CESE'
+            ]
         ]);
     }
 }
