@@ -1,0 +1,5 @@
+Signatures in Excel should be based on the signatures database
+
+School head = school head category from database (personnels)
+
+Excel download with dropdown (SDS or Assistant)
