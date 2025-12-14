@@ -187,11 +187,11 @@ class EducationForm extends Component
         session(['active_personnel_tab' => 'education']);
 
         if (Auth::user()->role === "teacher") {
-            return redirect()->route('personnel.profile', ['personnel' => $this->personnel->id]) . '#education';
+            return redirect()->to(route('personnel.profile', ['personnel' => $this->personnel->id]) . '#education');
         } elseif (Auth::user()->role === "school_head") {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]) . '#education';
+            return redirect()->to(route('school_personnels.show', ['personnel' => $this->personnel->id]) . '#education');
         } else {
-            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]) . '#education';
+            return redirect()->to(route('personnels.show', ['personnel' => $this->personnel->id]) . '#education');
         }
     }
 
