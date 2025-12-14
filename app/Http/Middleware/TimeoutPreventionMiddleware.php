@@ -84,6 +84,13 @@ class TimeoutPreventionMiddleware
             return;
         }
 
+        // Personnel profile routes - moderate limits
+        if (strpos($path, 'personnels') !== false || strpos($path, 'profile') !== false) {
+            set_time_limit(90); // 1.5 minutes
+            ini_set('memory_limit', '256M');
+            return;
+        }
+
         // Admin dashboard routes - moderate limits
         if (strpos($path, 'admin') !== false) {
             set_time_limit(90); // 1.5 minutes
@@ -92,8 +99,8 @@ class TimeoutPreventionMiddleware
         }
 
         // Default limits for other routes
-        set_time_limit(30); // 30 seconds
-        ini_set('memory_limit', '128M'); // 128MB
+        set_time_limit(60); // 1 minute (increased from 30 seconds)
+        ini_set('memory_limit', '256M'); // 256MB (increased from 128MB)
     }
 
     /**

@@ -1,4 +1,4 @@
-{{-- <section>
+﻿{{-- <section>
     <div class="mb-5 flex justify-between">
         <h4 class="font-bold text-2xl text-gray-darkest">{{ $personnel ? 'Edit' : 'New' }} Personal Information</h4>
 <div class="w-[16.666667%]">
@@ -194,7 +194,7 @@
         <div>
             <div class="mt-2 mb-4 p-0 flex space-x-5">
                 <span class="w-3/12">
-                    <x-input type="text" class="form-control" id="first_name" label="First Name" wire:model="first_name"
+                    <x-input type="text" class="form-control" id="first_name" label="First Name" wire:model.live="first_name"
                         required />
                     <p class="text-xs text-gray-500 mt-1">Enter your legal first name as shown in government documents</p>
                     @error('first_name')
@@ -204,7 +204,7 @@
                 </span>
                 <span class="w-2/12">
                     <x-input type="text" class="form-control" id="middle_name" label="Middle Name"
-                        wire:model="middle_name" wire:model.live="middle_name" required />
+                        wire:model.live="middle_name" required />
                     <p class="text-xs text-gray-500 mt-1">Enter your complete middle name</p>
                     @error('middle_name')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -212,7 +212,7 @@
                     <div wire:loading wire:target="middle_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-3/12">
-                    <x-input type="text" class="form-control" id="last_name" label="Last Name" wire:model="last_name"
+                    <x-input type="text" class="form-control" id="last_name" label="Last Name" wire:model.live="last_name"
                         required />
                     <p class="text-xs text-gray-500 mt-1">Enter your family name/last name</p>
                     @error('last_name')
@@ -222,7 +222,7 @@
                 </span>
                 <span class="w-2/12">
                     <x-input type="text" class="form-control" id="name_ext" label="Name Extension"
-                        wire:model="name_ext" wire:model.live="name_ext" required />
+                        wire:model.live="name_ext" required />
                     <p class="text-xs text-gray-500 mt-1">e.g., Jr., Sr., III (if applicable)</p>
                     @error('name_ext')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -230,7 +230,7 @@
                     <div wire:loading wire:target="name_ext" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-2/12">
-                    <x-native-select wire:model="sex" wire:model.live="sex" class="form-control" label="Sex">
+                    <x-native-select wire:model.live="sex" class="form-control" label="Sex">
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                     </x-native-select>
@@ -262,7 +262,7 @@
                 </span>
                 <span class="w-3/12">
                     <x-input type="text" class="form-control" id="citizenship" label="Citizenship"
-                        wire:model="citizenship" wire:model.live="citizenship" required />
+                        wire:model.live="citizenship" required />
                     <p class="text-xs text-gray-500 mt-1">e.g., Filipino, American, etc.</p>
                     @error('citizenship')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -270,7 +270,7 @@
                     <div wire:loading wire:target="citizenship" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-2/12">
-                    <x-native-select wire:model="civil_status" wire:model.live="civil_status" class="form-control" label="Civil Status">
+                    <x-native-select wire:model.live="civil_status" class="form-control" label="Civil Status">
                         <option value="single">Single</option>
                         <option value="married">Married</option>
                         <option value="seperated">Seperated</option>
@@ -285,7 +285,7 @@
                     <div wire:loading wire:target="civil_status" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-2/12">
-                    <x-native-select wire:model="blood_type" wire:model.live="blood_type" class="form-control" label="Blood Type">
+                    <x-native-select wire:model.live="blood_type" class="form-control" label="Blood Type">
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
                         <option value="B+">B+</option>
@@ -305,7 +305,7 @@
             <div class="m-0 mb-4 p-0 flex space-x-6">
                 <span class="w-1/12">
                     <x-input type="number" class="form-control" id="height" label="Height" suffix="m"
-                        wire:model="height" wire:model.live="height" required />
+                        wire:model.live="height" required />
                     <p class="text-xs text-gray-500 mt-1">In meters (e.g., 1.65)</p>
                     @error('height')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -314,7 +314,7 @@
                 </span>
                 <span class="w-1/12">
                     <x-input type="number" class="form-control" id="weight" label="Weight" suffix="kg"
-                        wire:model="weight" wire:model.live="weight" required />
+                        wire:model.live="weight" required />
                     <p class="text-xs text-gray-500 mt-1">In kilograms</p>
                     @error('weight')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -327,8 +327,7 @@
             <h5 class="font-bold text-xl text-gray-darkest">Government Information</h5>
             <div class="mt-2 pt-3 mb-4 p-0 flex space-x-5">
                 <span class="w-1/4">
-                    <x-input type="number" class="form-control" id="tin" label="TIN" wire:model="tin"
-                        wire:model.live="tin" required />
+                    <x-input type="number" class="form-control" id="tin" label="TIN" wire:model.live="tin" required />
                     <p class="text-xs text-gray-500 mt-1">Tax Identification Number (8-12 digits)</p>
                     @error('tin')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -336,8 +335,7 @@
                     <div wire:loading wire:target="tin" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/4">
-                    <x-input type="number" class="form-control" id="sss_num" label="SSS No." wire:model="sss_num"
-                        wire:model.live="sss_num" required />
+                    <x-input type="number" class="form-control" id="sss_num" label="SSS No." wire:model.live="sss_num" required />
                     <p class="text-xs text-gray-500 mt-1">Social Security System Number (10 digits)</p>
                     @error('sss_num')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -346,7 +344,7 @@
                 </span>
                 <span class="w-1/4">
                     <x-input type="number" class="form-control" id="gsis_num" label="GSIS No."
-                        wire:model="gsis_num" wire:model.live="gsis_num" required />
+                        wire:model.live="gsis_num" required />
                     <p class="text-xs text-gray-500 mt-1">Government Service Insurance System</p>
                     @error('gsis_num')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -357,7 +355,7 @@
             <div class="mt-2 pt-3 mb-4 p-0 flex space-x-5">
                 <span class="w-1/4">
                     <x-input type="number" class="form-control" id="philhealth_num" label="PHILHEALTH NO."
-                        wire:model="philhealth_num" wire:model.live="philhealth_num" required />
+                        wire:model.live="philhealth_num" required />
                     <p class="text-xs text-gray-500 mt-1">PhilHealth Insurance Number (11+ digits)</p>
                     @error('philhealth_num')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -366,7 +364,7 @@
                 </span>
                 <span class="w-1/4">
                     <x-input type="number" class="form-control" id="pagibig_num" label="PAG-IBIG No"
-                        wire:model="pagibig_num" wire:model.live="pagibig_num" required />
+                        wire:model.live="pagibig_num" required />
                     <p class="text-xs text-gray-500 mt-1">Home Development Mutual Fund Number</p>
                     @error('pagibig_num')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -374,7 +372,7 @@
                     <div wire:loading wire:target="pagibig_num" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-3/12">
-                    <x-input type="text" class="form-control" id="pantilla_of_personnel" label="Pantilla of Personnel" wire:model="pantilla_of_personnel" wire:model.live="pantilla_of_personnel" name="pantilla_of_personnel" />
+                    <x-input type="text" class="form-control" id="pantilla_of_personnel" label="Pantilla of Personnel" wire:model.live="pantilla_of_personnel" name="pantilla_of_personnel" />
                     <p class="text-xs text-gray-500 mt-1">Payroll reference number</p>
                     @error('pantilla_of_personnel')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -398,7 +396,7 @@
             </div>
             <div class="mt-2 mb-4 p-0 flex space-x-3 items-center">
                 <span class="w-2/12">
-                    <x-input type="number" class="form-control" id="personnel_id" label="Personnel ID" wire:model="personnel_id" wire:model.live="personnel_id" required />
+                    <x-input type="number" class="form-control" id="personnel_id" label="Personnel ID" wire:model.live="personnel_id" required />
                     <p class="text-xs text-gray-500 mt-1">Unique employee identification number</p>
                     @error('personnel_id')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -420,7 +418,7 @@
                     </div>
                 </span>
                 <span class="w-2/12">
-                    <x-native-select label="Job Status" wire:model="job_status" wire:model.live="job_status" id="job_status" name="job_status" class="form-control">
+                    <x-native-select label="Job Status" wire:model.live="job_status" id="job_status" name="job_status" class="form-control">
                         @php
                         $teachingClassifications = ['teaching', 'teaching-related'];
                         $position = null;
@@ -447,7 +445,7 @@
                     <div wire:loading wire:target="job_status" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-2/12">
-                    <x-native-select label="Select Category" wire:model="category" wire:model.live="category" id="category" name="category" class="form-control">
+                    <x-native-select label="Select Category" wire:model.live="category" id="category" name="category" class="form-control">
                         @foreach (["SDO Personnel", "School Head", "Elementary School Teacher", "Junior High School Teacher", "Senior High School Teacher", "School Non-teaching Personnel"] as $category)
                         <option value="{{ $category }}">{{ $category }}</option>
                         @endforeach
@@ -473,7 +471,7 @@
                     </div>
                 </span>
                 <span class="w-2/12">
-                    <x-input type="text" class="form-control" id="fund_source" label="Fund Source" wire:model="fund_source" wire:model.live="fund_source" name="fund_source" required />
+                    <x-input type="text" class="form-control" id="fund_source" label="Fund Source" wire:model.live="fund_source" name="fund_source" required />
                     <p class="text-xs text-gray-500 mt-1">Source of funds (e.g., General Fund, SEF)</p>
                     @error('fund_source')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -481,7 +479,7 @@
                     <div wire:loading wire:target="fund_source" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-2/12">
-                    <x-native-select label="Nature of Appointment" wire:model="appointment" wire:model.live="appointment" name="appointment" class="form-control">
+                    <x-native-select label="Nature of Appointment" wire:model.live="appointment" name="appointment" class="form-control">
                         @foreach (["regular", "part-time", "temporary", "contract"] as $appointment)
                         <option value="{{ $appointment }}" classification="capitalize">{{ ucfirst($appointment) }}</option>
                         @endforeach
@@ -493,7 +491,7 @@
                     <div wire:loading wire:target="appointment" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/12">
-                    <x-native-select label="Step Increment" wire:model="step_increment" wire:model.live="step_increment" id="step" name="step">
+                    <x-native-select label="Step Increment" wire:model.live="step_increment" id="step" name="step">
                         <option value="">None</option>
                         @foreach (["1", "2", "3", "4", "5", "6", "7", "8"] as $step_increment)
                         <option value="{{ $step_increment }}">{{ $step_increment }}</option>
@@ -506,7 +504,7 @@
                     <div wire:loading wire:target="step_increment" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-1/12">
-                    <x-native-select label="Salary Grade" wire:model="salary_grade_id" wire:model.live="salary_grade_id" id="salary_grade" name="salary_grade">
+                    <x-native-select label="Salary Grade" wire:model.live="salary_grade_id" id="salary_grade" name="salary_grade">
                         @foreach (["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32"] as $grade)
                         <option value="{{ $grade }}">{{ $grade }}</option>
                         @endforeach
@@ -546,7 +544,7 @@
                     </div>
                 </span>
                 <span class="w-2/12">
-                    <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model="leave_of_absence_without_pay_count" wire:model.live="leave_of_absence_without_pay_count" min="0" required />
+                    <x-input type="number" class="form-control" id="leave_of_absence_without_pay_count" name="leave_of_absence_without_pay_count" label="LOA w/o pay" wire:model.live="leave_of_absence_without_pay_count" min="0" required />
                     <p class="text-xs text-gray-500 mt-1">Number of leave days without pay</p>
                     @error('leave_of_absence_without_pay_count')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -588,7 +586,7 @@
             <div class="mt-2 mb-4 p-0 flex space-x-5">
                 <span class="w-3/12">
                     <x-input type="email" class="form-control" id="email" name="email" label="Email"
-                        wire:model="email" wire:model.live="email" required />
+                        wire:model.live="email" required />
                     <p class="text-xs text-gray-500 mt-1">Professional email address</p>
                     @error('email')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -597,7 +595,7 @@
                 </span>
                 <span class="w-2/12">
                     <x-input type="text" class="form-control" id="tel_no" name="tel_no"
-                        label="Telephone No." wire:model="tel_no" wire:model.live="tel_no" required />
+                        label="Telephone No." wire:model.live="tel_no" required />
                     <p class="text-xs text-gray-500 mt-1">Landline number (with area code)</p>
                     @error('tel_no')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -606,7 +604,7 @@
                 </span>
                 <span class="w-2/12">
                     <x-input type="number" class="form-control" id="mobile_no" label="Mobile No."
-                        wire:model="mobile_no" wire:model.live="mobile_no" name="mobile_no" required />
+                        wire:model.live="mobile_no" name="mobile_no" required />
                     <p class="text-xs text-gray-500 mt-1">Mobile phone number</p>
                     @error('mobile_no')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -827,12 +825,12 @@
                             <div class="bg-amber-50 border border-amber-200 rounded p-3 mb-3">
                                 <p class="text-sm text-amber-800">
                                     <strong>Common reasons:</strong><br>
-                                    • Promotion<br>
-                                    • Transfer<br>
-                                    • Retirement<br>
-                                    • Resignation<br>
-                                    • End of Contract<br>
-                                    • Reassignment
+                                    â€¢ Promotion<br>
+                                    â€¢ Transfer<br>
+                                    â€¢ Retirement<br>
+                                    â€¢ Resignation<br>
+                                    â€¢ End of Contract<br>
+                                    â€¢ Reassignment
                                 </p>
                             </div>
                         </div>
@@ -858,3 +856,4 @@
         });
     </script>
 </section>
+

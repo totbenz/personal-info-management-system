@@ -1,4 +1,4 @@
-<div class="mx-5 my-8 p-3">
+﻿<div class="mx-5 my-8 p-3">
     <div class="flex justify-between">
         <div class="w-1/4 inline-flex space-x-4">
             @include('personnel.modal.create-modal')
@@ -170,3 +170,4 @@
         {{ $personnels->links() }}
     </div>
 </div>
+

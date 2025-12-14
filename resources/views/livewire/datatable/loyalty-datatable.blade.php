@@ -1,4 +1,4 @@
-<!-- This code is intended to dashboard Loyalty Award Receipts -->
+﻿<!-- This code is intended to dashboard Loyalty Award Receipts -->
 <div class="mx-5 my-8 p-3">
     <!-- Success Message -->
     @if (session()->has('success'))
@@ -384,17 +384,17 @@
                                     // Determine what award they can claim next
                                     if ($claimedCount == 0) {
                                     $eligibilityText = '10 Years Award Available';
-                                    $amountText = '₱10,000';
+                                    $amountText = 'â‚±10,000';
                                     } else {
                                     // They've claimed the 10-year award, check for next milestone
                                     $nextMilestone = 10 + ($claimedCount * 5);
                                     if ($yearsOfService >= $nextMilestone) {
                                     $eligibilityText = $nextMilestone . ' Years Award Available';
-                                    $amountText = '₱5,000';
+                                    $amountText = 'â‚±5,000';
                                     } else {
                                     $isEligible = false;
                                     $eligibilityText = 'Next: ' . $nextMilestone . ' years';
-                                    $amountText = '₱5,000';
+                                    $amountText = 'â‚±5,000';
                                     }
                                     }
                                     } else if ($yearsOfService >= 10 && !$hasUnclaimedAwards) {
@@ -402,7 +402,7 @@
                                     $amountText = 'Complete';
                                     } else {
                                     $eligibilityText = 'Next: 10 years';
-                                    $amountText = '₱10,000';
+                                    $amountText = 'â‚±10,000';
                                     }
                                     @endphp
 
@@ -461,9 +461,9 @@
                                 <div class="text-center space-y-1">
                                     <div class="font-semibold text-sm claims-count">{{ $claimedCount }} / {{ $maxClaims }}</div>
                                     @if($claimedAmount > 0)
-                                    <div class="text-xs text-green-600 font-medium claims-amount">₱{{ number_format($claimedAmount) }}</div>
+                                    <div class="text-xs text-green-600 font-medium claims-amount">â‚±{{ number_format($claimedAmount) }}</div>
                                     @else
-                                    <div class="text-xs text-gray-400 claims-amount">₱0</div>
+                                    <div class="text-xs text-gray-400 claims-amount">â‚±0</div>
                                     @endif
                                 </div>
                             </td>
@@ -527,3 +527,4 @@
         }
     });
 </script>
+

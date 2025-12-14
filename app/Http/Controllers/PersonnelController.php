@@ -47,13 +47,47 @@ class PersonnelController extends Controller
 
     public function show($id)
     {
-        $personnel = Personnel::findOrFail($id);
+        $personnel = Personnel::with([
+            'position',
+            'school',
+            'salaryGrade',
+            'education',
+            'familyBackground',
+            'trainings',
+            'experiences',
+            'voluntaryWorks',
+            'organizations',
+            'skills',
+            'recognition',
+            'communityInvolvement',
+            'references',
+            'children',
+            'parents',
+            'spouse'
+        ])->findOrFail($id);
         return view('personnel.show', compact('personnel'));
     }
 
     public function profile()
     {
-        $personnel = Personnel::findOrFail(Auth::user()->personnel->id);
+        $personnel = Personnel::with([
+            'position',
+            'school',
+            'salaryGrade',
+            'education',
+            'familyBackground',
+            'trainings',
+            'experiences',
+            'voluntaryWorks',
+            'organizations',
+            'skills',
+            'recognition',
+            'communityInvolvement',
+            'references',
+            'children',
+            'parents',
+            'spouse'
+        ])->findOrFail(Auth::user()->personnel->id);
         return view('personnel.show', compact('personnel'));
     }
 

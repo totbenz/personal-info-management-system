@@ -1,4 +1,4 @@
-<div x-data="educationFormValidation()" x-init="init()">
+﻿<div x-data="educationFormValidation()" x-init="init()">
     {{-- Banner for success/error messages --}}
     @if (session()->has('flash.banner'))
     <div class="mb-4 px-4 py-2 rounded text-white {{ session('flash.bannerStyle') === 'success' ? 'bg-green-600' : 'bg-red-600' }}"
@@ -92,7 +92,7 @@
                 <div wire:loading wire:target="elementary_school_name" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-1/4">
-                <x-input id="elementary_degree_course" type="text" label="Basic Education/Degree/ Course" name="elementary_degree_course" wire:model="elementary_degree_course" wire:model.live="elementary_degree_course" />
+                <x-input id="elementary_degree_course" type="text" label="Basic Education/Degree/ Course" name="elementary_degree_course" wire:model.live="elementary_degree_course" />
                 <p class="text-xs text-gray-500 mt-1">Elementary education level</p>
                 @error('elementary_degree_course')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -138,7 +138,7 @@
                 </div>
             </span>
             <span class="w-4/12">
-                <x-input id="elementary_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="elementary_highest_level_units" wire:model="elementary_highest_level_units" wire:model.live="elementary_highest_level_units" />
+                <x-input id="elementary_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="elementary_highest_level_units" wire:model.live="elementary_highest_level_units" />
                 <p class="text-xs text-gray-500 mt-1">If not graduated, highest level achieved</p>
                 @error('elementary_highest_level_units')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -164,7 +164,7 @@
                 <div wire:loading wire:target="elementary_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-4/12">
-                <x-input id="elementary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="elementary_scholarship_honors" wire:model="elementary_scholarship_honors" wire:model.live="elementary_scholarship_honors" />
+                <x-input id="elementary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="elementary_scholarship_honors" wire:model.live="elementary_scholarship_honors" />
                 <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
                 @error('elementary_scholarship_honors')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -196,7 +196,7 @@
                 <div wire:loading wire:target="secondary_school_name" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-1/4">
-                <x-input id="secondary_degree_course" type="text" label="Basic Education/Degree/ Course" name="secondary_degree_course" wire:model="secondary_degree_course" wire:model.live="secondary_degree_course" />
+                <x-input id="secondary_degree_course" type="text" label="Basic Education/Degree/ Course" name="secondary_degree_course" wire:model.live="secondary_degree_course" />
                 <p class="text-xs text-gray-500 mt-1">High school education level</p>
                 @error('secondary_degree_course')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -242,7 +242,7 @@
                 </div>
             </span>
             <span class="w-4/12">
-                <x-input id="secondary_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="secondary_highest_level_units" wire:model="secondary_highest_level_units" wire:model.live="secondary_highest_level_units" />
+                <x-input id="secondary_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="secondary_highest_level_units" wire:model.live="secondary_highest_level_units" />
                 <p class="text-xs text-gray-500 mt-1">If not graduated, highest level achieved</p>
                 @error('secondary_highest_level_units')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -268,7 +268,7 @@
                 <div wire:loading wire:target="secondary_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-4/12">
-                <x-input id="secondary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="secondary_scholarship_honors" wire:model="secondary_scholarship_honors" wire:model.live="secondary_scholarship_honors" />
+                <x-input id="secondary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="secondary_scholarship_honors" wire:model.live="secondary_scholarship_honors" />
                 <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
                 @error('secondary_scholarship_honors')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -287,7 +287,7 @@
         <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">Vocational/Trade Course</h4>
         <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
             <span class="w-3/4">
-                <x-input id="vocational_school_name" type="text" label="School Name" name="vocational_school_name" wire:model="vocational_school_name" wire:model.live="vocational_school_name" />
+                <x-input id="vocational_school_name" type="text" label="School Name" name="vocational_school_name" wire:model.live="vocational_school_name" />
                 <p class="text-xs text-gray-500 mt-1">Enter vocational/trade school name (optional)</p>
                 @error('vocational_school_name')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -300,7 +300,7 @@
                 <div wire:loading wire:target="vocational_school_name" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-1/4">
-                <x-input id="vocational_degree_course" type="text" label="Basic Education/Degree/ Course" name="vocational_degree_course" wire:model="vocational_degree_course" wire:model.live="vocational_degree_course" />
+                <x-input id="vocational_degree_course" type="text" label="Basic Education/Degree/ Course" name="vocational_degree_course" wire:model.live="vocational_degree_course" />
                 <p class="text-xs text-gray-500 mt-1">Vocational course or trade</p>
                 @error('vocational_degree_course')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -318,7 +318,7 @@
                 <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance</label>
                 <div class="flex space-x-2">
                     <div class="w-1/2">
-                        <x-input id="vocational_period_from" type="number" name="vocational_period_from" placeholder="From" wire:model="vocational_period_from" wire:model.live="vocational_period_from" />
+                        <x-input id="vocational_period_from" type="number" name="vocational_period_from" placeholder="From" wire:model.live="vocational_period_from" />
                         <p class="text-xs text-gray-500 mt-1">Start year</p>
                         @error('vocational_period_from')
                         <span class="text-red-600 text-xs flex items-center mt-1">
@@ -331,7 +331,7 @@
                         <div wire:loading wire:target="vocational_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </div>
                     <div class="w-1/2">
-                        <x-input id="vocational_period_to" type="number" name="vocational_period_to" placeholder="To" wire:model="vocational_period_to" wire:model.live="vocational_period_to" />
+                        <x-input id="vocational_period_to" type="number" name="vocational_period_to" placeholder="To" wire:model.live="vocational_period_to" />
                         <p class="text-xs text-gray-500 mt-1">End year</p>
                         @error('vocational_period_to')
                         <span class="text-red-600 text-xs flex items-center mt-1">
@@ -346,7 +346,7 @@
                 </div>
             </span>
             <span class="w-4/12">
-                <x-input id="vocational_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="vocational_highest_level_units" wire:model="vocational_highest_level_units" wire:model.live="vocational_highest_level_units" />
+                <x-input id="vocational_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="vocational_highest_level_units" wire:model.live="vocational_highest_level_units" />
                 <p class="text-xs text-gray-500 mt-1">If not graduated, highest level achieved</p>
                 @error('vocational_highest_level_units')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -359,7 +359,7 @@
                 <div wire:loading wire:target="vocational_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-2/12">
-                <x-input id="vocational_year_graduated" type="number" label="Year Graduated" name="vocational_year_graduated" wire:model="vocational_year_graduated" wire:model.live="vocational_year_graduated" />
+                <x-input id="vocational_year_graduated" type="number" label="Year Graduated" name="vocational_year_graduated" wire:model.live="vocational_year_graduated" />
                 <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
                 @error('vocational_year_graduated')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -372,7 +372,7 @@
                 <div wire:loading wire:target="vocational_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-4/12">
-                <x-input id="vocational_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="vocational_scholarship_honors" wire:model="vocational_scholarship_honors" wire:model.live="vocational_scholarship_honors" />
+                <x-input id="vocational_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="vocational_scholarship_honors" wire:model.live="vocational_scholarship_honors" />
                 <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
                 @error('vocational_scholarship_honors')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -391,7 +391,7 @@
         <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">Graduate</h4>
         <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
             <span class="w-3/12">
-                <x-input id="graduate_school_name" type="text" label="School Name" name="graduate_school_name" wire:model="graduate_school_name" wire:model.live="graduate_school_name"/>
+                <x-input id="graduate_school_name" type="text" label="School Name" name="graduate_school_name" wire:model.live="graduate_school_name"/>
                 <p class="text-xs text-gray-500 mt-1">College/university name (optional)</p>
                 @error('graduate_school_name')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -404,7 +404,7 @@
                 <div wire:loading wire:target="graduate_school_name" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-3/12">
-                <x-input id="graduate_degree_course" type="text" label="Basic Education/Degree/ Course" name="graduate_degree_course" wire:model="graduate_degree_course" wire:model.live="graduate_degree_course"/>
+                <x-input id="graduate_degree_course" type="text" label="Basic Education/Degree/ Course" name="graduate_degree_course" wire:model.live="graduate_degree_course"/>
                 <p class="text-xs text-gray-500 mt-1">Bachelor's degree or course</p>
                 @error('graduate_degree_course')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -417,7 +417,7 @@
                 <div wire:loading wire:target="graduate_degree_course" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-3/12">
-                <x-input id="graduate_major" type="text" label="Major" name="graduate_major" wire:model="graduate_major" wire:model.live="graduate_major"/>
+                <x-input id="graduate_major" type="text" label="Major" name="graduate_major" wire:model.live="graduate_major"/>
                 <p class="text-xs text-gray-500 mt-1">Field of specialization (optional)</p>
                 @error('graduate_major')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -430,7 +430,7 @@
                 <div wire:loading wire:target="graduate_major" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-3/12">
-                <x-input id="graduate_minor" type="text" label="Minor" name="graduate_minor" wire:model="graduate_minor" wire:model.live="graduate_minor"/>
+                <x-input id="graduate_minor" type="text" label="Minor" name="graduate_minor" wire:model.live="graduate_minor"/>
                 <p class="text-xs text-gray-500 mt-1">Secondary field of study (optional)</p>
                 @error('graduate_minor')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -448,7 +448,7 @@
                 <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance</label>
                 <div class="flex space-x-2">
                     <div class="w-1/2">
-                        <x-input id="graduate_period_from" type="number" name="graduate_period_from" placeholder="From" wire:model="graduate_period_from" wire:model.live="graduate_period_from"/>
+                        <x-input id="graduate_period_from" type="number" name="graduate_period_from" placeholder="From" wire:model.live="graduate_period_from"/>
                         <p class="text-xs text-gray-500 mt-1">Start year</p>
                         @error('graduate_period_from')
                         <span class="text-red-600 text-xs flex items-center mt-1">
@@ -461,7 +461,7 @@
                         <div wire:loading wire:target="graduate_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </div>
                     <div class="w-1/2">
-                        <x-input id="graduate_period_to" type="number" name="graduate_period_to" placeholder="To" wire:model="graduate_period_to" wire:model.live="graduate_period_to"/>
+                        <x-input id="graduate_period_to" type="number" name="graduate_period_to" placeholder="To" wire:model.live="graduate_period_to"/>
                         <p class="text-xs text-gray-500 mt-1">End year</p>
                         @error('graduate_period_to')
                         <span class="text-red-600 text-xs flex items-center mt-1">
@@ -476,7 +476,7 @@
                 </div>
             </span>
             <span class="w-4/12">
-                <x-input id="graduate_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="graduate_highest_level_units" wire:model="graduate_highest_level_units" wire:model.live="graduate_highest_level_units" />
+                <x-input id="graduate_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="graduate_highest_level_units" wire:model.live="graduate_highest_level_units" />
                 <p class="text-xs text-gray-500 mt-1">If not graduated, highest level achieved</p>
                 @error('graduate_highest_level_units')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -489,7 +489,7 @@
                 <div wire:loading wire:target="graduate_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-2/12">
-                <x-input id="graduate_year_graduated" type="number" label="Year Graduated" name="graduate_year_graduated" wire:model="graduate_year_graduated" wire:model.live="graduate_year_graduated" />
+                <x-input id="graduate_year_graduated" type="number" label="Year Graduated" name="graduate_year_graduated" wire:model.live="graduate_year_graduated" />
                 <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
                 @error('graduate_year_graduated')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -502,7 +502,7 @@
                 <div wire:loading wire:target="graduate_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-4/12">
-                <x-input id="graduate_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_scholarship_honors" wire:model="graduate_scholarship_honors" wire:model.live="graduate_scholarship_honors"/>
+                <x-input id="graduate_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_scholarship_honors" wire:model.live="graduate_scholarship_honors"/>
                 <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
                 @error('graduate_scholarship_honors')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -521,7 +521,7 @@
         <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">Graduate Studies</h4>
         <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
             <span class="w-3/4">
-                <x-input id="graduate_studies_school_name" type="text" label="School Name" name="graduate_studies_school_name" wire:model="graduate_studies_school_name" wire:model.live="graduate_studies_school_name"/>
+                <x-input id="graduate_studies_school_name" type="text" label="School Name" name="graduate_studies_school_name" wire:model.live="graduate_studies_school_name"/>
                 <p class="text-xs text-gray-500 mt-1">University for graduate studies (optional)</p>
                 @error('graduate_studies_school_name')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -534,7 +534,7 @@
                 <div wire:loading wire:target="graduate_studies_school_name" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-1/4">
-                <x-input id="graduate_studies_degree_course" type="text" label="Basic Education/Degree/ Course" name="graduate_studies_degree_course" wire:model="graduate_studies_degree_course" wire:model.live="graduate_studies_degree_course"/>
+                <x-input id="graduate_studies_degree_course" type="text" label="Basic Education/Degree/ Course" name="graduate_studies_degree_course" wire:model.live="graduate_studies_degree_course"/>
                 <p class="text-xs text-gray-500 mt-1">Master's/Doctorate degree</p>
                 @error('graduate_studies_degree_course')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -549,7 +549,7 @@
         </div>
         <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
             <span class="w-3/12">
-                <x-input id="graduate_studies_major" type="text" label="Major" name="graduate_studies_major" wire:model="graduate_studies_major" wire:model.live="graduate_studies_major"/>
+                <x-input id="graduate_studies_major" type="text" label="Major" name="graduate_studies_major" wire:model.live="graduate_studies_major"/>
                 <p class="text-xs text-gray-500 mt-1">Field of specialization (optional)</p>
                 @error('graduate_studies_major')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -562,7 +562,7 @@
                 <div wire:loading wire:target="graduate_studies_major" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-3/12">
-                <x-input id="graduate_studies_minor" type="text" label="Minor" name="graduate_studies_minor" wire:model="graduate_studies_minor" wire:model.live="graduate_studies_minor"/>
+                <x-input id="graduate_studies_minor" type="text" label="Minor" name="graduate_studies_minor" wire:model.live="graduate_studies_minor"/>
                 <p class="text-xs text-gray-500 mt-1">Secondary field of study (optional)</p>
                 @error('graduate_studies_minor')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -578,7 +578,7 @@
                 <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance</label>
                 <div class="flex space-x-2">
                     <div class="w-1/2">
-                        <x-input id="graduate_studies_period_from" type="number" name="graduate_studies_period_from" placeholder="From" wire:model="graduate_studies_period_from" wire:model.live="graduate_studies_period_from"/>
+                        <x-input id="graduate_studies_period_from" type="number" name="graduate_studies_period_from" placeholder="From" wire:model.live="graduate_studies_period_from"/>
                         <p class="text-xs text-gray-500 mt-1">Start year</p>
                         @error('graduate_studies_period_from')
                         <span class="text-red-600 text-xs flex items-center mt-1">
@@ -591,7 +591,7 @@
                         <div wire:loading wire:target="graduate_studies_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </div>
                     <div class="w-1/2">
-                        <x-input id="graduate_studies_period_to" type="number" name="graduate_studies_period_to" placeholder="To" wire:model="graduate_studies_period_to" wire:model.live="graduate_studies_period_to"/>
+                        <x-input id="graduate_studies_period_to" type="number" name="graduate_studies_period_to" placeholder="To" wire:model.live="graduate_studies_period_to"/>
                         <p class="text-xs text-gray-500 mt-1">End year</p>
                         @error('graduate_studies_period_to')
                         <span class="text-red-600 text-xs flex items-center mt-1">
@@ -608,7 +608,7 @@
         </div>
         <div class="m-0 mb-4 p-0 flex items-center space-x-3 justify-between">
             <span class="w-4/12">
-                <x-input id="graduate_studies_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="graduate_studies_highest_level_units" wire:model="graduate_studies_highest_level_units" wire:model.live="graduate_studies_highest_level_units"/>
+                <x-input id="graduate_studies_highest_level_units" type="text" label="Highest Level/Units Earned(If Not Graduated)" name="graduate_studies_highest_level_units" wire:model.live="graduate_studies_highest_level_units"/>
                 <p class="text-xs text-gray-500 mt-1">If not graduated, highest level achieved</p>
                 @error('graduate_studies_highest_level_units')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -621,7 +621,7 @@
                 <div wire:loading wire:target="graduate_studies_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-2/12">
-                <x-input id="graduate_studies_year_graduated" type="number" label="Year Graduated" name="graduate_studies_year_graduated" wire:model="graduate_studies_year_graduated" wire:model.live="graduate_studies_year_graduated" />
+                <x-input id="graduate_studies_year_graduated" type="number" label="Year Graduated" name="graduate_studies_year_graduated" wire:model.live="graduate_studies_year_graduated" />
                 <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
                 @error('graduate_studies_year_graduated')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -634,7 +634,7 @@
                 <div wire:loading wire:target="graduate_studies_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
             </span>
             <span class="w-4/12">
-                <x-input id="graduate_studies_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_studies_scholarship_honors" wire:model="graduate_studies_scholarship_honors" wire:model.live="graduate_studies_scholarship_honors"/>
+                <x-input id="graduate_studies_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_studies_scholarship_honors" wire:model.live="graduate_studies_scholarship_honors"/>
                 <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
                 @error('graduate_studies_scholarship_honors')
                 <span class="text-red-600 text-xs flex items-center mt-1">
@@ -746,3 +746,4 @@ function educationFormValidation() {
     }
 }
 </script>
+

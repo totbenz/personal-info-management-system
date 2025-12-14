@@ -1,4 +1,4 @@
-<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg">
+﻿<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg">
     <div class="flex justify-between items-center mb-6">
         <!-- Buttons -->
         <div class="flex space-x-4">
@@ -193,3 +193,4 @@
         {{ $personnels->links() }}
     </div>
 </div>
+

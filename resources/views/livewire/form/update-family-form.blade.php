@@ -1,4 +1,4 @@
-<section x-data="familyFormValidation()" x-init="init()">
+﻿<section x-data="familyFormValidation()" x-init="init()">
     {{-- Form Instructions --}}
     <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div class="flex items-start">
@@ -96,7 +96,7 @@
                     <label for="fathers_name_ext" class="block text-sm font-medium text-gray-700 mb-1">
                         Father's Name Extension
                     </label>
-                    <input id="fathers_name_ext" wire:model="fathers_name_ext" wire:model.live="fathers_name_ext" type="text" name="fathers_name_ext" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('fathers_name_ext') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}"/>
+                    <input id="fathers_name_ext" wire:model.live="fathers_name_ext" type="text" name="fathers_name_ext" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $errors->has('fathers_name_ext') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}"/>
                     <p class="text-xs text-gray-500 mt-1">e.g., Jr., Sr., III (if applicable)</p>
                     @error('fathers_name_ext')
                     <span class="text-red-600 text-xs flex items-center mt-1">
@@ -166,7 +166,7 @@
             <section>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-1/4">
-                        <x-input id="spouse_first_name" wire:model="spouse_first_name" wire:model.live="spouse_first_name" label="First Name" type="text" name="spouse_first_name" />
+                        <x-input id="spouse_first_name" wire:model.live="spouse_first_name" label="First Name" type="text" name="spouse_first_name" />
                         <p class="text-xs text-gray-500 mt-1">First name of spouse (if applicable)</p>
                         @error('spouse_first_name')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -174,7 +174,7 @@
                         <div wire:loading wire:target="spouse_first_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="spouse_middle_name" wire:model="spouse_middle_name" wire:model.live="spouse_middle_name" label="Middle Name" type="text" name="spouse_middle_name" />
+                        <x-input id="spouse_middle_name" wire:model.live="spouse_middle_name" label="Middle Name" type="text" name="spouse_middle_name" />
                         <p class="text-xs text-gray-500 mt-1">Middle name or initial</p>
                         @error('spouse_middle_name')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -182,7 +182,7 @@
                         <div wire:loading wire:target="spouse_middle_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="spouse_last_name" wire:model="spouse_last_name" wire:model.live="spouse_last_name" label="Last Name" type="text" name="spouse_last_name" />
+                        <x-input id="spouse_last_name" wire:model.live="spouse_last_name" label="Last Name" type="text" name="spouse_last_name" />
                         <p class="text-xs text-gray-500 mt-1">Family name/last name</p>
                         @error('spouse_last_name')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -190,7 +190,7 @@
                         <div wire:loading wire:target="spouse_last_name" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="spouse_name_ext" wire:model="spouse_name_ext" wire:model.live="spouse_name_ext" label="Name Extension" type="text" name="spouse_name_ext" />
+                        <x-input id="spouse_name_ext" wire:model.live="spouse_name_ext" label="Name Extension" type="text" name="spouse_name_ext" />
                         <p class="text-xs text-gray-500 mt-1">e.g., Jr., Sr., III (if applicable)</p>
                         @error('spouse_name_ext')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -200,7 +200,7 @@
                 </div>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-1/2">
-                        <x-input id="spouse_occupation" wire:model="spouse_occupation" wire:model.live="spouse_occupation" label="Occupation" type="text" name="spouse_occupation" />
+                        <x-input id="spouse_occupation" wire:model.live="spouse_occupation" label="Occupation" type="text" name="spouse_occupation" />
                         <p class="text-xs text-gray-500 mt-1">Current job or profession</p>
                         @error('spouse_occupation')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -208,7 +208,7 @@
                         <div wire:loading wire:target="spouse_occupation" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/2">
-                        <x-input id="spouse_business_name" wire:model="spouse_business_name" wire:model.live="spouse_business_name" label="Employer/Business Name" type="text" name="spouse_business_name" />
+                        <x-input id="spouse_business_name" wire:model.live="spouse_business_name" label="Employer/Business Name" type="text" name="spouse_business_name" />
                         <p class="text-xs text-gray-500 mt-1">Company name or business name</p>
                         @error('spouse_business_name')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -218,7 +218,7 @@
                 </div>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-1/2">
-                        <x-input id="spouse_business_address" wire:model="spouse_business_address" wire:model.live="spouse_business_address" label="Business Address" type="text" name="spouse_business_address" />
+                        <x-input id="spouse_business_address" wire:model.live="spouse_business_address" label="Business Address" type="text" name="spouse_business_address" />
                         <p class="text-xs text-gray-500 mt-1">Work or business address</p>
                         @error('spouse_business_address')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -226,7 +226,7 @@
                         <div wire:loading wire:target="spouse_business_address" class="text-xs text-blue-600 mt-1">Validating...</div>
                     </span>
                     <span class="w-1/2">
-                        <x-input id="spouse_tel_no" wire:model="spouse_tel_no" wire:model.live="spouse_tel_no" label="Telephone No." type="text" name="spouse_tel_no" />
+                        <x-input id="spouse_tel_no" wire:model.live="spouse_tel_no" label="Telephone No." type="text" name="spouse_tel_no" />
                         <p class="text-xs text-gray-500 mt-1">Contact telephone number</p>
                         @error('spouse_tel_no')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -423,3 +423,4 @@ function familyFormValidation() {
     }
 }
 </script>
+

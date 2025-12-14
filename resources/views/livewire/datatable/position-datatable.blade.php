@@ -1,4 +1,4 @@
-<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg" x-data="{
+﻿<div class="mx-5 my-8 p-3 bg-white rounded-xl shadow-lg" x-data="{
     init() {
         window.addEventListener('show-success-alert', e => {
             let msg = (e.detail && typeof e.detail.message !== 'undefined') ? e.detail.message : 'Success!';
@@ -240,3 +240,4 @@
         </div>
     </x-modal>
 </div>
+

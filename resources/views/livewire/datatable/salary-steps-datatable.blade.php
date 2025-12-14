@@ -1,4 +1,4 @@
-<div class="mx-5 my-8 p-3">
+﻿<div class="mx-5 my-8 p-3">
     <!-- Header Section -->
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
         <div class="flex items-center mb-4">
@@ -184,3 +184,4 @@
     </div>
     @endif
 </div>
+

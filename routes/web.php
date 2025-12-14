@@ -340,8 +340,8 @@ Route::get('/debug/check-admin-users', function () {
 })->name('debug.check-admin-users');
 
 // Recovery route - accessible without authentication with timeout prevention
-Route::get('/recovery', [\App\Http\Controllers\RecoveryController::class, 'index'])->name('recovery.index')->middleware('timeout.prevention');
-Route::post('/recovery/restore', [\App\Http\Controllers\RecoveryController::class, 'restore'])->name('recovery.restore')->middleware('timeout.prevention');
+Route::get('/recovery', [\App\Http\Controllers\RecoveryController::class, 'index'])->name('recovery.index');
+Route::post('/recovery/restore', [\App\Http\Controllers\RecoveryController::class, 'restore'])->name('recovery.restore');
 
 Route::middleware('guest')->group(function () {
     Route::controller('App\\Http\\Controllers\\Auth\\LoginController'::class)->group(function () {
@@ -400,7 +400,7 @@ Route::middleware(['auth'])->group(function () {
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
     Route::middleware(['user-access:non_teaching'])->group(function () {
         Route::get('/non-teaching-dashboard', [HomeController::class, 'nonTeachingDashboard'])->name('non_teaching.dashboard');
-        Route::get('/profile', [PersonnelController::class, 'profile'])->middleware('timeout.prevention')->name('personnel.profile2');
+        Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile2');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
         Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
 
