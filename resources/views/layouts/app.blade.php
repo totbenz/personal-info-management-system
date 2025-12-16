@@ -31,7 +31,7 @@
 
 <body class="font-sans antialiased bg-slate-100 text-black">
     <div class="max-h-screen">
-        @livewire('navigation-menu')
+        @livewire('improved-navigation')
         <x-banner />
         <div class="pt-12">
             <!-- Page Heading -->

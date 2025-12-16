@@ -7,9 +7,8 @@
     </x-slot>
 
     <div class="max-w-8xl mx-auto sm:px-6 sm:py-3 lg:px-8">
-        <div class="mx-auto px-8 py-5 w-[69rem] bg-white shadow-md overflow-hidden sm:rounded-lg">
-            @livewire('form.update-personal-information-form', ['storeMode' => true])
+        <div class="mx-auto px-8 py-5 w-full bg-white shadow-md overflow-hidden sm:rounded-lg">
+            @livewire('personnel-create')
         </div>
-
     </div>
 </x-app-layout>
