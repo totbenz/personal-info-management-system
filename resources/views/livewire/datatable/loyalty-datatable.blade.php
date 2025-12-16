@@ -85,7 +85,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
-                            <span class="font-semibold tracking-wide text-xs">10-Year Awards ({{ $eligible10Year }})</span>
+                            <span class="font-semibold tracking-wide text-xs">10-Year Awards</span>
                         </button>
                     </a>
                     @endif
@@ -384,17 +384,17 @@
                                     // Determine what award they can claim next
                                     if ($claimedCount == 0) {
                                     $eligibilityText = '10 Years Award Available';
-                                    $amountText = 'â‚±10,000';
+                                    $amountText = '₱10,000';
                                     } else {
                                     // They've claimed the 10-year award, check for next milestone
                                     $nextMilestone = 10 + ($claimedCount * 5);
                                     if ($yearsOfService >= $nextMilestone) {
                                     $eligibilityText = $nextMilestone . ' Years Award Available';
-                                    $amountText = 'â‚±5,000';
+                                    $amountText = '₱5,000';
                                     } else {
                                     $isEligible = false;
                                     $eligibilityText = 'Next: ' . $nextMilestone . ' years';
-                                    $amountText = 'â‚±5,000';
+                                    $amountText = '₱5,000';
                                     }
                                     }
                                     } else if ($yearsOfService >= 10 && !$hasUnclaimedAwards) {
@@ -402,7 +402,7 @@
                                     $amountText = 'Complete';
                                     } else {
                                     $eligibilityText = 'Next: 10 years';
-                                    $amountText = 'â‚±10,000';
+                                    $amountText = '₱10,000';
                                     }
                                     @endphp
 
@@ -461,9 +461,9 @@
                                 <div class="text-center space-y-1">
                                     <div class="font-semibold text-sm claims-count">{{ $claimedCount }} / {{ $maxClaims }}</div>
                                     @if($claimedAmount > 0)
-                                    <div class="text-xs text-green-600 font-medium claims-amount">â‚±{{ number_format($claimedAmount) }}</div>
+                                    <div class="text-xs text-green-600 font-medium claims-amount">₱{{ number_format($claimedAmount) }}</div>
                                     @else
-                                    <div class="text-xs text-gray-400 claims-amount">â‚±0</div>
+                                    <div class="text-xs text-gray-400 claims-amount">₱0</div>
                                     @endif
                                 </div>
                             </td>
