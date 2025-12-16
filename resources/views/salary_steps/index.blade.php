@@ -28,7 +28,7 @@
 
     <div class="py-0 max-w-8xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-            @livewire('datatable.salary-steps-datatable')
+            @livewire('salary-steps-management')
         </div>
     </div>
 </x-app-layout>
