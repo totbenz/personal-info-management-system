@@ -715,40 +715,12 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($leave->status === 'approved')
-                                        <div class="relative inline-block text-left" x-data="{ open: false }">
-                                            <button @click="open = !open" type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
-                                                </svg>
-                                                <span class="ml-1">Download</span>
-                                                <svg class="ml-1 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-
-                                            <div x-show="open"
-                                                 x-transition:enter="transition ease-out duration-100"
-                                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                                 x-transition:leave="transition ease-in duration-75"
-                                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                                 @click.away="open = false"
-                                                 class="origin-top-right absolute right-0 mt-2 w-72 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-[9999]">
-                                                <div class="py-1">
-                                                    <a href="{{ route('leave-application.download', ['leaveRequestId' => $leave->id, 'signatureChoice' => 'assistant']) }}"
-                                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        <span class="font-medium">Assistant SDS</span>
-                                                        <p class="text-xs text-gray-500">For Assistant School Division Superintendent</p>
-                                                    </a>
-                                                    <a href="{{ route('leave-application.download', ['leaveRequestId' => $leave->id, 'signatureChoice' => 'schools']) }}"
-                                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        <span class="font-medium">Schools SDS</span>
-                                                        <p class="text-xs text-gray-500">For Schools Division Superintendent</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <button onclick="openDownloadModal({{ $leave->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                            </svg>
+                                            <span class="ml-1">Download</span>
+                                        </button>
                                         @else
                                         <span class="text-xs text-gray-400">N/A</span>
                                         @endif
@@ -980,390 +952,386 @@
         <!-- JavaScript for Leave Section Toggle Feature -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                        // Pass leave balances to JavaScript
-                        const leaveBalances = @json($leaveBalances);
+                // Show SweetAlert notifications for session messages
+                @if(session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: '{{ session('success') }}',
+                        timer: 3000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                @endif
 
-                        // Leave request modal elements
-                        var leaveRequestBtn = document.getElementById('leaveRequestBtn');
-                        var leaveRequestModal = document.getElementById('leaveRequestModal');
-                        var closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
-                        var leaveTypeSelect = document.getElementById('leave_type');
-                        var startDateInput = document.getElementById('start_date');
-                        var endDateInput = document.getElementById('end_date');
-                        var submitBtn = document.getElementById('submitBtn');
-                        var dateWarning = document.getElementById('date_warning');
-                        var daysInfo = document.getElementById('days_info');
-                        var totalDaysSpan = document.getElementById('total_days');
-                        var leaveTypeWarning = document.getElementById('leave_type_warning');
+                @if(session('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: '{{ session('error') }}',
+                        timer: 3000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                @endif
 
-                        // Minimize functionality for leaves section
-                        var leavesHeaderToggle = document.getElementById('leavesHeaderToggle');
-                        var leavesToggleIcon = document.getElementById('leavesToggleIcon');
-                        var leavesContent = document.getElementById('leavesContent');
-                        var isLeavesMinimized = localStorage.getItem('teacherLeavesMinimized') === 'true';
+                // Pass leave balances to JavaScript
+                const leaveBalances = @json($leaveBalances);
 
-                        // Minimize functionality for leave history section
-                        var historyHeaderToggle = document.getElementById('historyHeaderToggle');
-                        var historyToggleIcon = document.getElementById('historyToggleIcon');
-                        var leaveHistoryContent = document.getElementById('leaveHistoryContent');
-                        var isHistoryMinimized = localStorage.getItem('teacherLeaveHistoryMinimized') === 'true';
+                // Leave request modal elements
+                var leaveRequestBtn = document.getElementById('leaveRequestBtn');
+                var leaveRequestModal = document.getElementById('leaveRequestModal');
+                var closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
+                var leaveTypeSelect = document.getElementById('leave_type');
+                var startDateInput = document.getElementById('start_date');
+                var endDateInput = document.getElementById('end_date');
+                var submitBtn = document.getElementById('submitBtn');
+                var dateWarning = document.getElementById('date_warning');
+                var daysInfo = document.getElementById('days_info');
+                var totalDaysSpan = document.getElementById('total_days');
+                var leaveTypeWarning = document.getElementById('leave_type_warning');
 
-                        // Minimize functionality for service credit history section
-                        var serviceCreditHistoryHeaderToggle = document.getElementById('serviceCreditHistoryHeaderToggle');
-                        var serviceCreditHistoryToggleIcon = document.getElementById('serviceCreditHistoryToggleIcon');
-                        var serviceCreditHistoryContent = document.getElementById('serviceCreditHistoryContent');
-                        var isServiceCreditHistoryMinimized = localStorage.getItem('teacherServiceCreditHistoryMinimized') === 'true';
+                // Minimize functionality for leaves section
+                var leavesHeaderToggle = document.getElementById('leavesHeaderToggle');
+                var leavesToggleIcon = document.getElementById('leavesToggleIcon');
+                var leavesContent = document.getElementById('leavesContent');
+                var isLeavesMinimized = localStorage.getItem('teacherLeavesMinimized') === 'true';
 
-                        // Set initial state for leaves section based on localStorage
+                // Set initial state for leaves section based on localStorage
+                if (isLeavesMinimized) {
+                    leavesContent.style.height = '0';
+                    leavesContent.style.overflow = 'hidden';
+                    leavesContent.style.opacity = '0';
+                    leavesToggleIcon.style.transform = 'rotate(-90deg)';
+                }
+
+                // Leaves section toggle
+                if (leavesHeaderToggle && leavesContent) {
+                    leavesHeaderToggle.addEventListener('click', function() {
                         if (isLeavesMinimized) {
+                            // Expand
+                            leavesContent.style.height = 'auto';
+                            leavesContent.style.overflow = 'visible';
+                            leavesContent.style.opacity = '1';
+                            leavesToggleIcon.style.transform = 'rotate(0deg)';
+                            localStorage.setItem('teacherLeavesMinimized', 'false');
+                        } else {
+                            // Minimize
                             leavesContent.style.height = '0';
                             leavesContent.style.overflow = 'hidden';
                             leavesContent.style.opacity = '0';
                             leavesToggleIcon.style.transform = 'rotate(-90deg)';
+                            localStorage.setItem('teacherLeavesMinimized', 'true');
+                        }
+                        isLeavesMinimized = !isLeavesMinimized;
+                    });
+                }
+
+                // Modal controls
+                if (leaveRequestBtn && leaveRequestModal && closeLeaveRequestModal) {
+                    leaveRequestBtn.addEventListener('click', function() {
+                        leaveRequestModal.classList.remove('hidden');
+                        leaveRequestModal.classList.add('flex');
+                    });
+
+                    closeLeaveRequestModal.addEventListener('click', function() {
+                        leaveRequestModal.classList.add('hidden');
+                        leaveRequestModal.classList.remove('flex');
+                    });
+
+                    // Close modal when clicking outside
+                    leaveRequestModal.addEventListener('click', function(e) {
+                        if (e.target === leaveRequestModal) {
+                            leaveRequestModal.classList.add('hidden');
+                            leaveRequestModal.classList.remove('flex');
+                        }
+                    });
+                }
+
+                // Date calculation function
+                function calculateDays() {
+                    if (!startDateInput || !endDateInput || !startDateInput.value || !endDateInput.value) {
+                        if (daysInfo) daysInfo.classList.add('hidden');
+                        return 0;
+                    }
+
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
+
+                    if (endDate < startDate) {
+                        if (daysInfo) daysInfo.classList.add('hidden');
+                        return 0;
+                    }
+
+                    const timeDiff = endDate.getTime() - startDate.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+
+                    if (totalDaysSpan) totalDaysSpan.textContent = daysDiff;
+                    if (daysInfo) daysInfo.classList.remove('hidden');
+
+                    return daysDiff;
+                }
+
+                // Validation function
+                function validateLeaveRequest() {
+                    const selectedLeaveType = leaveTypeSelect ? leaveTypeSelect.value : '';
+                    const totalDays = calculateDays();
+                    const availableDays = leaveBalances[selectedLeaveType] || 0;
+
+                    // Reset warnings
+                    if (dateWarning) dateWarning.classList.add('hidden');
+                    if (leaveTypeWarning) leaveTypeWarning.classList.add('hidden');
+
+                    let isValid = true;
+
+                    // For teachers, be more lenient with validation
+                    // Only block if Solo Parent Leave is selected but user is not solo parent
+                    if (selectedLeaveType === 'Solo Parent Leave' && availableDays === 0) {
+                        if (leaveTypeWarning) {
+                            leaveTypeWarning.classList.remove('hidden');
+                            leaveTypeWarning.innerHTML = 'You are not eligible for Solo Parent Leave.';
+                        }
+                        isValid = false;
+                    }
+
+                    // Check specific limits for limited leave types
+                    if (selectedLeaveType && totalDays > 0) {
+                        let maxAllowed = null;
+                        if (selectedLeaveType === 'Solo Parent Leave' && availableDays > 0) {
+                            maxAllowed = 7;
+                        } else if (selectedLeaveType === 'Maternity Leave') {
+                            maxAllowed = typeof availableDays === 'number' ? availableDays : null;
+                        } else if (selectedLeaveType === 'Rehabilitation Leave' || selectedLeaveType === 'Study Leave') {
+                            maxAllowed = 180;
                         }
 
-                        // Set initial state for history section based on localStorage
-                        if (isHistoryMinimized && leaveHistoryContent) {
-                            leaveHistoryContent.style.height = '0';
-                            leaveHistoryContent.style.overflow = 'hidden';
-                            leaveHistoryContent.style.opacity = '0';
-                            historyToggleIcon.style.transform = 'rotate(-90deg)';
-                        }
-
-                        // Set initial state for service credit history section based on localStorage
-                        if (isServiceCreditHistoryMinimized && serviceCreditHistoryContent) {
-                            serviceCreditHistoryContent.style.height = '0';
-                            serviceCreditHistoryContent.style.overflow = 'hidden';
-                            serviceCreditHistoryContent.style.opacity = '0';
-                            serviceCreditHistoryToggleIcon.style.transform = 'rotate(-90deg)';
-                        }
-
-                        // Leaves section toggle
-                        if (leavesHeaderToggle && leavesContent) {
-                            leavesHeaderToggle.addEventListener('click', function() {
-                                if (isLeavesMinimized) {
-                                    // Expand
-                                    leavesContent.style.height = 'auto';
-                                    leavesContent.style.overflow = 'visible';
-                                    leavesContent.style.opacity = '1';
-                                    leavesToggleIcon.style.transform = 'rotate(0deg)';
-                                    localStorage.setItem('teacherLeavesMinimized', 'false');
-                                } else {
-                                    // Minimize
-                                    leavesContent.style.height = '0';
-                                    leavesContent.style.overflow = 'hidden';
-                                    leavesContent.style.opacity = '0';
-                                    leavesToggleIcon.style.transform = 'rotate(-90deg)';
-                                    localStorage.setItem('teacherLeavesMinimized', 'true');
-                                }
-                                isLeavesMinimized = !isLeavesMinimized;
-                            });
-                        }
-
-                        // History section toggle
-                        if (historyHeaderToggle && leaveHistoryContent) {
-                            historyHeaderToggle.addEventListener('click', function() {
-                                if (isHistoryMinimized) {
-                                    // Expand
-                                    leaveHistoryContent.style.height = 'auto';
-                                    leaveHistoryContent.style.overflow = 'visible';
-                                    leaveHistoryContent.style.opacity = '1';
-                                    historyToggleIcon.style.transform = 'rotate(0deg)';
-                                    localStorage.setItem('teacherLeaveHistoryMinimized', 'false');
-                                } else {
-                                    // Minimize
-                                    leaveHistoryContent.style.height = '0';
-                                    leaveHistoryContent.style.overflow = 'hidden';
-                                    leaveHistoryContent.style.opacity = '0';
-                                    historyToggleIcon.style.transform = 'rotate(-90deg)';
-                                    localStorage.setItem('teacherLeaveHistoryMinimized', 'true');
-                                }
-                                isHistoryMinimized = !isHistoryMinimized;
-                            });
-                        }
-
-                        // Service Credit History section toggle
-                        if (serviceCreditHistoryHeaderToggle && serviceCreditHistoryContent) {
-                            serviceCreditHistoryHeaderToggle.addEventListener('click', function() {
-                                if (isServiceCreditHistoryMinimized) {
-                                    // Expand
-                                    serviceCreditHistoryContent.style.height = 'auto';
-                                    serviceCreditHistoryContent.style.overflow = 'visible';
-                                    serviceCreditHistoryContent.style.opacity = '1';
-                                    serviceCreditHistoryToggleIcon.style.transform = 'rotate(0deg)';
-                                    localStorage.setItem('teacherServiceCreditHistoryMinimized', 'false');
-                                } else {
-                                    // Minimize
-                                    serviceCreditHistoryContent.style.height = '0';
-                                    serviceCreditHistoryContent.style.overflow = 'hidden';
-                                    serviceCreditHistoryContent.style.opacity = '0';
-                                    serviceCreditHistoryToggleIcon.style.transform = 'rotate(-90deg)';
-                                    localStorage.setItem('teacherServiceCreditHistoryMinimized', 'true');
-                                }
-                                isServiceCreditHistoryMinimized = !isServiceCreditHistoryMinimized;
-                            });
-                        }
-
-                        // Modal controls
-                        if (leaveRequestBtn && leaveRequestModal && closeLeaveRequestModal) {
-                            leaveRequestBtn.addEventListener('click', function() {
-                                leaveRequestModal.classList.remove('hidden');
-                                leaveRequestModal.classList.add('flex');
-                            });
-
-                            closeLeaveRequestModal.addEventListener('click', function() {
-                                leaveRequestModal.classList.add('hidden');
-                                leaveRequestModal.classList.remove('flex');
-                            });
-
-                            // Close modal when clicking outside
-                            leaveRequestModal.addEventListener('click', function(e) {
-                                if (e.target === leaveRequestModal) {
-                                    leaveRequestModal.classList.add('hidden');
-                                    leaveRequestModal.classList.remove('flex');
-                                }
-                            });
-                        }
-
-                        // Auto-open modal if there are validation errors
-                        // (Blade logic moved outside script)
-
-                        // Date calculation function
-                        function calculateDays() {
-                            if (!startDateInput || !endDateInput || !startDateInput.value || !endDateInput.value) {
-                                if (daysInfo) daysInfo.classList.add('hidden');
-                                return 0;
+                        if (maxAllowed && totalDays > maxAllowed) {
+                            if (dateWarning) {
+                                dateWarning.classList.remove('hidden');
+                                dateWarning.innerHTML = `The selected dates (${totalDays} days) exceed the maximum allowed for ${selectedLeaveType} (${maxAllowed} days).`;
                             }
+                            isValid = false;
+                        }
+                    }
 
-                            const startDate = new Date(startDateInput.value);
-                            const endDate = new Date(endDateInput.value);
+                    // Enable/disable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = !selectedLeaveType || totalDays === 0;
+                    }
 
-                            if (endDate < startDate) {
-                                if (daysInfo) daysInfo.classList.add('hidden');
-                                return 0;
+                    return isValid;
+                }
+
+                // Event listeners for validation
+                if (leaveTypeSelect) {
+                    leaveTypeSelect.addEventListener('change', validateLeaveRequest);
+                }
+
+                if (startDateInput) {
+                    startDateInput.addEventListener('change', validateLeaveRequest);
+                }
+
+                if (endDateInput) {
+                    endDateInput.addEventListener('change', validateLeaveRequest);
+                }
+
+                // Form submissions are handled normally by Laravel
+                // SweetAlert notifications will show based on session messages on page reload
+
+                // Close modals with Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        [leaveRequestModal, document.getElementById('serviceCreditRequestModal'), document.getElementById('addLeaveModal')].forEach(modal => {
+                            if (modal && !modal.classList.contains('hidden')) {
+                                modal.classList.add('hidden');
+                                modal.classList.remove('flex');
                             }
-
-                            const timeDiff = endDate.getTime() - startDate.getTime();
-                            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
-
-                            if (totalDaysSpan) totalDaysSpan.textContent = daysDiff;
-                            if (daysInfo) daysInfo.classList.remove('hidden');
-
-                            return daysDiff;
-                        }
-
-                        // Validation function
-                        function validateLeaveRequest() {
-                            const selectedLeaveType = leaveTypeSelect ? leaveTypeSelect.value : '';
-                            const totalDays = calculateDays();
-                            const availableDays = leaveBalances[selectedLeaveType] || 0;
-
-                            // Reset warnings
-                            if (dateWarning) dateWarning.classList.add('hidden');
-                            if (leaveTypeWarning) leaveTypeWarning.classList.add('hidden');
-
-                            let isValid = true;
-
-                            // For teachers, be more lenient with validation
-                            // Only block if Solo Parent Leave is selected but user is not solo parent
-                            if (selectedLeaveType === 'Solo Parent Leave' && availableDays === 0) {
-                                if (leaveTypeWarning) {
-                                    leaveTypeWarning.classList.remove('hidden');
-                                    leaveTypeWarning.innerHTML = 'You are not eligible for Solo Parent Leave.';
-                                }
-                                isValid = false;
-                            }
-
-                            // Check specific limits for limited leave types
-                            if (selectedLeaveType && totalDays > 0) {
-                                let maxAllowed = null;
-                                if (selectedLeaveType === 'Solo Parent Leave' && availableDays > 0) {
-                                    maxAllowed = 7;
-                                } else if (selectedLeaveType === 'Maternity Leave') {
-                                    maxAllowed = typeof availableDays === 'number' ? availableDays : null;
-                                } else if (selectedLeaveType === 'Rehabilitation Leave' || selectedLeaveType === 'Study Leave') {
-                                    maxAllowed = 180;
-                                }
-
-                                if (maxAllowed && totalDays > maxAllowed) {
-                                    if (dateWarning) {
-                                        dateWarning.classList.remove('hidden');
-                                        dateWarning.innerHTML = `The selected dates (${totalDays} days) exceed the maximum allowed for ${selectedLeaveType} (${maxAllowed} days).`;
-                                    }
-                                    isValid = false;
-                                }
-                            }
-
-                            // Enable/disable submit button
-                            if (submitBtn) {
-                                submitBtn.disabled = !selectedLeaveType || totalDays === 0;
-                            }
-
-                            return isValid;
-                        }
-
-                        // Event listeners for validation
-                        if (leaveTypeSelect) {
-                            leaveTypeSelect.addEventListener('change', validateLeaveRequest);
-                        }
-
-                        if (startDateInput) {
-                            startDateInput.addEventListener('change', validateLeaveRequest);
-                        }
-
-                        if (endDateInput) {
-                            endDateInput.addEventListener('change', validateLeaveRequest);
-                        }
-
-                        // Form submission validation
-                        const form = document.querySelector('#leaveRequestModal form');
-                        if (form) {
-                            form.addEventListener('submit', function(e) {
-                                // Allow form submission for teachers - server-side validation will handle any issues
-                                console.log('Form submitted for teacher role');
-                            });
-                        }
-
-                        // Add Leave Modal functionality
-                        var addLeaveModal = document.getElementById('addLeaveModal');
-                        var closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
-                        var addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
-                        var addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
-                        var addLeaveType = document.getElementById('addLeaveType');
-                        var currentBalance = document.getElementById('currentBalance');
-                        var daysToAdd = document.getElementById('days_to_add');
-                        var addLeavePreview = document.getElementById('addLeavePreview');
-                        var previewCurrent = document.getElementById('previewCurrent');
-                        var previewAdding = document.getElementById('previewAdding');
-                        var previewNew = document.getElementById('previewNew');
-
-                        // Add event listeners for add leave buttons
-                        addLeaveBtns.forEach(function(btn) {
-                            btn.addEventListener('click', function() {
-                                var leaveType = this.getAttribute('data-leave-type');
-                                var currentAvailable = this.getAttribute('data-current-available');
-
-                                // Set modal content
-                                addLeaveModalTitle.textContent = leaveType;
-                                addLeaveType.value = leaveType;
-                                currentBalance.textContent = currentAvailable;
-                                previewCurrent.textContent = currentAvailable;
-
-                                // Show modal
-                                addLeaveModal.classList.remove('hidden');
-                                addLeaveModal.classList.add('flex');
-                            });
                         });
+                    }
+                });
 
-                        // Close add leave modal
-                        if (closeAddLeaveModal) {
-                            closeAddLeaveModal.addEventListener('click', function() {
-                                addLeaveModal.classList.add('hidden');
-                                addLeaveModal.classList.remove('flex');
-                            });
+                // Add Leave Modal functionality
+                var addLeaveModal = document.getElementById('addLeaveModal');
+                var closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
+                var addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
+                var addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
+                var addLeaveType = document.getElementById('addLeaveType');
+                var currentBalance = document.getElementById('currentBalance');
+                var daysToAdd = document.getElementById('days_to_add');
+                var addLeavePreview = document.getElementById('addLeavePreview');
+                var previewCurrent = document.getElementById('previewCurrent');
+                var previewAdding = document.getElementById('previewAdding');
+                var previewNew = document.getElementById('previewNew');
+
+                // Add event listeners for add leave buttons
+                addLeaveBtns.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var leaveType = this.getAttribute('data-leave-type');
+                        var currentAvailable = this.getAttribute('data-current-available');
+
+                        // Set modal content
+                        addLeaveModalTitle.textContent = leaveType;
+                        addLeaveType.value = leaveType;
+                        currentBalance.textContent = currentAvailable;
+                        previewCurrent.textContent = currentAvailable;
+
+                        // Show modal
+                        addLeaveModal.classList.remove('hidden');
+                        addLeaveModal.classList.add('flex');
+                    });
+                });
+
+                // Close add leave modal
+                if (closeAddLeaveModal) {
+                    closeAddLeaveModal.addEventListener('click', function() {
+                        addLeaveModal.classList.add('hidden');
+                        addLeaveModal.classList.remove('flex');
+                    });
+                }
+
+                // Close modal when clicking outside
+                if (addLeaveModal) {
+                    addLeaveModal.addEventListener('click', function(e) {
+                        if (e.target === addLeaveModal) {
+                            addLeaveModal.classList.add('hidden');
+                            addLeaveModal.classList.remove('flex');
                         }
+                    });
+                }
 
-                        // Close modal when clicking outside
-                        if (addLeaveModal) {
-                            addLeaveModal.addEventListener('click', function(e) {
-                                if (e.target === addLeaveModal) {
-                                    addLeaveModal.classList.add('hidden');
-                                    addLeaveModal.classList.remove('flex');
-                                }
-                            });
+                // Preview calculation for add leave
+                if (daysToAdd) {
+                    daysToAdd.addEventListener('input', function() {
+                        var adding = parseInt(this.value) || 0;
+                        var current = parseInt(previewCurrent.textContent) || 0;
+                        var newTotal = current + adding;
+
+                        previewAdding.textContent = adding;
+                        previewNew.textContent = newTotal;
+
+                        if (adding > 0) {
+                            addLeavePreview.classList.remove('hidden');
+                        } else {
+                            addLeavePreview.classList.add('hidden');
                         }
+                    });
+                }
 
-                        // Preview calculation for add leave
-                        if (daysToAdd) {
-                            daysToAdd.addEventListener('input', function() {
-                                var adding = parseInt(this.value) || 0;
-                                var current = parseInt(previewCurrent.textContent) || 0;
-                                var newTotal = current + adding;
+                // Service Credit Modal logic & auto-calculation
+                (function() {
+                    const scBtn = document.getElementById('serviceCreditRequestBtn');
+                    const scModal = document.getElementById('serviceCreditRequestModal');
+                    const scClose = document.getElementById('closeServiceCreditRequestModal');
+                    const form = document.getElementById('serviceCreditForm');
+                    const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
+                    const hoursSpan = document.getElementById('scHours');
+                    const daysSpan = document.getElementById('scDays');
 
-                                previewAdding.textContent = adding;
-                                previewNew.textContent = newTotal;
+                    function parseTime(val) {
+                        if (!val) return null;
+                        const [h, m] = val.split(':').map(Number);
+                        return h * 60 + m;
+                    }
 
-                                if (daysToAdd) {
-                                    daysToAdd.addEventListener('input', function() {
-                                        // ...existing code or logic for preview calculation...
-                                    });
-                                }
+                    function diffHours(start, end) {
+                        if (start === null || end === null) return 0;
+                        const d = (end - start) / 60;
+                        return d > 0 ? d : 0;
+                    }
 
-                                // Auto-open add leave modal if there are add leave validation errors
-                                // (Blade logic moved outside script)
+                    function recompute() {
+                        if (!form) return;
+                        const mi = parseTime(form.morning_in.value);
+                        const mo = parseTime(form.morning_out.value);
+                        const ai = parseTime(form.afternoon_in.value);
+                        const ao = parseTime(form.afternoon_out.value);
+                        let total = diffHours(mi, mo) + diffHours(ai, ao);
+                        // Cap at 16 for safety
+                        if (total > 16) total = 16;
+                        hoursSpan.textContent = total.toFixed(2);
+                        daysSpan.textContent = (total / 8).toFixed(2);
+                    }
+                    timeInputs.forEach(inp => inp.addEventListener('change', recompute));
+                    if (scBtn) {
+                        scBtn.addEventListener('click', () => {
+                            scModal.classList.remove('hidden');
+                            scModal.classList.add('flex');
+                            recompute();
+                        });
+                    }
+                    if (scClose) {
+                        scClose.addEventListener('click', () => {
+                            scModal.classList.add('hidden');
+                            scModal.classList.remove('flex');
+                        });
+                    }
 
+                    // Close modal when clicking outside
+                    if (scModal) {
+                        scModal.addEventListener('click', function(e) {
+                            if (e.target === scModal) {
+                                scModal.classList.add('hidden');
+                                scModal.classList.remove('flex');
+                            }
+                        });
+                    }
+                })();
 
-                                // Service Credit Modal logic & auto-calculation
-                                (function() {
-                                    const scBtn = document.getElementById('serviceCreditRequestBtn');
-                                    const scModal = document.getElementById('serviceCreditRequestModal');
-                                    const scClose = document.getElementById('closeServiceCreditRequestModal');
-                                    const form = document.getElementById('serviceCreditForm');
-                                    const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
-                                    const hoursSpan = document.getElementById('scHours');
-                                    const daysSpan = document.getElementById('scDays');
-
-                                    function parseTime(val) {
-                                        if (!val) return null;
-                                        const [h, m] = val.split(':').map(Number);
-                                        return h * 60 + m;
-                                    }
-
-                                    function diffHours(start, end) {
-                                        if (start === null || end === null) return 0;
-                                        const d = (end - start) / 60;
-                                        return d > 0 ? d : 0;
-                                    }
-
-                                    function recompute() {
-                                        if (!form) return;
-                                        const mi = parseTime(form.morning_in.value);
-                                        const mo = parseTime(form.morning_out.value);
-                                        const ai = parseTime(form.afternoon_in.value);
-                                        const ao = parseTime(form.afternoon_out.value);
-                                        let total = diffHours(mi, mo) + diffHours(ai, ao);
-                                        // Cap at 16 for safety
-                                        if (total > 16) total = 16;
-                                        hoursSpan.textContent = total.toFixed(2);
-                                        daysSpan.textContent = (total / 8).toFixed(2);
-                                    }
-                                    timeInputs.forEach(inp => inp.addEventListener('change', recompute));
-                                    if (scBtn) {
-                                        scBtn.addEventListener('click', () => {
-                                            scModal.classList.remove('hidden');
-                                            scModal.classList.add('flex');
-                                            recompute();
-                                        });
-                                    }
-                                    if (scClose) {
-                                        scClose.addEventListener('click', () => {
-                                            scModal.classList.add('hidden');
-                                            scModal.classList.remove('flex');
-                                        });
-                                    }
-                                })();
-                                var scBtn = document.getElementById('serviceCreditRequestBtn');
-                                var scModal = document.getElementById('serviceCreditRequestModal');
-                                var scClose = document.getElementById('closeServiceCreditRequestModal');
-                                if (scBtn && scModal && scClose) {
-                                    scBtn.addEventListener('click', function() {
-                                        scModal.classList.remove('hidden');
-                                        scModal.classList.add('flex');
-                                    });
-                                    scClose.addEventListener('click', function() {
-                                        scModal.classList.add('hidden');
-                                        scModal.classList.remove('flex');
-                                    });
-                                    scModal.addEventListener('click', function(e) {
-                                        if (e.target === scModal) {
-                                            scModal.classList.add('hidden');
-                                            scModal.classList.remove('flex');
-                                        }
-                                    });
-                                }
-
-                                // Initial validation
-                                validateLeaveRequest();
-                            });
+                // Initial validation
+                validateLeaveRequest();
+            });
         </script>
+
+        <!-- Download Modal -->
+        <div id="downloadModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+                <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Download Leave Application</h3>
+                <p class="text-gray-600 mb-6">Choose the signature type for your leave application:</p>
+                <div class="space-y-3">
+                    <a id="downloadAssistant" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                        Assistant SDS
+                        <p class="text-sm opacity-90">For Assistant School Division Superintendent</p>
+                    </a>
+                    <a id="downloadSchools" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                        Schools SDS
+                        <p class="text-sm opacity-90">For Schools Division Superintendent</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openDownloadModal(leaveId) {
+                const modal = document.getElementById('downloadModal');
+                const assistantLink = document.getElementById('downloadAssistant');
+                const schoolsLink = document.getElementById('downloadSchools');
+
+                assistantLink.href = `/leave-application/download/${leaveId}/assistant`;
+                schoolsLink.href = `/leave-application/download/${leaveId}/schools`;
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeDownloadModal() {
+                const modal = document.getElementById('downloadModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('downloadModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDownloadModal();
+                }
+            });
+        </script>
+
 </x-app-layout>

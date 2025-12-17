@@ -17,8 +17,8 @@
                 <button id="cancelBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
                     Cancel
                 </button>
-                <button id="confirmBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
-                    Confirm
+                <button id="confirmBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+                    Yes
                 </button>
             </div>
         </div>
@@ -31,10 +31,10 @@
 
     function showConfirmModal(action, callback) {
         console.log('showConfirmModal called with action:', action);
-        
+
         const modal = document.getElementById('confirmModal');
         const actionSpan = document.getElementById('confirmAction');
-        
+
         if (!modal || !actionSpan) {
             console.error('Modal elements not found');
             // Fallback to browser confirm
@@ -63,10 +63,10 @@
     function handleConfirmModalConfirm() {
         const modal = document.getElementById('confirmModal');
         modal.classList.add('hidden');
-        
+
         const callback = window.currentConfirmAction;
         window.currentConfirmAction = null;
-        
+
         if (callback && typeof callback === 'function') {
             setTimeout(callback, 50); // Small delay to ensure modal is hidden
         }

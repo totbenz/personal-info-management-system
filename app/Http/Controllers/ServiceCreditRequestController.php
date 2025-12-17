@@ -46,7 +46,7 @@ class ServiceCreditRequestController extends Controller
             ->whereIn('status', ['pending','approved'])
             ->first();
         if ($duplicate) {
-            return back()->withErrors(['work_date' => 'You already have a Service Credit request for this date.']).withInput()->with('sc_modal', true);
+            return back()->withErrors(['work_date' => 'You already have a Service Credit request for this date.'])->withInput()->with('sc_modal', true);
         }
 
         // Collect time segments
@@ -101,7 +101,7 @@ class ServiceCreditRequestController extends Controller
                     'description' => $request->description,
                     'status' => 'pending',
                 ]);
-                
+
                 // Additional debug logging
                 Log::info('Service Credit Request Successfully Created', [
                     'service_credit_id' => $serviceCredit->id,

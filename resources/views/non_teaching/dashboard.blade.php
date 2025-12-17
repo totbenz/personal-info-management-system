@@ -1,4 +1,8 @@
 <x-app-layout>
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <!-- Header -->
     <x-slot name="header">
         <div class="flex items-center space-x-3">
@@ -221,7 +225,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto" x-show="open" x-transition>
+                    <div class="overflow-x-auto overflow-y-visible" x-show="open" x-transition>
                         <table class="min-w-full divide-y divide-green-200 rounded-xl overflow-hidden">
                             <thead class="bg-gradient-to-r from-green-100 to-emerald-100">
                                 <tr>
@@ -255,40 +259,12 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($leave->status === 'approved')
-                                        <div class="relative inline-block text-left" x-data="{ open: false }">
-                                            <button @click="open = !open" type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
-                                                </svg>
-                                                <span class="ml-1">Download</span>
-                                                <svg class="ml-1 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-
-                                            <div x-show="open"
-                                                 x-transition:enter="transition ease-out duration-100"
-                                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                                 x-transition:leave="transition ease-in duration-75"
-                                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                                 @click.away="open = false"
-                                                 class="origin-top-right absolute right-0 mt-2 w-72 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-[9999]">
-                                                <div class="py-1">
-                                                    <a href="{{ route('leave-application.download', ['leaveRequestId' => $leave->id, 'signatureChoice' => 'assistant']) }}"
-                                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        <span class="font-medium">Assistant SDS</span>
-                                                        <p class="text-xs text-gray-500">For Assistant School Division Superintendent</p>
-                                                    </a>
-                                                    <a href="{{ route('leave-application.download', ['leaveRequestId' => $leave->id, 'signatureChoice' => 'schools']) }}"
-                                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        <span class="font-medium">Schools SDS</span>
-                                                        <p class="text-xs text-gray-500">For Schools Division Superintendent</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <button onclick="openDownloadModal({{ $leave->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                            </svg>
+                                            <span class="ml-1">Download</span>
+                                        </button>
                                         @else
                                         <span class="text-xs text-gray-400">N/A</span>
                                         @endif
@@ -327,7 +303,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto" x-show="open" x-transition>
+                    <div class="overflow-x-auto overflow-y-visible" x-show="open" x-transition>
                         <table class="min-w-full divide-y divide-teal-200 rounded-xl overflow-hidden">
                             <thead class="bg-gradient-to-r from-teal-100 to-cyan-100">
                                 <tr>
@@ -584,5 +560,54 @@
             @endif
         </div>
 
+        <!-- Download Modal -->
+        <div id="downloadModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+                <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Download Leave Application</h3>
+                <p class="text-gray-600 mb-6">Choose the signature type for your leave application:</p>
+                <div class="space-y-3">
+                    <a id="downloadAssistant" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                        Assistant SDS
+                        <p class="text-sm opacity-90">For Assistant School Division Superintendent</p>
+                    </a>
+                    <a id="downloadSchools" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                        Schools SDS
+                        <p class="text-sm opacity-90">For Schools Division Superintendent</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openDownloadModal(leaveId) {
+                const modal = document.getElementById('downloadModal');
+                const assistantLink = document.getElementById('downloadAssistant');
+                const schoolsLink = document.getElementById('downloadSchools');
+
+                assistantLink.href = `/leave-application/download/${leaveId}/assistant`;
+                schoolsLink.href = `/leave-application/download/${leaveId}/schools`;
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeDownloadModal() {
+                const modal = document.getElementById('downloadModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('downloadModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDownloadModal();
+                }
+            });
+        </script>
 
 </x-app-layout>

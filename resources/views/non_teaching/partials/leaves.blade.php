@@ -84,8 +84,8 @@
                         <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
                         <div class="flex items-center space-x-2">
                             @if(in_array($leave['type'], ['Vacation Leave', 'Sick Leave']))
-                                <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" 
-                                        data-leave-type="{{ $leave['type'] }}" 
+                                <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
+                                        data-leave-type="{{ $leave['type'] }}"
                                         data-current-available="{{ $leave['available'] }}"
                                         title="Add {{ $leave['type'] }} days">
                                     <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,14 +405,14 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label for="morning_in" class="block text-xs text-gray-500">Time In</label>
-                                    <input type="time" name="morning_in" id="morning_in" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="morning_in" id="morning_in"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('morning_in') }}">
                                 </div>
                                 <div>
                                     <label for="morning_out" class="block text-xs text-gray-500">Time Out</label>
-                                    <input type="time" name="morning_out" id="morning_out" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="morning_out" id="morning_out"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('morning_out') }}">
                                 </div>
                             </div>
@@ -422,14 +422,14 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label for="afternoon_in" class="block text-xs text-gray-500">Time In</label>
-                                    <input type="time" name="afternoon_in" id="afternoon_in" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="afternoon_in" id="afternoon_in"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('afternoon_in') }}">
                                 </div>
                                 <div>
                                     <label for="afternoon_out" class="block text-xs text-gray-500">Time Out</label>
-                                    <input type="time" name="afternoon_out" id="afternoon_out" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="afternoon_out" id="afternoon_out"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('afternoon_out') }}">
                                 </div>
                             </div>
@@ -513,6 +513,43 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Show SweetAlert notifications for session messages
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('cto_success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'CTO Request Submitted!',
+            text: '{{ session('cto_success') }}',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
     const leaveBalances = @json($leaveBalances);
     const btn = document.getElementById('leaveRequestBtn');
     const modal = document.getElementById('leaveRequestModal');
@@ -529,12 +566,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const leavesToggleIcon = document.getElementById('leavesToggleIcon');
     const leavesContent = document.getElementById('leavesContent');
     let isLeavesMinimized = localStorage.getItem('nt_leavesMinimized') === 'true';
+
     if (isLeavesMinimized) {
         leavesContent.style.height = '0';
         leavesContent.style.overflow = 'hidden';
         leavesContent.style.opacity = '0';
         leavesToggleIcon.style.transform = 'rotate(-90deg)';
     }
+
     if (leavesHeaderToggle && leavesContent) {
         leavesHeaderToggle.addEventListener('click', function() {
             if (isLeavesMinimized) {
@@ -553,11 +592,25 @@ document.addEventListener('DOMContentLoaded', function() {
             isLeavesMinimized = !isLeavesMinimized;
         });
     }
+
+    // Leave Request Modal
     if(btn && modal && closeBtn) {
-        btn.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
-        closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
-        modal.addEventListener('click', e => { if (e.target === modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } });
+        btn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+        modal.addEventListener('click', e => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        });
     }
+
     // CTO Modal
     const ctoBtn = document.getElementById('ctoRequestBtn');
     const ctoModal = document.getElementById('ctoRequestModal');
@@ -571,11 +624,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctoHoursDisplay = document.getElementById('cto_hours_display');
     const ctoDaysEarned = document.getElementById('cto_days_earned');
     const ctoSubmitBtn = document.getElementById('cto_submit_btn');
+
     if(ctoBtn && ctoModal && ctoCloseBtn) {
-        ctoBtn.addEventListener('click', () => { ctoModal.classList.remove('hidden'); ctoModal.classList.add('flex'); });
-        ctoCloseBtn.addEventListener('click', () => { ctoModal.classList.add('hidden'); ctoModal.classList.remove('flex'); });
-        ctoModal.addEventListener('click', e => { if (e.target === ctoModal) { ctoModal.classList.add('hidden'); ctoModal.classList.remove('flex'); } });
+        ctoBtn.addEventListener('click', () => {
+            ctoModal.classList.remove('hidden');
+            ctoModal.classList.add('flex');
+        });
+        ctoCloseBtn.addEventListener('click', () => {
+            ctoModal.classList.add('hidden');
+            ctoModal.classList.remove('flex');
+        });
+        ctoModal.addEventListener('click', e => {
+            if (e.target === ctoModal) {
+                ctoModal.classList.add('hidden');
+                ctoModal.classList.remove('flex');
+            }
+        });
     }
+
     function calculateCTOHours() {
         var totalHours = 0;
 
@@ -615,6 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
         validateCTOForm();
         return totalHours;
     }
+
     function validateCTOForm() {
         const workDate = document.getElementById('work_date');
         const reason = document.getElementById('cto_reason');
@@ -623,7 +690,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (ctoSubmitBtn) ctoSubmitBtn.disabled = !isValid;
         return isValid;
     }
-    
+
     // Event listeners for time calculation
     if (ctoMorningIn) ctoMorningIn.addEventListener('change', calculateCTOHours);
     if (ctoMorningOut) ctoMorningOut.addEventListener('change', calculateCTOHours);
@@ -646,46 +713,116 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewCurrent = document.getElementById('previewCurrent');
     const previewAdding = document.getElementById('previewAdding');
     const previewNew = document.getElementById('previewNew');
+
     addLeaveBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const leaveType = this.getAttribute('data-leave-type');
             const currentAvailable = this.getAttribute('data-current-available');
-            addLeaveModalTitle.textContent = leaveType; addLeaveType.value = leaveType; currentBalance.textContent = currentAvailable; previewCurrent.textContent = currentAvailable;
-            addLeaveModal.classList.remove('hidden'); addLeaveModal.classList.add('flex');
+            addLeaveModalTitle.textContent = leaveType;
+            addLeaveType.value = leaveType;
+            currentBalance.textContent = currentAvailable;
+            previewCurrent.textContent = currentAvailable;
+            addLeaveModal.classList.remove('hidden');
+            addLeaveModal.classList.add('flex');
         });
     });
-    if (closeAddLeaveModal) closeAddLeaveModal.addEventListener('click', () => { addLeaveModal.classList.add('hidden'); addLeaveModal.classList.remove('flex'); });
-    if (addLeaveModal) addLeaveModal.addEventListener('click', e => { if (e.target === addLeaveModal) { addLeaveModal.classList.add('hidden'); addLeaveModal.classList.remove('flex'); } });
-    if (daysToAdd) daysToAdd.addEventListener('input', function() { const adding = parseInt(this.value)||0; const current = parseInt(previewCurrent.textContent)||0; const newTotal = current + adding; previewAdding.textContent=adding; previewNew.textContent=newTotal; if(adding>0){ addLeavePreview.classList.remove('hidden'); } else { addLeavePreview.classList.add('hidden'); } });
+
+    if (closeAddLeaveModal) closeAddLeaveModal.addEventListener('click', () => {
+        addLeaveModal.classList.add('hidden');
+        addLeaveModal.classList.remove('flex');
+    });
+    if (addLeaveModal) addLeaveModal.addEventListener('click', e => {
+        if (e.target === addLeaveModal) {
+            addLeaveModal.classList.add('hidden');
+            addLeaveModal.classList.remove('flex');
+        }
+    });
+
+    if (daysToAdd) daysToAdd.addEventListener('input', function() {
+        const adding = parseInt(this.value)||0;
+        const current = parseInt(previewCurrent.textContent)||0;
+        const newTotal = current + adding;
+        previewAdding.textContent=adding;
+        previewNew.textContent=newTotal;
+        if(adding>0){
+            addLeavePreview.classList.remove('hidden');
+        } else {
+            addLeavePreview.classList.add('hidden');
+        }
+    });
 
     function calculateDays() {
-        if (!startDateInput.value || !endDateInput.value) { daysInfo.classList.add('hidden'); return 0; }
-        const startDate = new Date(startDateInput.value); const endDate = new Date(endDateInput.value);
-        if (endDate < startDate) { daysInfo.classList.add('hidden'); return 0; }
-        const daysDiff = Math.ceil((endDate - startDate)/(1000*3600*24)) + 1; totalDaysSpan.textContent = daysDiff; daysInfo.classList.remove('hidden'); return daysDiff;
+        if (!startDateInput.value || !endDateInput.value) {
+            daysInfo.classList.add('hidden');
+            return 0;
+        }
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        if (endDate < startDate) {
+            daysInfo.classList.add('hidden');
+            return 0;
+        }
+        const daysDiff = Math.ceil((endDate - startDate)/(1000*3600*24)) + 1;
+        totalDaysSpan.textContent = daysDiff;
+        daysInfo.classList.remove('hidden');
+        return daysDiff;
     }
+
     function validateLeaveRequest() {
-        const selectedLeaveType = leaveTypeSelect.value; const totalDays = calculateDays(); const availableDays = leaveBalances[selectedLeaveType] || 0;
-        dateWarning.classList.add('hidden'); leaveTypeWarning.classList.add('hidden'); let isValid = true;
-        if (selectedLeaveType && availableDays === 0) { leaveTypeWarning.classList.remove('hidden'); isValid = false; }
-        if (selectedLeaveType && totalDays > 0 && totalDays > availableDays) { dateWarning.classList.remove('hidden'); dateWarning.innerHTML = `The selected dates (${totalDays} days) exceed your available ${selectedLeaveType} days (${availableDays} available).`; isValid = false; }
-        submitBtn.disabled = !isValid || !selectedLeaveType || totalDays === 0; return isValid;
+        const selectedLeaveType = leaveTypeSelect.value;
+        const totalDays = calculateDays();
+        const availableDays = leaveBalances[selectedLeaveType] || 0;
+        dateWarning.classList.add('hidden');
+        leaveTypeWarning.classList.add('hidden');
+        let isValid = true;
+        if (selectedLeaveType && availableDays === 0) {
+            leaveTypeWarning.classList.remove('hidden');
+            isValid = false;
+        }
+        if (selectedLeaveType && totalDays > 0 && totalDays > availableDays) {
+            dateWarning.classList.remove('hidden');
+            dateWarning.innerHTML = `The selected dates (${totalDays} days) exceed your available ${selectedLeaveType} days (${availableDays} available).`;
+            isValid = false;
+        }
+        submitBtn.disabled = !isValid || !selectedLeaveType || totalDays === 0;
+        return isValid;
     }
+
     if (leaveTypeSelect) leaveTypeSelect.addEventListener('change', validateLeaveRequest);
     if (startDateInput) startDateInput.addEventListener('change', validateLeaveRequest);
     if (endDateInput) endDateInput.addEventListener('change', validateLeaveRequest);
-    const form = document.querySelector('#leaveRequestModal form');
-    if (form) form.addEventListener('submit', e => { if (!validateLeaveRequest()) { e.preventDefault(); alert('Please fix the validation errors before submitting.'); } });
-    // Auto-open modals on validation errors (mirroring school head logic)
+
+    // Form submissions are handled normally by Laravel
+    // SweetAlert notifications will show based on session messages on page reload
+
+    // Form submissions are handled normally by Laravel
+    // SweetAlert notifications will show based on session messages on page reload
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            [modal, ctoModal, addLeaveModal].forEach(modal => {
+                if (modal && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+    });
+
+    // Auto-open modals on validation errors
+    @if($errors->any())
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    @endif
+
     @if($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description'))
-        if (ctoModal) { ctoModal.classList.remove('hidden'); ctoModal.classList.add('flex'); }
+        if (ctoModal) {
+            ctoModal.classList.remove('hidden');
+            ctoModal.classList.add('flex');
+        }
     @endif
-    @if($errors->has('days_to_add') || $errors->has('leave_type'))
-        if (addLeaveModal) { addLeaveModal.classList.remove('hidden'); addLeaveModal.classList.add('flex'); }
-    @endif
-    @if($errors->any() && !($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add')))
-        if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-    @endif
-    validateLeaveRequest();
 });
 </script>
