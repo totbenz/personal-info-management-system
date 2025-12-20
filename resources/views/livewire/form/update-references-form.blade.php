@@ -68,7 +68,12 @@
                 @endforeach
                 <div class="mt-3 flex space-x-3 items-center">
                     <div class="w-full">
-                        <x-button wire:click.prevent="addField" label="Add New" class="w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover" />
+                        <x-button wire:click.prevent="addField"
+                            label="Add New"
+                            class="w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:hover:bg-main_hover"
+                            :disabled="{{ count($old_references) + count($new_references) >= 3 }}"
+                            :class="{{ count($old_references) + count($new_references) >= 3 ? 'opacity-50 cursor-not-allowed' : '' }}" />
+                        <p class="text-xs text-gray-500 mt-1">References: {{ count($old_references) + count($new_references) }}/3 (Maximum 3 references allowed)</p>
                     </div>
                 </div>
             </div>

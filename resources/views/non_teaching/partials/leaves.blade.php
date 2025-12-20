@@ -439,7 +439,10 @@
                 </div>
                 <div>
                     <label for="total_hours" class="block text-sm font-medium text-gray-700">Total Hours Worked</label>
-                    <input type="number" name="total_hours" id="total_hours" min="0" max="16" step="0.25" readonly class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="number" name="total_hours" id="total_hours" min="0" max="16" step="0.25"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                           value="{{ old('total_hours') }}" readonly>
+                    <p class="text-xs text-gray-500 mt-1">Provide at least one complete morning or afternoon time in/out pair for accurate hours calculation</p>
                     <div id="cto_hours_info" class="mt-2 p-2 bg-teal-50 border border-teal-200 rounded text-sm text-teal-800 hidden">You will earn <span id="cto_days_earned">0</span> CTO day(s) from <span id="cto_hours_display">0</span> hour(s) of work.</div>
                 </div>
                 <div>
@@ -645,6 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function calculateCTOHours() {
         var totalHours = 0;
 
+        // Always calculate morning and afternoon hours separately
         // Calculate morning hours
         if (ctoMorningIn && ctoMorningOut && ctoMorningIn.value && ctoMorningOut.value) {
             const morningStart = new Date('2000-01-01 ' + ctoMorningIn.value);

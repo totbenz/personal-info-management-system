@@ -298,32 +298,56 @@ class PersonnelDataC1Sheet
         $worksheet = $this->worksheet;
 
         $startRow = 37; // Starting row for children info
-        $endRow = 49; // Ending row for children info
+        $endRow = 48; // Ending row for children info (12 children max)
         $currentRow = $startRow;
 
+        // Clear children cells first
+        for ($row = $startRow; $row <= $endRow; $row++) {
+            $worksheet->setCellValue('I' . $row, '');
+            $worksheet->setCellValue('M' . $row, '');
+        }
+
         // Check if children relationship exists
-        if ($this->personnel->families && $this->personnel->families->where('relationship', 'child')->count() > 0) {
+        if ($this->personnel->children && $this->personnel->children->count() > 0) {
+            Log::info('C1 Sheet - Found ' . $this->personnel->children->count() . ' children');
+
+            foreach ($this->personnel->children as $index => $child) {
+                if ($currentRow > $endRow) break; // Maximum 12 children
+
+                // Format full name as: Last Name, First Name Middle Name
+                $fullName = trim($child->last_name . ', ' . $child->first_name . ' ' . ($child->middle_name ?? ''));
+
+                // Format date of birth if exists
+                $dateOfBirth = $child->date_of_birth ? \Carbon\Carbon::parse($child->date_of_birth)->format('m/d/Y') : '';
+
+                $worksheet->setCellValue('I' . $currentRow, $fullName);
+                $worksheet->setCellValue('M' . $currentRow, $dateOfBirth);
+
+                Log::info("C1 Sheet - Set child {$index} at row {$currentRow}: {$fullName}");
+                $currentRow++;
+            }
+        } elseif ($this->personnel->families && $this->personnel->families->where('relationship', 'child')->count() > 0) {
+            // Fallback to families relationship if children doesn't exist
+            Log::info('C1 Sheet - Using families relationship for children');
             $children = $this->personnel->families->where('relationship', 'child');
 
-            foreach ($children as $child) {
-                if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional Children ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
-                }
+            foreach ($children as $index => $child) {
+                if ($currentRow > $endRow) break;
 
-                // Populate the cell values
-                $worksheet->setCellValue('I' . $currentRow, $child->fullName() ?? 'N/A');
-                $worksheet->setCellValue('M' . $currentRow, $child->date_of_birth ?? 'N/A');
+                // Format full name as: Last Name, First Name Middle Name
+                $fullName = trim($child->last_name . ', ' . $child->first_name . ' ' . ($child->middle_name ?? ''));
+
+                // Format date of birth if exists
+                $dateOfBirth = $child->date_of_birth ? \Carbon\Carbon::parse($child->date_of_birth)->format('m/d/Y') : '';
+
+                $worksheet->setCellValue('I' . $currentRow, $fullName);
+                $worksheet->setCellValue('M' . $currentRow, $dateOfBirth);
+
+                Log::info("C1 Sheet - Set child {$index} at row {$currentRow}: {$fullName}");
                 $currentRow++;
             }
         } else {
+            Log::info('C1 Sheet - No children found');
             $worksheet->setCellValue('I37', 'N/A');
             $worksheet->setCellValue('M37', 'N/A');
         }

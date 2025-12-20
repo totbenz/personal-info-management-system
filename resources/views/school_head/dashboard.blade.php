@@ -161,8 +161,8 @@
 
             <!-- Available Leaves Section (moved up for prominence) -->
             @include('school_head.partials.leaves', [
-                'leaveData' => $leaveData ?? [], 
-                'ctoBalance' => $ctoBalance ?? [], 
+                'leaveData' => $leaveData ?? [],
+                'ctoBalance' => $ctoBalance ?? [],
                 'accrualSummary' => $accrualSummary ?? null,
                 'year' => $year ?? date('Y')
             ])
@@ -190,17 +190,17 @@
                 </div>
                 <div id="leaveHistoryContent" class="space-y-4 transition-all duration-300">
                     @foreach($leaveRequests as $request)
-                    <div class="flex items-center justify-between p-4 bg-gradient-to-r 
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-r
                         @if($request->status === 'pending') from-orange-50 to-orange-100/50
                         @elseif($request->status === 'approved') from-green-50 to-green-100/50
                         @else from-red-50 to-red-100/50 @endif
-                        rounded-xl border 
+                        rounded-xl border
                         @if($request->status === 'pending') border-orange-200/50
                         @elseif($request->status === 'approved') border-green-200/50
                         @else border-red-200/50 @endif
                         hover:shadow-md transition-all duration-200">
                         <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 bg-gradient-to-br 
+                            <div class="w-10 h-10 bg-gradient-to-br
                                 @if($request->status === 'pending') from-orange-500 to-orange-600
                                 @elseif($request->status === 'approved') from-green-500 to-green-600
                                 @else from-red-500 to-red-600 @endif
@@ -222,7 +222,7 @@
                             <div>
                                 <h4 class="text-sm font-semibold text-gray-900">{{ $request->leave_type }}</h4>
                                 <p class="text-xs text-gray-600">
-                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} - 
+                                    {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} -
                                     {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
                                     ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
                                 </p>
@@ -237,6 +237,16 @@
                                 {{ ucfirst($request->status) }}
                             </span>
                             <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
+                            @if($request->status === 'approved')
+                            <button onclick="openDownloadModal({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-orange-600 text-orange-700 text-xs font-semibold rounded-full hover:bg-orange-50 transition mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                </svg>
+                                <span class="ml-1">Download</span>
+                            </button>
+                            @else
+                            <span class="text-xs text-gray-400 mt-2">N/A</span>
+                            @endif
                         </div>
                     </div>
                     @endforeach
@@ -244,90 +254,80 @@
             </div>
             @endif
 
-            <!-- CTO Request History Section -->
-            @if(isset($ctoRequests) && $ctoRequests->count() > 0)
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <div id="ctoHistoryHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
-                        <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+            <!-- CTO Request History Table -->
+            <div x-data="{ open: true }" class="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-teal-200/50 p-8 mb-8 backdrop-blur-sm">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-400/10 to-cyan-400/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-teal-900 mb-2">CTO Request History</h3>
+                            <p class="text-gray-600">Your CTO work submissions and their status</p>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-200">Your CTO Request History</h3>
-                        <svg id="ctoHistoryToggleIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            {{ $ctoRequests->where('status', 'pending')->count() }} Pending
-                        </span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            {{ $ctoRequests->where('status', 'approved')->count() }} Approved
-                        </span>
-                    </div>
-                </div>
-                <div id="ctoHistoryContent" class="space-y-4 transition-all duration-300">
-                    @foreach($ctoRequests as $request)
-                    <div class="flex items-center justify-between p-4 bg-gradient-to-r 
-                        @if($request->status === 'pending') from-orange-50 to-orange-100/50
-                        @elseif($request->status === 'approved') from-green-50 to-green-100/50
-                        @else from-red-50 to-red-100/50 @endif
-                        rounded-xl border 
-                        @if($request->status === 'pending') border-orange-200/50
-                        @elseif($request->status === 'approved') border-green-200/50
-                        @else border-red-200/50 @endif
-                        hover:shadow-md transition-all duration-200">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 bg-gradient-to-br 
-                                @if($request->status === 'pending') from-orange-500 to-orange-600
-                                @elseif($request->status === 'approved') from-green-500 to-green-600
-                                @else from-red-500 to-red-600 @endif
-                                rounded-xl flex items-center justify-center shadow-lg">
-                                @if($request->status === 'pending')
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                @elseif($request->status === 'approved')
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                @else
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                @endif
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900">{{ $request->requested_hours }} Hours CTO Request</h4>
-                                <p class="text-xs text-gray-600">
-                                    Work Date: {{ \Carbon\Carbon::parse($request->work_date)->format('M d, Y') }}
-                                    ({{ \Carbon\Carbon::parse($request->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($request->end_time)->format('g:i A') }})
-                                </p>
-                                <p class="text-xs text-gray-500 mt-1">{{ Str::limit($request->reason, 80) }}</p>
-                                @if($request->status === 'approved')
-                                    <p class="text-xs text-teal-600 font-medium mt-1">CTO Earned: {{ number_format($request->cto_days_earned, 2) }} days</p>
-                                @endif
-                                @if($request->admin_notes)
-                                    <p class="text-xs text-gray-500 mt-1 italic">Admin: {{ Str::limit($request->admin_notes, 60) }}</p>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                @if($request->status === 'pending') bg-orange-100 text-orange-800
-                                @elseif($request->status === 'approved') bg-green-100 text-green-800
-                                @else bg-red-100 text-red-800 @endif">
-                                {{ ucfirst($request->status) }}
-                            </span>
-                            <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
+                        <div class="flex space-x-2">
+                            <button @click="open = false" x-show="open" type="button" class="px-3 py-1 bg-teal-100 text-teal-700 rounded-lg text-xs font-semibold shadow hover:bg-teal-200 transition flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <button @click="open = true" x-show="!open" type="button" class="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-lg text-xs font-semibold shadow hover:bg-cyan-200 transition flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                    @endforeach
+                    <div class="overflow-x-auto overflow-y-visible" x-show="open" x-transition>
+                        <table class="min-w-full divide-y divide-teal-200 rounded-xl overflow-hidden">
+                            <thead class="bg-gradient-to-r from-teal-100 to-cyan-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Date Filed</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Total Hours Worked</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-teal-100">
+                                @forelse(($ctoRequests ?? []) as $request)
+                                <tr class="hover:bg-teal-50 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $request->created_at->format('M d, Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
+                                        @php
+                                        $hours = $request->total_hours ?? $request->requested_hours;
+                                        @endphp
+                                        {{ $hours !== null ? number_format($hours, 2) . ' hrs' : '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold
+                                                @if($request->status === 'approved') bg-green-100 text-green-700
+                                                @elseif($request->status === 'pending') bg-yellow-100 text-yellow-700
+                                                @elseif($request->status === 'denied') bg-red-100 text-red-700
+                                                @else bg-gray-100 text-gray-700 @endif">
+                                            {{ ucfirst($request->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if($request->status === 'approved')
+                                        <a href="{{ route('cto-request.download', ['ctoRequestId' => $request->id]) }}" target="_blank" class="inline-flex items-center px-3 py-1 border border-teal-600 text-teal-700 text-xs font-semibold rounded-full hover:bg-teal-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                            </svg>
+                                            <span class="ml-1">Download</span>
+                                        </a>
+                                        @else
+                                        <span class="text-xs text-gray-400">N/A</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No CTO requests found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            @endif
 
 
 
@@ -661,6 +661,29 @@
         </div>
     </div>
 
+    <!-- Download Modal -->
+        <div id="downloadModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+                <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Download Leave Application</h3>
+                <p class="text-gray-600 mb-6">Choose the signature type for your leave application:</p>
+                <div class="space-y-3">
+                    <a id="downloadAssistant" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                        Assistant SDS
+                        <p class="text-sm opacity-90">For Assistant School Division Superintendent</p>
+                    </a>
+                    <a id="downloadSchools" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                        Schools SDS
+                        <p class="text-sm opacity-90">For Schools Division Superintendent</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
     <!-- JavaScript for Leave History Minimize Feature -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -733,6 +756,32 @@
                     isCtoHistoryMinimized = !isCtoHistoryMinimized;
                 });
             }
+
+            // Download modal function for leave requests
+            window.openDownloadModal = function(leaveRequestId) {
+                const modal = document.getElementById('downloadModal');
+                const assistantLink = document.getElementById('downloadAssistant');
+                const schoolsLink = document.getElementById('downloadSchools');
+
+                assistantLink.href = `/leave-application/download/${leaveRequestId}/assistant`;
+                schoolsLink.href = `/leave-application/download/${leaveRequestId}/schools`;
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+
+            window.closeDownloadModal = function() {
+                const modal = document.getElementById('downloadModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            // Close modal when clicking outside
+            document.getElementById('downloadModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDownloadModal();
+                }
+            });
         });
     </script>
 </x-app-layout>

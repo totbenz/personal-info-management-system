@@ -181,14 +181,6 @@
                         </a>
                     </div>
 
-                    <div class="w-[14.5rem]" :class="{'w-[14.5rem] z-10 bg-white': formNav === 'assignment_details'}">
-                        <a href="#assignment_details" @click.prevent="formNav = 'assignment_details'">
-                            <div class="px-8 py-2 w-[13.1rem]" :class="{'border-l-2 border-y-2 border-gray-300': formNav === 'assignment_details'}">
-                                <span class="text-sm font-medium">Assignment Details</span>
-                            </div>
-                        </a>
-                    </div>
-
                     {{-- <div class="w-[14.5rem]" :class="{'w-[14.5rem] z-10 bg-white': formNav === 'service_record'}">
                     <a href="#service_record" @click.prevent="formNav = 'service_record'">
                         <div class="px-8 py-2 w-[13.1rem]" :class="{'border-l-2 border-y-2 border-gray-300': formNav === 'service_record'}">
@@ -232,9 +224,6 @@
                     </section>
                     <section x-show="formNav === 'references'" id="references">
                         @livewire('form.references-form', ['id' => $personnelId, 'showMode' => true])
-                    </section>
-                    <section x-show="formNav === 'assignment_details'" id="assignment_details">
-                        @livewire('form.assignment-details-form', ['id' => $personnelId, 'showMode' => true])
                     </section>
                     <section x-show="formNav === 'award_received'" id="award_received">
                         @livewire('form.award-received-form', ['id' => $personnelId, 'showMode' => true])

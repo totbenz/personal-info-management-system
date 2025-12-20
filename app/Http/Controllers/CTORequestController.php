@@ -36,9 +36,36 @@ class CTORequestController extends Controller
 
         // Fill in template variables (update these to match your template placeholders)
         $templateProcessor->setValue('name', $personnel->full_name ?? '-');
-        $templateProcessor->setValue('position', $personnel->position->name ?? '-');
-        $templateProcessor->setValue('school', $personnel->school->name ?? '-');
-        $templateProcessor->setValue('date_filed', $ctoRequest->created_at ? $ctoRequest->created_at->format('M d, Y') : '-');
+        $templateProcessor->setValue('position', $personnel && $personnel->position ? $personnel->position->title : '-');
+        $templateProcessor->setValue('office', 'DEPED-' . strtoupper($personnel && $personnel->school ? $personnel->school->division : 'BAYBAY CITY DIVISION'));
+        $templateProcessor->setValue('school', $personnel && $personnel->school ? $personnel->school->school_name : '-');
+        $templateProcessor->setValue('date_filed', $ctoRequest->created_at ? $ctoRequest->created_at->format('F d, Y') : '-');
+
+        // For CTO form, hardcode as Sick Leave with checkmark
+        $templateProcessor->setValue('sick_leave', '☑ Sick Leave');
+        $templateProcessor->setValue('vacation_leave', '☐ Vacation Leave');
+        $templateProcessor->setValue('others_leave', '☐ Others');
+
+        // Approval status checkmarks
+        if ($ctoRequest->status === 'approved') {
+            $templateProcessor->setValue('a', '☑');
+            $templateProcessor->setValue('d', '☐');
+        } elseif ($ctoRequest->status === 'denied') {
+            $templateProcessor->setValue('a', '☐');
+            $templateProcessor->setValue('d', '☑');
+        } else {
+            $templateProcessor->setValue('a', '☐');
+            $templateProcessor->setValue('d', '☐');
+        }
+
+        // Number of hours applied
+        $hoursApplied = $ctoRequest->total_hours ?? $ctoRequest->requested_hours ?? 0;
+        $templateProcessor->setValue('hours_applied', number_format($hoursApplied) . ' HRS');
+
+        // Inclusive dates (work date)
+        $templateProcessor->setValue('inclusive_dates', $ctoRequest->work_date ? strtoupper($ctoRequest->work_date->format('F d, Y')) : '-');
+
+        // Work details
         $templateProcessor->setValue('work_date', $ctoRequest->work_date ? $ctoRequest->work_date->format('M d, Y') : '-');
         $templateProcessor->setValue('morning_in', $ctoRequest->morning_in ?? '-');
         $templateProcessor->setValue('morning_out', $ctoRequest->morning_out ?? '-');
@@ -49,6 +76,24 @@ class CTORequestController extends Controller
         $templateProcessor->setValue('description', $ctoRequest->description ?? '-');
         $templateProcessor->setValue('status', ucfirst($ctoRequest->status));
         $templateProcessor->setValue('approved_at', $ctoRequest->approved_at ? $ctoRequest->approved_at->format('M d, Y') : '-');
+
+        // Certification of Compensatory Overtime Credits
+        $templateProcessor->setValue('coc_as_of', $ctoRequest->approved_at ? strtoupper($ctoRequest->approved_at->format('F d, Y')) : '-');
+        $templateProcessor->setValue('hours_remaining', number_format($hoursApplied) . ' HRS');
+
+        // Action taken
+        $actionTaken = $ctoRequest->status === 'approved' ? 'Approved' : ($ctoRequest->status === 'denied' ? 'Disapproved' : '-');
+        $templateProcessor->setValue('action_taken', $actionTaken);
+        $templateProcessor->setValue('disapproved_reason', $ctoRequest->admin_notes ?? '');
+
+        // Signatures (these may need to be adjusted based on actual template placeholders)
+        $templateProcessor->setValue('applicant_name', $personnel->full_name ?? '-');
+        $templateProcessor->setValue('hrmo_name', 'JULIUS CESAR L. DE LA CERNA');
+        $templateProcessor->setValue('hrmo_position', 'HRMO II');
+        $templateProcessor->setValue('sds_name', 'MANUEL P. ALBAÑO, PhD., CESO V');
+        $templateProcessor->setValue('sds_position', 'Schools Division Superintendent');
+        $templateProcessor->setValue('recommending_name', 'JOSEMILO P. RUIZ, EdD, CESE');
+        $templateProcessor->setValue('recommending_position', 'Assistant Schools Division Superintendent');
 
         $tempFile = tempnam(sys_get_temp_dir(), 'cto_request_') . '.docx';
         $templateProcessor->saveAs($tempFile);
@@ -116,21 +161,42 @@ class CTORequestController extends Controller
 
         // Compute total hours robustly
         $totalHours = 0.0;
-        foreach ($segments as $seg) {
+
+        // Calculate based on Morning In and Afternoon Out (User Request)
+        if ($request->filled('morning_in') && $request->filled('afternoon_out')) {
             try {
-                $in = Carbon::createFromFormat('H:i', $seg['in']);
-                $out = Carbon::createFromFormat('H:i', $seg['out']);
+                $in = Carbon::createFromFormat('H:i', $request->morning_in);
+                $out = Carbon::createFromFormat('H:i', $request->afternoon_out);
                 $diff = $out->floatDiffInRealMinutes($in) / 60; // float hours
+
                 if ($diff <= 0) {
                     return redirect()->back()->withErrors([
-                        'time' => 'Invalid time range for ' . $seg['label'] . ' segment.'
+                        'time' => 'Invalid time range: Afternoon Time Out must be after Morning Time In.'
                     ])->withInput();
                 }
-                $totalHours += $diff;
+                $totalHours = $diff;
             } catch (\Exception $e) {
                 return redirect()->back()->withErrors([
-                    'time' => 'Failed to parse time segment ' . $seg['label'] . '.'
+                    'time' => 'Failed to parse time range.'
                 ])->withInput();
+            }
+        } else {
+            foreach ($segments as $seg) {
+                try {
+                    $in = Carbon::createFromFormat('H:i', $seg['in']);
+                    $out = Carbon::createFromFormat('H:i', $seg['out']);
+                    $diff = $out->floatDiffInRealMinutes($in) / 60; // float hours
+                    if ($diff <= 0) {
+                        return redirect()->back()->withErrors([
+                            'time' => 'Invalid time range for ' . $seg['label'] . ' segment.'
+                        ])->withInput();
+                    }
+                    $totalHours += $diff;
+                } catch (\Exception $e) {
+                    return redirect()->back()->withErrors([
+                        'time' => 'Failed to parse time segment ' . $seg['label'] . '.'
+                    ])->withInput();
+                }
             }
         }
 

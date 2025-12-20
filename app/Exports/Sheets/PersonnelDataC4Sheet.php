@@ -20,13 +20,8 @@ class PersonnelDataC4Sheet
     public function populateSheet()
     {
         try {
-            if ($this->personnel->references && $this->personnel->references->count() > 0) {
-                $this->populateQuestionnaire();
-                $this->populateReferences();
-            } else {
-                $this->populateQuestionnaire();
-                $this->setDefaultReferenceValues($this->worksheet);
-            }
+            $this->populateQuestionnaire();
+            $this->populateReferences();
             $this->populateCurrentDate();
         } catch (\Exception $e) {
             Log::error('Error populating C4 sheet: ' . $e->getMessage());
@@ -37,19 +32,33 @@ class PersonnelDataC4Sheet
     {
         $worksheet = $this->worksheet;
 
-        $startRow = 52;
-        $endRow = 54;
-        $currentRow = $startRow;
+        // Get references data
+        $references = $this->personnel->references ?? collect([]);
 
-        if ($this->personnel->references && $this->personnel->references->count() > 0) {
-            foreach ($this->personnel->references as $reference) {
-                $worksheet->setCellValue('A' . $currentRow, $reference->full_name ?? 'N/A');
-                $worksheet->setCellValue('F' . $currentRow, $reference->address ?? 'N/A');
-                $worksheet->setCellValue('G' . $currentRow, $reference->tel_no ?? 'N/A');
-                $currentRow++;
+        // Define the exact cell positions based on template structure
+        $positions = [
+            'name' => 'A',
+            'address' => 'F',
+            'phone' => 'G'
+        ];
+
+        // Process up to 3 references
+        for ($i = 0; $i < 3; $i++) {
+            $row = 52 + $i;
+
+            if ($i < $references->count()) {
+                $reference = $references->get($i);
+
+                // Set values directly without any complex operations
+                $worksheet->setCellValue($positions['name'] . $row, $reference->full_name ?? '');
+                $worksheet->setCellValue($positions['address'] . $row, $reference->address ?? '');
+                $worksheet->setCellValue($positions['phone'] . $row, $reference->tel_no ?? '');
+            } else {
+                // Clear unused rows
+                $worksheet->setCellValue($positions['name'] . $row, '');
+                $worksheet->setCellValue($positions['address'] . $row, '');
+                $worksheet->setCellValue($positions['phone'] . $row, '');
             }
-        } else {
-            $this->setDefaultReferenceValues($worksheet);
         }
     }
 

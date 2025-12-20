@@ -33,6 +33,7 @@ class PersonnelDataExport
                 'permanentAddress',
                 'contactPerson',
                 'families',
+                'children',
                 'educations',
                 'civilServiceEligibilities',
                 'workExperiences',
@@ -47,6 +48,12 @@ class PersonnelDataExport
             ])->findOrFail($id);
             Log::info('Personnel found: ', ['personnel' => $this->personnel]);
 
+            // Generate unique filename to avoid concurrency issues
+            $timestamp = now()->format('Y-m-d_H-i-s');
+            $this->excelOutputPath = public_path("report/pds_{$id}_{$timestamp}.xlsx");
+            $this->pdfOutputPath = public_path("report/pds_{$id}_{$timestamp}.pdf");
+            Log::info('Unique output path: ' . $this->excelOutputPath);
+
             $this->filename = public_path('report/macro_enabled_cs_form_no_2122.xlsx');
             Log::info('Loading spreadsheet from file: ' . $this->filename);
 
@@ -55,14 +62,20 @@ class PersonnelDataExport
                 throw new \Exception('Template file not found: ' . $this->filename);
             }
 
+            // Check actual file extension and type
+            $fileInfo = pathinfo($this->filename);
+            Log::info('File info: ' . json_encode($fileInfo));
+
             $this->spreadsheet = IOFactory::load($this->filename);
             Log::info('Template spreadsheet loaded successfully');
 
+            // Check if loaded as macro-enabled
+            if ($this->spreadsheet instanceof \PhpOffice\PhpSpreadsheet\Spreadsheet) {
+                Log::info('Spreadsheet loaded as regular XLSX');
+            }
+
             // Populate all sheets with error handling
             $this->populateAllSheets();
-
-            $this->excelOutputPath = public_path('report/pds_generated.xlsx');
-            $this->pdfOutputPath = public_path('report/pds_generated.pdf');
 
             // Ensure output directory exists
             $outputDir = dirname($this->excelOutputPath);

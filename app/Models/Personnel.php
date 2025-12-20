@@ -437,6 +437,11 @@ class Personnel extends Model
             . $this->name_ext;
     }
 
+    public function getFullNameAttribute()
+    {
+        return $this->fullName();
+    }
+
     public function getSalaryStepAmountAttribute()
     {
         $salaryStep = \App\Models\SalaryStep::where('salary_grade_id', $this->salary_grade_id)

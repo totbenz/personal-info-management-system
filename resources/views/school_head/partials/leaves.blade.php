@@ -13,7 +13,7 @@
 
     // Get user gender to filter maternity leave for male users
     $userSex = Auth::user()->personnel->sex ?? null;
-    
+
     // Filter leave data to exclude maternity leave for male users
     $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
     $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex, $isSoloParent) {
@@ -49,7 +49,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </button>
-            
+
             <!-- Leave Request Icon Button -->
             <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request">
                 <!-- Document with Plus Icon -->
@@ -68,8 +68,8 @@
                         <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
                         <div class="flex items-center space-x-2">
                             @if(in_array($leave['type'], ['Vacation Leave', 'Sick Leave']))
-                                <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" 
-                                        data-leave-type="{{ $leave['type'] }}" 
+                                <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
+                                        data-leave-type="{{ $leave['type'] }}"
                                         data-current-available="{{ $leave['available'] }}"
                                         title="Add {{ $leave['type'] }} days">
                                     <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +118,7 @@
                     <p class="text-lg font-bold text-blue-600">{{ $accrualSummary['years_of_service'] }} years</p>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white rounded-lg p-4 border border-blue-200/30">
                     <div class="flex items-center space-x-3 mb-3">
@@ -137,7 +137,7 @@
                         <p><strong>{{ $accrualSummary['months_in_current_year'] }}</strong> eligible months in {{ $year }}</p>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg p-4 border border-blue-200/30">
                     <div class="flex items-center space-x-3 mb-3">
                         <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
@@ -160,7 +160,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg p-4 border border-blue-200/30">
                     <div class="flex items-center space-x-3 mb-3">
                         <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
@@ -184,7 +184,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-blue-100 border border-blue-300 rounded-lg p-4">
                     <div class="flex items-start space-x-2">
@@ -202,7 +202,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-green-100 border border-green-300 rounded-lg p-4">
                     <div class="flex items-start space-x-2">
                         <svg class="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,12 +443,12 @@
                 @csrf
                 <div>
                     <label for="work_date" class="block text-sm font-medium text-gray-700">Date of Work</label>
-                    <input type="date" name="work_date" id="work_date" required max="{{ date('Y-m-d') }}" 
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    <input type="date" name="work_date" id="work_date" required max="{{ date('Y-m-d') }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                            value="{{ old('work_date') }}">
                     <p class="text-xs text-gray-500 mt-1">The date you performed extra work</p>
                 </div>
-                
+
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -456,14 +456,14 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label for="morning_in" class="block text-xs text-gray-500">Time In</label>
-                                    <input type="time" name="morning_in" id="morning_in" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="morning_in" id="morning_in"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('morning_in') }}">
                                 </div>
                                 <div>
                                     <label for="morning_out" class="block text-xs text-gray-500">Time Out</label>
-                                    <input type="time" name="morning_out" id="morning_out" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="morning_out" id="morning_out"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('morning_out') }}">
                                 </div>
                             </div>
@@ -473,14 +473,14 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label for="afternoon_in" class="block text-xs text-gray-500">Time In</label>
-                                    <input type="time" name="afternoon_in" id="afternoon_in" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="afternoon_in" id="afternoon_in"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('afternoon_in') }}">
                                 </div>
                                 <div>
                                     <label for="afternoon_out" class="block text-xs text-gray-500">Time Out</label>
-                                    <input type="time" name="afternoon_out" id="afternoon_out" 
-                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" 
+                                    <input type="time" name="afternoon_out" id="afternoon_out"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"
                                            value="{{ old('afternoon_out') }}">
                                 </div>
                             </div>
@@ -488,34 +488,34 @@
                     </div>
                     <p class="text-xs text-gray-500">Provide at least one complete morning or afternoon time in/out pair</p>
                 </div>
-                
+
                 <div>
                     <label for="total_hours" class="block text-sm font-medium text-gray-700">Total Hours Worked</label>
-                    <input type="number" name="total_hours" id="total_hours" min="0" max="16" step="0.25" 
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    <input type="number" name="total_hours" id="total_hours" min="0" max="16" step="0.25"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                            value="{{ old('total_hours') }}" readonly>
-                    <p class="text-xs text-gray-500 mt-1">Automatically calculated from time segments</p>
+                    <p class="text-xs text-gray-500 mt-1">Provide at least one complete morning or afternoon time in/out pair for accurate hours calculation</p>
                     <div id="cto_hours_info" class="mt-2 p-2 bg-teal-50 border border-teal-200 rounded text-sm text-teal-800 hidden">
                         You will earn <span id="cto_days_earned">0</span> CTO day(s) from <span id="cto_hours_display">0</span> hour(s) of work.
                     </div>
                 </div>
-                
+
                 <div>
                     <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Extra Work</label>
-                    <textarea name="reason" id="cto_reason" rows="3" required maxlength="500" 
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    <textarea name="reason" id="cto_reason" rows="3" required maxlength="500"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                               placeholder="e.g., Emergency response, Special event, Weekend duties...">{{ old('reason') }}</textarea>
                     <p class="text-xs text-gray-500 mt-1">Briefly explain why you worked extra hours</p>
                 </div>
-                
+
                 <div>
                     <label for="description" class="block text-sm font-medium text-gray-700">Additional Details (Optional)</label>
-                    <textarea name="description" id="cto_description" rows="2" maxlength="1000" 
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    <textarea name="description" id="cto_description" rows="2" maxlength="1000"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                               placeholder="Any additional context or details about the work performed...">{{ old('description') }}</textarea>
                 </div>
-                
-                <button type="submit" id="cto_submit_btn" disabled 
+
+                <button type="submit" id="cto_submit_btn" disabled
                         class="w-full px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
                     Submit CTO Request
                 </button>
@@ -555,7 +555,7 @@
                     </ul>
                 </div>
             @endif
-            
+
             <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,32 +572,32 @@
                 @csrf
                 <input type="hidden" id="addLeaveType" name="leave_type" value="">
                 <input type="hidden" name="year" value="{{ $year ?? date('Y') }}">
-                
+
                 <div>
                     <label for="days_to_add" class="block text-sm font-medium text-gray-700">Days to Add</label>
-                    <input type="number" name="days_to_add" id="days_to_add" min="1" max="365" required 
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
-                           value="{{ old('days_to_add') }}" 
+                    <input type="number" name="days_to_add" id="days_to_add" min="1" max="365" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                           value="{{ old('days_to_add') }}"
                            placeholder="Enter number of days">
                     <p class="text-xs text-gray-500 mt-1">Enter the number of days you want to add (1-365)</p>
                 </div>
-                
+
                 <div>
                     <label for="add_leave_reason" class="block text-sm font-medium text-gray-700">Reason for Adding Leave</label>
-                    <textarea name="reason" id="add_leave_reason" rows="3" required maxlength="255" 
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    <textarea name="reason" id="add_leave_reason" rows="3" required maxlength="255"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                               placeholder="e.g., Earned from overtime, Special allocation, Year-end bonus...">{{ old('reason') }}</textarea>
                     <p class="text-xs text-gray-500 mt-1">Briefly explain why you're adding these leave days</p>
                 </div>
-                
+
                 <div id="addLeavePreview" class="hidden mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
                     <p class="font-medium">Preview:</p>
                     <p>Current balance: <span id="previewCurrent">0</span> days</p>
                     <p>Adding: <span id="previewAdding">0</span> days</p>
                     <p class="font-bold">New balance: <span id="previewNew">0</span> days</p>
                 </div>
-                
-                <button type="submit" id="addLeaveSubmitBtn" 
+
+                <button type="submit" id="addLeaveSubmitBtn"
                         class="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition">
                     Add Leave Days
                 </button>
@@ -610,7 +610,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Pass leave balances to JavaScript
         const leaveBalances = @json($leaveBalances);
-        
+
         var btn = document.getElementById('leaveRequestBtn');
         var modal = document.getElementById('leaveRequestModal');
         var closeBtn = document.getElementById('closeLeaveRequestModal');
@@ -668,7 +668,7 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             });
-            
+
             // Close modal when clicking outside
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
@@ -716,6 +716,7 @@
         function calculateCTOHours() {
             var totalHours = 0;
 
+            // Always calculate morning and afternoon hours separately
             // Calculate morning hours
             if (ctoMorningIn && ctoMorningOut && ctoMorningIn.value && ctoMorningOut.value) {
                 const morningStart = new Date('2000-01-01 ' + ctoMorningIn.value);
@@ -745,15 +746,15 @@
             }
 
             const days = (totalHours / 8).toFixed(2);
-            
+
             if (ctoTotalHoursInput) ctoTotalHoursInput.value = totalHours;
             if (ctoHoursDisplay) ctoHoursDisplay.textContent = totalHours;
             if (ctoDaysEarned) ctoDaysEarned.textContent = days;
             if (ctoHoursInfo) ctoHoursInfo.classList.remove('hidden');
-            
+
             // Enable submit if all required fields are filled
             validateCTOForm();
-            
+
             return totalHours;
         }
 
@@ -762,13 +763,13 @@
             const workDate = document.getElementById('work_date');
             const reason = document.getElementById('cto_reason');
             const hours = ctoTotalHoursInput ? ctoTotalHoursInput.value : '';
-            
-            const isValid = workDate && workDate.value && 
-                           reason && reason.value.trim().length >= 10 && 
+
+            const isValid = workDate && workDate.value &&
+                           reason && reason.value.trim().length >= 10 &&
                            hours > 0;
-            
+
             if (ctoSubmitBtn) ctoSubmitBtn.disabled = !isValid;
-            
+
             return isValid;
         }
 
@@ -842,13 +843,13 @@
             btn.addEventListener('click', function() {
                 var leaveType = this.getAttribute('data-leave-type');
                 var currentAvailable = this.getAttribute('data-current-available');
-                
+
                 // Set modal content
                 addLeaveModalTitle.textContent = leaveType;
                 addLeaveType.value = leaveType;
                 currentBalance.textContent = currentAvailable;
                 previewCurrent.textContent = currentAvailable;
-                
+
                 // Show modal
                 addLeaveModal.classList.remove('hidden');
                 addLeaveModal.classList.add('flex');
@@ -879,10 +880,10 @@
                 var adding = parseInt(this.value) || 0;
                 var current = parseInt(previewCurrent.textContent) || 0;
                 var newTotal = current + adding;
-                
+
                 previewAdding.textContent = adding;
                 previewNew.textContent = newTotal;
-                
+
                 if (adding > 0) {
                     addLeavePreview.classList.remove('hidden');
                 } else {
@@ -900,7 +901,7 @@
 
             const startDate = new Date(startDateInput.value);
             const endDate = new Date(endDateInput.value);
-            
+
             if (endDate < startDate) {
                 daysInfo.classList.add('hidden');
                 return 0;
@@ -908,10 +909,10 @@
 
             const timeDiff = endDate.getTime() - startDate.getTime();
             const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
-            
+
             totalDaysSpan.textContent = daysDiff;
             daysInfo.classList.remove('hidden');
-            
+
             return daysDiff;
         }
 
@@ -924,7 +925,7 @@
             // Reset warnings
             dateWarning.classList.add('hidden');
             leaveTypeWarning.classList.add('hidden');
-            
+
             let isValid = true;
 
             // Check if leave type has available days
@@ -942,7 +943,7 @@
 
             // Enable/disable submit button
             submitBtn.disabled = !isValid || !selectedLeaveType || totalDays === 0;
-            
+
             return isValid;
         }
 

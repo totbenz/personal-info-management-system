@@ -59,18 +59,24 @@ class ReferencesForm extends Component
 
     public function addField()
     {
-        // Only add if the last field is not empty
-        if (
-            empty($this->new_references) ||
-            (!empty($this->new_references[count($this->new_references) - 1]['full_name']) &&
-                !empty($this->new_references[count($this->new_references) - 1]['address']))
-        ) {
+        // Check total references count (old + new)
+        $totalReferences = count($this->old_references) + count($this->new_references);
 
+        // Only add if the last field is not empty and total is less than 3
+        if (
+            $totalReferences < 3 &&
+            (empty($this->new_references) ||
+                (!empty($this->new_references[count($this->new_references) - 1]['full_name']) &&
+                    !empty($this->new_references[count($this->new_references) - 1]['address'])))
+        ) {
             $this->new_references[] = [
                 'full_name' => '',
                 'address' => '',
                 'tel_no' => ''
             ];
+        } elseif ($totalReferences >= 3) {
+            session()->flash('flash.banner', 'Maximum of 3 references allowed.');
+            session()->flash('flash.bannerStyle', 'warning');
         } else {
             session()->flash('flash.banner', 'Please fill in the current reference fields before adding a new one.');
             session()->flash('flash.bannerStyle', 'warning');
@@ -147,6 +153,17 @@ class ReferencesForm extends Component
     public function save()
     {
         try {
+            // Check total references count
+            $totalReferences = count($this->old_references) + count(array_filter($this->new_references, function($ref) {
+                return !empty($ref['full_name']) || !empty($ref['address']) || !empty($ref['tel_no']);
+            }));
+
+            if ($totalReferences > 3) {
+                session()->flash('flash.banner', 'Maximum of 3 references allowed.');
+                session()->flash('flash.bannerStyle', 'danger');
+                return;
+            }
+
             $this->validate();
 
             if ($this->personnel->references()->exists()) {

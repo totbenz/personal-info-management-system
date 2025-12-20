@@ -429,8 +429,8 @@
                             <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance <span class="text-red-500">*</span></label>
                             <div class="flex space-x-2">
                                 <div class="w-1/2">
-                                    <x-input id="elementary_period_from" type="number" name="elementary_period_from" placeholder="From" wire:model.live="elementary_period_from" class="{{ $errors->has('elementary_period_from') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" />
-                                    <p class="text-xs text-gray-500 mt-1">Start year</p>
+                                    <x-input id="elementary_period_from" type="number" name="elementary_period_from" placeholder="e.g., 2010" wire:model.live="elementary_period_from" class="{{ $errors->has('elementary_period_from') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">Start year (1900-2100)</p>
                                     @error('elementary_period_from')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -442,8 +442,8 @@
                                     <div wire:loading wire:target="elementary_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                                 </div>
                                 <div class="w-1/2">
-                                    <x-input id="elementary_period_to" type="number" name="elementary_period_to" placeholder="To" wire:model.live="elementary_period_to" class="{{ $errors->has('elementary_period_to') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" />
-                                    <p class="text-xs text-gray-500 mt-1">End year</p>
+                                    <x-input id="elementary_period_to" type="number" name="elementary_period_to" placeholder="e.g., 2016" wire:model.live="elementary_period_to" class="{{ $errors->has('elementary_period_to') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">End year (must be ≥ start year)</p>
                                     @error('elementary_period_to')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -470,8 +470,8 @@
                             <div wire:loading wire:target="elementary_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-2/12">
-                            <x-input id="elementary_year_graduated" type="number" label="Year Graduated" name="elementary_year_graduated" wire:model.live="elementary_year_graduated" class="{{ $errors->has('elementary_year_graduated') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" />
-                            <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
+                            <x-input id="elementary_year_graduated" type="number" label="Year Graduated" name="elementary_year_graduated" wire:model.live="elementary_year_graduated" class="{{ $errors->has('elementary_year_graduated') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" min="1900" max="2100" step="1" placeholder="e.g., 2016" />
+                            <p class="text-xs text-gray-500 mt-1">Graduation year (must be ≤ end year)</p>
                             @error('elementary_year_graduated')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -483,8 +483,8 @@
                             <div wire:loading wire:target="elementary_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-4/12">
-                            <x-input id="elementary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="elementary_scholarship_honors" wire:model.live="elementary_scholarship_honors" />
-                            <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
+                            <x-input id="elementary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="elementary_scholarship_honors" wire:model.live="elementary_scholarship_honors" placeholder="e.g., Honor Student, Academic Excellence" />
+                            <p class="text-xs text-gray-500 mt-1">List any scholarships or honors received</p>
                             @error('elementary_scholarship_honors')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -533,8 +533,8 @@
                             <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance <span class="text-red-500">*</span></label>
                             <div class="flex space-x-2">
                                 <div class="w-1/2">
-                                    <x-input id="secondary_period_from" type="number" name="secondary_period_from" placeholder="From" wire:model.live="secondary_period_from" class="{{ $errors->has('secondary_period_from') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" />
-                                    <p class="text-xs text-gray-500 mt-1">Start year</p>
+                                    <x-input id="secondary_period_from" type="number" name="secondary_period_from" placeholder="e.g., 2014" wire:model.live="secondary_period_from" class="{{ $errors->has('secondary_period_from') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">Start year (1900-2100)</p>
                                     @error('secondary_period_from')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -546,8 +546,8 @@
                                     <div wire:loading wire:target="secondary_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                                 </div>
                                 <div class="w-1/2">
-                                    <x-input id="secondary_period_to" type="number" name="secondary_period_to" placeholder="To" wire:model.live="secondary_period_to" class="{{ $errors->has('secondary_period_to') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" />
-                                    <p class="text-xs text-gray-500 mt-1">End year</p>
+                                    <x-input id="secondary_period_to" type="number" name="secondary_period_to" placeholder="e.g., 2020" wire:model.live="secondary_period_to" class="{{ $errors->has('secondary_period_to') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">End year (must be ≥ start year)</p>
                                     @error('secondary_period_to')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -574,8 +574,8 @@
                             <div wire:loading wire:target="secondary_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-2/12">
-                            <x-input id="secondary_year_graduated" type="number" label="Year Graduated" name="secondary_year_graduated" wire:model.live="secondary_year_graduated" class="{{ $errors->has('secondary_year_graduated') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" />
-                            <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
+                            <x-input id="secondary_year_graduated" type="number" label="Year Graduated" name="secondary_year_graduated" wire:model.live="secondary_year_graduated" class="{{ $errors->has('secondary_year_graduated') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '' }}" min="1900" max="2100" step="1" placeholder="e.g., 2020" />
+                            <p class="text-xs text-gray-500 mt-1">Graduation year (must be ≤ end year)</p>
                             @error('secondary_year_graduated')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -587,8 +587,8 @@
                             <div wire:loading wire:target="secondary_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-4/12">
-                            <x-input id="secondary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="secondary_scholarship_honors" wire:model.live="secondary_scholarship_honors" />
-                            <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
+                            <x-input id="secondary_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="secondary_scholarship_honors" wire:model.live="secondary_scholarship_honors" placeholder="e.g., With Honors, Valedictorian" />
+                            <p class="text-xs text-gray-500 mt-1">List any scholarships or honors received</p>
                             @error('secondary_scholarship_honors')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -637,8 +637,8 @@
                             <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance</label>
                             <div class="flex space-x-2">
                                 <div class="w-1/2">
-                                    <x-input id="vocational_period_from" type="number" name="vocational_period_from" placeholder="From" wire:model.live="vocational_period_from" />
-                                    <p class="text-xs text-gray-500 mt-1">Start year</p>
+                                    <x-input id="vocational_period_from" type="number" name="vocational_period_from" placeholder="e.g., 2018" wire:model.live="vocational_period_from" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">Start year (1900-2100)</p>
                                     @error('vocational_period_from')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -650,8 +650,8 @@
                                     <div wire:loading wire:target="vocational_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                                 </div>
                                 <div class="w-1/2">
-                                    <x-input id="vocational_period_to" type="number" name="vocational_period_to" placeholder="To" wire:model.live="vocational_period_to" />
-                                    <p class="text-xs text-gray-500 mt-1">End year</p>
+                                    <x-input id="vocational_period_to" type="number" name="vocational_period_to" placeholder="e.g., 2020" wire:model.live="vocational_period_to" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">End year (must be ≥ start year)</p>
                                     @error('vocational_period_to')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -678,8 +678,8 @@
                             <div wire:loading wire:target="vocational_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-2/12">
-                            <x-input id="vocational_year_graduated" type="number" label="Year Graduated" name="vocational_year_graduated" wire:model.live="vocational_year_graduated" />
-                            <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
+                            <x-input id="vocational_year_graduated" type="number" label="Year Graduated" name="vocational_year_graduated" wire:model.live="vocational_year_graduated" min="1900" max="2100" step="1" placeholder="e.g., 2020" />
+                            <p class="text-xs text-gray-500 mt-1">Graduation year (must be ≤ end year)</p>
                             @error('vocational_year_graduated')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -767,8 +767,8 @@
                             <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance</label>
                             <div class="flex space-x-2">
                                 <div class="w-1/2">
-                                    <x-input id="graduate_period_from" type="number" name="graduate_period_from" placeholder="From" wire:model.live="graduate_period_from"/>
-                                    <p class="text-xs text-gray-500 mt-1">Start year</p>
+                                    <x-input id="graduate_period_from" type="number" name="graduate_period_from" placeholder="e.g., 2016" wire:model.live="graduate_period_from" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">Start year (1900-2100)</p>
                                     @error('graduate_period_from')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -780,8 +780,8 @@
                                     <div wire:loading wire:target="graduate_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                                 </div>
                                 <div class="w-1/2">
-                                    <x-input id="graduate_period_to" type="number" name="graduate_period_to" placeholder="To" wire:model.live="graduate_period_to"/>
-                                    <p class="text-xs text-gray-500 mt-1">End year</p>
+                                    <x-input id="graduate_period_to" type="number" name="graduate_period_to" placeholder="e.g., 2022" wire:model.live="graduate_period_to" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">End year (must be ≥ start year)</p>
                                     @error('graduate_period_to')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -808,8 +808,8 @@
                             <div wire:loading wire:target="graduate_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-2/12">
-                            <x-input id="graduate_year_graduated" type="number" label="Year Graduated" name="graduate_year_graduated" wire:model.live="graduate_year_graduated" />
-                            <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
+                            <x-input id="graduate_year_graduated" type="number" label="Year Graduated" name="graduate_year_graduated" wire:model.live="graduate_year_graduated" min="1900" max="2100" step="1" placeholder="e.g., 2022" />
+                            <p class="text-xs text-gray-500 mt-1">Graduation year (must be ≤ end year)</p>
                             @error('graduate_year_graduated')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -821,8 +821,8 @@
                             <div wire:loading wire:target="graduate_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-4/12">
-                            <x-input id="graduate_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_scholarship_honors" wire:model.live="graduate_scholarship_honors" />
-                            <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
+                            <x-input id="graduate_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_scholarship_honors" wire:model.live="graduate_scholarship_honors" placeholder="e.g., Cum Laude, Dean's List" />
+                            <p class="text-xs text-gray-500 mt-1">List any scholarships or honors received</p>
                             @error('graduate_scholarship_honors')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -897,8 +897,8 @@
                             <label for="email" class="block font-medium text-sm text-center text-gray-700">Period Of Attendance</label>
                             <div class="flex space-x-2">
                                 <div class="w-1/2">
-                                    <x-input id="graduate_studies_period_from" type="number" name="graduate_studies_period_from" placeholder="From" wire:model.live="graduate_studies_period_from"/>
-                                    <p class="text-xs text-gray-500 mt-1">Start year</p>
+                                    <x-input id="graduate_studies_period_from" type="number" name="graduate_studies_period_from" placeholder="e.g., 2020" wire:model.live="graduate_studies_period_from" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">Start year (1900-2100)</p>
                                     @error('graduate_studies_period_from')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -910,8 +910,8 @@
                                     <div wire:loading wire:target="graduate_studies_period_from" class="text-xs text-blue-600 mt-1">Validating...</div>
                                 </div>
                                 <div class="w-1/2">
-                                    <x-input id="graduate_studies_period_to" type="number" name="graduate_studies_period_to" placeholder="To" wire:model.live="graduate_studies_period_to"/>
-                                    <p class="text-xs text-gray-500 mt-1">End year</p>
+                                    <x-input id="graduate_studies_period_to" type="number" name="graduate_studies_period_to" placeholder="e.g., 2024" wire:model.live="graduate_studies_period_to" min="1900" max="2100" step="1" />
+                                    <p class="text-xs text-gray-500 mt-1">End year (must be ≥ start year)</p>
                                     @error('graduate_studies_period_to')
                                     <span class="text-red-600 text-xs flex items-center mt-1">
                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -938,8 +938,8 @@
                             <div wire:loading wire:target="graduate_studies_highest_level_units" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-2/12">
-                            <x-input id="graduate_studies_year_graduated" type="number" label="Year Graduated" name="graduate_studies_year_graduated" wire:model.live="graduate_studies_year_graduated" />
-                            <p class="text-xs text-gray-500 mt-1">Year of graduation (4 digits)</p>
+                            <x-input id="graduate_studies_year_graduated" type="number" label="Year Graduated" name="graduate_studies_year_graduated" wire:model.live="graduate_studies_year_graduated" min="1900" max="2100" step="1" placeholder="e.g., 2024" />
+                            <p class="text-xs text-gray-500 mt-1">Graduation year (must be ≤ end year)</p>
                             @error('graduate_studies_year_graduated')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -951,8 +951,8 @@
                             <div wire:loading wire:target="graduate_studies_year_graduated" class="text-xs text-blue-600 mt-1">Validating...</div>
                         </span>
                         <span class="w-4/12">
-                            <x-input id="graduate_studies_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_studies_scholarship_honors" wire:model.live="graduate_studies_scholarship_honors" />
-                            <p class="text-xs text-gray-500 mt-1">Any scholarships or academic honors received</p>
+                            <x-input id="graduate_studies_scholarship_honors" type="text" label="Scholarship/Academic Honors Received" name="graduate_studies_scholarship_honors" wire:model.live="graduate_studies_scholarship_honors" placeholder="e.g., PhD Scholar, Research Grant" />
+                            <p class="text-xs text-gray-500 mt-1">List any scholarships or honors received</p>
                             @error('graduate_studies_scholarship_honors')
                             <span class="text-red-600 text-xs flex items-center mt-1">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">

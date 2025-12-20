@@ -27,7 +27,7 @@ class EducationForm extends Component
         'elementary_period_from' => 'required|integer|min:1900|max:2100',
         'elementary_period_to' => 'required|integer|min:1900|max:2100|gte:elementary_period_from',
         'elementary_highest_level_units' => 'nullable|string|max:255',
-        'elementary_year_graduated' => 'required|integer|min:1900|max:2100',
+        'elementary_year_graduated' => 'required|integer|min:1900|max:2100|lte:elementary_period_to',
         'elementary_scholarship_honors' => 'nullable|string|max:255',
 
         // Secondary
@@ -36,7 +36,7 @@ class EducationForm extends Component
         'secondary_period_from' => 'required|integer|min:1900|max:2100',
         'secondary_period_to' => 'required|integer|min:1900|max:2100|gte:secondary_period_from',
         'secondary_highest_level_units' => 'nullable|string|max:255',
-        'secondary_year_graduated' => 'required|integer|min:1900|max:2100',
+        'secondary_year_graduated' => 'required|integer|min:1900|max:2100|lte:secondary_period_to',
         'secondary_scholarship_honors' => 'nullable|string|max:255',
 
         // Vocational
@@ -45,7 +45,7 @@ class EducationForm extends Component
         'vocational_period_from' => 'nullable|integer|min:1900|max:2100',
         'vocational_period_to' => 'nullable|integer|min:1900|max:2100|gte:vocational_period_from',
         'vocational_highest_level_units' => 'nullable|string|max:255',
-        'vocational_year_graduated' => 'nullable|integer|min:1900|max:2100',
+        'vocational_year_graduated' => 'nullable|integer|min:1900|max:2100|lte:vocational_period_to',
         'vocational_scholarship_honors' => 'nullable|string|max:255',
 
         // Graduate
@@ -56,7 +56,7 @@ class EducationForm extends Component
         'graduate_period_from' => 'nullable|integer|min:1900|max:2100',
         'graduate_period_to' => 'nullable|integer|min:1900|max:2100|gte:graduate_period_from',
         'graduate_highest_level_units' => 'nullable|string|max:255',
-        'graduate_year_graduated' => 'nullable|integer|min:1900|max:2100',
+        'graduate_year_graduated' => 'nullable|integer|min:1900|max:2100|lte:graduate_period_to',
         'graduate_scholarship_honors' => 'nullable|string|max:255',
 
         // Graduate Studies
@@ -67,7 +67,7 @@ class EducationForm extends Component
         'graduate_studies_period_from' => 'nullable|integer|min:1900|max:2100',
         'graduate_studies_period_to' => 'nullable|integer|min:1900|max:2100|gte:graduate_studies_period_from',
         'graduate_studies_highest_level_units' => 'nullable|string|max:255',
-        'graduate_studies_year_graduated' => 'nullable|integer|min:1900|max:2100',
+        'graduate_studies_year_graduated' => 'nullable|integer|min:1900|max:2100|lte:graduate_studies_period_to',
         'graduate_studies_scholarship_honors' => 'nullable|string|max:255',
     ];
 
