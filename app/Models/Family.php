@@ -15,7 +15,7 @@ class Family extends Model
                            'first_name',
                            'middle_name',
                            'last_name',
-                           'name_ext',
+                           'name_extension',
                            'occupation',
                            'employer_business_name',
                            'business_address',
@@ -33,7 +33,7 @@ class Family extends Model
         return $this->first_name . ' '
                 . ($this->middle_name ? $this->middle_name[0] . '. ' : '')
                 . $this->last_name . ' '
-                . $this->name_ext;
+                . $this->name_extension;
 
     }
 }

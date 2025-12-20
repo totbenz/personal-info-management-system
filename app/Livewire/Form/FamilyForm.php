@@ -17,7 +17,7 @@ class FamilyForm extends PersonnelNavigation
     public $spouse_first_name, $spouse_middle_name, $spouse_last_name, $spouse_name_ext;
     public $spouse_occupation, $spouse_business_name, $spouse_business_address, $spouse_tel_no;
 
-    public $showMode = false, $updateMode = false;
+    public $showMode = true, $updateMode = false;
 
     protected $rules = [
         'fathers_first_name' => 'required',
@@ -47,10 +47,27 @@ class FamilyForm extends PersonnelNavigation
         'new_children.*.date_of_birth' => 'required|date',
     ];
 
-    public function mount($id = null)
+    public function mount($id = null, $showMode = true)
     {
-        $this->personnel = Personnel::findOrFail($id);
-        $this->loadFamilyData();
+        if($id) {
+            $this->updateMode = !$showMode;
+            $this->showMode = $showMode;
+            $this->personnel = Personnel::findOrFail($id);
+            $this->personnelId = $this->personnel->id;
+            $this->loadFamilyData();
+        }
+    }
+
+    public function edit()
+    {
+        $this->updateMode = true;
+        $this->showMode = false;
+    }
+
+    public function back()
+    {
+        $this->updateMode = false;
+        $this->showMode = true;
     }
 
     /**
@@ -71,7 +88,7 @@ class FamilyForm extends PersonnelNavigation
             $this->fathers_first_name = $this->father->first_name;
             $this->fathers_middle_name = $this->father->middle_name;
             $this->fathers_last_name = $this->father->last_name;
-            $this->fathers_name_ext = $this->father->name_ext;
+            $this->fathers_name_ext = $this->father->name_extension;
         }
 
         if ($this->mother != null) {
@@ -84,7 +101,7 @@ class FamilyForm extends PersonnelNavigation
             $this->spouse_first_name = $this->spouse->first_name;
             $this->spouse_middle_name = $this->spouse->middle_name;
             $this->spouse_last_name = $this->spouse->last_name;
-            $this->spouse_name_ext = $this->spouse->name_ext;
+            $this->spouse_name_ext = $this->spouse->name_extension;
             $this->spouse_occupation = $this->spouse->occupation;
             $this->spouse_business_name = $this->spouse->employer_business_name;
             $this->spouse_business_address = $this->spouse->business_address;
@@ -97,7 +114,7 @@ class FamilyForm extends PersonnelNavigation
                 'first_name' => $child->first_name,
                 'middle_name' => $child->middle_name,
                 'last_name' => $child->last_name,
-                'name_ext' => $child->name_ext,
+                'name_ext' => $child->name_extension,
                 'date_of_birth' => $child->date_of_birth,
             ];
         })->toArray();
@@ -187,9 +204,20 @@ class FamilyForm extends PersonnelNavigation
     public function updatedFathersFirstName() { $this->updated('fathers_first_name'); }
     public function updatedFathersMiddleName() { $this->updated('fathers_middle_name'); }
     public function updatedFathersLastName() { $this->updated('fathers_last_name'); }
+    public function updatedFathersNameExt() { $this->validateOnly('fathers_name_ext'); }
     public function updatedMothersFirstName() { $this->updated('mothers_first_name'); }
     public function updatedMothersMiddleName() { $this->updated('mothers_middle_name'); }
     public function updatedMothersLastName() { $this->updated('mothers_last_name'); }
+
+    // Additional live validation methods for spouse fields
+    public function updatedSpouseFirstName() { $this->validateOnly('spouse_first_name'); }
+    public function updatedSpouseMiddleName() { $this->validateOnly('spouse_middle_name'); }
+    public function updatedSpouseLastName() { $this->validateOnly('spouse_last_name'); }
+    public function updatedSpouseNameExt() { $this->validateOnly('spouse_name_ext'); }
+    public function updatedSpouseOccupation() { $this->validateOnly('spouse_occupation'); }
+    public function updatedSpouseBusinessName() { $this->validateOnly('spouse_business_name'); }
+    public function updatedSpouseBusinessAddress() { $this->validateOnly('spouse_business_address'); }
+    public function updatedSpouseTelNo() { $this->validateOnly('spouse_tel_no'); }
 
     public function addField()
     {
