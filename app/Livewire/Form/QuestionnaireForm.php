@@ -7,6 +7,7 @@ use App\Models\Personnel;
 use App\Models\PersonnelDetail;
 use App\Livewire\PersonnelNavigation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class QuestionnaireForm extends PersonnelNavigation
 {
@@ -19,18 +20,18 @@ class QuestionnaireForm extends PersonnelNavigation
     public $member_indigenous_group, $indigenous_group_details, $person_with_disability, $disability_id_no, $solo_parent, $solo_parent_id_no;
 
     protected $casts = [
-        'consanguinity_third_degree' => 'string',
-        'consanguinity_fourth_degree' => 'string',
-        'found_guilty_administrative_offense' => 'string',
-        'criminally_charged' => 'string',
-        'convicted_crime' => 'string',
-        'separated_from_service' => 'string',
-        'candidate_last_year' => 'string',
-        'resigned_to_campaign' => 'string',
-        'immigrant_status' => 'string',
-        'member_indigenous_group' => 'string',
-        'person_with_disability' => 'string',
-        'solo_parent' => 'string',
+        'consanguinity_third_degree' => 'integer',
+        'consanguinity_fourth_degree' => 'integer',
+        'found_guilty_administrative_offense' => 'integer',
+        'criminally_charged' => 'integer',
+        'convicted_crime' => 'integer',
+        'separated_from_service' => 'integer',
+        'candidate_last_year' => 'integer',
+        'resigned_to_campaign' => 'integer',
+        'immigrant_status' => 'integer',
+        'member_indigenous_group' => 'integer',
+        'person_with_disability' => 'integer',
+        'solo_parent' => 'integer',
     ];
 
     protected $rules = [
@@ -49,6 +50,22 @@ class QuestionnaireForm extends PersonnelNavigation
         'solo_parent_id_no' => 'required_if:solo_parent,1|nullable|string|max:255',
     ];
 
+    protected $messages = [
+        'consanguinity_third_degree_details.required_if' => 'Please provide details for third degree consanguinity.',
+        'administrative_offense_details.required_if' => 'Please provide details for administrative offense.',
+        'criminally_charged_details.required_if' => 'Please provide details for criminal charge.',
+        'criminally_charged_date_filed.required_if' => 'Please provide the date filed for criminal charge.',
+        'criminally_charged_status.required_if' => 'Please provide the status for criminal charge.',
+        'convicted_crime_details.required_if' => 'Please provide details for conviction.',
+        'separation_details.required_if' => 'Please provide details for separation from service.',
+        'candidate_details.required_if' => 'Please provide details for candidacy.',
+        'resigned_campaign_details.required_if' => 'Please provide details for campaign resignation.',
+        'immigrant_country_details.required_if' => 'Please provide the country for immigrant status.',
+        'indigenous_group_details.required_if' => 'Please provide details for indigenous group.',
+        'disability_id_no.required_if' => 'Please provide the disability ID number.',
+        'solo_parent_id_no.required_if' => 'Please provide the solo parent ID number.',
+    ];
+
     public function mount($id = null)
     {
         $this->personnel = Personnel::findOrFail($id);
@@ -56,167 +73,184 @@ class QuestionnaireForm extends PersonnelNavigation
 
         if($personnel_detail != null)
         {
-            $this->consanguinity_third_degree = (string) $personnel_detail->consanguinity_third_degree;
+            $this->consanguinity_third_degree = (int) $personnel_detail->consanguinity_third_degree;
             $this->consanguinity_third_degree_details = $personnel_detail->consanguinity_third_degree_details;
-            $this->consanguinity_fourth_degree = (string) $personnel_detail->consanguinity_fourth_degree;
-            // $this->consanguinity_fourth_degree_details = $personnel_detail->consanguinity_fourth_degree_details;
-            $this->found_guilty_administrative_offense = (string) $personnel_detail->found_guilty_administrative_offense;
+            $this->consanguinity_fourth_degree = (int) $personnel_detail->consanguinity_fourth_degree;
+            $this->found_guilty_administrative_offense = (int) $personnel_detail->found_guilty_administrative_offense;
             $this->administrative_offense_details = $personnel_detail->administrative_offense_details;
-            $this->criminally_charged = (string) $personnel_detail->criminally_charged;
+            $this->criminally_charged = (int) $personnel_detail->criminally_charged;
             $this->criminally_charged_details = $personnel_detail->criminally_charged_details;
             $this->criminally_charged_date_filed = $personnel_detail->criminally_charged_date_filed;
             $this->criminally_charged_status = $personnel_detail->criminally_charged_status;
-            $this->convicted_crime = (string) $personnel_detail->convicted_crime;
+            $this->convicted_crime = (int) $personnel_detail->convicted_crime;
             $this->convicted_crime_details = $personnel_detail->convicted_crime_details;
-            $this->separated_from_service = (string) $personnel_detail->separated_from_service;
+            $this->separated_from_service = (int) $personnel_detail->separated_from_service;
             $this->separation_details = $personnel_detail->separation_details;
-            $this->candidate_last_year = (string) $personnel_detail->candidate_last_year;
+            $this->candidate_last_year = (int) $personnel_detail->candidate_last_year;
             $this->candidate_details = $personnel_detail->candidate_details;
-            $this->resigned_to_campaign = (string) $personnel_detail->resigned_to_campaign;
+            $this->resigned_to_campaign = (int) $personnel_detail->resigned_to_campaign;
             $this->resigned_campaign_details = $personnel_detail->resigned_campaign_details;
-            $this->immigrant_status = (string) $personnel_detail->immigrant_status;
+            $this->immigrant_status = (int) $personnel_detail->immigrant_status;
             $this->immigrant_country_details = $personnel_detail->immigrant_country_details;
-            $this->member_indigenous_group = (string) $personnel_detail->member_indigenous_group;
+            $this->member_indigenous_group = (int) $personnel_detail->member_indigenous_group;
             $this->indigenous_group_details = $personnel_detail->indigenous_group_details;
-            $this->person_with_disability = (string) $personnel_detail->person_with_disability;
+            $this->person_with_disability = (int) $personnel_detail->person_with_disability;
             $this->disability_id_no = $personnel_detail->disability_id_no;
-            $this->solo_parent = (string) $personnel_detail->solo_parent;
+            $this->solo_parent = (int) $personnel_detail->solo_parent;
             $this->solo_parent_id_no = $personnel_detail->solo_parent_id_no;
         } else {
             // Initialize with default values if no personnel detail exists
-            $this->consanguinity_third_degree = '0';
-            $this->consanguinity_fourth_degree = '0';
-            $this->found_guilty_administrative_offense = '0';
-            $this->criminally_charged = '0';
-            $this->convicted_crime = '0';
-            $this->separated_from_service = '0';
-            $this->candidate_last_year = '0';
-            $this->resigned_to_campaign = '0';
-            $this->immigrant_status = '0';
-            $this->member_indigenous_group = '0';
-            $this->person_with_disability = '0';
-            $this->solo_parent = '0';
+            $this->consanguinity_third_degree = 0;
+            $this->consanguinity_fourth_degree = 0;
+            $this->found_guilty_administrative_offense = 0;
+            $this->criminally_charged = 0;
+            $this->convicted_crime = 0;
+            $this->separated_from_service = 0;
+            $this->candidate_last_year = 0;
+            $this->resigned_to_campaign = 0;
+            $this->immigrant_status = 0;
+            $this->member_indigenous_group = 0;
+            $this->person_with_disability = 0;
+            $this->solo_parent = 0;
         }
     }
 
     public function updatedConsanguinityThirdDegree($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->consanguinity_third_degree_details = null;
         }
     }
 
     public function updatedConsanguinityFourthDegree($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->consanguinity_third_degree_details = null;
         }
     }
 
     public function updatedFoundGuiltyAdministrativeOffense($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->administrative_offense_details = null;
         }
     }
 
     public function updatedCriminallyCharged($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->criminally_charged_details = null;
+            $this->criminally_charged_date_filed = null;
+            $this->criminally_charged_status = null;
         }
     }
 
     public function updatedConvictedCrime($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->convicted_crime_details = null;
         }
     }
 
     public function updatedSeparatedFromService($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->separation_details = null;
         }
     }
 
     public function updatedCandidateLastYear($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->candidate_details = null;
         }
     }
 
     public function updatedResignedToCampaign($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->resigned_campaign_details = null;
         }
     }
 
     public function updatedImmigrantStatus($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->immigrant_country_details = null;
         }
     }
 
     public function updatedMemberIndigenousGroup($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->indigenous_group_details = null;
         }
     }
 
     public function updatedPersonWithDisability($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->disability_id_no = null;
         }
     }
 
     public function updatedSoloParent($value)
     {
-        if ($value != '1') {
+        if ($value != 1) {
             $this->solo_parent_id_no = null;
         }
     }
 
     public function save()
     {
-        $this->validate();
-
-        // Convert string values to integers for database storage
-        $data = [
-            'consanguinity_third_degree' => $this->consanguinity_third_degree ? (int) $this->consanguinity_third_degree : 0,
-            'consanguinity_third_degree_details' => $this->consanguinity_third_degree_details,
-            'consanguinity_fourth_degree' => $this->consanguinity_fourth_degree ? (int) $this->consanguinity_fourth_degree : 0,
-            'found_guilty_administrative_offense' => $this->found_guilty_administrative_offense ? (int) $this->found_guilty_administrative_offense : 0,
-            'administrative_offense_details' => $this->administrative_offense_details,
-            'criminally_charged' => $this->criminally_charged ? (int) $this->criminally_charged : 0,
-            'criminally_charged_details' => $this->criminally_charged_details,
-            'criminally_charged_date_filed' => $this->criminally_charged_date_filed,
-            'criminally_charged_status' => $this->criminally_charged_status,
-            'convicted_crime' => $this->convicted_crime ? (int) $this->convicted_crime : 0,
-            'convicted_crime_details' => $this->convicted_crime_details,
-            'separated_from_service' => $this->separated_from_service ? (int) $this->separated_from_service : 0,
-            'separation_details' => $this->separation_details,
-            'candidate_last_year' => $this->candidate_last_year ? (int) $this->candidate_last_year : 0,
-            'candidate_details' => $this->candidate_details,
-            'resigned_to_campaign' => $this->resigned_to_campaign ? (int) $this->resigned_to_campaign : 0,
-            'resigned_campaign_details' => $this->resigned_campaign_details,
-            'immigrant_status' => $this->immigrant_status ? (int) $this->immigrant_status : 0,
-            'immigrant_country_details' => $this->immigrant_country_details,
-            'member_indigenous_group' => $this->member_indigenous_group ? (int) $this->member_indigenous_group : 0,
-            'indigenous_group_details' => $this->indigenous_group_details,
-            'person_with_disability' => $this->person_with_disability ? (int) $this->person_with_disability : 0,
-            'disability_id_no' => $this->disability_id_no,
-            'solo_parent' => $this->solo_parent ? (int) $this->solo_parent : 0,
-            'solo_parent_id_no' => $this->solo_parent_id_no
-        ];
-
         try {
+            // Log the data before validation
+            \Log::info('Attempting to save questionnaire with data: ', [
+                'consanguinity_third_degree' => $this->consanguinity_third_degree,
+                'consanguinity_fourth_degree' => $this->consanguinity_fourth_degree,
+                'found_guilty_administrative_offense' => $this->found_guilty_administrative_offense,
+                'criminally_charged' => $this->criminally_charged,
+                'convicted_crime' => $this->convicted_crime,
+                'separated_from_service' => $this->separated_from_service,
+                'candidate_last_year' => $this->candidate_last_year,
+                'resigned_to_campaign' => $this->resigned_to_campaign,
+                'immigrant_status' => $this->immigrant_status,
+                'member_indigenous_group' => $this->member_indigenous_group,
+                'person_with_disability' => $this->person_with_disability,
+                'solo_parent' => $this->solo_parent,
+            ]);
+
+            $this->validate();
+
+            // Prepare data for database storage
+            $data = [
+                'consanguinity_third_degree' => $this->consanguinity_third_degree ?? 0,
+                'consanguinity_third_degree_details' => $this->consanguinity_third_degree_details,
+                'consanguinity_fourth_degree' => $this->consanguinity_fourth_degree ?? 0,
+                'found_guilty_administrative_offense' => $this->found_guilty_administrative_offense ?? 0,
+                'administrative_offense_details' => $this->administrative_offense_details,
+                'criminally_charged' => $this->criminally_charged ?? 0,
+                'criminally_charged_details' => $this->criminally_charged_details,
+                'criminally_charged_date_filed' => $this->criminally_charged_date_filed,
+                'criminally_charged_status' => $this->criminally_charged_status,
+                'convicted_crime' => $this->convicted_crime ?? 0,
+                'convicted_crime_details' => $this->convicted_crime_details,
+                'separated_from_service' => $this->separated_from_service ?? 0,
+                'separation_details' => $this->separation_details,
+                'candidate_last_year' => $this->candidate_last_year ?? 0,
+                'candidate_details' => $this->candidate_details,
+                'resigned_to_campaign' => $this->resigned_to_campaign ?? 0,
+                'resigned_campaign_details' => $this->resigned_campaign_details,
+                'immigrant_status' => $this->immigrant_status ?? 0,
+                'immigrant_country_details' => $this->immigrant_country_details,
+                'member_indigenous_group' => $this->member_indigenous_group ?? 0,
+                'indigenous_group_details' => $this->indigenous_group_details,
+                'person_with_disability' => $this->person_with_disability ?? 0,
+                'disability_id_no' => $this->disability_id_no,
+                'solo_parent' => $this->solo_parent ?? 0,
+                'solo_parent_id_no' => $this->solo_parent_id_no
+            ];
+
             if ($this->personnel->personnelDetail != null) {
                 $this->personnel->personnelDetail->update($data);
             } else {
@@ -224,37 +258,54 @@ class QuestionnaireForm extends PersonnelNavigation
                 PersonnelDetail::create($data);
             }
 
-            // Sync high-level personnel flag for quick access (new is_solo_parent column)
-            $this->personnel->update(['is_solo_parent' => (bool) ($data['solo_parent'] ?? false)]);
+            // Sync high-level personnel flag for quick access (if column exists)
+            try {
+                if (Schema::hasColumn('personnels', 'is_solo_parent')) {
+                    $this->personnel->update(['is_solo_parent' => (bool) ($data['solo_parent'] ?? false)]);
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Could not update is_solo_parent flag: ' . $e->getMessage());
+            }
 
             session()->flash('flash.banner', 'Questionnaire saved successfully');
-            session()->flash('flash.bannerStyle', 'save');
-            // Set session to remember the active tab
+            session()->flash('flash.bannerStyle', 'success');
             session(['active_personnel_tab' => 'questionnaire']);
+
+            // Exit update mode after successful save
+            $this->updateMode = false;
+            $this->showMode = true;
+
+            // Redirect based on user role
+            if(Auth::user()->role === "teacher")
+            {
+                return redirect()->route('personnel.profile');
+            } elseif(Auth::user()->role === "school_head")
+            {
+                return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
+            } else {
+                return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
+            }
         } catch (\Throwable $th) {
             \Log::error('Failed to save questionnaire: ' . $th->getMessage());
             session()->flash('flash.banner', 'Failed to save Questionnaire: ' . $th->getMessage());
             session()->flash('flash.bannerStyle', 'danger');
-            
-            return; // Don't redirect if there's an error
-        }
 
-        if(Auth::user()->role === "teacher")
-        {
-            return redirect()->route('personnel.profile');
-        } elseif(Auth::user()->role === "school_head")
-        {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
-        } else {
-            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
+            return; // Don't redirect if there's an error
         }
     }
 
     public function cancel()
     {
-        // Set session to remember the active tab
+        // Reset to original values
+        $this->mount($this->personnel->id);
+
+        // Exit update mode
+        $this->updateMode = false;
+        $this->showMode = true;
+
         session(['active_personnel_tab' => 'questionnaire']);
-        
+
+        // Redirect based on user role
         if(Auth::user()->role === "teacher")
         {
             return redirect()->route('personnel.profile');

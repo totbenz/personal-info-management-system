@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Human Resource Information System</title>
+    <title>HRIS - Human Resource Information System</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('systems.png') }}">
