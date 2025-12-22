@@ -17,6 +17,8 @@
     // Filter leave data to exclude maternity leave for male users
     $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
     $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex, $isSoloParent) {
+        // Remove Compensatory Time Off from leave requests
+        if ($leave['type'] === 'Compensatory Time Off') return false;
         if (!$isSoloParent && $leave['type'] === 'Solo Parent Leave') return false;
         return !($leave['type'] === 'Maternity Leave' && $userSex === 'male');
     });
