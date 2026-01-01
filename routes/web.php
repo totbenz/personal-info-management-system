@@ -11,6 +11,7 @@ use App\Http\Controllers\SalaryGradeController;
 use App\Http\Controllers\SalaryStepController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ServiceCreditRequestController;
+use App\Http\Controllers\LeaveMonetizationController;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -395,6 +396,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+
+        // Leave Monetization
+        Route::get('/teacher/monetization/create', [LeaveMonetizationController::class, 'create'])->name('teacher.monetization.create');
+        Route::post('/teacher/monetization', [LeaveMonetizationController::class, 'store'])->name('teacher.monetization.store');
+        Route::get('/teacher/monetization/history', [LeaveMonetizationController::class, 'history'])->name('teacher.monetization.history');
     });
 
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
@@ -411,6 +417,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+
+        // Leave Monetization
+        Route::get('/non-teaching/monetization/create', [LeaveMonetizationController::class, 'create'])->name('non_teaching.monetization.create');
+        Route::post('/non-teaching/monetization', [LeaveMonetizationController::class, 'store'])->name('non_teaching.monetization.store');
+        Route::get('/non-teaching/monetization/history', [LeaveMonetizationController::class, 'history'])->name('non_teaching.monetization.history');
     });
 
     // SCHOOL HEAD ACCESS
@@ -442,6 +453,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Leave request submission for school heads
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
+
+        // Leave Monetization
+        Route::get('/school-head/monetization/create', [LeaveMonetizationController::class, 'create'])->name('school_head.monetization.create');
+        Route::post('/school-head/monetization', [LeaveMonetizationController::class, 'store'])->name('school_head.monetization.store');
+        Route::get('/school-head/monetization/history', [LeaveMonetizationController::class, 'history'])->name('school_head.monetization.history');
     });
 
     // Leave request submission - available to all authenticated roles
@@ -611,6 +627,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/service-credit-requests', [ServiceCreditRequestController::class, 'index'])->name('admin.service-credit-requests');
         Route::post('/admin/service-credit-requests/{serviceCreditRequest}/approve', [ServiceCreditRequestController::class, 'approve'])->name('admin.service-credit-requests.approve');
         Route::post('/admin/service-credit-requests/{serviceCreditRequest}/deny', [ServiceCreditRequestController::class, 'deny'])->name('admin.service-credit-requests.deny');
+
+        // Leave Monetization Requests admin approval
+        Route::get('/admin/monetization-requests', [LeaveMonetizationController::class, 'adminIndex'])->name('admin.monetization-requests');
+        Route::post('/admin/monetization-requests/{monetization}/approve', [LeaveMonetizationController::class, 'approve'])->name('admin.monetization-requests.approve');
+        Route::post('/admin/monetization-requests/{monetization}/reject', [LeaveMonetizationController::class, 'reject'])->name('admin.monetization-requests.reject');
+        Route::get('/admin/monetization-requests/{monetization}/details', [LeaveMonetizationController::class, 'details'])->name('admin.monetization-requests.details');
 
         // Loyalty Awards Management
         Route::get('/admin/loyalty-awards', [HomeController::class, 'loyaltyAwards'])->name('admin.loyalty-awards');

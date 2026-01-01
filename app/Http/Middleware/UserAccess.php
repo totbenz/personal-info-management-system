@@ -21,6 +21,14 @@ class UserAccess
             return $next($request);
         }
 
+        // If request expects JSON, return JSON response
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to access this resource.'
+            ], 403);
+        }
+
         // Redirect based on role
         switch ($user->role) {
             case 'admin':

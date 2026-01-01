@@ -88,6 +88,12 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(5, ['*'], 'pending_service_credit_page');
 
+        // Pending Monetization requests from all roles
+        $pendingMonetizationRequests = \App\Models\LeaveMonetization::where('status', 'pending')
+            ->with(['personnel', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(5, ['*'], 'pending_monetization_page');
+
         // Debug logging
         \Illuminate\Support\Facades\Log::info('Admin Dashboard - Service Credit Requests', [
             'total_service_credit_requests' => ServiceCreditRequest::count(),
@@ -128,6 +134,7 @@ class HomeController extends Controller
             'pendingLeaveRequests',
             'pendingCTORequests',
             'pendingServiceCreditRequests',
+            'pendingMonetizationRequests',
             'approvedLeaveRequests',
             'approvedCTORequests',
             'approvedServiceCreditRequests',
@@ -474,23 +481,27 @@ class HomeController extends Controller
         $userSex = $personnel->sex ?? null;
         $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex);
 
-        // Ensure all leave type records exist for this teacher and year
+        // Get existing leave records for this year
+        $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+            ->where('year', $year)
+            ->get()
+            ->keyBy('leave_type');
+
+        // Only create records that don't exist
         foreach ($defaultLeaves as $leaveType => $maxDays) {
-            \App\Models\TeacherLeave::firstOrCreate(
-                [
+            if (!$leaves->has($leaveType)) {
+                \App\Models\TeacherLeave::create([
                     'teacher_id' => $personnel->id,
                     'leave_type' => $leaveType,
-                    'year' => $year
-                ],
-                [
+                    'year' => $year,
                     'available' => $maxDays,
                     'used' => 0,
                     'remarks' => 'Auto-initialized'
-                ]
-            );
+                ]);
+            }
         }
 
-        // Get existing leave records for this year
+        // Re-fetch after creating any missing records
         $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
             ->where('year', $year)
             ->get()

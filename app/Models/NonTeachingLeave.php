@@ -46,7 +46,7 @@ class NonTeachingLeave extends Model
             'Paternity Leave' => ($userSex === 'female') ? 7 : 0, // Only visible to women
             'VAWC Leave' => 10, // Visible to all
             'Special Leave Benefits for Women' => ($userSex === 'female') ? 60 : 0, // Up to 2 months, only for women
-            'Calamity Leave' => 5, // Per calamity declaration
+            'Calamity Leave' => 1000, // Unlimited leave
         ];
 
         // Adoption Leave logic

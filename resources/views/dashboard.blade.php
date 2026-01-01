@@ -35,10 +35,10 @@
         <div class="mx-4 px-4 sm:px-6">
 
             <!-- Key Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 items-stretch">
                 <!-- Schools Card -->
-                <div @click="showSchools = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                    <div class="flex items-center justify-between">
+                <div @click="showSchools = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
+                    <div class="flex items-center justify-between flex-1">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -56,8 +56,8 @@
                 </div>
 
                 <!-- Personnel Card -->
-                <div @click="showPersonnels = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                    <div class="flex items-center justify-between">
+                <div @click="showPersonnels = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
+                    <div class="flex items-center justify-between flex-1">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
                                 <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
@@ -75,8 +75,8 @@
                 </div>
 
                 <!-- Users Card -->
-                <div @click="showUsers = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                    <div class="flex items-center justify-between">
+                <div @click="showUsers = true" class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
+                    <div class="flex items-center justify-between flex-1">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
                                 <div class="w-2 h-2 bg-rose-500 rounded-full"></div>
@@ -94,14 +94,14 @@
                 </div>
 
                 <!-- Leave Requests Card -->
-                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative" onclick="document.getElementById('leaveRequestsSection').scrollIntoView({behavior: 'smooth'})">
+                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative flex flex-col" onclick="document.getElementById('leaveRequestsSection').scrollIntoView({behavior: 'smooth'})">
                     @if($pendingLeaveRequests->count() > 0)
                     <div class="absolute -top-2 -right-2 flex">
                         <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-orange-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
                     </div>
                     @endif
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-1">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
                                 <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
@@ -125,14 +125,14 @@
                 </div>
 
                 <!-- CTO Requests Card -->
-                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative" onclick="document.getElementById('ctoRequestsSection').scrollIntoView({behavior: 'smooth'})">
+                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative flex flex-col" onclick="document.getElementById('ctoRequestsSection').scrollIntoView({behavior: 'smooth'})">
                     @if($pendingCTORequests->count() > 0)
                     <div class="absolute -top-2 -right-2 flex">
                         <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-blue-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
                     </div>
                     @endif
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-1">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -156,14 +156,14 @@
                 </div>
 
                 <!-- Service Credit Requests Card -->
-                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative" onclick="document.getElementById('serviceCreditRequestsSection').scrollIntoView({behavior: 'smooth'})">
+                <div class="group bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative flex flex-col" onclick="document.getElementById('serviceCreditRequestsSection').scrollIntoView({behavior: 'smooth'})">
                     @if(isset($pendingServiceCreditRequests) && $pendingServiceCreditRequests->count() > 0)
                     <div class="absolute -top-2 -right-2 flex">
                         <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
                     </div>
                     @endif
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-1">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-1">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -186,6 +186,7 @@
                     </div>
                 </div>
             </div>
+        </div>
 
             <!-- Schools Modal -->
             <div x-show="showSchools" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -333,73 +334,78 @@
             </div>
 
             <!-- Analytics Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
                 <!-- Job Status Card -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 flex flex-col">
+                    <div class="flex flex-col flex-1">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900">Job Status</h3>
+                                <p class="text-xs text-gray-500">Personnel distribution</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-900">Job Status</h3>
-                            <p class="text-xs text-gray-500">Personnel distribution</p>
+                        <div class="flex flex-wrap gap-2 mb-2 flex-1 items-start">
+                            @foreach($jobStatusCounts as $status => $count)
+                            <button @click="showJobStatus = true; selectedStatus = '{{ $status }}'" class="px-3 py-1 rounded bg-indigo-100 text-indigo-700 text-xs font-semibold hover:bg-indigo-600 hover:text-white transition">{{ ucfirst($status) }} ({{ $count }})</button>
+                            @endforeach
                         </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                        @foreach($jobStatusCounts as $status => $count)
-                        <button @click="showJobStatus = true; selectedStatus = '{{ $status }}'" class="px-3 py-1 rounded bg-indigo-100 text-indigo-700 text-xs font-semibold hover:bg-indigo-600 hover:text-white transition">{{ ucfirst($status) }} ({{ $count }})</button>
-                        @endforeach
                     </div>
                 </div>
                 <!-- Schools per District Card -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 flex flex-col">
+                    <div class="flex flex-col flex-1">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900">Districts</h3>
+                                <p class="text-xs text-gray-500">Schools per district</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-900">Districts</h3>
-                            <p class="text-xs text-gray-500">Schools per district</p>
+                        <div class="flex flex-wrap gap-2 mb-2 flex-1 items-start">
+                            @foreach($schoolsPerDistrict as $districtId => $count)
+                            <button @click="showDistrict = true; selectedDistrict = '{{ $districtId }}'" class="px-3 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-600 hover:text-white transition">District {{ $districtId }} ({{ $count }})</button>
+                            @endforeach
                         </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                        @foreach($schoolsPerDistrict as $districtId => $count)
-                        <button @click="showDistrict = true; selectedDistrict = '{{ $districtId }}'" class="px-3 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-600 hover:text-white transition">District {{ $districtId }} ({{ $count }})</button>
-                        @endforeach
                     </div>
                 </div>
                 <!-- Schools per Division Card -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all duration-300 flex flex-col">
+                    <div class="flex flex-col flex-1">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900">Divisions</h3>
+                                <p class="text-xs text-gray-500">Schools per division</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-900">Divisions</h3>
-                            <p class="text-xs text-gray-500">Schools per division</p>
+                        <div class="flex flex-wrap gap-2 mb-2 flex-1 items-start">
+                            @foreach($schoolsPerDivision as $division => $count)
+                            <button @click="showDivision = true; selectedDivision = '{{ $division }}'" class="px-3 py-1 rounded bg-pink-100 text-pink-700 text-xs font-semibold hover:bg-pink-600 hover:text-white transition">{{ $division }} ({{ $count }})</button>
+                            @endforeach
                         </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                        @foreach($schoolsPerDivision as $division => $count)
-                        <button @click="showDivision = true; selectedDivision = '{{ $division }}'" class="px-3 py-1 rounded bg-pink-100 text-pink-700 text-xs font-semibold hover:bg-pink-600 hover:text-white transition">{{ $division }} ({{ $count }})</button>
-                        @endforeach
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Leave Approval Requests Table -->
         @if($pendingLeaveRequests->count() > 0)
         <div id="leaveRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-1">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -647,7 +653,7 @@
         @if($pendingCTORequests->count() > 0)
         <div id="ctoRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-1">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -867,7 +873,7 @@
         @if(isset($pendingServiceCreditRequests))
         <div id="serviceCreditRequestsSection" class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mr-10 ml-10 mb-6">
             <div class="px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-white">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-1">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1072,7 +1078,7 @@
         </script>
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 mr-10 ml-10 mb-8 overflow-hidden">
             <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-1">
                     <div id="approvedLeaveHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-green-100/50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
                         <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1232,7 +1238,7 @@
         <!-- Approved CTO Requests History Section -->
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 mr-10 ml-10 mb-8 overflow-hidden">
             <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-white">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-1">
                     <div id="approvedCtoHeaderToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-teal-100/50 rounded-lg p-2 -m-2 transition-colors duration-200 group" title="Click to toggle section">
                         <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

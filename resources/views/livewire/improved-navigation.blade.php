@@ -48,6 +48,15 @@
                         {{ Auth::user()->personnel->school->school_name }}
                     </x-nav-link>
                     <x-nav-link
+                        href="{{ route('school_head.monetization.history') }}"
+                        :active="request()->routeIs('school_head.monetization.history')"
+                        wire:navigate
+                        class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+                        active-class="bg-white text-[#0f152a] shadow-lg font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
+                        {{ __('Monetization') }}
+                    </x-nav-link>
+                    <x-nav-link
                         href="{{ route('personnels.profile', ['personnel' => Auth::user()->personnel->id]) }}"
                         :active="request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
                         wire:navigate
@@ -87,6 +96,15 @@
                         inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
                         {{ __('Profile') }}
                     </x-nav-link>
+                    <x-nav-link
+                        href="{{ route('teacher.monetization.history') }}"
+                        :active="request()->routeIs('teacher.monetization.history')"
+                        wire:navigate
+                        class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+                        active-class="bg-white text-[#0f152a] shadow-lg font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
+                        {{ __('Monetization') }}
+                    </x-nav-link>
                     @elseif (Auth::user()->role == 'non_teaching')
                     <x-nav-link
                         href="{{ route('non_teaching.dashboard') }}"
@@ -105,6 +123,15 @@
                         active-class="bg-white text-[#0f152a] shadow-lg font-bold"
                         inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
                         {{ __('Profile') }}
+                    </x-nav-link>
+                    <x-nav-link
+                        href="{{ route('non_teaching.monetization.history') }}"
+                        :active="request()->routeIs('non_teaching.monetization.history')"
+                        wire:navigate
+                        class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+                        active-class="bg-white text-[#0f152a] shadow-lg font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
+                        {{ __('Monetization') }}
                     </x-nav-link>
                     @elseif(Auth::user()->role == "admin")
                     <x-nav-link
@@ -142,6 +169,15 @@
                         active-class="bg-white text-[#0f152a] shadow-lg font-bold"
                         inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
                         {{ __('Salary Table') }}
+                    </x-nav-link>
+                    <x-nav-link
+                        href="{{ route('admin.monetization-requests') }}"
+                        :active="request()->routeIs('admin.monetization-requests')"
+                        wire:navigate
+                        class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+                        active-class="bg-white text-[#0f152a] shadow-lg font-bold"
+                        inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
+                        {{ __('Monetization') }}
                     </x-nav-link>
                     <x-nav-link
                         href="{{ route('admin.loyalty-awards') }}"

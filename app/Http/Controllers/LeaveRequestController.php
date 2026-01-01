@@ -30,33 +30,33 @@ class LeaveRequestController extends Controller
         ]);
 
         $user = Auth::user();
-        
+
         // General validation for all users: Check if male users are trying to request Maternity Leave
         if ($request->leave_type === 'Maternity Leave' && $user->personnel && $user->personnel->sex === 'male') {
             return redirect()->back()
                 ->withErrors(['leave_type' => 'Maternity Leave is not available for male personnel.'])
                 ->withInput();
         }
-        
+
         // If this is a school head, check leave balance before allowing submission
         if ($user->role === 'school_head') {
             $personnel = $user->personnel;
             if ($personnel) {
                 // Ensure leave records exist
                 $this->ensureSchoolHeadLeaveRecordsExist($personnel);
-                
+
                 // Calculate requested days
                 $startDate = Carbon::parse($request->start_date);
                 $endDate = Carbon::parse($request->end_date);
                 $requestedDays = $startDate->diffInDays($endDate) + 1;
-                
+
                 // Check available balance for this leave type
                 $currentYear = now()->year;
                 $schoolHeadLeave = \App\Models\SchoolHeadLeave::where('school_head_id', $personnel->id)
                     ->where('leave_type', $request->leave_type)
                     ->where('year', $currentYear)
                     ->first();
-                
+
                 if (!$schoolHeadLeave || $schoolHeadLeave->available < $requestedDays) {
                     $availableDays = $schoolHeadLeave ? $schoolHeadLeave->available : 0;
                     return redirect()->back()
@@ -73,7 +73,7 @@ class LeaveRequestController extends Controller
                 $startDate = Carbon::parse($request->start_date);
                 $endDate = Carbon::parse($request->end_date);
                 $requestedDays = $startDate->diffInDays($endDate) + 1;
-                
+
                 // Check leave type specific limits for teachers
                 if ($request->leave_type === 'Solo Parent Leave') {
                     if (!$personnel->is_solo_parent) {
@@ -136,7 +136,7 @@ class LeaveRequestController extends Controller
                 $startDate = Carbon::parse($request->start_date);
                 $endDate = Carbon::parse($request->end_date);
                 $requestedDays = $startDate->diffInDays($endDate) + 1;
-                
+
                 if ($requestedDays > 5) {
                     return redirect()->back()
                         ->withErrors(['leave_days' => 'Force Leave is limited to 5 days per year.'])
@@ -166,16 +166,16 @@ class LeaveRequestController extends Controller
             } elseif ($user->role === 'teacher') {
                 return redirect()->route('teacher.dashboard')->with('success', 'Leave request submitted successfully!');
             }
-            
+
             return redirect()->back()->with('success', 'Leave request submitted successfully!');
-            
+
         } catch (\Exception $e) {
             Log::error('Leave request creation failed', [
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),
                 'request_data' => $request->all()
             ]);
-            
+
             return redirect()->back()
                 ->withErrors(['submission' => 'Failed to submit leave request. Please try again.'])
                 ->withInput();
@@ -200,19 +200,19 @@ class LeaveRequestController extends Controller
         // If approved, update leave balance for all user types
         if ($request->status === 'approved') {
             $this->updateLeaveBalance($leave);
-        } 
+        }
         // If denied, restore job status to Active if it was previously pending
         elseif ($request->status === 'denied') {
             $this->restoreUserStatus($leave, $oldStatus);
         }
-        
+
         // Provide appropriate success message
         $message = match($request->status) {
             'approved' => 'Leave request approved and leave balance updated successfully!',
             'denied' => 'Leave request denied and status restored.',
             default => 'Leave request updated!'
         };
-        
+
         return back()->with('success', $message);
     }
 
@@ -302,7 +302,7 @@ class LeaveRequestController extends Controller
         if ($teacherLeave) {
             $previousUsed = $teacherLeave->used;
             $previousAvailable = $teacherLeave->available;
-            
+
             $teacherLeave->used += $leaveDays;
             $teacherLeave->available = max(0, $teacherLeave->available - $leaveDays);
             $teacherLeave->save();
@@ -344,7 +344,7 @@ class LeaveRequestController extends Controller
         if ($nonTeachingLeave) {
             $previousUsed = $nonTeachingLeave->used;
             $previousAvailable = $nonTeachingLeave->available;
-            
+
             $nonTeachingLeave->used += $leaveDays;
             $nonTeachingLeave->available = max(0, $nonTeachingLeave->available - $leaveDays);
             $nonTeachingLeave->save();
@@ -422,16 +422,16 @@ class LeaveRequestController extends Controller
             ->where('leave_type', $leave->leave_type)
             ->where('year', $currentYear)
             ->first();
-        
+
         if ($schoolHeadLeave) {
             // Update existing leave record
             $previousUsed = $schoolHeadLeave->used;
             $previousAvailable = $schoolHeadLeave->available;
-            
+
             $schoolHeadLeave->used += $leaveDays;
             $schoolHeadLeave->available = max(0, $schoolHeadLeave->available - $leaveDays);
             $schoolHeadLeave->save();
-            
+
             // Log the change for debugging
             Log::info("Leave balance updated for school head", [
                 'personnel_id' => $personnel->id,
@@ -473,7 +473,7 @@ class LeaveRequestController extends Controller
             // Update Force Leave
             $previousForceUsed = $forceLeave->used;
             $previousForceAvailable = $forceLeave->available;
-            
+
             $forceLeave->used += $leaveDays;
             $forceLeave->available = max(0, $forceLeave->available - $leaveDays);
             $forceLeave->save();
@@ -481,7 +481,7 @@ class LeaveRequestController extends Controller
             // Also deduct from Vacation Leave
             $previousVacationUsed = $vacationLeave->used;
             $previousVacationAvailable = $vacationLeave->available;
-            
+
             $vacationLeave->used += $leaveDays;
             $vacationLeave->available = max(0, $vacationLeave->available - $leaveDays);
             $vacationLeave->save();
@@ -534,7 +534,7 @@ class LeaveRequestController extends Controller
             // Update Force Leave
             $previousForceUsed = $forceLeave->used;
             $previousForceAvailable = $forceLeave->available;
-            
+
             $forceLeave->used += $leaveDays;
             $forceLeave->available = max(0, $forceLeave->available - $leaveDays);
             $forceLeave->save();
@@ -542,7 +542,7 @@ class LeaveRequestController extends Controller
             // Also deduct from Vacation Leave
             $previousVacationUsed = $vacationLeave->used;
             $previousVacationAvailable = $vacationLeave->available;
-            
+
             $vacationLeave->used += $leaveDays;
             $vacationLeave->available = max(0, $vacationLeave->available - $leaveDays);
             $vacationLeave->save();
@@ -587,7 +587,7 @@ class LeaveRequestController extends Controller
             // Update Force Leave
             $previousForceUsed = $forceLeave->used;
             $previousForceAvailable = $forceLeave->available;
-            
+
             $forceLeave->used += $leaveDays;
             $forceLeave->available = max(0, $forceLeave->available - $leaveDays);
             $forceLeave->save();
@@ -595,7 +595,7 @@ class LeaveRequestController extends Controller
             // Also deduct from Vacation Leave
             $previousVacationUsed = $vacationLeave->used;
             $previousVacationAvailable = $vacationLeave->available;
-            
+
             $vacationLeave->used += $leaveDays;
             $vacationLeave->available = max(0, $vacationLeave->available - $leaveDays);
             $vacationLeave->save();
@@ -625,9 +625,9 @@ class LeaveRequestController extends Controller
     private function ensureTeacherLeaveRecordsExist($personnel)
     {
         $currentYear = now()->year;
-        $yearsOfService = $personnel->employment_start ? 
+        $yearsOfService = $personnel->employment_start ?
             Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
-        
+
         $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves(
             $yearsOfService,
             $personnel->is_solo_parent ?? false,
@@ -656,9 +656,9 @@ class LeaveRequestController extends Controller
     private function ensureNonTeachingLeaveRecordsExist($personnel)
     {
         $currentYear = now()->year;
-        $yearsOfService = $personnel->employment_start ? 
+        $yearsOfService = $personnel->employment_start ?
             Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
-        
+
         $defaultLeaves = \App\Models\NonTeachingLeave::defaultLeaves(
             $yearsOfService,
             $personnel->is_solo_parent ?? false,
