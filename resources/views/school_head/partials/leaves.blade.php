@@ -989,7 +989,7 @@
 <!-- Monetization Modal -->
 <div id="monetizationModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
     <div class="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg relative">
-        <form id="monetizationForm" method="POST">
+        <form id="monetizationForm" method="POST" action="{{ route('school_head.monetization.store') }}">
             @csrf
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
@@ -1060,8 +1060,12 @@ function closeMonetizationModal() {
     document.getElementById('monetizationModal').classList.remove('flex');
 }
 
-// Form submission
-document.getElementById('monetizationForm').addEventListener('submit', async function(e) {
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission
+    const monetizationForm = document.getElementById('monetizationForm');
+    if (monetizationForm) {
+        monetizationForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const formData = new FormData(this);
@@ -1098,6 +1102,8 @@ document.getElementById('monetizationForm').addEventListener('submit', async fun
         }
     } catch (error) {
         showError('An error occurred. Please try again.');
+    }
+        });
     }
 });
 
