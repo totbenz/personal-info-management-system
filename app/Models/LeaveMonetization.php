@@ -20,6 +20,7 @@ class LeaveMonetization extends Model
         'status',
         'reason',
         'admin_remarks',
+        'rejection_reason',
         'approved_by',
         'approved_at',
     ];

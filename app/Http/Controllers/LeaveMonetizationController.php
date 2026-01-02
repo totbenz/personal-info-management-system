@@ -506,14 +506,7 @@ class LeaveMonetizationController extends Controller
         ]);
 
         try {
-            $this->monetizationService->processRejectedMonetization($monetization, $request->rejection_reason);
-
-            $monetization->update([
-                'status' => 'rejected',
-                'admin_remarks' => $request->admin_remarks,
-                'approved_by' => Auth::id(),
-                'approved_at' => now(),
-            ]);
+            $this->monetizationService->processRejectedMonetization($monetization, $request->rejection_reason, $request->admin_remarks);
 
             return redirect()->back()->with('success', 'Monetization request rejected.');
         } catch (\Exception $e) {

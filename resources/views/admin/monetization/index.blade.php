@@ -13,6 +13,61 @@
         </div>
     </x-slot>
 
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '{{ session('success') }}',
+                    background: '#10b981',
+                    color: '#ffffff'
+                });
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: '{{ session('error') }}',
+                    background: '#ef4444',
+                    color: '#ffffff'
+                });
+            });
+        </script>
+    @endif
+
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-yellow-50/20 to-orange-50/30">
         <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
 
@@ -382,17 +437,60 @@
             document.getElementById('rejectionForm').reset();
         }
 
-        // Handle form submissions with loading states
+        // Handle form submissions with SweetAlert
         document.getElementById('approvalForm').addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Approving...';
+            e.preventDefault();
+            const form = this;
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            Swal.fire({
+                title: 'Approve Request?',
+                text: 'Are you sure you want to approve this monetization request?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, approve it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Approving...';
+                    form.submit();
+                }
+            });
         });
 
         document.getElementById('rejectionForm').addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Rejecting...';
+            e.preventDefault();
+            const form = this;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const rejectionReason = form.querySelector('textarea[name="rejection_reason"]').value;
+
+            if (!rejectionReason.trim()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Required Field',
+                    text: 'Please provide a reason for rejection',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Reject Request?',
+                text: 'Are you sure you want to reject this monetization request?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, reject it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Rejecting...';
+                    form.submit();
+                }
+            });
         });
 
         // Auto-submit search form on Enter key in search input

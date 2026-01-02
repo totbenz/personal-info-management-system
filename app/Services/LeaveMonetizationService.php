@@ -9,6 +9,7 @@ use App\Models\SchoolHeadLeave;
 use App\Models\Personnel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveMonetizationService
 {
@@ -475,6 +476,45 @@ class LeaveMonetizationService
                     'year' => $year
                 ]);
             }
+        }
+    }
+
+    /**
+     * Process rejected monetization request
+     */
+    public function processRejectedMonetization(LeaveMonetization $monetization, string $rejectionReason, ?string $adminRemarks = null)
+    {
+        try {
+            Log::info('Processing monetization rejection', [
+                'monetization_id' => $monetization->id,
+                'user_id' => $monetization->user_id,
+                'rejection_reason' => $rejectionReason,
+                'admin_remarks' => $adminRemarks
+            ]);
+
+            // Update the monetization status to rejected
+            $monetization->update([
+                'status' => 'rejected',
+                'rejection_reason' => $rejectionReason,
+                'admin_remarks' => $adminRemarks,
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
+
+            Log::info('Monetization request rejected successfully', [
+                'monetization_id' => $monetization->id,
+                'user_id' => $monetization->user_id
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Error rejecting monetization', [
+                'monetization_id' => $monetization->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return false;
         }
     }
 }
