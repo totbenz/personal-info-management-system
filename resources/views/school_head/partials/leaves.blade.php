@@ -57,7 +57,7 @@
         </div>
         <div class="flex items-center space-x-2">
             <!-- CTO Request Icon Button -->
-            <button id="ctoRequestBtn" class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Compensatory Time Off">
+            <button id="ctoRequestBtn" class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Compensatory Time Off" onclick="document.getElementById('ctoRequestModal').classList.remove('hidden'); document.getElementById('ctoRequestModal').classList.add('flex');">
                 <!-- Clock Plus Icon -->
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -65,7 +65,7 @@
             </button>
 
             <!-- Leave Request Icon Button -->
-            <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request">
+            <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request" onclick="document.getElementById('leaveRequestModal').classList.remove('hidden'); document.getElementById('leaveRequestModal').classList.add('flex');">
                 <!-- Document with Plus Icon -->
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />
@@ -331,7 +331,7 @@
     <!-- Leave Request Modal (hidden by default) -->
     <div id="leaveRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
-            <button id="closeLeaveRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+            <button id="closeLeaveRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onclick="document.getElementById('leaveRequestModal').classList.add('hidden'); document.getElementById('leaveRequestModal').classList.remove('flex');">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -403,7 +403,7 @@
     <!-- CTO Request Modal (hidden by default) -->
     <div id="ctoRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
-            <button id="closeCtoRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+            <button id="closeCtoRequestModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onclick="document.getElementById('ctoRequestModal').classList.add('hidden'); document.getElementById('ctoRequestModal').classList.remove('flex');">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -1048,5 +1048,72 @@
 
         // Initial validation
         validateLeaveRequest();
+    });
+</script>
+
+<!-- Additional script to ensure buttons work -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure buttons work even if there are conflicts
+        const ctoRequestBtn = document.getElementById('ctoRequestBtn');
+        const leaveRequestBtn = document.getElementById('leaveRequestBtn');
+        const closeCtoBtn = document.getElementById('closeCtoRequestModal');
+        const closeLeaveBtn = document.getElementById('closeLeaveRequestModal');
+
+        if (ctoRequestBtn) {
+            ctoRequestBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = document.getElementById('ctoRequestModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        }
+
+        if (leaveRequestBtn) {
+            leaveRequestBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = document.getElementById('leaveRequestModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        }
+
+        if (closeCtoBtn) {
+            closeCtoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = document.getElementById('ctoRequestModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        if (closeLeaveBtn) {
+            closeLeaveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = document.getElementById('leaveRequestModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        // Also close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                e.target.classList.add('hidden');
+                e.target.classList.remove('flex');
+            }
+        });
     });
 </script>
