@@ -954,7 +954,85 @@
 
         <!-- JavaScript for Leave Section Toggle Feature -->
         <script>
+            // Function to initialize all modal event listeners
+            function initializeModals() {
+                // Leave Request Modal
+                const leaveRequestBtn = document.getElementById('leaveRequestBtn');
+                const leaveRequestModal = document.getElementById('leaveRequestModal');
+                const closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
+
+                if (leaveRequestBtn && leaveRequestModal) {
+                    // Remove existing listener to prevent duplicates
+                    leaveRequestBtn.replaceWith(leaveRequestBtn.cloneNode(true));
+                    const newBtn = document.getElementById('leaveRequestBtn');
+
+                    newBtn.addEventListener('click', function() {
+                        leaveRequestModal.classList.remove('hidden');
+                        leaveRequestModal.classList.add('flex');
+                    });
+                }
+
+                if (closeLeaveRequestModal && leaveRequestModal) {
+                    closeLeaveRequestModal.addEventListener('click', function() {
+                        leaveRequestModal.classList.add('hidden');
+                        leaveRequestModal.classList.remove('flex');
+                    });
+                }
+
+                // Service Credit Modal
+                const serviceCreditRequestBtn = document.getElementById('serviceCreditRequestBtn');
+                const scModal = document.getElementById('serviceCreditRequestModal');
+                const closeServiceCreditRequestModal = document.getElementById('closeServiceCreditRequestModal');
+
+                if (serviceCreditRequestBtn && scModal) {
+                    serviceCreditRequestBtn.replaceWith(serviceCreditRequestBtn.cloneNode(true));
+                    const newScBtn = document.getElementById('serviceCreditRequestBtn');
+
+                    newScBtn.addEventListener('click', function() {
+                        scModal.classList.remove('hidden');
+                        scModal.classList.add('flex');
+                    });
+                }
+
+                if (closeServiceCreditRequestModal && scModal) {
+                    closeServiceCreditRequestModal.addEventListener('click', function() {
+                        scModal.classList.add('hidden');
+                        scModal.classList.remove('flex');
+                    });
+                }
+            }
+
+            // Initialize on DOM ready
             document.addEventListener('DOMContentLoaded', function() {
+                // Get DOM elements
+                const leavesHeaderToggle = document.getElementById('leavesHeaderToggle');
+                const leavesContent = document.getElementById('leavesContent');
+                const leavesToggleIcon = document.getElementById('leavesToggleIcon');
+                const leaveRequestBtn = document.getElementById('leaveRequestBtn');
+                const leaveRequestModal = document.getElementById('leaveRequestModal');
+                const closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
+                const leaveTypeSelect = document.getElementById('leave_type');
+                const dateWarning = document.getElementById('dateWarning');
+                const leaveTypeWarning = document.getElementById('leaveTypeWarning');
+                const totalDaysSpan = document.getElementById('totalDays');
+                const daysInfo = document.getElementById('daysInfo');
+
+                initializeModals();
+
+                // Also initialize when Livewire updates
+                if (typeof Livewire !== 'undefined') {
+                    Livewire.hook('message.processed', () => {
+                        setTimeout(initializeModals, 100);
+                    });
+                }
+
+                // Also initialize on page visibility change
+                document.addEventListener('visibilitychange', function() {
+                    if (!document.hidden) {
+                        setTimeout(initializeModals, 100);
+                    }
+                });
+            });
                 // Show SweetAlert notifications for session messages
                 @if(session('success'))
                     Swal.fire({
@@ -1027,58 +1105,58 @@
                             leavesContent.style.opacity = '0';
                             leavesToggleIcon.style.transform = 'rotate(-90deg)';
                             localStorage.setItem('teacherLeavesMinimized', 'true');
-                        }
-                        isLeavesMinimized = !isLeavesMinimized;
-                    });
-                }
 
-                // Modal controls
-                if (leaveRequestBtn && leaveRequestModal && closeLeaveRequestModal) {
-                    leaveRequestBtn.addEventListener('click', function() {
-                        leaveRequestModal.classList.remove('hidden');
-                        leaveRequestModal.classList.add('flex');
-                    });
+            // Leaves section toggle
+            if (leavesHeaderToggle && leavesContent) {
+                leavesHeaderToggle.addEventListener('click', function() {
+                    if (isLeavesMinimized) {
+                        // Expand
+                        leavesContent.style.height = 'auto';
+                        leavesContent.style.overflow = 'visible';
+                        leavesContent.style.opacity = '1';
+                        leavesToggleIcon.style.transform = 'rotate(0deg)';
+                        localStorage.setItem('teacherLeavesMinimized', 'false');
+                    } else {
+                        // Minimize
+                        leavesContent.style.height = '0';
+                        leavesContent.style.overflow = 'hidden';
+                        leavesContent.style.opacity = '0';
+                        leavesToggleIcon.style.transform = 'rotate(-90deg)';
+                        localStorage.setItem('teacherLeavesMinimized', 'true');
+                    }
+                    isLeavesMinimized = !isLeavesMinimized;
+                });
+            }
 
-                    closeLeaveRequestModal.addEventListener('click', function() {
+            // Close modal when clicking outside
+            if (leaveRequestModal) {
+                leaveRequestModal.addEventListener('click', function(e) {
+                    if (e.target === leaveRequestModal) {
                         leaveRequestModal.classList.add('hidden');
                         leaveRequestModal.classList.remove('flex');
-                    });
-
-                    // Close modal when clicking outside
-                    leaveRequestModal.addEventListener('click', function(e) {
-                        if (e.target === leaveRequestModal) {
-                            leaveRequestModal.classList.add('hidden');
-                            leaveRequestModal.classList.remove('flex');
-                        }
-                    });
-                }
-
-                // Date calculation function
-                function calculateDays() {
-                    if (!startDateInput || !endDateInput || !startDateInput.value || !endDateInput.value) {
-                        if (daysInfo) daysInfo.classList.add('hidden');
-                        return 0;
                     }
+                });
+            }
 
-                    const startDate = new Date(startDateInput.value);
-                    const endDate = new Date(endDateInput.value);
+            // Date calculation function
+            function calculateDays() {
+                const startDate = new Date(document.getElementById('start_date').value);
+                const endDate = new Date(document.getElementById('end_date').value);
 
-                    if (endDate < startDate) {
-                        if (daysInfo) daysInfo.classList.add('hidden');
-                        return 0;
-                    }
-
+                if (startDate && endDate) {
                     const timeDiff = endDate.getTime() - startDate.getTime();
-                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
 
                     if (totalDaysSpan) totalDaysSpan.textContent = daysDiff;
                     if (daysInfo) daysInfo.classList.remove('hidden');
 
                     return daysDiff;
                 }
+                return 0;
+            }
 
-                // Validation function
-                function validateLeaveRequest() {
+            // Validation function
+            function validateLeaveRequest() {
                     const selectedLeaveType = leaveTypeSelect ? leaveTypeSelect.value : '';
                     const totalDays = calculateDays();
                     const availableDays = leaveBalances[selectedLeaveType] || 0;

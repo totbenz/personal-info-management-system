@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\LeaveMonetizationService;
+use App\Services\SchoolHeadMonetizationService;
 use App\Models\LeaveMonetization;
+use App\Models\SchoolHeadMonetization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -11,10 +13,12 @@ use Illuminate\Support\Facades\Log;
 class LeaveMonetizationController extends Controller
 {
     protected $monetizationService;
+    protected $schoolHeadMonetizationService;
 
-    public function __construct(LeaveMonetizationService $monetizationService)
+    public function __construct(LeaveMonetizationService $monetizationService, SchoolHeadMonetizationService $schoolHeadMonetizationService)
     {
         $this->monetizationService = $monetizationService;
+        $this->schoolHeadMonetizationService = $schoolHeadMonetizationService;
     }
 
     /**
@@ -249,13 +253,105 @@ class LeaveMonetizationController extends Controller
     /**
      * Admin: List all monetization requests
      */
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $monetizations = LeaveMonetization::with(['user', 'personnel', 'approvedBy'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $search = $request->input('search');
+        $userType = $request->input('user_type');
+        $status = $request->input('status');
 
-        return view('admin.monetization.index', compact('monetizations'));
+        // Get regular monetizations (teacher/non-teaching) with filters
+        $regularQuery = LeaveMonetization::with(['user', 'personnel', 'approvedBy'])
+            ->orderBy('created_at', 'desc');
+
+        // Apply search filter
+        if ($search) {
+            $regularQuery->whereHas('personnel', function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($status) {
+            $regularQuery->where('status', $status);
+        }
+
+        $regularMonetizations = $regularQuery->get()
+            ->map(function ($item) {
+                $item->user_type = $item->user->role ?? 'unknown';
+                return $item;
+            });
+
+        // Get school head monetizations with filters
+        $schoolHeadQuery = SchoolHeadMonetization::with(['schoolHead'])
+            ->orderBy('created_at', 'desc');
+
+        // Apply search filter
+        if ($search) {
+            $schoolHeadQuery->whereHas('schoolHead', function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($status) {
+            $schoolHeadQuery->where('status', $status);
+        }
+
+        $schoolHeadMonetizations = $schoolHeadQuery->get()
+            ->map(function ($item) {
+                // Convert to similar format for display
+                $item->user_id = $item->school_head_id;
+                $item->personnel = $item->schoolHead;
+                $item->total_days = $item->days_requested;
+                $item->vl_days_used = $item->vl_deducted;
+                $item->sl_days_used = $item->sl_deducted;
+                $item->created_at = $item->request_date;
+                $item->user_type = 'school_head';
+                return $item;
+            });
+
+        // Merge and filter by user type if specified
+        $allMonetizations = $regularMonetizations->concat($schoolHeadMonetizations);
+
+        if ($userType && $userType !== 'all') {
+            $allMonetizations = $allMonetizations->filter(function($item) use ($userType) {
+                return $item->user_type === $userType;
+            });
+        }
+
+        // Sort by date
+        $allMonetizations = $allMonetizations->sortByDesc('created_at')->values();
+
+        // Paginate
+        $perPage = 15;
+        $currentPage = request()->get('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $itemsForCurrentPage = $allMonetizations->slice($offset, $perPage)->values();
+        $paginatedMonetizations = new \Illuminate\Pagination\LengthAwarePaginator(
+            $itemsForCurrentPage,
+            $allMonetizations->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
+        );
+
+        // Calculate statistics
+        $stats = [
+            'total' => $allMonetizations->count(),
+            'pending' => $allMonetizations->where('status', 'pending')->count(),
+            'approved' => $allMonetizations->where('status', 'approved')->count(),
+            'rejected' => $allMonetizations->where('status', 'rejected')->count(),
+            'teachers' => $regularMonetizations->filter(function($item) { return $item->user_type === 'teacher'; })->count(),
+            'non_teaching' => $regularMonetizations->filter(function($item) { return $item->user_type === 'non_teaching'; })->count(),
+            'school_heads' => $schoolHeadMonetizations->count(),
+        ];
+
+        return view('admin.monetization.index', compact('paginatedMonetizations', 'stats'));
     }
 
     /**
@@ -263,6 +359,17 @@ class LeaveMonetizationController extends Controller
      */
     public function details($id)
     {
+        // Check if this is a school head monetization
+        $schoolHeadMonetization = SchoolHeadMonetization::with(['schoolHead'])->find($id);
+
+        if ($schoolHeadMonetization) {
+            return response()->json([
+                'success' => true,
+                'data' => $schoolHeadMonetization
+            ]);
+        }
+
+        // Handle regular monetization
         $monetization = LeaveMonetization::with(['personnel', 'user'])->findOrFail($id);
 
         return response()->json([
@@ -274,8 +381,46 @@ class LeaveMonetizationController extends Controller
     /**
      * Admin: Approve monetization request
      */
-    public function approve(Request $request, LeaveMonetization $monetization)
+    public function approve(Request $request, $id)
     {
+        // Check if this is a school head monetization
+        $schoolHeadMonetization = SchoolHeadMonetization::find($id);
+
+        if ($schoolHeadMonetization) {
+            // Handle school head monetization
+            if ($schoolHeadMonetization->status !== 'pending') {
+                return redirect()->back()->with('error', 'This request has already been processed.');
+            }
+
+            $request->validate([
+                'admin_remarks' => 'nullable|string|max:500',
+            ]);
+
+            try {
+                $this->schoolHeadMonetizationService->processApprovedMonetization($schoolHeadMonetization);
+
+                $schoolHeadMonetization->admin_remarks = $request->admin_remarks;
+                $schoolHeadMonetization->save();
+
+                Log::info('Admin approved school head monetization', [
+                    'monetization_id' => $schoolHeadMonetization->id,
+                    'admin_id' => Auth::id(),
+                    'school_head_id' => $schoolHeadMonetization->school_head_id
+                ]);
+
+                return redirect()->back()->with('success', 'Monetization request approved successfully!');
+            } catch (\Exception $e) {
+                Log::error('Error approving school head monetization', [
+                    'monetization_id' => $schoolHeadMonetization->id,
+                    'error' => $e->getMessage()
+                ]);
+                return redirect()->back()->with('error', 'An error occurred while approving the request.');
+            }
+        }
+
+        // Handle regular teacher/non-teaching monetization
+        $monetization = LeaveMonetization::findOrFail($id);
+
         if ($monetization->status !== 'pending') {
             return redirect()->back()->with('error', 'This request has already been processed.');
         }
@@ -306,23 +451,78 @@ class LeaveMonetizationController extends Controller
     /**
      * Admin: Reject monetization request
      */
-    public function reject(Request $request, LeaveMonetization $monetization)
+    public function reject(Request $request, $id)
     {
+        // Check if this is a school head monetization
+        $schoolHeadMonetization = SchoolHeadMonetization::find($id);
+
+        if ($schoolHeadMonetization) {
+            // Handle school head monetization
+            if ($schoolHeadMonetization->status !== 'pending') {
+                return redirect()->back()->with('error', 'This request has already been processed.');
+            }
+
+            $request->validate([
+                'rejection_reason' => 'required|string|max:500',
+                'admin_remarks' => 'nullable|string|max:500',
+            ]);
+
+            try {
+                $this->schoolHeadMonetizationService->processRejectedMonetization(
+                    $schoolHeadMonetization,
+                    $request->rejection_reason
+                );
+
+                $schoolHeadMonetization->admin_remarks = $request->admin_remarks;
+                $schoolHeadMonetization->save();
+
+                Log::info('Admin rejected school head monetization', [
+                    'monetization_id' => $schoolHeadMonetization->id,
+                    'admin_id' => Auth::id(),
+                    'school_head_id' => $schoolHeadMonetization->school_head_id,
+                    'reason' => $request->rejection_reason
+                ]);
+
+                return redirect()->back()->with('success', 'Monetization request rejected.');
+            } catch (\Exception $e) {
+                Log::error('Error rejecting school head monetization', [
+                    'monetization_id' => $schoolHeadMonetization->id,
+                    'error' => $e->getMessage()
+                ]);
+                return redirect()->back()->with('error', 'An error occurred while rejecting the request.');
+            }
+        }
+
+        // Handle regular teacher/non-teaching monetization
+        $monetization = LeaveMonetization::findOrFail($id);
+
         if ($monetization->status !== 'pending') {
             return redirect()->back()->with('error', 'This request has already been processed.');
         }
 
         $request->validate([
-            'admin_remarks' => 'required|string|max:500',
+            'rejection_reason' => 'required|string|max:500',
+            'admin_remarks' => 'nullable|string|max:500',
         ]);
 
-        $monetization->update([
-            'status' => 'rejected',
-            'admin_remarks' => $request->admin_remarks,
-            'approved_by' => Auth::id(),
-            'approved_at' => now(),
-        ]);
+        try {
+            $this->monetizationService->processRejectedMonetization($monetization, $request->rejection_reason);
 
-        return redirect()->back()->with('success', 'Monetization request rejected.');
+            $monetization->update([
+                'status' => 'rejected',
+                'admin_remarks' => $request->admin_remarks,
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
+
+            return redirect()->back()->with('success', 'Monetization request rejected.');
+        } catch (\Exception $e) {
+            Log::error('Error rejecting monetization', [
+                'monetization_id' => $monetization->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()->with('error', 'An error occurred while rejecting the request.');
+        }
     }
 }

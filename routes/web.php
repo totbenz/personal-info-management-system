@@ -11,6 +11,7 @@ use App\Http\Controllers\SalaryGradeController;
 use App\Http\Controllers\SalaryStepController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ServiceCreditRequestController;
+use App\Http\Controllers\SchoolHeadMonetizationController;
 use App\Http\Controllers\LeaveMonetizationController;
 
 use Illuminate\Support\Facades\Auth;
@@ -455,9 +456,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
 
         // Leave Monetization
-        Route::get('/school-head/monetization/create', [LeaveMonetizationController::class, 'create'])->name('school_head.monetization.create');
-        Route::post('/school-head/monetization', [LeaveMonetizationController::class, 'store'])->name('school_head.monetization.store');
-        Route::get('/school-head/monetization/history', [LeaveMonetizationController::class, 'history'])->name('school_head.monetization.history');
+        Route::get('/school-head/monetization/create', [SchoolHeadMonetizationController::class, 'create'])->name('school_head.monetization.create');
+        Route::post('/school-head/monetization', [SchoolHeadMonetizationController::class, 'store'])->name('school_head.monetization.store');
+        Route::get('/school-head/monetization/history', [SchoolHeadMonetizationController::class, 'history'])->name('school_head.monetization.history');
     });
 
     // Leave request submission - available to all authenticated roles

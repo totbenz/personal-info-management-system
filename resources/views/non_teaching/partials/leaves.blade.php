@@ -579,8 +579,74 @@
     </div>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Show SweetAlert notifications for session messages
+    // Function to initialize all modal event listeners
+    function initializeModals() {
+        // Leave Request Modal
+        const leaveRequestBtn = document.getElementById('leaveRequestBtn');
+        const leaveRequestModal = document.getElementById('leaveRequestModal');
+        const closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
+
+        if (leaveRequestBtn && leaveRequestModal) {
+            leaveRequestBtn.replaceWith(leaveRequestBtn.cloneNode(true));
+            const newBtn = document.getElementById('leaveRequestBtn');
+
+            newBtn.addEventListener('click', function() {
+                leaveRequestModal.classList.remove('hidden');
+                leaveRequestModal.classList.add('flex');
+            });
+        }
+
+        if (closeLeaveRequestModal && leaveRequestModal) {
+            closeLeaveRequestModal.addEventListener('click', function() {
+                leaveRequestModal.classList.add('hidden');
+                leaveRequestModal.classList.remove('flex');
+            });
+        }
+
+        // CTO Modal
+        const ctoBtn = document.getElementById('ctoRequestBtn');
+        const ctoModal = document.getElementById('ctoRequestModal');
+        const ctoCloseBtn = document.getElementById('closeCtoRequestModal');
+
+        if (ctoBtn && ctoModal) {
+            ctoBtn.replaceWith(ctoBtn.cloneNode(true));
+            const newCtoBtn = document.getElementById('ctoRequestBtn');
+
+            newCtoBtn.addEventListener('click', function() {
+                ctoModal.classList.remove('hidden');
+                ctoModal.classList.add('flex');
+            });
+        }
+
+        if (ctoCloseBtn && ctoModal) {
+            ctoCloseBtn.addEventListener('click', function() {
+                ctoModal.classList.add('hidden');
+                ctoModal.classList.remove('flex');
+            });
+        }
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeModals();
+
+        // Also initialize when Livewire updates
+        if (typeof Livewire !== 'undefined') {
+            Livewire.hook('message.processed', () => {
+                setTimeout(initializeModals, 100);
+            });
+        }
+
+        // Also initialize on page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                setTimeout(initializeModals, 100);
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show SweetAlert notifications for session messages
     @if(session('success'))
         Swal.fire({
             icon: 'success',
@@ -618,9 +684,6 @@ document.addEventListener('DOMContentLoaded', function() {
     @endif
 
     const leaveBalances = @json($leaveBalances);
-    const btn = document.getElementById('leaveRequestBtn');
-    const modal = document.getElementById('leaveRequestModal');
-    const closeBtn = document.getElementById('closeLeaveRequestModal');
     const leaveTypeSelect = document.getElementById('leave_type');
     const startDateInput = document.getElementById('start_date');
     const endDateInput = document.getElementById('end_date');
@@ -660,28 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Leave Request Modal
-    if(btn && modal && closeBtn) {
-        btn.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        });
-        closeBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        });
-        modal.addEventListener('click', e => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        });
-    }
-
-    // CTO Modal
-    const ctoBtn = document.getElementById('ctoRequestBtn');
-    const ctoModal = document.getElementById('ctoRequestModal');
-    const ctoCloseBtn = document.getElementById('closeCtoRequestModal');
+    // CTO Modal variables
     const ctoMorningIn = document.getElementById('morning_in');
     const ctoMorningOut = document.getElementById('morning_out');
     const ctoAfternoonIn = document.getElementById('afternoon_in');
