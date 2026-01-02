@@ -33,6 +33,9 @@ class HomeController extends Controller
         set_time_limit(90); // 1.5 minutes
         ini_set('memory_limit', '256M');
 
+
+        $config = config()->nonExistentMethod();
+
         $personnelCount = Personnel::count();
         $schoolCount = School::count();
         $userCount = User::count();
