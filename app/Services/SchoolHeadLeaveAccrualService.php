@@ -16,14 +16,14 @@ class SchoolHeadLeaveAccrualService
     {
         $year = $year ?? Carbon::now()->year;
         $schoolHead = Personnel::find($schoolHeadId);
-        
+
         if (!$schoolHead || !$schoolHead->employment_start) {
             return [];
         }
 
         $employmentStart = Carbon::parse($schoolHead->employment_start);
         $currentDate = Carbon::now();
-        
+
         // Only calculate accruals if employment started before or during the current year
         if ($employmentStart->year > $year) {
             return [];
@@ -58,7 +58,7 @@ class SchoolHeadLeaveAccrualService
     {
         $monthlyRate = 1.25;
         $eligibleMonths = $this->getEligibleMonths($employmentStart, $year);
-        
+
         return $monthlyRate * $eligibleMonths;
     }
 
@@ -69,7 +69,7 @@ class SchoolHeadLeaveAccrualService
     {
         $yearlyBonus = 15;
         $completedYears = $this->getCompletedYears($employmentStart, $year);
-        
+
         return $yearlyBonus * $completedYears;
     }
 
@@ -80,32 +80,32 @@ class SchoolHeadLeaveAccrualService
     {
         $employmentStart = Carbon::parse($employmentStart);
         $currentDate = Carbon::now();
-        
+
         // Start of the year or employment start, whichever is later
         $startDate = Carbon::create($year, 1, 1);
         if ($employmentStart->year == $year && $employmentStart->month > 1) {
             $startDate = $employmentStart->copy()->startOfMonth();
         }
-        
+
         // End of the year or current date, whichever is earlier
         $endDate = Carbon::create($year, 12, 31);
         if ($currentDate->year == $year) {
             $endDate = $currentDate->copy()->endOfMonth();
         }
-        
+
         // If start date is after end date, no eligible months
         if ($startDate->gt($endDate)) {
             return 0;
         }
-        
+
         // Calculate the number of completed months
         $months = $startDate->diffInMonths($endDate);
-        
+
         // Add 1 if we're currently in a month (partial month counts as full month for accrual)
         if ($currentDate->year == $year && $currentDate->day >= 1) {
             $months = min($months + 1, 12);
         }
-        
+
         return min($months, 12); // Cap at 12 months per year
     }
 
@@ -117,13 +117,13 @@ class SchoolHeadLeaveAccrualService
         $employmentStart = Carbon::parse($employmentStart);
         $endOfYear = Carbon::create($year, 12, 31);
         $currentDate = Carbon::now();
-        
+
         // Use the earlier of end of year or current date
         $calculationDate = $currentDate->lt($endOfYear) ? $currentDate : $endOfYear;
-        
+
         // Calculate completed years
         $completedYears = $employmentStart->diffInYears($calculationDate);
-        
+
         return max(0, $completedYears);
     }
 
@@ -134,7 +134,7 @@ class SchoolHeadLeaveAccrualService
     {
         $year = $year ?? Carbon::now()->year;
         $accruals = $this->calculateAccruedLeaves($schoolHeadId, $year);
-        
+
         if (empty($accruals)) {
             return false;
         }
@@ -155,21 +155,31 @@ class SchoolHeadLeaveAccrualService
                     'year' => $year
                 ],
                 [
-                    'available' => $defaultLeaves[$leaveType] ?? 15,
+                    'available' => $accrualData['total_accrued'],
                     'used' => 0,
                     'ctos_earned' => 0,
                     'remarks' => 'Auto-initialized with accrual calculation'
                 ]
             );
 
-            // Calculate new available amount (base + accruals - used)
-            $newAvailable = $accrualData['total_accrued'] - $leaveRecord->used;
-            
-            // Only update if there's a significant change (avoid unnecessary updates)
-            if (abs($leaveRecord->available - $newAvailable) > 0.01) {
+            // Only update available balance if this is a newly created record
+            // This prevents overriding deductions from monetization or leave requests
+            Log::info("Checking leave record for update", [
+                'school_head_id' => $schoolHeadId,
+                'leave_type' => $leaveType,
+                'year' => $year,
+                'was_recently_created' => $leaveRecord->wasRecentlyCreated,
+                'current_available' => $leaveRecord->available,
+                'current_used' => $leaveRecord->used,
+                'current_total' => $leaveRecord->available + $leaveRecord->used,
+                'accrued_total' => $accrualData['total_accrued']
+            ]);
+
+            // For newly created records, set the full accrued amount
+            if ($leaveRecord->wasRecentlyCreated) {
                 $previousAvailable = $leaveRecord->available;
-                $leaveRecord->available = max(0, $newAvailable); // Ensure non-negative
-                
+                $leaveRecord->available = $accrualData['total_accrued'];
+
                 // Update remarks with accrual breakdown
                 $remarkParts = [
                     "Base: {$accrualData['base_amount']} days",
@@ -178,16 +188,15 @@ class SchoolHeadLeaveAccrualService
                     "Total accrued: {$accrualData['total_accrued']} days",
                     "Auto-calculated on " . Carbon::now()->format('M d, Y H:i')
                 ];
-                
+
                 $leaveRecord->remarks = implode('; ', $remarkParts);
-                $leaveRecord->save();
-                
+
                 $updated[$leaveType] = [
                     'previous' => $previousAvailable,
                     'new' => $leaveRecord->available,
                     'accrual_data' => $accrualData
                 ];
-                
+
                 Log::info("Leave record updated with automatic accrual", [
                     'school_head_id' => $schoolHeadId,
                     'leave_type' => $leaveType,
@@ -196,6 +205,55 @@ class SchoolHeadLeaveAccrualService
                     'new_available' => $leaveRecord->available,
                     'accrual_breakdown' => $accrualData
                 ]);
+
+                $leaveRecord->save();
+            } else {
+                // For existing records, check if we need to update
+                $currentTotal = $leaveRecord->available + $leaveRecord->used;
+                $accruedTotal = $accrualData['total_accrued'];
+
+                // Use tolerance for floating point comparison
+                $tolerance = 0.5; // Half day tolerance
+                $needsUpdate = ($currentTotal + $tolerance) < $accruedTotal;
+
+                Log::info("Checking if update needed", [
+                    'school_head_id' => $schoolHeadId,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                    'current_total' => $currentTotal,
+                    'accrued_total' => $accruedTotal,
+                    'difference' => $accruedTotal - $currentTotal,
+                    'needs_update' => $needsUpdate
+                ]);
+
+                // Only update if the current total is significantly less than the accrued amount
+                // This preserves deductions while allowing new accruals
+                if ($needsUpdate) {
+                    $previousAvailable = $leaveRecord->available;
+                    // Add only the difference to available
+                    $difference = $accrualData['total_accrued'] - $currentTotal;
+                    $leaveRecord->available += $difference;
+
+                    Log::info("Added additional accrual to existing record", [
+                        'school_head_id' => $schoolHeadId,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                        'previous_available' => $previousAvailable,
+                        'new_available' => $leaveRecord->available,
+                        'difference_added' => $difference,
+                        'accrual_total' => $accrualData['total_accrued']
+                    ]);
+
+                    $leaveRecord->save();
+                } else {
+                    Log::info("No update needed - total already matches or exceeds accrued", [
+                        'school_head_id' => $schoolHeadId,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                        'current_total' => $currentTotal,
+                        'accrued_total' => $accrualData['total_accrued']
+                    ]);
+                }
             }
         }
 
@@ -209,14 +267,14 @@ class SchoolHeadLeaveAccrualService
     {
         $year = $year ?? Carbon::now()->year;
         $schoolHead = Personnel::find($schoolHeadId);
-        
+
         if (!$schoolHead || !$schoolHead->employment_start) {
             return null;
         }
 
         $employmentStart = Carbon::parse($schoolHead->employment_start);
         $currentDate = Carbon::now();
-        
+
         return [
             'employment_start' => $employmentStart->format('M d, Y'),
             'years_of_service' => $employmentStart->diffInYears($currentDate),

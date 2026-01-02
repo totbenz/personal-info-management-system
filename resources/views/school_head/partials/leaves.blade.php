@@ -27,7 +27,19 @@
     $leaveBalances = [];
     foreach($filteredLeaveData as $leave) {
         $leaveBalances[$leave['type']] = $leave['available'];
+
+        // Debug logging
+        \Log::info('School Head leave balance for monetization', [
+            'type' => $leave['type'],
+            'available' => $leave['available'],
+            'used' => $leave['used'],
+            'max' => $leave['max']
+        ]);
     }
+
+    \Log::info('School Head leave balances array', [
+        'leaveBalances' => $leaveBalances
+    ]);
 @endphp
 
 <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-8">
@@ -57,14 +69,6 @@
                 <!-- Document with Plus Icon -->
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />
-                </svg>
-            </button>
-
-            <!-- Monetization Request Icon Button -->
-            <button id="monetizationRequestBtn" class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Leave Monetization" onclick="openMonetizationModal()">
-                <!-- Money Icon -->
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </button>
         </div>
@@ -984,150 +988,4 @@
         // Initial validation
         validateLeaveRequest();
     });
-</script>
-
-<!-- Monetization Modal -->
-<div id="monetizationModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
-    <div class="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg relative">
-        <form id="monetizationForm" method="POST" action="{{ route('school_head.monetization.store') }}">
-            @csrf
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Leave Monetization Request</h3>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Available Leave Balances</label>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-blue-50 p-3 rounded-lg">
-                                    <p class="text-sm text-blue-600 font-medium">Vacation Leave</p>
-                                    <p class="text-2xl font-bold text-blue-900">{{ $leaveBalances['Vacation Leave'] ?? 0 }} days</p>
-                                </div>
-                                <div class="bg-green-50 p-3 rounded-lg">
-                                    <p class="text-sm text-green-600 font-medium">Sick Leave</p>
-                                    <p class="text-2xl font-bold text-green-900">{{ $leaveBalances['Sick Leave'] ?? 0 }} days</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">Maximum monetizable: <span id="maxMonetizableDays">0</span> days (5 days buffer per leave type)</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="days_to_monetize" class="block text-sm font-medium text-gray-700 mb-2">Days to Monetize</label>
-                            <input type="number" name="days_to_monetize" id="days_to_monetize" min="1" max="30" required
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
-                            <textarea name="reason" id="reason" rows="3" required
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Please specify the reason for monetization..."></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                    Submit Request
-                </button>
-                <button type="button" onclick="closeMonetizationModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-// Leave balances from backend
-const leaveBalances = @json($leaveBalances);
-
-// Calculate max monetizable days
-const vlAvailable = leaveBalances['Vacation Leave'] || 0;
-const slAvailable = leaveBalances['Sick Leave'] || 0;
-const maxMonetizableDays = Math.max(0, vlAvailable - 5) + Math.max(0, slAvailable - 5);
-
-document.getElementById('maxMonetizableDays').textContent = maxMonetizableDays;
-
-// Modal functions
-function openMonetizationModal() {
-    document.getElementById('monetizationModal').classList.remove('hidden');
-    document.getElementById('monetizationModal').classList.add('flex');
-}
-
-function closeMonetizationModal() {
-    document.getElementById('monetizationModal').classList.add('hidden');
-    document.getElementById('monetizationModal').classList.remove('flex');
-}
-
-// Wait for DOM to be ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Form submission
-    const monetizationForm = document.getElementById('monetizationForm');
-    if (monetizationForm) {
-        monetizationForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    const daysToMonetize = parseInt(formData.get('days_to_monetize'));
-
-    // Validate
-    if (daysToMonetize > maxMonetizableDays) {
-        showError(`Invalid amount. You can only monetize up to ${maxMonetizableDays} days.`);
-        return;
-    }
-
-    try {
-        const response = await fetch('{{ route("school_head.monetization.store") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showSuccess(data.message);
-            closeMonetizationModal();
-            this.reset();
-            // Reload page after a short delay
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        } else {
-            showError(data.message);
-        }
-    } catch (error) {
-        showError('An error occurred. Please try again.');
-    }
-        });
-    }
-});
-
-function showError(message) {
-    // Create error notification
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-function showSuccess(message) {
-    // Create success notification
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
 </script>

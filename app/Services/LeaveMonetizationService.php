@@ -392,11 +392,26 @@ class LeaveMonetizationService
      */
     private function deductFromSchoolHeadLeave(int $schoolHeadId, string $year, int $vlDays, int $slDays): void
     {
+        Log::info('Starting school head leave deduction', [
+            'school_head_id' => $schoolHeadId,
+            'year' => $year,
+            'vl_days' => $vlDays,
+            'sl_days' => $slDays
+        ]);
+
         if ($vlDays > 0) {
             $leave = SchoolHeadLeave::where('school_head_id', $schoolHeadId)
                 ->where('year', $year)
                 ->where('leave_type', 'Vacation Leave')
                 ->first();
+
+            Log::info('Found Vacation Leave record', [
+                'school_head_id' => $schoolHeadId,
+                'year' => $year,
+                'found' => $leave ? true : false,
+                'current_available' => $leave?->available,
+                'current_used' => $leave?->used
+            ]);
 
             if ($leave) {
                 $oldAvailable = $leave->available;
@@ -428,6 +443,14 @@ class LeaveMonetizationService
                 ->where('year', $year)
                 ->where('leave_type', 'Sick Leave')
                 ->first();
+
+            Log::info('Found Sick Leave record', [
+                'school_head_id' => $schoolHeadId,
+                'year' => $year,
+                'found' => $leave ? true : false,
+                'current_available' => $leave?->available,
+                'current_used' => $leave?->used
+            ]);
 
             if ($leave) {
                 $oldAvailable = $leave->available;
