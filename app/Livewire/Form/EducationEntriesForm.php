@@ -222,27 +222,11 @@ class EducationEntriesForm extends Component
         $this->showMode = false;
     }
 
-    public function cancel()
+    public function cancel(): void
     {
         $this->loadEntries();
         $this->updateMode = false;
         $this->showMode = true;
-
-        session(['active_personnel_tab' => 'education']);
-
-        if (!$this->personnel) {
-            return;
-        }
-
-        if (Auth::user()->role === 'teacher') {
-            return redirect()->to(route('personnel.profile', ['personnel' => $this->personnel->id]) . '#education');
-        }
-
-        if (Auth::user()->role === 'school_head') {
-            return redirect()->to(route('school_personnels.show', ['personnel' => $this->personnel->id]) . '#education');
-        }
-
-        return redirect()->to(route('personnels.show', ['personnel' => $this->personnel->id]) . '#education');
     }
 
     public function addEntry(string $type): void

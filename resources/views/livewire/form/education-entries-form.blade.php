@@ -234,7 +234,7 @@
                     @foreach(($entries[$type] ?? []) as $index => $education)
                     <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors duration-200">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                            <span class="text-sm font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">Entry #{{ $index + 1 }}</span>
+                            <span class="text-sm font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">Entry #{{ $index + 1 }} (Leave blank if not applicable)</span>
                             <button wire:click.prevent="removeEntry('{{ $type }}', {{ $index }})"
                                 class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors duration-200"
                                 title="Remove this entry">
