@@ -22,6 +22,8 @@ use App\Http\Controllers\NosaController;
 use App\Http\Controllers\NosiController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\SalaryChangesController;
+use App\Http\Controllers\EducationSheetController;
+use App\Http\Controllers\CombinedExportController;
 
 // Debug route to show current service credit requests
 Route::get('/debug/current-service-credits', function () {
@@ -378,6 +380,8 @@ Route::middleware(['auth'])->group(function () {
         }
     });
     Route::get('/profile/export', [PersonnelController::class, 'exportTeacherProfile'])->name('teacher-profile.export');
+    Route::get('/profile/combined-export', [CombinedExportController::class, 'exportCombinedPDS'])->name('teacher-profile.combined-export');
+    Route::get('/profile/education-sheet/export', [EducationSheetController::class, 'exportTeacherProfile'])->name('teacher-profile.education-sheet.export');
 
     // Leave Application Excel Download (accessible to all authenticated users)
     Route::get('/leave-application/download/{leaveRequestId}/{signatureChoice?}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
@@ -450,6 +454,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
             Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
+            Route::get('personnel/{personnel}/combined-export', [CombinedExportController::class, 'exportCombinedPDS'])->name('pds.combined-export');
+            Route::get('personnel/{personnel}/education-sheet/export', [EducationSheetController::class, 'export'])->name('pds.education-sheet.export');
             Route::get('/personnel/profile', [PersonnelController::class, 'profile'])->name('personnels.profile');
             Route::get('school/personnels/{personnel}', 'show')->name('school_personnels.show');
         });
@@ -621,6 +627,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/{personnel}/edit', 'edit')->name('personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('personnels.update');
             Route::get('personnels/export/{personnel}', 'export')->name('personnels.export');
+            Route::get('personnels/combined-export/{personnel}', [CombinedExportController::class, 'exportCombinedPDS'])->name('personnels.combined-export');
+            Route::get('personnels/education-sheet/export/{personnel}', [EducationSheetController::class, 'export'])->name('personnels.education-sheet.export');
             Route::get('personnels/{personnel}', 'show')->name('personnels.show');
             Route::delete('personnels/{personnel}', 'destroy')->name('personnels.destroy');
         });

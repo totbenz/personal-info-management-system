@@ -1,0 +1,280 @@
+<?php
+
+namespace App\Exports\Sheets;
+
+use App\Models\EducationEntry;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\BeforeWriting;
+use Maatwebsite\Excel\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
+
+class EducationSheetExport implements WithMultipleSheets, WithEvents
+{
+    private $personnel;
+    private $templatePath;
+
+    public function __construct($personnel)
+    {
+        $this->personnel = $personnel;
+        $this->templatePath = public_path('report/Education_Sheet.xlsx');
+    }
+
+    public function sheets(): array
+    {
+        return [
+            new ElementarySheet($this->personnel),
+            new SecondarySheet($this->personnel),
+            new VocationalSheet($this->personnel),
+            new CollegeSheet($this->personnel),
+            new GraduateStudiesSheet($this->personnel),
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            BeforeWriting::class => function (BeforeWriting $event) {
+                // Load the template
+                $spreadsheet = IOFactory::load($this->templatePath);
+
+                // Get all sheets
+                $sheets = $this->sheets();
+
+                // Process each sheet
+                foreach ($sheets as $index => $sheet) {
+                    $worksheet = $spreadsheet->getSheet($index);
+                    $sheet->fillWorksheet($worksheet);
+                }
+
+                // Set the modified spreadsheet back to the event
+                $event->writer->setSpreadsheet($spreadsheet);
+            },
+        ];
+    }
+}
+
+class ElementarySheet implements WithEvents
+{
+    private $personnel;
+
+    public function __construct($personnel)
+    {
+        $this->personnel = $personnel;
+    }
+
+    public function registerEvents(): array
+    {
+        return [];
+    }
+
+    public function fillWorksheet($worksheet)
+    {
+        Log::info('ElementarySheet::fillWorksheet called', [
+            'personnelId' => $this->personnel->id
+        ]);
+
+        $educationEntries = $this->personnel->educationEntries()
+            ->where('type', 'elementary')
+            ->orderBy('sort_order')
+            ->get();
+
+        Log::info('Found elementary entries', ['count' => $educationEntries->count()]);
+
+        // Fill data for each entry
+        foreach ($educationEntries as $index => $entry) {
+            $row = 5 + $index; // Starting from row 5
+
+            Log::info('Processing elementary entry', [
+                'index' => $index,
+                'row' => $row,
+                'school' => $entry->school_name
+            ]);
+
+            // School Name
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
+            // Degree/Course
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
+            // Period From
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
+            // Period To
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
+            // Highest Level/Units
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
+            // Year Graduated
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
+            // Scholarship/Honors
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+        }
+
+        Log::info('ElementarySheet::fillWorksheet completed');
+    }
+
+    public function title(): string
+    {
+        return 'Elementary';
+    }
+}
+
+class SecondarySheet implements WithEvents
+{
+    private $personnel;
+
+    public function __construct($personnel)
+    {
+        $this->personnel = $personnel;
+    }
+
+    public function registerEvents(): array
+    {
+        return [];
+    }
+
+    public function fillWorksheet($worksheet)
+    {
+        $educationEntries = $this->personnel->educationEntries()
+            ->where('type', 'secondary')
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($educationEntries as $index => $entry) {
+            $row = 5 + $index;
+
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+        }
+    }
+
+    public function title(): string
+    {
+        return 'Secondary';
+    }
+}
+
+class VocationalSheet implements WithEvents
+{
+    private $personnel;
+
+    public function __construct($personnel)
+    {
+        $this->personnel = $personnel;
+    }
+
+    public function registerEvents(): array
+    {
+        return [];
+    }
+
+    public function fillWorksheet($worksheet)
+    {
+        $educationEntries = $this->personnel->educationEntries()
+            ->where('type', 'vocational/trade')
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($educationEntries as $index => $entry) {
+            $row = 5 + $index;
+
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+        }
+    }
+
+    public function title(): string
+    {
+        return 'Vocational';
+    }
+}
+
+class CollegeSheet implements WithEvents
+{
+    private $personnel;
+
+    public function __construct($personnel)
+    {
+        $this->personnel = $personnel;
+    }
+
+    public function registerEvents(): array
+    {
+        return [];
+    }
+
+    public function fillWorksheet($worksheet)
+    {
+        $educationEntries = $this->personnel->educationEntries()
+            ->where('type', 'graduate')
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($educationEntries as $index => $entry) {
+            $row = 5 + $index;
+
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+        }
+    }
+
+    public function title(): string
+    {
+        return 'College';
+    }
+}
+
+class GraduateStudiesSheet implements WithEvents
+{
+    private $personnel;
+
+    public function __construct($personnel)
+    {
+        $this->personnel = $personnel;
+    }
+
+    public function registerEvents(): array
+    {
+        return [];
+    }
+
+    public function fillWorksheet($worksheet)
+    {
+        $educationEntries = $this->personnel->educationEntries()
+            ->where('type', 'graduate studies')
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($educationEntries as $index => $entry) {
+            $row = 5 + $index;
+
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+        }
+    }
+
+    public function title(): string
+    {
+        return 'Graduate Studies';
+    }
+}

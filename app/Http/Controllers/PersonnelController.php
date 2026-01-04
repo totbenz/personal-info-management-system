@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PersonnelDataExport;
+use App\Exports\Sheets\CombinedPDSExport;
 use App\Models\Personnel;
 use App\Jobs\UpdateStepIncrement;
 use Illuminate\Validation\ValidationException;
@@ -130,22 +131,12 @@ class PersonnelController extends Controller
             $personnel = Personnel::findOrFail($id);
             Log::info('Personnel found: ' . $personnel->personnel_id);
 
-            // Pass the personnel data to the export class
-            $export = new PersonnelDataExport($personnel->id);
-            Log::info('PersonnelDataExport instance created');
+            // Use the CombinedPDSExport to export both C1 and Education sheets
+            $export = new CombinedPDSExport($personnel);
+            Log::info('CombinedPDSExport instance created');
 
-            $outputPath = $export->getOutputPath();
-            Log::info('Output path: ' . $outputPath);
-
-            // Check if file was created successfully
-            if (!file_exists($outputPath)) {
-                throw new \Exception('Export file was not created');
-            }
-
-            // Clean up the export object
-            $export->cleanup();
-
-            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . '_' . $personnel->last_name . '_pds.xlsx');
+            // Trigger the export by registering events and letting Excel handle it
+            return Excel::download($export, $export->getFileName());
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -162,23 +153,12 @@ class PersonnelController extends Controller
             $personnel = Personnel::findOrFail(Auth::user()->personnel->id);
             Log::info('Personnel found: ' . $personnel->personnel_id);
 
-            // Pass the personnel data to the export class
-            $export = new PersonnelDataExport($personnel->id);
-            Log::info('PersonnelDataExport instance created');
+            // Use the CombinedPDSExport to export both C1 and Education sheets
+            $export = new CombinedPDSExport($personnel);
+            Log::info('CombinedPDSExport instance created');
 
-            $outputPath = $export->getOutputPath();
-            Log::info('Output path: ' . $outputPath);
-
-            // Check if file was created successfully
-            if (!file_exists($outputPath)) {
-                throw new \Exception('Export file was not created');
-            }
-
-            // Clean up the export object
-            $export->cleanup();
-
-            // Return the Excel file as a download with correct extension
-            return response()->download($outputPath, $personnel->personnel_id . '_' . $personnel->first_name . '_' . $personnel->last_name . '_pds.xlsx');
+            // Trigger the export by registering events and letting Excel handle it
+            return Excel::download($export, $export->getFileName());
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

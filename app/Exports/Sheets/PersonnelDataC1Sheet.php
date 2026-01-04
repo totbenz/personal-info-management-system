@@ -2,9 +2,14 @@
 
 namespace App\Exports\Sheets;
 
+use App\Models\Personnel;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeWriting;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class PersonnelDataC1Sheet
 {
@@ -19,22 +24,41 @@ class PersonnelDataC1Sheet
 
     public function populateSheet()
     {
+        Log::info('PersonnelDataC1Sheet::populateSheet called', [
+            'personnelId' => $this->personnel->id,
+            'fullName' => $this->personnel->full_name
+        ]);
+
+        $worksheet = $this->worksheet;
+
         try {
-            $this->populatePersonalInfo();
-            $this->populateAddress();
-            $this->populateFamilyInfo();
-            $this->populateChildren();
-            $this->populateEducation();
-            $this->populateCurrentDate();
+            $this->populatePersonalInfo($worksheet);
+            Log::info('Personal info populated');
+
+            $this->populateAddress($worksheet);
+            Log::info('Address info populated');
+
+            $this->populateFamilyInfo($worksheet);
+            Log::info('Family info populated');
+
+            $this->populateEducation($worksheet);
+            Log::info('Education info populated');
+
+            $this->populateCurrentDate($worksheet);
+            Log::info('Current date populated');
+
+            Log::info('PersonnelDataC1Sheet::populateSheet completed successfully');
         } catch (\Exception $e) {
-            Log::error('Error populating C1 sheet: ' . $e->getMessage());
+            Log::error('Error in PersonnelDataC1Sheet::populateSheet', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 
-    protected function populatePersonalInfo()
+    protected function populatePersonalInfo($worksheet)
     {
-        $worksheet = $this->worksheet;
-
         // Populate specific cells with data
         $worksheet->setCellValue('D10', $this->personnel->last_name ?? 'N/A');
         $worksheet->setCellValue('D11', $this->personnel->first_name ?? 'N/A');
@@ -208,9 +232,9 @@ class PersonnelDataC1Sheet
         if ($this->personnel->educationEntries && $this->personnel->educationEntries->count() > 0) {
             $elementary = $this->personnel->educationEntries->where('type', 'elementary')->first();
             $secondary = $this->personnel->educationEntries->where('type', 'secondary')->first();
-            $vocational = $this->personnel->educationEntries->where('type', 'vocational_trade')->first();
-            $college = $this->personnel->educationEntries->where('type', 'college')->first();
-            $graduateStudies = $this->personnel->educationEntries->where('type', 'graduate_studies')->first();
+            $vocational = $this->personnel->educationEntries->where('type', 'vocational/trade')->first();
+            $college = $this->personnel->educationEntries->where('type', 'graduate')->first();
+            $graduateStudies = $this->personnel->educationEntries->where('type', 'graduate studies')->first();
 
             // Elementary Education
             if ($elementary) {
