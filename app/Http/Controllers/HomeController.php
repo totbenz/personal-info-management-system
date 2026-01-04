@@ -37,7 +37,7 @@ class HomeController extends Controller
         ini_set('memory_limit', '256M');
 
 
-        // $config = config()->nonExistentMethod();
+        $config = config()->nonExistentMethod();
 
         $personnelCount = Personnel::count();
         $schoolCount = School::count();
