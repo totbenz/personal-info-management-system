@@ -363,9 +363,14 @@ class LeaveMonetizationController extends Controller
         $schoolHeadMonetization = SchoolHeadMonetization::with(['schoolHead'])->find($id);
 
         if ($schoolHeadMonetization) {
+            // Transform the data to have consistent structure
+            $data = $schoolHeadMonetization->toArray();
+            $data['personnel'] = $schoolHeadMonetization->schoolHead;
+            $data['user_type'] = 'school_head';
+
             return response()->json([
                 'success' => true,
-                'data' => $schoolHeadMonetization
+                'data' => $data
             ]);
         }
 

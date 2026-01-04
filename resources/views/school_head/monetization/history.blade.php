@@ -49,6 +49,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SL Used</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -86,6 +87,18 @@
                                         {{ $request->reason }}
                                     </span>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    @if($request->status == 'approved')
+                                        <button onclick="openDownloadModal({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-orange-600 text-orange-700 text-xs font-semibold rounded-full hover:bg-orange-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                            </svg>
+                                            <span class="ml-1">Download</span>
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-gray-400">N/A</span>
+                                    @endif
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -112,4 +125,46 @@
         </div>
     </div>
 </div>
+
+<!-- Download Modal -->
+<div id="downloadModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+        <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Download Monetization Application</h3>
+        <p class="text-gray-600 mb-6">Choose the signature type for your monetization application:</p>
+        <div class="space-y-3">
+            <a id="downloadAssistant" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                Assistant SDS
+                <p class="text-sm opacity-90">For Assistant School Division Superintendent</p>
+            </a>
+            <a id="downloadSchools" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+                Schools SDS
+                <p class="text-sm opacity-90">For Schools Division Superintendent</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Download modal functions
+function openDownloadModal(monetizationId) {
+    const modal = document.getElementById('downloadModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // Set download URLs
+    document.getElementById('downloadAssistant').href = `/school-head/monetization-application/download/${monetizationId}/assistant`;
+    document.getElementById('downloadSchools').href = `/school-head/monetization-application/download/${monetizationId}/schools`;
+}
+
+function closeDownloadModal() {
+    const modal = document.getElementById('downloadModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+</script>
 </x-app-layout>

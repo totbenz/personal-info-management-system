@@ -518,15 +518,15 @@
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Personnel Name</p>
-                                    <p class="text-sm text-gray-900">${data.data.personnel.first_name} ${data.data.personnel.last_name}</p>
+                                    <p class="text-sm text-gray-900">${data.data.personnel ? (data.data.personnel.first_name || '') + ' ' + (data.data.personnel.last_name || '') : 'N/A'}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">User Type</p>
-                                    <p class="text-sm text-gray-900">${data.data.user_type}</p>
+                                    <p class="text-sm text-gray-900">${data.data.user_type || 'N/A'}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Date Requested</p>
-                                    <p class="text-sm text-gray-900">${new Date(data.data.created_at).toLocaleString()}</p>
+                                    <p class="text-sm text-gray-900">${data.data.created_at ? new Date(data.data.created_at).toLocaleString() : 'N/A'}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Status</p>
@@ -535,7 +535,7 @@
                                         data.data.status == 'approved' ? 'bg-green-100 text-green-800' :
                                         'bg-red-100 text-red-800'
                                     }">
-                                        ${data.data.status.charAt(0).toUpperCase() + data.data.status.slice(1)}
+                                        ${data.data.status ? data.data.status.charAt(0).toUpperCase() + data.data.status.slice(1) : 'Unknown'}
                                     </span>
                                 </div>
                             </div>
@@ -545,15 +545,15 @@
                                 <div class="grid grid-cols-3 gap-4">
                                     <div class="bg-blue-50 p-3 rounded">
                                         <p class="text-sm text-blue-600 font-medium">VL Days</p>
-                                        <p class="text-xl font-bold text-blue-900">${data.data.vl_days_used}</p>
+                                        <p class="text-xl font-bold text-blue-900">${data.data.vl_days_used || 0}</p>
                                     </div>
                                     <div class="bg-green-50 p-3 rounded">
                                         <p class="text-sm text-green-600 font-medium">SL Days</p>
-                                        <p class="text-xl font-bold text-green-900">${data.data.sl_days_used}</p>
+                                        <p class="text-xl font-bold text-green-900">${data.data.sl_days_used || 0}</p>
                                     </div>
                                     <div class="bg-purple-50 p-3 rounded">
                                         <p class="text-sm text-purple-600 font-medium">Total Days</p>
-                                        <p class="text-xl font-bold text-purple-900">${data.data.total_days}</p>
+                                        <p class="text-xl font-bold text-purple-900">${data.data.total_days || 0}</p>
                                     </div>
                                 </div>
                             </div>
@@ -581,6 +581,12 @@
             })
             .catch(error => {
                 console.error('Error fetching details:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch monetization request details. Please try again.',
+                    confirmButtonColor: '#ef4444'
+                });
             });
         }
 

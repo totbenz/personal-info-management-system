@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\LeaveRequest;
+use App\Models\LeaveMonetization;
+use App\Models\SchoolHeadMonetization;
 use App\Models\Personnel;
 use App\Models\SalaryStep;
 use App\Models\Signature;
@@ -14,23 +15,26 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
-class DLAppForLeaveController extends Controller
+class MonetizationDownloadController extends Controller
 {
-    /**
-     * Download Leave Application Excel
-     * Note: Monetization downloads are handled by MonetizationDownloadController
-     */
-    public function downloadExcel($leaveRequestId, $signatureChoice = null)
+    public function downloadExcel($monetizationId, $signatureChoice = null)
     {
         try {
-            // Get the leave request
-            $leaveRequest = LeaveRequest::findOrFail($leaveRequestId);
+            // Get the logged-in user
+            $user = Auth::user();
 
-            // Authorization check - ensure user can only download their own leave requests
-            abort_if($leaveRequest->user_id !== auth()->id(), 403, 'Unauthorized access to this leave request.');
+            // Determine which model to use based on user role
+            if ($user->role === 'school_head') {
+                $monetizationRequest = SchoolHeadMonetization::findOrFail($monetizationId);
+                // Authorization check for school head
+                abort_if($monetizationRequest->school_head_id !== $user->personnel->id, 403, 'Unauthorized access to this monetization request.');
+            } else {
+                $monetizationRequest = LeaveMonetization::findOrFail($monetizationId);
+                // Authorization check for teacher/non-teaching
+                abort_if($monetizationRequest->user_id !== auth()->id(), 403, 'Unauthorized access to this monetization request.');
+            }
 
             // Get the logged-in user's personnel data
-            $user = Auth::user();
             $personnel = $user->personnel;
 
             if (!$personnel) {
@@ -59,62 +63,29 @@ class DLAppForLeaveController extends Controller
             // Fill position
             $sheet->setCellValue('H14', $personnel->position->title ?? '');
 
-            // Fill date filing (created_at of leave request) - Assuming it goes in cell that makes sense for date filing
-            // You may need to adjust this cell reference based on the actual template layout
-            $sheet->setCellValue('F14', $leaveRequest->created_at->format('m/d/Y'));
+            // Fill date filing (created_at of monetization request)
+            $sheet->setCellValue('F14', $monetizationRequest->created_at->format('m/d/Y'));
 
-            // Calculate working days
-            $workingDays = $this->calculateWorkingDays($leaveRequest->start_date, $leaveRequest->end_date);
-            $sheet->setCellValue('E36', $workingDays);
+            // Calculate working days (use monetization days)
+            $monetizationDays = $user->role === 'school_head' ? $monetizationRequest->days_requested : $monetizationRequest->total_days;
+            $sheet->setCellValue('E36', $monetizationDays);
 
             // Fill full name
             $fullName = trim($personnel->first_name . ' ' . ($personnel->middle_name ? $personnel->middle_name . ' ' : '') . $personnel->last_name);
             $sheet->setCellValue('I38', $fullName);
 
-            // Fill inclusive dates in E38
-            $inclusiveDates = $leaveRequest->start_date . ' - ' . $leaveRequest->end_date;
+            // Fill inclusive dates (use monetization request date)
+            if ($user->role === 'school_head') {
+                $requestDate = \Carbon\Carbon::parse($monetizationRequest->request_date)->format('m/d/Y');
+                $inclusiveDates = $requestDate . ' - ' . $requestDate;
+            } else {
+                $requestDate = $monetizationRequest->created_at->format('m/d/Y');
+                $inclusiveDates = $requestDate . ' - ' . $requestDate;
+            }
             $sheet->setCellValue('E38', $inclusiveDates);
 
-            // Add check marks based on leave type
-            $leaveType = strtolower($leaveRequest->leave_type);
-            switch ($leaveType) {
-                case 'force leave':
-                    $sheet->setCellValue('C21', '✓');
-                    break;
-                case 'sick leave':
-                    $sheet->setCellValue('C22', '✓');
-                    break;
-                case 'maternity leave':
-                    $sheet->setCellValue('C23', '✓');
-                    break;
-                case 'paternity leave':
-                    $sheet->setCellValue('C24', '✓');
-                    break;
-                case 'solo parent leave':
-                    $sheet->setCellValue('C26', '✓');
-                    break;
-                case 'study leave':
-                    $sheet->setCellValue('C27', '✓');
-                    break;
-                case 'adoption leave':
-                    $sheet->setCellValue('C32', '✓');
-                    break;
-                case 'rehabilitation leave':
-                    $sheet->setCellValue('C29', '✓');
-                    break;
-                case 'vacation leave':
-                    $sheet->setCellValue('C20', '✓');
-                    break;
-                case 'special leave benefits for women':
-                    $sheet->setCellValue('C30', '✓');
-                    break;
-                case 'calamity leave':
-                    $sheet->setCellValue('C31', '✓');
-                    break;
-                case 'vawc leave':
-                    $sheet->setCellValue('C28', '✓');
-                    break;
-            }
+            // Add check mark for Monetization in J32
+            $sheet->setCellValue('J32', '✓');
 
             // Get Administrative Officer VI signature from signatures table
             $adminOfficerSignature = Signature::where('position', 'Administrative Officer VI (HRMO II)')->first();
@@ -159,22 +130,19 @@ class DLAppForLeaveController extends Controller
             }
 
             // Create the Excel file
-            $filename = 'Leave_Application_' . $personnel->personnel_id . '_' . now()->format('Y-m-d') . '.xlsx';
+            $filename = 'Monetization_Application_' . $personnel->personnel_id . '_' . now()->format('Y-m-d') . '.xlsx';
 
-            // Save to temporary file
+            // Save the file to temporary location
             $tempPath = storage_path('app/temp/' . $filename);
-            if (!is_dir(dirname($tempPath))) {
-                mkdir(dirname($tempPath), 0755, true);
-            }
-
             $writer = new Xlsx($spreadsheet);
             $writer->save($tempPath);
 
-            // Return download response
+            // Download the file
             return response()->download($tempPath, $filename)->deleteFileAfterSend(true);
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Error generating Excel file: ' . $e->getMessage());
+            \Log::error('Error downloading monetization application: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while downloading the application: ' . $e->getMessage());
         }
     }
 
@@ -198,30 +166,5 @@ class DLAppForLeaveController extends Controller
         }
 
         return $salaryStep ? $salaryStep->salary : 0;
-    }
-
-    private function calculateWorkingDays($startDate, $endDate)
-    {
-        $start = Carbon::parse($startDate);
-        $end = Carbon::parse($endDate);
-
-        // Ensure end date is after start date
-        if ($end->lt($start)) {
-            return 0;
-        }
-
-        // Calculate working days (excluding weekends)
-        $workingDays = 0;
-        $currentDate = $start->copy();
-
-        while ($currentDate->lte($end)) {
-            // Exclude Saturday (6) and Sunday (7)
-            if ($currentDate->dayOfWeek !== Carbon::SATURDAY && $currentDate->dayOfWeek !== Carbon::SUNDAY) {
-                $workingDays++;
-            }
-            $currentDate->addDay();
-        }
-
-        return $workingDays;
     }
 }

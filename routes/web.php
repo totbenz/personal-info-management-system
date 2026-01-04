@@ -13,6 +13,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ServiceCreditRequestController;
 use App\Http\Controllers\SchoolHeadMonetizationController;
 use App\Http\Controllers\LeaveMonetizationController;
+use App\Http\Controllers\MonetizationDownloadController;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -402,6 +403,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/teacher/monetization/create', [LeaveMonetizationController::class, 'create'])->name('teacher.monetization.create');
         Route::post('/teacher/monetization', [LeaveMonetizationController::class, 'store'])->name('teacher.monetization.store');
         Route::get('/teacher/monetization/history', [LeaveMonetizationController::class, 'history'])->name('teacher.monetization.history');
+
+        // Monetization Download
+        Route::get('/teacher/monetization-application/download/{monetizationId}/{signatureChoice?}', [MonetizationDownloadController::class, 'downloadExcel'])->name('teacher.monetization.download');
     });
 
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
@@ -423,6 +427,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/non-teaching/monetization/create', [LeaveMonetizationController::class, 'create'])->name('non_teaching.monetization.create');
         Route::post('/non-teaching/monetization', [LeaveMonetizationController::class, 'store'])->name('non_teaching.monetization.store');
         Route::get('/non-teaching/monetization/history', [LeaveMonetizationController::class, 'history'])->name('non_teaching.monetization.history');
+
+        // Monetization Download
+        Route::get('/non-teaching/monetization-application/download/{monetizationId}/{signatureChoice?}', [MonetizationDownloadController::class, 'downloadExcel'])->name('non_teaching.monetization.download');
     });
 
     // SCHOOL HEAD ACCESS
@@ -459,6 +466,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/school-head/monetization/create', [SchoolHeadMonetizationController::class, 'create'])->name('school_head.monetization.create');
         Route::post('/school-head/monetization', [SchoolHeadMonetizationController::class, 'store'])->name('school_head.monetization.store');
         Route::get('/school-head/monetization/history', [SchoolHeadMonetizationController::class, 'history'])->name('school_head.monetization.history');
+
+        // Monetization Download
+        Route::get('/school-head/monetization-application/download/{monetizationId}/{signatureChoice?}', [MonetizationDownloadController::class, 'downloadExcel'])->name('school_head.monetization.download');
     });
 
     // Leave request submission - available to all authenticated roles
