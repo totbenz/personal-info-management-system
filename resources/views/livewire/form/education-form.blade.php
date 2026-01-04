@@ -193,7 +193,7 @@
             </section>
 
             <section>
-                <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">Graduate</h4>
+                <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">College</h4>
                 <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                     <span class="w-3/4">
                         <x-input id="graduate_school_name" type="text" label="School Name" name="graduate_school_name" wire:model="graduate_school_name" class="bg-gray-50 border-gray-300" readonly />
@@ -707,7 +707,7 @@
                 </section>
 
                 <section>
-                    <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">Graduate</h4>
+                    <h4 class="mt-8 mb-3 font-bold text-base text-gray-darkest">College</h4>
                     <div class="m-0 mb-4 p-0 flex space-x-3 justify-between">
                         <span class="w-3/12">
                             <x-input id="graduate_school_name" type="text" label="School Name" name="graduate_school_name" wire:model.live="graduate_school_name"/>

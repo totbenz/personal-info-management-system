@@ -68,11 +68,15 @@
                                 </div>
                             </div>
                         </div>
-                        @if($criminally_charged == 1)
+                        @if($criminally_charged == 1 || $criminally_charged == "1")
                         <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                             <span class="w-[20rem]">
                                 <x-input class="form-control w-full" type="text" label="If YES, give details" id="criminally_charged_details" wire:model="criminally_charged_details"/>
                             </span>
+                        </div>
+                        @else
+                        <div class="mx-5 mt-2.5 text-red-500">
+                            DEBUG: criminally_charged = {{ $criminally_charged }} (type: {{ gettype($criminally_charged) }})
                         </div>
                         @endif
                     </div>

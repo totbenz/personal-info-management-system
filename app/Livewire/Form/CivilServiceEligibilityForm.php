@@ -26,11 +26,11 @@ class CivilServiceEligibilityForm extends Component
         'old_civil_services.*.license_num' => 'required',
         'old_civil_services.*.license_date_of_validity' => 'required',
         'new_civil_services.*.title' => 'required',
-        'new_civil_services.*.rating' => 'required',
+        'new_civil_services.*.rating' => 'nullable',
         'new_civil_services.*.date_of_exam' => 'required',
         'new_civil_services.*.place_of_exam' => 'required',
         'new_civil_services.*.license_num' => 'required',
-        'new_civil_services.*.license_date_of_validity' => 'required'
+        'new_civil_services.*.license_date_of_validity' => 'nullable'
     ];
 
     public function  mount($id, $showMode = true)
@@ -147,7 +147,7 @@ class CivilServiceEligibilityForm extends Component
                         'date_of_exam' => $civil_service['date_of_exam'],
                         'place_of_exam' => $civil_service['place_of_exam'],
                         'license_num' => $civil_service['license_num'],
-                        'license_date_of_validity' => $civil_service['license_date_of_validity']
+                        'license_date_of_validity' => $civil_service['license_date_of_validity'] ?: null
                     ]);
             }
         }
@@ -160,7 +160,7 @@ class CivilServiceEligibilityForm extends Component
                     'date_of_exam' => $civil_service['date_of_exam'],
                     'place_of_exam' => $civil_service['place_of_exam'],
                     'license_num' => $civil_service['license_num'],
-                    'license_date_of_validity' => $civil_service['license_date_of_validity']
+                    'license_date_of_validity' => $civil_service['license_date_of_validity'] ?: null
                 ]);
             }
         }

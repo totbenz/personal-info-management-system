@@ -81,10 +81,10 @@
     </div>
     <div class="my-5 p-0 flex space-x-3 justify-end">
         <div class="w-2/12">
-            <x-button wire:click.prevent="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-600 hover:scale-105 duration-150"/>
+            <x-button wire:click.prevent="cancel" label="Cancel" class="px-5 py-2.5 w-full bg-danger font-semibold text-xs text-white uppercase tracking-widest hover:bg-danger/90 hover:scale-105 duration-150"/>
         </div>
         <div class="w-2/12">
-            <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:bg-main_hover"/>
+            <x-button wire:click.prevent="save" label="Save" class="px-5 py-2.5 w-full bg-main font-semibold text-xs text-white uppercase tracking-widest hover:bg-main/90"/>
         </div>
     </div>
 </div>

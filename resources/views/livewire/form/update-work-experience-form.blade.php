@@ -26,7 +26,7 @@
                                     <x-input id="monthly_salary_{{ $index }}" type="text" wire:model="old_work_experiences.{{ $index }}.monthly_salary" name="old_work_experiences[{{ $index }}][monthly_salary]" label="Monthly Salary" required/>
                                 </div>
                                 <div class="w-3/12">
-                                    <x-input id="paygrade_step_increment_{{ $index }}" type="text" wire:model="old_work_experiences.{{ $index }}.paygrade_step_increment" name="old_work_experiences[{{ $index }}][paygrade_step_increment]" label="Pay Grade/Step Increment" required/>
+                                    <x-input id="paygrade_step_increment_{{ $index }}" type="text" wire:model="old_work_experiences.{{ $index }}.paygrade_step_increment" name="old_work_experiences[{{ $index }}][paygrade_step_increment]" label="Pay Grade/Step Increment"/>
                                 </div>
                                 <div class="w-4/12">
                                     <x-input id="appointment_{{ $index }}" type="text" wire:model="old_work_experiences.{{ $index }}.appointment" name="old_work_experiences[{{ $index }}][appointment]" label="Appointment" required/>
@@ -84,7 +84,7 @@
                                 <x-input id="new_work_experiences.{{ $index }}.paygrade_step_increment"
                                              wire:model="new_work_experiences.{{ $index }}.paygrade_step_increment"
                                              name="new_work_experiences.{{ $index }}.paygrade_step_increment"
-                                             type="number"  label="Pay Grade/Step Increment" required/>
+                                             type="number"  label="Pay Grade/Step Increment"/>
                             </div>
                             <div class="w-4/12">
                                 <x-input id="new_work_experiences.{{ $index }}.appointment"

@@ -8,6 +8,7 @@ use App\Models\PersonnelDetail;
 use App\Livewire\PersonnelNavigation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Arr;
 
 class QuestionnaireForm extends PersonnelNavigation
 {
@@ -35,11 +36,9 @@ class QuestionnaireForm extends PersonnelNavigation
     ];
 
     protected $rules = [
-        'consanguinity_third_degree_details' => 'required_if:consanguinity_third_degree,1|nullable|string|max:255',
+        'consanguinity_third_degree_details' => 'required_if:consanguinity_third_degree,1|required_if:consanguinity_fourth_degree,1|nullable|string|max:255',
         'administrative_offense_details' => 'required_if:found_guilty_administrative_offense,1|nullable|string|max:255',
         'criminally_charged_details' => 'required_if:criminally_charged,1|nullable|string|max:255',
-        'criminally_charged_date_filed' => 'required_if:criminally_charged,1|nullable|date',
-        'criminally_charged_status' => 'required_if:criminally_charged,1|nullable|string|max:255',
         'convicted_crime_details' => 'required_if:convicted_crime,1|nullable|string|max:255',
         'separation_details' => 'required_if:separated_from_service,1|nullable|string|max:255',
         'candidate_details' => 'required_if:candidate_last_year,1|nullable|string|max:255',
@@ -136,12 +135,21 @@ class QuestionnaireForm extends PersonnelNavigation
         }
     }
 
+    public function updatedCriminallyChargedDateFiled($value)
+    {
+        \Log::info('criminally_charged_date_filed updated', ['value' => $value, 'type' => gettype($value)]);
+    }
+
+    public function updatedCriminallyChargedStatus($value)
+    {
+        \Log::info('criminally_charged_status updated', ['value' => $value, 'type' => gettype($value)]);
+    }
+
     public function updatedCriminallyCharged($value)
     {
+        \Log::info('criminally_charged updated', ['value' => $value, 'type' => gettype($value)]);
         if ($value != 1) {
             $this->criminally_charged_details = null;
-            $this->criminally_charged_date_filed = null;
-            $this->criminally_charged_status = null;
         }
     }
 
@@ -204,50 +212,76 @@ class QuestionnaireForm extends PersonnelNavigation
     public function save()
     {
         try {
-            // Log the data before validation
-            \Log::info('Attempting to save questionnaire with data: ', [
+            // Log ALL form data before validation
+            \Log::info('=== QUESTIONNAIRE SAVE ATTEMPT ===');
+            \Log::info('All public properties:', [
                 'consanguinity_third_degree' => $this->consanguinity_third_degree,
                 'consanguinity_fourth_degree' => $this->consanguinity_fourth_degree,
-                'found_guilty_administrative_offense' => $this->found_guilty_administrative_offense,
-                'criminally_charged' => $this->criminally_charged,
-                'convicted_crime' => $this->convicted_crime,
-                'separated_from_service' => $this->separated_from_service,
-                'candidate_last_year' => $this->candidate_last_year,
-                'resigned_to_campaign' => $this->resigned_to_campaign,
-                'immigrant_status' => $this->immigrant_status,
-                'member_indigenous_group' => $this->member_indigenous_group,
-                'person_with_disability' => $this->person_with_disability,
-                'solo_parent' => $this->solo_parent,
-            ]);
-
-            $this->validate();
-
-            // Prepare data for database storage
-            $data = [
-                'consanguinity_third_degree' => $this->consanguinity_third_degree ?? 0,
                 'consanguinity_third_degree_details' => $this->consanguinity_third_degree_details,
-                'consanguinity_fourth_degree' => $this->consanguinity_fourth_degree ?? 0,
-                'found_guilty_administrative_offense' => $this->found_guilty_administrative_offense ?? 0,
+                'found_guilty_administrative_offense' => $this->found_guilty_administrative_offense,
                 'administrative_offense_details' => $this->administrative_offense_details,
-                'criminally_charged' => $this->criminally_charged ?? 0,
+                'criminally_charged' => $this->criminally_charged,
                 'criminally_charged_details' => $this->criminally_charged_details,
                 'criminally_charged_date_filed' => $this->criminally_charged_date_filed,
                 'criminally_charged_status' => $this->criminally_charged_status,
-                'convicted_crime' => $this->convicted_crime ?? 0,
+                'convicted_crime' => $this->convicted_crime,
                 'convicted_crime_details' => $this->convicted_crime_details,
-                'separated_from_service' => $this->separated_from_service ?? 0,
+                'separated_from_service' => $this->separated_from_service,
                 'separation_details' => $this->separation_details,
-                'candidate_last_year' => $this->candidate_last_year ?? 0,
+                'candidate_last_year' => $this->candidate_last_year,
                 'candidate_details' => $this->candidate_details,
-                'resigned_to_campaign' => $this->resigned_to_campaign ?? 0,
+                'resigned_to_campaign' => $this->resigned_to_campaign,
                 'resigned_campaign_details' => $this->resigned_campaign_details,
-                'immigrant_status' => $this->immigrant_status ?? 0,
+                'immigrant_status' => $this->immigrant_status,
                 'immigrant_country_details' => $this->immigrant_country_details,
-                'member_indigenous_group' => $this->member_indigenous_group ?? 0,
+                'member_indigenous_group' => $this->member_indigenous_group,
                 'indigenous_group_details' => $this->indigenous_group_details,
-                'person_with_disability' => $this->person_with_disability ?? 0,
+                'person_with_disability' => $this->person_with_disability,
                 'disability_id_no' => $this->disability_id_no,
-                'solo_parent' => $this->solo_parent ?? 0,
+                'solo_parent' => $this->solo_parent,
+                'solo_parent_id_no' => $this->solo_parent_id_no
+            ]);
+
+            // Log validation rules
+            \Log::info('Validation rules:', $this->rules);
+
+            // Attempt validation with detailed error capture
+            try {
+                $validated = $this->validate();
+                \Log::info('VALIDATION PASSED', ['validated_data' => $validated]);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                \Log::error('=== VALIDATION FAILED ===');
+                \Log::error('All validation errors:', $e->errors());
+                \Log::error('Failed rules:', array_keys($e->errors()));
+
+                // Re-throw to be caught by outer catch
+                throw $e;
+            }
+
+            // Prepare data for database storage
+            $data = [
+                'consanguinity_third_degree' => (bool) ($this->consanguinity_third_degree ?? 0),
+                'consanguinity_third_degree_details' => $this->consanguinity_third_degree_details,
+                'consanguinity_fourth_degree' => (bool) ($this->consanguinity_fourth_degree ?? 0),
+                'found_guilty_administrative_offense' => (bool) ($this->found_guilty_administrative_offense ?? 0),
+                'administrative_offense_details' => $this->administrative_offense_details,
+                'criminally_charged' => (bool) ($this->criminally_charged ?? 0),
+                'criminally_charged_details' => $this->criminally_charged_details,
+                'convicted_crime' => (bool) ($this->convicted_crime ?? 0),
+                'convicted_crime_details' => $this->convicted_crime_details,
+                'separated_from_service' => (bool) ($this->separated_from_service ?? 0),
+                'separation_details' => $this->separation_details,
+                'candidate_last_year' => (bool) ($this->candidate_last_year ?? 0),
+                'candidate_details' => $this->candidate_details,
+                'resigned_to_campaign' => (bool) ($this->resigned_to_campaign ?? 0),
+                'resigned_campaign_details' => $this->resigned_campaign_details,
+                'immigrant_status' => (bool) ($this->immigrant_status ?? 0),
+                'immigrant_country_details' => $this->immigrant_country_details,
+                'member_indigenous_group' => (bool) ($this->member_indigenous_group ?? 0),
+                'indigenous_group_details' => $this->indigenous_group_details,
+                'person_with_disability' => (bool) ($this->person_with_disability ?? 0),
+                'disability_id_no' => $this->disability_id_no,
+                'solo_parent' => (bool) ($this->solo_parent ?? 0),
                 'solo_parent_id_no' => $this->solo_parent_id_no
             ];
 
@@ -285,8 +319,20 @@ class QuestionnaireForm extends PersonnelNavigation
             } else {
                 return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
             }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed: ', [
+                'errors' => $e->errors(),
+                'message' => $e->getMessage()
+            ]);
+            session()->flash('flash.banner', 'Validation failed: ' . implode(', ', Arr::flatten($e->errors())));
+            session()->flash('flash.bannerStyle', 'danger');
+            return;
         } catch (\Throwable $th) {
-            \Log::error('Failed to save questionnaire: ' . $th->getMessage());
+            \Log::error('Failed to save questionnaire: ' . $th->getMessage(), [
+                'trace' => $th->getTraceAsString(),
+                'file' => $th->getFile(),
+                'line' => $th->getLine()
+            ]);
             session()->flash('flash.banner', 'Failed to save Questionnaire: ' . $th->getMessage());
             session()->flash('flash.bannerStyle', 'danger');
 

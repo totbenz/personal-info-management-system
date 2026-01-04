@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Personnel;
-use App\Models\User;
-use App\Models\School;
-use App\Models\District;
+use App\Http\Controllers\Controller;
 use App\Models\LeaveRequest;
+use App\Models\ServiceCreditRequest;
+use App\Models\User;
+use App\Models\Personnel;
+use App\Models\School;
+use App\Services\SchoolHeadLeaveAccrualService;
+use App\Services\MonthlyLeaveAccrualService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Services\MonthlyLeaveAccrualService;
 use Illuminate\Support\Facades\Schema;
 use App\Models\SalaryGrade;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -702,7 +704,7 @@ class HomeController extends Controller
         $yearsOfService = $personnel->employment_start ? \Carbon\Carbon::parse($personnel->employment_start)->diffInYears(now()) : 0;
         $defaultLeaves = \App\Models\NonTeachingLeave::defaultLeaves($yearsOfService, $soloParent, $userSex, $civilStatus);
 
-        $personnel->initializeLeaveBalancesToZeroForRole('non_teaching', $year);
+        // $personnel->initializeLeaveBalancesToZeroForRole('non_teaching', $year);
 
         app(MonthlyLeaveAccrualService::class)->updateNonTeachingLeaveRecords($personnel->id, $year);
 

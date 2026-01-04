@@ -33,7 +33,7 @@ class WorkExperienceForm extends Component
         'new_work_experiences.*.inclusive_from' => 'required',
         'new_work_experiences.*.inclusive_to' => 'required',
         'new_work_experiences.*.monthly_salary' => 'required',
-        'new_work_experiences.*.paygrade_step_increment' => 'required',
+        'new_work_experiences.*.paygrade_step_increment' => 'nullable',
         'new_work_experiences.*.appointment' => 'required',
         'new_work_experiences.*.is_gov_service' => 'required|in:0,1',
     ];
