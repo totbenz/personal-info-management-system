@@ -204,13 +204,13 @@ class PersonnelDataC1Sheet
     {
         $worksheet = $this->worksheet;
 
-        // Check if education relationship exists
-        if ($this->personnel->educations && $this->personnel->educations->count() > 0) {
-            $elementary = $this->personnel->educations->where('type', 'elementary')->first();
-            $secondary = $this->personnel->educations->where('type', 'secondary')->first();
-            $vocational = $this->personnel->educations->where('type', 'vocational')->first();
-            $graduate = $this->personnel->educations->where('type', 'graduate')->first();
-            $graduateStudies = $this->personnel->educations->where('type', 'graduate_studies')->first();
+        // Check if education_entries relationship exists
+        if ($this->personnel->educationEntries && $this->personnel->educationEntries->count() > 0) {
+            $elementary = $this->personnel->educationEntries->where('type', 'elementary')->first();
+            $secondary = $this->personnel->educationEntries->where('type', 'secondary')->first();
+            $vocational = $this->personnel->educationEntries->where('type', 'vocational_trade')->first();
+            $college = $this->personnel->educationEntries->where('type', 'college')->first();
+            $graduateStudies = $this->personnel->educationEntries->where('type', 'graduate_studies')->first();
 
             // Elementary Education
             if ($elementary) {
@@ -251,15 +251,15 @@ class PersonnelDataC1Sheet
                 $this->setDefaultEducationValues($worksheet, 'D56', 'G56', 'J56', 'K56', 'L56', 'M56', 'N56');
             }
 
-            // Graduate Education
-            if ($graduate) {
-                $worksheet->setCellValue('D57', $graduate->school_name ?? 'N/A');
-                $worksheet->setCellValue('G57', $graduate->degree_course ?? 'N/A');
-                $worksheet->setCellValue('J57', $graduate->period_from ?? 'N/A');
-                $worksheet->setCellValue('K57', $graduate->period_to ?? 'N/A');
-                $worksheet->setCellValue('L57', $graduate->highest_level_units ?? 'N/A');
-                $worksheet->setCellValue('M57', $graduate->year_graduated ?? 'N/A');
-                $worksheet->setCellValue('N57', $graduate->scholarship_honors ?? 'N/A');
+            // College Education (was Graduate Education)
+            if ($college) {
+                $worksheet->setCellValue('D57', $college->school_name ?? 'N/A');
+                $worksheet->setCellValue('G57', $college->degree_course ?? 'N/A');
+                $worksheet->setCellValue('J57', $college->period_from ?? 'N/A');
+                $worksheet->setCellValue('K57', $college->period_to ?? 'N/A');
+                $worksheet->setCellValue('L57', $college->highest_level_units ?? 'N/A');
+                $worksheet->setCellValue('M57', $college->year_graduated ?? 'N/A');
+                $worksheet->setCellValue('N57', $college->scholarship_honors ?? 'N/A');
             } else {
                 $this->setDefaultEducationValues($worksheet, 'D57', 'G57', 'J57', 'K57', 'L57', 'M57', 'N57');
             }
