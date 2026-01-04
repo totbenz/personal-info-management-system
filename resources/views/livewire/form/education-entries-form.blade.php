@@ -31,15 +31,11 @@
 
     @foreach($this->typeLabels as $type => $title)
         @php
-            $displayEntries = array_filter(($entries[$type] ?? []), function ($education) use ($type) {
-                if (in_array($type, ['elementary', 'secondary'], true)) {
-                    return !empty($education['school_name']);
-                }
+            $displayEntries = array_filter(($entries[$type] ?? []), function ($education) {
                 return !empty($education['school_name']);
             });
         @endphp
 
-        @if(!empty($displayEntries))
         <div class="mt-8">
             <div class="mb-4">
                 <h5 class="font-semibold text-lg text-gray-800 flex items-center">
@@ -47,6 +43,8 @@
                     {{ $title }}
                 </h5>
             </div>
+
+            @if(!empty($displayEntries))
 
             @foreach($displayEntries as $index => $education)
                 <div class="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl p-6 mb-4 shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -175,6 +173,14 @@
                 </div>
             @endforeach
         </div>
+        @else
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center">
+                <p class="text-sm text-gray-500 italic">No entry</p>
+            </div>
+        @endif
+
+        @if(!$loop->last)
+            <hr class="my-8 border-gray-200">
         @endif
     @endforeach
 </section>
@@ -185,8 +191,8 @@
             <h4 class="font-bold text-2xl text-gray-800 mb-1">Edit Education Details</h4>
             <p class="text-sm text-gray-500">Update your educational background and qualifications</p>
         </div>
-        <div class="flex space-x-3">
-            <button wire:click.prevent="cancel" class="inline-flex items-center px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 transition-all duration-200 shadow-sm">
+        <div class="flex space-x-3 relative z-10">
+            <button wire:click.prevent="cancel" type="button" class="relative z-10 inline-flex items-center px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 transition-all duration-200 shadow-sm">
                 <span class="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -194,7 +200,7 @@
                     Cancel
                 </span>
             </button>
-            <button wire:click.prevent="save" class="inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-green-700 border-0 rounded-xl hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+            <button wire:click.prevent="save" type="button" class="relative z-10 inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-green-700 border-0 rounded-xl hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                 <span class="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 -ml-1 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897L8.863 9.83A3.75 3.75 0 0 0 7.5 6.75v-.75m0 0a3.75 3.75 0 0 1 7.5 0v.75m-7.5 0H18A2.25 2.25 0 0 1 20.25 9v.75m-8.5 6.75h.008v.008h-.008v-.008Z" />
@@ -211,7 +217,7 @@
                 <div class="flex justify-between items-center">
                     <h5 class="font-semibold text-lg text-gray-800 flex items-center">
                         <span class="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-                        {{ $title }} @if(in_array($type, ['elementary','secondary'], true))<span class="text-red-500 ml-2">*</span>@endif
+                        {{ $title }}
                     </h5>
                     <button wire:click.prevent="addEntry('{{ $type }}')" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-100 border-0 rounded-lg hover:bg-blue-200 transform hover:scale-105 transition-all duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-1.5 h-4 w-4">
@@ -220,31 +226,28 @@
                         Add Entry
                     </button>
                 </div>
-                @if(in_array($type, ['elementary','secondary'], true))
-                    <p class="mt-2 text-sm text-blue-700">This section is required. Please complete all fields.</p>
-                @else
-                    <p class="mt-2 text-sm text-gray-600">This section is optional. Fill in if applicable.</p>
-                @endif
+                <p class="mt-2 text-sm text-gray-600">This section is optional. Fill in if applicable.</p>
             </div>
 
             <div class="space-y-4">
-                @foreach(($entries[$type] ?? []) as $index => $education)
+                @if(!empty(($entries[$type] ?? [])))
+                    @foreach(($entries[$type] ?? []) as $index => $education)
                     <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors duration-200">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
                             <span class="text-sm font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">Entry #{{ $index + 1 }}</span>
-                            @if(count($entries[$type]) > 1)
-                                <button wire:click.prevent="removeEntry('{{ $type }}', {{ $index }})" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors duration-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-1 h-3 w-3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                    </svg>
-                                    Remove
-                                </button>
-                            @endif
+                            <button wire:click.prevent="removeEntry('{{ $type }}', {{ $index }})"
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                                title="Remove this entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-1 h-3 w-3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                                Remove
+                            </button>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="md:col-span-2">
-                                <label class="block font-semibold text-sm text-gray-700 mb-2">School Name @if(in_array($type, ['elementary','secondary'], true))<span class="text-red-500">*</span>@endif</label>
+                                <label class="block font-semibold text-sm text-gray-700 mb-2">School Name</label>
                                 <input type="text" wire:model="entries.{{ $type }}.{{ $index }}.school_name"
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                     placeholder="Enter school name">
@@ -387,8 +390,18 @@
                         </div>
                     </div>
                 @endforeach
+                @else
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center">
+                        <p class="text-sm text-gray-500 italic">No entry</p>
+                        <p class="text-xs text-gray-400 mt-2">Click "Add Entry" above to add an education entry</p>
+                    </div>
+                @endif
             </div>
         </div>
+
+        @if(!$loop->last)
+            <hr class="my-8 border-gray-200">
+        @endif
     @endforeach
 </div>
 @endif

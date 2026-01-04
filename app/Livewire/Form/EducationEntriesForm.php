@@ -18,6 +18,7 @@ class EducationEntriesForm extends Component
     public $updateMode = false;
 
     public array $entries = [];
+    public array $entriesToDelete = [];
 
     private const TYPES = [
         'elementary',
@@ -133,6 +134,7 @@ class EducationEntriesForm extends Component
     private function loadEntries(): void
     {
         $this->entries = [];
+        $this->entriesToDelete = [];
 
         foreach (self::TYPES as $type) {
             $this->entries[$type] = [];
@@ -202,16 +204,20 @@ class EducationEntriesForm extends Component
             ];
         }
 
-        foreach (self::TYPES as $type) {
-            if (empty($this->entries[$type])) {
-                $this->entries[$type][] = $this->blankEntry();
-            }
-        }
+        // Don't automatically add blank entries - let users add them manually if needed
     }
 
     public function edit(): void
     {
         $this->loadEntries();
+
+        // Ensure at least one blank entry for each type when editing
+        foreach (self::TYPES as $type) {
+            if (empty($this->entries[$type])) {
+                $this->entries[$type][] = $this->blankEntry();
+            }
+        }
+
         $this->updateMode = true;
         $this->showMode = false;
     }
@@ -258,15 +264,18 @@ class EducationEntriesForm extends Component
             return;
         }
 
-        if (count($this->entries[$type]) <= 1) {
-            return;
+        // Store the ID if it's an existing entry for deletion
+        $entry = $this->entries[$type][$index];
+        if (isset($entry['id'])) {
+            if (!isset($this->entriesToDelete[$type])) {
+                $this->entriesToDelete[$type] = [];
+            }
+            $this->entriesToDelete[$type][] = $entry['id'];
         }
 
         array_splice($this->entries[$type], $index, 1);
 
-        if (empty($this->entries[$type])) {
-            $this->entries[$type][] = $this->blankEntry();
-        }
+        // Don't automatically add a blank entry - let users add them manually
     }
 
     protected function rules(): array
@@ -289,13 +298,7 @@ class EducationEntriesForm extends Component
             $rules["entries.$type.*.year_graduated"] = ['nullable', 'integer', 'min:1900', 'max:2100'];
             $rules["entries.$type.*.scholarship_honors"] = ['nullable', 'string', 'max:255'];
 
-            if ($type === 'elementary' || $type === 'secondary') {
-                $rules["entries.$type"] = ['array', 'min:1'];
-                $rules[$requiredSchool] = ['required', 'string', 'max:255'];
-                $rules["entries.$type.*.period_from"] = ['required', 'integer', 'min:1900', 'max:2100'];
-                $rules["entries.$type.*.period_to"] = ['required', 'integer', 'min:1900', 'max:2100'];
-                $rules["entries.$type.*.year_graduated"] = ['required', 'integer', 'min:1900', 'max:2100'];
-            }
+            // All education types are now optional
         }
 
         return $rules;
@@ -309,11 +312,11 @@ class EducationEntriesForm extends Component
             foreach ($this->entries[$type] as $index => $entry) {
                 $entry = array_map(fn ($v) => $this->normalizeValue($v), $entry);
 
-                if (($type !== 'elementary' && $type !== 'secondary') && $this->isEntryBlank($entry)) {
+                if ($this->isEntryBlank($entry)) {
                     continue;
                 }
 
-                if (($type !== 'elementary' && $type !== 'secondary') && empty($entry['school_name'])) {
+                if (empty($entry['school_name'])) {
                     $errors["entries.$type.$index.school_name"][] = 'School Name is required.';
                 }
 
@@ -358,7 +361,7 @@ class EducationEntriesForm extends Component
                     $clean[$key] = $this->normalizeValue(Arr::get($entry, $key));
                 }
 
-                if (($type !== 'elementary' && $type !== 'secondary') && $this->isEntryBlank($clean)) {
+                if ($this->isEntryBlank($clean)) {
                     continue;
                 }
 
@@ -368,9 +371,7 @@ class EducationEntriesForm extends Component
             $this->entries[$type] = $normalized;
 
             if (empty($this->entries[$type])) {
-                if ($type === 'elementary' || $type === 'secondary') {
-                    $this->entries[$type] = [$this->blankEntry()];
-                }
+                // Don't force any education type to have entries
             }
         }
 
