@@ -6,6 +6,18 @@
     <link rel="stylesheet" href="{{ asset('resources/css/fonts.css') }}">
 
     <style>
+        @font-face {
+            font-family: 'Canterbury';
+            src: url('{{ public_path('fonts/Canterbury.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .canterbury-font {
+            font-family: 'Canterbury' !important;
+            font-weight: normal;
+        }
+
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
@@ -41,11 +53,11 @@
             font-size: 11px;
         }
         .service-table, .service-table th {
-            border: 0.5px solid black; 
+            border: 0.5px solid black;
         }
         .service-table td {
-            border-left: 0.5px dashed black; 
-            border-right: 0.5px dashed black; 
+            border-left: 0.5px dashed black;
+            border-right: 0.5px dashed black;
         }
         .service-table th, .service-table td {
             padding: 5px;
@@ -68,7 +80,7 @@
     <div class="headers" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 100px; height: auto; position: absolute; left: 7%; top: 7%; transform: translateY(-50%);">
         <div style="text-align: center; flex-grow: 1;">
-            <h4>
+            <h4 class="canterbury-font">
                 Republic of the Philippines <br>
                 Department of Education<br>
                 Region VIII - Eastern Visayas
@@ -141,14 +153,14 @@
         <tr>
             <th colspan="2">Inclusive Dates of Service<br>(mm-dd-yy)</th>
             <th colspan="3">Record of Appointment</th>
-            <th rowspan="2" style="width: 80px;">DepEd/Division Station/Place</th> 
+            <th rowspan="2" style="width: 80px;">DepEd/Division Station/Place</th>
             <th rowspan="2">Branch</th>
             <th rowspan="2" style="width: 70px;">Leave of absence w/o pay</th>
             <th colspan="2">Separation</th>
         </tr>
         <tr>
-            <th style="width: 50px;">From</th> 
-            <th style="width: 50px;">To</th> 
+            <th style="width: 50px;">From</th>
+            <th style="width: 50px;">To</th>
             <th style="width: 70px;">Designation</th>
             <th>Status</th>
             <th>Salary p.a. (Php)</th>
@@ -185,7 +197,7 @@
             <td></td>
             <td></td>
         </tr>
-       
+
             <td>01-01-22</td>
             <td>12-31-22</td>
             <td>School Principal III</td>
@@ -255,7 +267,7 @@
                 April 12, 2024<br>
                 <span style="border-top: 1px solid black; display: inline-block; width: 150px;">Date</span>
             </td>
-            <td style="width: 50%;"> 
+            <td style="width: 50%;">
             <span>CERTIFIED CORRECT:</span>
                 <br><br><br>
                 <u style="margin-left:10%;">JULIUS CAESAR C. DE LA CERNA</u><br>

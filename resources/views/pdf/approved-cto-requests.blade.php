@@ -3,11 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Approved CTO Requests - {{ $month }} {{ $year }}</title>
+    <title>Approved CTO Requests</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+        @font-face {
+            font-family: 'Canterbury';
+            src: url('{{ public_path('fonts/Canterbury.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
 
         @page {
             size: legal;
@@ -22,9 +27,9 @@
             font-family: Times New Roman, serif;
         }
 
-        .unifraktur-font {
-            font-family: 'UnifrakturCook' !important;
-            font-weight: 700;
+        .canterbury-font {
+            font-family: 'Canterbury' !important;
+            font-weight: normal;
         }
 
         .table-container {
@@ -113,8 +118,8 @@
     <!-- Header Section -->
     <div class="text-center mb-6">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
-        <h2 class="unifraktur-font">Republic of the Philippines</h2>
-        <h1 class="font-semibold unifraktur-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px;">Department of Education</h1>
+        <h2 class="canterbury-font mb-2">Republic of the Philippines</h2>
+        <h1 class="font-semibold canterbury-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px; margin-bottom: 2px;">Department of Education</h1>
         <p style="font-size: 13px;">REGION VIII</p>
         <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
         <hr class="border-gray-300 mt-3 border-t-2">
@@ -216,7 +221,7 @@
             <p><strong>Telephone #:</strong> (53) 563-7615</p>
             <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>
         </div>
-        
+
         <!-- Clear floats -->
         <div style="clear: both;"></div>
     </div>

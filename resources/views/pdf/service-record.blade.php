@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="{{ asset('resources/css/fonts.css') }}">
 
     <style>
+        @font-face {
+            font-family: 'Canterbury';
+            src: url('{{ public_path('fonts/Canterbury.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .canterbury-font {
+            font-family: 'Canterbury' !important;
+            font-weight: normal;
+        }
+
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
@@ -85,7 +97,7 @@
     <div class="headers" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 100px; height: auto; position: absolute; left: 7%; top: 7%; transform: translateY(-50%);">
         <div style="text-align: center; flex-grow: 1;">
-            <h4>
+            <h4 class="canterbury-font">
                 Republic of the Philippines <br>
                 Department of Education<br>
                 Region VIII - Eastern Visayas
