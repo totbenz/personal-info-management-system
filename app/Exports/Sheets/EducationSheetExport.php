@@ -86,7 +86,7 @@ class ElementarySheet implements WithEvents
 
         // Fill data for each entry
         foreach ($educationEntries as $index => $entry) {
-            $row = 5 + $index; // Starting from row 5
+            $row = 4 + $index; // Starting from row 4
 
             Log::info('Processing elementary entry', [
                 'index' => $index,
@@ -95,19 +95,19 @@ class ElementarySheet implements WithEvents
             ]);
 
             // School Name
-            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
             // Degree/Course
-            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? 'N/A');
             // Period From
-            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? 'N/A');
             // Period To
-            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? 'N/A');
             // Highest Level/Units
-            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? 'N/A');
             // Year Graduated
-            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? 'N/A');
             // Scholarship/Honors
-            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? 'N/A');
         }
 
         Log::info('ElementarySheet::fillWorksheet completed');
@@ -141,15 +141,15 @@ class SecondarySheet implements WithEvents
             ->get();
 
         foreach ($educationEntries as $index => $entry) {
-            $row = 5 + $index;
+            $row = 4 + $index; // Starting from row 4
 
-            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
-            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
-            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
-            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
-            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
-            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
-            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? 'N/A');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? 'N/A');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? 'N/A');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? 'N/A');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? 'N/A');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? 'N/A');
         }
     }
 
@@ -181,15 +181,15 @@ class VocationalSheet implements WithEvents
             ->get();
 
         foreach ($educationEntries as $index => $entry) {
-            $row = 5 + $index;
+            $row = 4 + $index; // Starting from row 4
 
-            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
-            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
-            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
-            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
-            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
-            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
-            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? 'N/A');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? 'N/A');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? 'N/A');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? 'N/A');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? 'N/A');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? 'N/A');
         }
     }
 
@@ -221,15 +221,15 @@ class CollegeSheet implements WithEvents
             ->get();
 
         foreach ($educationEntries as $index => $entry) {
-            $row = 5 + $index;
+            $row = 4 + $index; // Starting from row 4
 
-            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
-            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
-            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
-            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
-            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
-            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
-            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? 'N/A');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? 'N/A');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? 'N/A');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? 'N/A');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? 'N/A');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? 'N/A');
         }
     }
 
@@ -261,15 +261,15 @@ class GraduateStudiesSheet implements WithEvents
             ->get();
 
         foreach ($educationEntries as $index => $entry) {
-            $row = 5 + $index;
+            $row = 4 + $index; // Starting from row 4
 
-            $worksheet->setCellValue('C' . $row, $entry->school_name ?? '');
-            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? '');
-            $worksheet->setCellValue('I' . $row, $entry->period_from ?? '');
-            $worksheet->setCellValue('J' . $row, $entry->period_to ?? '');
-            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? '');
-            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? '');
-            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? '');
+            $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
+            $worksheet->setCellValue('F' . $row, $entry->degree_course ?? 'N/A');
+            $worksheet->setCellValue('I' . $row, $entry->period_from ?? 'N/A');
+            $worksheet->setCellValue('J' . $row, $entry->period_to ?? 'N/A');
+            $worksheet->setCellValue('K' . $row, $entry->highest_level_units ?? 'N/A');
+            $worksheet->setCellValue('L' . $row, $entry->year_graduated ?? 'N/A');
+            $worksheet->setCellValue('M' . $row, $entry->scholarship_honors ?? 'N/A');
         }
     }
 
