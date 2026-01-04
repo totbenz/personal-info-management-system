@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Personnel;
-use App\Models\School;
-use App\Models\User;
-use App\Models\LeaveRequest;
-use App\Models\ServiceCreditRequest;
 use Illuminate\Http\Request;
+use App\Models\Personnel;
+use App\Models\User;
+use App\Models\School;
+use App\Models\District;
+use App\Models\LeaveRequest;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Services\MonthlyLeaveAccrualService;
 use Illuminate\Support\Facades\Schema;
 use App\Models\SalaryGrade;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use App\Utils\BladeOptimization;
 
 class HomeController extends Controller
@@ -484,27 +485,17 @@ class HomeController extends Controller
         $userSex = $personnel->sex ?? null;
         $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex);
 
+        $personnel->initializeLeaveBalancesToZeroForRole('teacher', $year);
+
+        app(MonthlyLeaveAccrualService::class)->updateTeacherLeaveRecords($personnel->id, $year);
+
         // Get existing leave records for this year
         $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
 
-        // Only create records that don't exist
-        foreach ($defaultLeaves as $leaveType => $maxDays) {
-            if (!$leaves->has($leaveType)) {
-                \App\Models\TeacherLeave::create([
-                    'teacher_id' => $personnel->id,
-                    'leave_type' => $leaveType,
-                    'year' => $year,
-                    'available' => $maxDays,
-                    'used' => 0,
-                    'remarks' => 'Auto-initialized'
-                ]);
-            }
-        }
-
-        // Re-fetch after creating any missing records
+        // Re-fetch after ensuring any missing records exist and accrual updates are applied
         $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
             ->where('year', $year)
             ->get()
@@ -710,6 +701,10 @@ class HomeController extends Controller
         $civilStatus = $personnel->civil_status ?? null;
         $yearsOfService = $personnel->employment_start ? \Carbon\Carbon::parse($personnel->employment_start)->diffInYears(now()) : 0;
         $defaultLeaves = \App\Models\NonTeachingLeave::defaultLeaves($yearsOfService, $soloParent, $userSex, $civilStatus);
+
+        $personnel->initializeLeaveBalancesToZeroForRole('non_teaching', $year);
+
+        app(MonthlyLeaveAccrualService::class)->updateNonTeachingLeaveRecords($personnel->id, $year);
 
         // Fetch any existing NonTeachingLeave records if model/table exists (legacy compatibility)
         $existingLeaves = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
