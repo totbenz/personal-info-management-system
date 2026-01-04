@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\EducationEntry;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -167,6 +168,11 @@ class Personnel extends Model
     public function educations(): HasMany
     {
         return $this->hasMany(Education::class);
+    }
+
+    public function educationEntries(): HasMany
+    {
+        return $this->hasMany(EducationEntry::class);
     }
 
     public function elementaryEducation()

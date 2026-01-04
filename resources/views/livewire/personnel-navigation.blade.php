@@ -201,7 +201,7 @@
                         @livewire('form.family-form', ['id' => $personnelId, 'showMode' => true])
                     </section>
                     <section x-show="formNav === 'education'" id="education">
-                        @livewire('form.education-form', ['id' => $personnelId, 'showMode' => true])
+                        @livewire('form.education-entries-form', ['id' => $personnelId, 'showMode' => true])
                     </section>
                     <section x-show="formNav === 'civil_service_eligibility'" id="civil_service_eligibility">
                         @livewire('form.civil-service-eligibility-form', ['id' => $personnelId, 'showMode' => true])
