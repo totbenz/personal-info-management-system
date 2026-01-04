@@ -932,6 +932,7 @@ class HomeController extends Controller
                         ? $request->user->personnel->school->school_id
                         : 'N/A',
                     'leave_type' => $request->leave_type,
+                    'custom_leave_name' => $request->custom_leave_name,
                     'start_date' => $request->start_date,
                     'end_date' => $request->end_date,
                     'days_count' => Carbon::parse($request->start_date)->diffInDays(Carbon::parse($request->end_date)) + 1,

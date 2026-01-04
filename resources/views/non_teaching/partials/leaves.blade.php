@@ -346,6 +346,7 @@
                                     <option value="{{ $leave['type'] }}" disabled class="text-gray-400" data-available="0">{{ $leave['type'] }} (No days available)</option>
                                 @endif
                             @endforeach
+                            <option value="custom">Custom Leave</option>
                             <option value="others" data-available="0">Others ▼</option>
                         </select>
 
@@ -364,7 +365,17 @@
                             </button>
                         </div>
                     </div>
+                    @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                     <div id="leave_type_warning" class="hidden text-red-500 text-xs mt-1">This leave type has no available days.</div>
+                </div>
+
+                <!-- Custom Leave Name Field (hidden by default) -->
+                <div id="customLeaveNameDiv" class="hidden">
+                    <label for="custom_leave_name" class="block text-sm font-medium text-gray-700">Custom Leave Type Name</label>
+                    <input type="text" name="custom_leave_name" id="custom_leave_name" maxlength="50"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                           placeholder="Enter custom leave type name">
+                    @error('custom_leave_name')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                 </div>
                 <div>
                     <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
@@ -378,7 +389,7 @@
                 </div>
                 <div>
                     <label for="reason" class="block text-sm font-medium text-gray-700">Reason</label>
-                    <input type="text" name="reason" id="reason" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="text" name="reason" id="reason" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 </div>
                 <button type="submit" id="submitBtn" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">File Leave</button>
             </form>
@@ -596,6 +607,7 @@
         </div>
     </div>
 </div>
+
 <script>
     // Function to initialize all modal event listeners
     function initializeModals() {
@@ -1236,13 +1248,26 @@
     // Function to handle leave type change
     function handleLeaveTypeChange(value) {
         const submenu = document.getElementById('monetizationSubmenu');
+        const customLeaveDiv = document.getElementById('customLeaveNameDiv');
+        const reasonField = document.querySelector('textarea[name="reason"]');
 
         if (value === 'others') {
             submenu.classList.remove('hidden');
+            customLeaveDiv.classList.add('hidden');
             // Reset the select to show placeholder
             document.getElementById('leave_type').value = '';
+        } else if (value === 'custom') {
+            submenu.classList.add('hidden');
+            customLeaveDiv.classList.remove('hidden');
+            // Make reason field required for custom leave
+            reasonField.required = true;
+            reasonField.placeholder = 'Please specify the reason for this custom leave...';
         } else {
             submenu.classList.add('hidden');
+            customLeaveDiv.classList.add('hidden');
+            // Make reason field required for regular leaves
+            reasonField.required = true;
+            reasonField.placeholder = 'Enter reason for leave...';
         }
     }
 

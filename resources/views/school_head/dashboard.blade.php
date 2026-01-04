@@ -220,7 +220,14 @@
                                 @endif
                             </div>
                             <div>
-                                <h4 class="text-sm font-semibold text-gray-900">{{ $request->leave_type }}</h4>
+                                <h4 class="text-sm font-semibold text-gray-900">
+                                    @if($request->leave_type === 'custom')
+                                        <span class="text-purple-600">{{ $request->custom_leave_name }}</span>
+                                        <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                    @else
+                                        {{ $request->leave_type }}
+                                    @endif
+                                </h4>
                                 <p class="text-xs text-gray-600">
                                     {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} -
                                     {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}

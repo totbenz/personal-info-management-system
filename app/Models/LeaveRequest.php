@@ -15,6 +15,8 @@ class LeaveRequest extends Model
         'end_date',
         'reason',
         'status',
+        'custom_leave_name',
+        'custom_leave_reason',
     ];
 
     public function user()

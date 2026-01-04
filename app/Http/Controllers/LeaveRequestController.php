@@ -26,10 +26,36 @@ class LeaveRequestController extends Controller
             'leave_type' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'reason' => 'required|string',
+            'reason' => 'nullable|string',
+            'custom_leave_name' => 'nullable|string|max:50',
+            'custom_leave_reason' => 'nullable|string|max:500',
         ]);
 
         $user = Auth::user();
+
+        // For custom leaves, validate that custom fields are provided
+        if ($request->leave_type === 'custom') {
+            if (!$request->custom_leave_name) {
+                return redirect()->back()
+                    ->withErrors(['custom_leave_name' => 'Custom leave name is required.'])
+                    ->withInput();
+            }
+            // For custom leaves, use the reason field as the custom reason
+            if (!$request->reason) {
+                return redirect()->back()
+                    ->withErrors(['reason' => 'Reason is required for custom leave.'])
+                    ->withInput();
+            }
+            // Set the custom_leave_reason to match the reason field
+            $request->merge(['custom_leave_reason' => $request->reason]);
+        } else {
+            // For non-custom leaves, reason is required
+            if (!$request->reason) {
+                return redirect()->back()
+                    ->withErrors(['reason' => 'Reason is required.'])
+                    ->withInput();
+            }
+        }
 
         // General validation for all users: Check if male users are trying to request Maternity Leave
         if ($request->leave_type === 'Maternity Leave' && $user->personnel && $user->personnel->sex === 'male') {
@@ -38,8 +64,8 @@ class LeaveRequestController extends Controller
                 ->withInput();
         }
 
-        // If this is a school head, check leave balance before allowing submission
-        if ($user->role === 'school_head') {
+        // If this is a school head, check leave balance before allowing submission (skip for custom leaves)
+        if ($user->role === 'school_head' && $request->leave_type !== 'custom') {
             $personnel = $user->personnel;
             if ($personnel) {
                 // Ensure leave records exist
@@ -153,6 +179,8 @@ class LeaveRequestController extends Controller
                 'end_date' => $request->end_date,
                 'reason' => $request->reason,
                 'status' => 'pending',
+                'custom_leave_name' => $request->leave_type === 'custom' ? $request->custom_leave_name : null,
+                'custom_leave_reason' => $request->leave_type === 'custom' ? $request->custom_leave_reason : null,
             ]);
 
             // If this is a school head, ensure their leave records are initialized for the current year
@@ -259,6 +287,11 @@ class LeaveRequestController extends Controller
      */
     private function updateTeacherLeaveBalance($personnel, $leaveType, $leaveDays)
     {
+        // Skip balance update for custom leaves
+        if ($leaveType === 'custom') {
+            return;
+        }
+
         $currentYear = now()->year;
 
     // Ensure teacher leave records exist
@@ -324,6 +357,11 @@ class LeaveRequestController extends Controller
      */
     private function updateNonTeachingLeaveBalance($personnel, $leaveType, $leaveDays)
     {
+        // Skip balance update for custom leaves
+        if ($leaveType === 'custom') {
+            return;
+        }
+
         $currentYear = now()->year;
 
         // Ensure non-teaching leave records exist
@@ -366,6 +404,11 @@ class LeaveRequestController extends Controller
      */
     private function updateSchoolHeadLeaveBalance(LeaveRequest $leave)
     {
+        // Skip balance update for custom leaves
+        if ($leave->leave_type === 'custom') {
+            return;
+        }
+
         $user = $leave->user;
         if (!$user || $user->role !== 'school_head') {
             return;

@@ -117,7 +117,14 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
+                                    <div class="text-sm text-gray-900 font-medium">
+                                        @if($request->leave_type === 'custom')
+                                            <span class="text-purple-600">{{ $request->custom_leave_name }}</span>
+                                            <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                        @else
+                                            {{ $request->leave_type }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">

@@ -239,7 +239,14 @@
                             <tbody class="bg-white divide-y divide-green-100">
                                 @forelse($leaveRequests as $leave)
                                 <tr class="hover:bg-green-50 transition duration-150">
-                                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">{{ $leave->leave_type ?? $leave->type ?? '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">
+                                        @if($leave->leave_type === 'custom')
+                                            <span class="text-purple-600">{{ $leave->custom_leave_name }}</span>
+                                            <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                        @else
+                                            {{ $leave->leave_type ?? $leave->type ?? '-' }}
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $leave->created_at->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
                                         @if(!empty($leave->start_date) && !empty($leave->end_date))

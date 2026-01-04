@@ -77,43 +77,56 @@ class DLAppForLeaveController extends Controller
 
             // Add check marks based on leave type
             $leaveType = strtolower($leaveRequest->leave_type);
-            switch ($leaveType) {
-                case 'force leave':
-                    $sheet->setCellValue('C21', '✓');
-                    break;
-                case 'sick leave':
-                    $sheet->setCellValue('C22', '✓');
-                    break;
-                case 'maternity leave':
-                    $sheet->setCellValue('C23', '✓');
-                    break;
-                case 'paternity leave':
-                    $sheet->setCellValue('C24', '✓');
-                    break;
-                case 'solo parent leave':
-                    $sheet->setCellValue('C26', '✓');
-                    break;
-                case 'study leave':
-                    $sheet->setCellValue('C27', '✓');
-                    break;
-                case 'adoption leave':
-                    $sheet->setCellValue('C32', '✓');
-                    break;
-                case 'rehabilitation leave':
-                    $sheet->setCellValue('C29', '✓');
-                    break;
-                case 'vacation leave':
-                    $sheet->setCellValue('C20', '✓');
-                    break;
-                case 'special leave benefits for women':
-                    $sheet->setCellValue('C30', '✓');
-                    break;
-                case 'calamity leave':
-                    $sheet->setCellValue('C31', '✓');
-                    break;
-                case 'vawc leave':
-                    $sheet->setCellValue('C28', '✓');
-                    break;
+
+            // Check if this is a custom leave
+            if ($leaveType === 'custom') {
+                // Check for custom leave name in request data (if available)
+                $customLeaveName = $leaveRequest->custom_leave_name ?? 'Custom Leave';
+
+                // Add check mark in C33 for custom leave
+                $sheet->setCellValue('C33', '✓');
+
+                // Add custom leave name in F33
+                $sheet->setCellValue('F33', $customLeaveName);
+            } else {
+                switch ($leaveType) {
+                    case 'force leave':
+                        $sheet->setCellValue('C21', '✓');
+                        break;
+                    case 'sick leave':
+                        $sheet->setCellValue('C22', '✓');
+                        break;
+                    case 'maternity leave':
+                        $sheet->setCellValue('C23', '✓');
+                        break;
+                    case 'paternity leave':
+                        $sheet->setCellValue('C24', '✓');
+                        break;
+                    case 'solo parent leave':
+                        $sheet->setCellValue('C26', '✓');
+                        break;
+                    case 'study leave':
+                        $sheet->setCellValue('C27', '✓');
+                        break;
+                    case 'adoption leave':
+                        $sheet->setCellValue('C32', '✓');
+                        break;
+                    case 'rehabilitation leave':
+                        $sheet->setCellValue('C29', '✓');
+                        break;
+                    case 'vacation leave':
+                        $sheet->setCellValue('C20', '✓');
+                        break;
+                    case 'special leave benefits for women':
+                        $sheet->setCellValue('C30', '✓');
+                        break;
+                    case 'calamity leave':
+                        $sheet->setCellValue('C31', '✓');
+                        break;
+                    case 'vawc leave':
+                        $sheet->setCellValue('C28', '✓');
+                        break;
+                }
             }
 
             // Get Administrative Officer VI signature from signatures table

@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Info Management System - Complete Setup Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+        .copy-btn.copied {
+            background: #27ae60;
+        }
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .env-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .env-block code {
+            color: #f39c12;
+        }
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 250px;
+            background: #2c3e50;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        .sidebar a {
+            color: #ecf0f1;
+            display: block;
+            padding: 0.5rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+        }
+        .sidebar a:hover {
+            background: #34495e;
+        }
+        .sidebar a.active {
+            background: #3498db;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .alert-warning {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <h3 class="text-white text-xl font-bold mb-4">Quick Navigation</h3>
+        <a href="#requirements" class="nav-link">System Requirements</a>
+        <a href="#installation" class="nav-link">Installation Steps</a>
+        <a href="#windows" class="nav-link">Windows Setup</a>
+        <a href="#macos" class="nav-link">macOS Setup</a>
+        <a href="#linux" class="nav-link">Linux Setup</a>
+        <a href="#clone" class="nav-link">Clone Project</a>
+        <a href="#dependencies" class="nav-link">Install Dependencies</a>
+        <a href="#environment" class="nav-link">Environment Setup</a>
+        <a href="#database" class="nav-link">Database Setup</a>
+        <a href="#migrate" class="nav-link">Run Migrations</a>
+        <a href="#assets" class="nav-link">Build Assets</a>
+        <a href="#permissions" class="nav-link">File Permissions</a>
+        <a href="#serve" class="nav-link">Start Server</a>
+        <a href="#issues" class="nav-link">Common Issues</a>
+        <a href="#workflow" class="nav-link">Development Workflow</a>
+        <a href="#production" class="nav-link">Production Deploy</a>
+        <a href="#security" class="nav-link">Security</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="max-w-5xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-800 mb-6">Personal Info Management System</h1>
+            <p class="text-xl text-gray-600 mb-8">Complete Setup Guide</p>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle mr-2"></i>
+                This guide will help you set up the Personal Info Management System from scratch on a new laptop/computer.
+            </div>
+
+            <section id="requirements" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">System Requirements</h2>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Hardware Requirements</h3>
+                <ul class="list-disc list-inside mb-6 space-y-2">
+                    <li><strong>RAM:</strong> Minimum 8GB, Recommended 16GB or higher</li>
+                    <li><strong>Storage:</strong> Minimum 10GB free disk space</li>
+                    <li><strong>Processor:</strong> Modern dual-core processor or better</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Software Requirements</h3>
+
+                <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">1. PHP</h4>
+                <ul class="list-disc list-inside mb-4 space-y-1">
+                    <li><strong>Version:</strong> PHP 8.1 or higher (8.2 recommended)</li>
+                    <li><strong>Required Extensions:</strong></li>
+                </ul>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <pre><code>php-cli
+php-fpm
+php-mysql (or php-pgsql for PostgreSQL)
+php-xml
+php-curl
+php-zip
+php-gd
+php-mbstring
+php-bcmath
+php-json
+php-tokenizer
+php-ctype
+php-fileinfo
+php-opcache (recommended for performance)</code></pre>
+                </div>
+
+                <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">2. Web Server</h4>
+                <ul class="list-disc list-inside mb-4 space-y-1">
+                    <li><strong>Apache 2.4+</strong> with mod_rewrite enabled OR</li>
+                    <li><strong>Nginx 1.18+</strong> with proper rewrite rules OR</li>
+                    <li>Use PHP's built-in development server (for development only)</li>
+                </ul>
+
+                <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">3. Database</h4>
+                <ul class="list-disc list-inside mb-4 space-y-1">
+                    <li><strong>MySQL 5.7+</strong> or <strong>MariaDB 10.3+</strong> OR</li>
+                    <li><strong>PostgreSQL 12+</strong> OR</li>
+                    <li><strong>SQLite 3.8+</strong> (for development)</li>
+                </ul>
+
+                <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">4. Node.js & NPM</h4>
+                <ul class="list-disc list-inside mb-4 space-y-1">
+                    <li><strong>Node.js:</strong> Version 18.x or 20.x (LTS versions recommended)</li>
+                    <li><strong>NPM:</strong> Version 9.x or 10.x (comes with Node.js)</li>
+                </ul>
+
+                <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">5. Composer</h4>
+                <ul class="list-disc list-inside mb-4 space-y-1">
+                    <li><strong>Composer:</strong> Version 2.0 or higher</li>
+                </ul>
+
+                <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">6. Git</h4>
+                <ul class="list-disc list-inside mb-4 space-y-1">
+                    <li><strong>Git:</strong> Version 2.30 or higher (for version control)</li>
+                </ul>
+            </section>
+
+            <section id="installation" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Installation Steps</h2>
+
+                <div class="alert alert-info mb-8">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Recommended Approach:</strong> This guide uses Laragon for Windows, which provides an all-in-one development environment with PHP, MySQL, Apache, and more.
+                </div>
+            </section>
+
+            <section id="windows" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Windows Installation with Laragon</h2>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 1: Install Laragon</h3>
+                    <p class="text-gray-600 mb-4">Laragon is a powerful development environment for Windows that includes everything you need:</p>
+                    <ul class="list-disc list-inside mb-4 space-y-2">
+                        <li>PHP 8.2 (latest version)</li>
+                        <li>MySQL & MariaDB</li>
+                        <li>Apache Server</li>
+                        <li>Redis</li>
+                        <li>phpMyAdmin</li>
+                        <li>Composer pre-installed</li>
+                        <li>And more...</li>
+                    </ul>
+
+                    <div class="mb-4">
+                        <strong>Download Laragon:</strong>
+                        <ol class="list-decimal list-inside mt-2 space-y-2">
+                            <li>Visit <a href="https://laragon.org/download/" class="text-blue-600 hover:underline" target="_blank">https://laragon.org/download/</a></li>
+                            <li>Download <strong>Laragon Universal</strong> (recommended) or Laragon Full</li>
+                            <li>Run the installer as Administrator</li>
+                            <li>Follow the installation wizard (default settings are fine)</li>
+                            <li>Launch Laragon when installation completes</li>
+                        </ol>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <strong>Important:</strong> Run Laragon as Administrator for the first time to ensure all services start properly.
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 2: Verify Laragon Installation</h3>
+                    <p class="text-gray-600 mb-4">Start all services in Laragon:</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Open Laragon</li>
+                        <li>Click <strong>"Start All"</strong> button (or press Ctrl+Alt+S)</li>
+                        <li>Wait for all services to turn green</li>
+                        <li>Test by visiting <a href="http://localhost" class="text-blue-600 hover:underline">http://localhost</a> - you should see Laragon welcome page</li>
+                        <li>Access phpMyAdmin at <a href="http://localhost/phpmyadmin" class="text-blue-600 hover:underline">http://localhost/phpmyadmin</a></li>
+                    </ol>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 3: Install Git</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Download and install from https://git-scm.com/download/win
+# During installation, use recommended settings
+# Verify installation:
+git --version</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 4: Install GitHub Desktop (Optional but Recommended)</h3>
+                    <p class="text-gray-600 mb-4">GitHub Desktop provides a user-friendly interface for managing Git repositories:</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Download from <a href="https://desktop.github.com/" class="text-blue-600 hover:underline" target="_blank">https://desktop.github.com/</a></li>
+                        <li>Install and sign in with your GitHub account</li>
+                        <li>Configure your Git credentials if prompted</li>
+                    </ol>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 5: Verify Composer (Pre-installed in Laragon)</h3>
+                    <p class="text-gray-600 mb-4">Laragon comes with Composer pre-installed. To verify:</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Open Laragon Terminal (Menu > Laragon > Terminal)
+composer --version</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 6: Install Node.js</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Download and install from https://nodejs.org/
+# Choose the LTS version (Long Term Support)
+# Verify installation:
+node --version
+npm --version</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Step 7: Install Laravel (Global Install)</h3>
+                    <p class="text-gray-600 mb-4">Install Laravel installer globally for easier project creation:</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># In Laragon Terminal
+composer global require laravel/installer</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="macos" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">macOS Installation</h2>
+
+                <div class="mb-6">
+                    <span class="step-number">1</span>
+                    <strong class="text-lg">Install Homebrew</strong> (if not installed)
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">2</span>
+                    <strong class="text-lg">Install PHP, Composer, Node.js, and MySQL</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>brew install php composer node mysql</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">3</span>
+                    <strong class="text-lg">Start MySQL</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>brew services start mysql</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="linux" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Linux (Ubuntu/Debian) Installation</h2>
+
+                <div class="mb-6">
+                    <span class="step-number">1</span>
+                    <strong class="text-lg">Update System</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>sudo apt update && sudo apt upgrade -y</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">2</span>
+                    <strong class="text-lg">Install PHP and Extensions</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>sudo apt install php8.2 php8.2-fpm php8.2-mysql php8.2-xml php8.2-curl php8.2-zip php8.2-gd php8.2-mbstring php8.2-bcmath php8.2-json php8.2-tokenizer php8.2-ctype php8.2-fileinfo php8.2-opcache -y</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">3</span>
+                    <strong class="text-lg">Install Composer</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+sudo chmod +x /usr/local/bin/composer</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">4</span>
+                    <strong class="text-lg">Install Node.js</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install nodejs -y</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">5</span>
+                    <strong class="text-lg">Install MySQL</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>sudo apt install mysql-server -y
+sudo mysql_secure_installation</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <span class="step-number">6</span>
+                    <strong class="text-lg">Install Git</strong>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>sudo apt install git -y</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="clone" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Step 8: Clone the Project</h2>
+
+                <div class="mb-6">
+                    <p class="text-gray-600 mb-4">Now that all prerequisites are installed, let's clone the project:</p>
+
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Option 1: Using Git Command (in Laragon Terminal)</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Navigate to Laragon www directory
+cd C:\laragon\www
+
+# Clone the repository
+git clone https://github.com/totbenz/personal-info-management-system.git
+
+# Enter project directory
+cd personal-info-management-system</code></pre>
+                    </div>
+
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Option 2: Using GitHub Desktop</h4>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Open GitHub Desktop</li>
+                        <li>Click <strong>File > Clone Repository</strong></li>
+                        <li>Enter URL: <code>https://github.com/totbenz/personal-info-management-system.git</code></li>
+                        <li>Choose local path: <code>C:\laragon\www\personal-info-management-system</code></li>
+                        <li>Click <strong>Clone</strong></li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="dependencies" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Step 9: Install Project Dependencies</h2>
+
+                <div class="mb-6">
+                    <p class="text-gray-600 mb-4">Open Laragon Terminal and navigate to your project directory:</p>
+
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Install PHP Dependencies</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Make sure you're in the project directory
+cd C:\laragon\www\personal-info-management-system
+
+# Install Composer dependencies
+composer install</code></pre>
+                    </div>
+
+                    <div class="alert alert-warning mt-4">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        If you encounter memory limit errors, run:
+                        <div class="code-block mt-2">
+                            <button class="copy-btn" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <pre><code>composer install --memory-limit=2G</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Install Node.js Dependencies</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Install NPM packages
+npm install</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="environment" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Step 10: Setup Environment Configuration</h2>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Copy environment file</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Copy the example environment file
+cp .env.example .env</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Generate Application Key</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Generate a new application key
+php artisan key:generate</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-600 mt-4 mb-2">Edit .env file</h4>
+                    <p class="text-gray-600 mb-4">Configure according to your database setup. Copy and paste the following into your <code>.env</code> file:</p>
+
+                    <div class="env-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)" style="background: #e74c3c;">
+                            <i class="fas fa-copy"></i> Copy All
+                        </button>
+                        <pre><code>APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:oxiQwwwo6Ig1SG1nNUvNzgsa8GbfLQdaHx/goySD1vY=
+APP_DEBUG=true
+APP_URL=http://localhost
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+MEMCACHED_HOST=127.0.0.1
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_HOST="${PUSHER_HOST}"
+VITE_PUSHER_PORT="${PUSHER_PORT}"
+VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"</code></pre>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Important:</strong> Update the following values in your .env file:
+                        <ul class="list-disc list-inside mt-2">
+                            <li><code>APP_NAME</code> - Set to "Personal Info Management System"</li>
+                            <li><code>APP_URL</code> - Set to "http://localhost/personal-info-management-system" (for Laragon)</li>
+                            <li><code>DB_DATABASE</code> - Set to your database name (e.g., "personal_info_system")</li>
+                            <li><code>DB_USERNAME</code> - Set to "root" (default for Laragon)</li>
+                            <li><code>DB_PASSWORD</code> - Leave empty (default for Laragon)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="serve" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Step 14: Access Your Application</h2>
+
+                <div class="mb-6">
+                    <p class="text-gray-600 mb-4">With Laragon, you don't need to run <code>php artisan serve</code>. Your application is automatically accessible:</p>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <strong>Your application is ready!</strong> Visit: <a href="http://127.0.0.1:8000/login" class="text-blue-600 hover:underline font-bold">http://127.0.0.1:8000/login</a>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-gray-600 mb-2">If you prefer to use the built-in PHP server:</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <pre><code># Start the development server
+php artisan serve</code></pre>
+                        </div>
+                        <p class="text-gray-600 mt-2">Then visit: <a href="http://localhost:8000" class="text-blue-600 hover:underline">http://localhost:8000</a></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="issues" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Common Issues & Solutions</h2>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">1. Composer Memory Limit Error</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>composer install --memory-limit=2G
+# or
+php -d memory_limit=2G /usr/local/bin/composer install</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">2. Node.js Version Mismatch</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Install specific Node version using nvm
+nvm install 20
+nvm use 20</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">3. Database Connection Error</h3>
+                    <ul class="list-disc list-inside">
+                        <li>Verify MySQL/MariaDB service is running</li>
+                        <li>Check database credentials in <code>.env</code></li>
+                        <li>Ensure database exists</li>
+                    </ul>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">4. Permission Issues (Linux/macOS)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code>sudo chmod -R 775 storage bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache  # for web server user</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">5. Vite Build Issues</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Clear cache and rebuild
+npm run build -- --force
+# or
+rm -rf node_modules package-lock.json
+npm install
+npm run build</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">6. Livewire Not Working</h3>
+                    <ul class="list-disc list-inside">
+                        <li>Ensure assets are built: <code>npm run dev</code></li>
+                        <li>Check that <code>@livewireStyles</code> and <code>@livewireScripts</code> are in your layout</li>
+                        <li>Verify routes are cached: <code>php artisan route:clear</code></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="workflow" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Development Workflow</h2>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Daily Development Commands</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <pre><code># Start development server
+php artisan serve
+
+# Watch for asset changes (in separate terminal)
+npm run dev
+
+# Clear caches if needed
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear</code></pre>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-6">Git Workflow</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <pre><code># Check status
+git status
+
+# Add changes
+git add .
+
+# Commit changes
+git commit -m "Your commit message"
+
+# Push to remote
+git push origin main</code></pre>
+                </div>
+            </section>
+
+            <section id="production" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Production Deployment</h2>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">1. Optimize for Production</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Install production dependencies
+composer install --optimize-autoloader --no-dev
+
+# Cache configuration
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Build assets for production
+npm run build -- --production</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">2. Set Up Cron Jobs</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Edit crontab
+crontab -e
+
+# Add Laravel scheduler
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1</code></pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">3. Queue Worker (if using queues)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <pre><code># Install supervisor to manage queue workers
+sudo apt install supervisor
+
+# Configure supervisor config in /etc/supervisor/conf.d/laravel-worker.conf</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="security" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Security Considerations</h2>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li><strong>Never commit <code>.env</code> file</strong> to version control</li>
+                    <li><strong>Use HTTPS</strong> in production</li>
+                    <li><strong>Set <code>APP_DEBUG=false</code></strong> in production</li>
+                    <li><strong>Regularly update dependencies</strong>
+                        <div class="code-block mt-2">
+                            <button class="copy-btn" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <pre><code>composer update
+npm update</code></pre>
+                        </div>
+                    </li>
+                    <li><strong>Use strong passwords</strong> for database</li>
+                    <li><strong>Enable firewall</strong> on production server</li>
+                    <li><strong>Regular backups</strong> of database and files</li>
+                </ol>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Support & Troubleshooting</h2>
+                <p class="text-gray-600 mb-4">If you encounter issues:</p>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li>Check Laravel logs: <code>storage/logs/laravel.log</code></li>
+                    <li>Enable debug mode temporarily: <code>APP_DEBUG=true</code> in <code>.env</code></li>
+                    <li>Check PHP error logs</li>
+                    <li>Verify all requirements are met</li>
+                    <li>Check official documentation:
+                        <ul class="list-disc list-inside mt-2 ml-6">
+                            <li>Laravel: <a href="https://laravel.com/docs" class="text-blue-600 hover:underline">https://laravel.com/docs</a></li>
+                            <li>Livewire: <a href="https://livewire.laravel.com/docs" class="text-blue-600 hover:underline">https://livewire.laravel.com/docs</a></li>
+                            <li>Tailwind CSS: <a href="https://tailwindcss.com/docs" class="text-blue-600 hover:underline">https://tailwindcss.com/docs</a></li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Complete Quick Start Summary</h2>
+                <p class="text-gray-600 mb-6">Here's the complete command sequence for setting up the project from scratch with Laragon:</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <i class="fas fa-copy"></i> Copy All
+                    </button>
+                    <pre><code># 1. Navigate to Laragon www directory
+cd C:\laragon\www
+
+# 2. Clone the project
+git clone https://github.com/totbenz/personal-info-management-system.git
+cd personal-info-management-system
+
+# 3. Install dependencies
+composer install
+npm install
+
+# 4. Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# 5. Create database (manually in phpMyAdmin: "personal_info_system")
+
+# 6. Run migrations and seed
+php artisan migrate:fresh --seed
+
+# 7. Build assets
+npm run dev
+
+# 8. Visit your application
+# http://localhost/personal-info-management-system</code></pre>
+                </div>
+
+                <div class="alert alert-success mt-6">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <strong>That's it!</strong> Your Personal Info Management System is now running. No need to run <code>php artisan serve</code> with Laragon - it's automatically configured to serve your project.
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        function copyToClipboard(button) {
+            const codeBlock = button.parentElement.querySelector('code') || button.parentElement.querySelector('pre');
+            const text = codeBlock.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+
+                    // Update active state
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Highlight current section in sidebar
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const scrollY = window.pageYOffset;
+
+            sections.forEach(section => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 100;
+                const sectionId = section.getAttribute('id');
+
+                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelector(`.nav-link[href="#${sectionId}"]`)?.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

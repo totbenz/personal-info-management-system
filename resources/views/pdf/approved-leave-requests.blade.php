@@ -175,7 +175,7 @@
                         @endif
                     </td>
                     <td>
-                        <span class="role-badge 
+                        <span class="role-badge
                             @if($request->user->role === 'school_head') role-school-head
                             @elseif($request->user->role === 'teacher') role-teacher
                             @else role-other @endif">
@@ -190,7 +190,14 @@
                             N/A
                         @endif
                     </td>
-                    <td>{{ $request->leave_type }}</td>
+                    <td>
+                        @if($request->leave_type === 'custom')
+                            <span style="color: #8B5CF6; font-weight: bold;">{{ $request->custom_leave_name }}</span>
+                            <br><small style="color: #666;">(Custom Leave)</small>
+                        @else
+                            {{ $request->leave_type }}
+                        @endif
+                    </td>
                     <td>
                         {{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }}
                         <br>to {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
@@ -232,7 +239,7 @@
             <p><strong>Telephone #:</strong> (53) 563-7615</p>
             <p><strong>Email Address:</strong> baybaycity@deped.gov.ph</p>
         </div>
-        
+
         <!-- Clear floats -->
         <div style="clear: both;"></div>
     </div>

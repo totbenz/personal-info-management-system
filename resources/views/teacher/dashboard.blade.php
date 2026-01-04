@@ -535,41 +535,47 @@
                                 <label for="leave_type" class="block text-sm font-medium text-gray-700">Type of Leave</label>
                                 <div class="relative">
                                     <select name="leave_type" id="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="handleLeaveTypeChange(this.value)">
-                                        <option value="">Select type</option>
-                                        @foreach($displayLeaves as $leave)
-                                        @if(is_null($leave['available']))
-                                        <option value="{{ $leave['type'] }}" data-available="{{ $serviceCreditBalance }}">
-                                            {{ $leave['type'] }} ({{ number_format($serviceCreditBalance, 2) }} days from Service Credit)
-                                        </option>
+                                    <option value="">Select type</option>
+                                    @foreach($displayLeaves as $leave)
+                                        @if($leave['available'] > 0)
+                                            <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">{{ $leave['type'] }} ({{ $leave['available'] }} days available)</option>
                                         @else
-                                        <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">
-                                            {{ $leave['type'] }} ({{ $leave['available'] }} days available)
-                                        </option>
+                                            <option value="{{ $leave['type'] }}" disabled class="text-gray-400" data-available="0">{{ $leave['type'] }} (No days available)</option>
                                         @endif
-                                        @endforeach
-                                        <option value="others" data-available="0">Others ▼</option>
-                                    </select>
+                                    @endforeach
+                                    <option value="custom">Custom Leave</option>
+                                    <option value="others" data-available="0">Others ▼</option>
+                                </select>
 
-                                    <!-- Monetization Submenu -->
-                                    <div id="monetizationSubmenu" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 hidden">
-                                        <a href="{{ route('teacher.monetization.history') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md">
-                                            <span class="flex items-center">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                Monetization
-                                            </span>
-                                        </a>
-                                        <button type="button" onclick="closeMonetizationSubmenu()" class="w-full px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-b-md text-left">
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                                @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
-                                <div id="leave_type_warning" class="hidden text-red-500 text-xs mt-1">
-                                    This leave type has no available days.
+                                <!-- Monetization Submenu -->
+                                <div id="monetizationSubmenu" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 hidden">
+                                    <a href="{{ route('teacher.monetization.history') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Monetization
+                                        </span>
+                                    </a>
+                                    <button type="button" onclick="closeMonetizationSubmenu()" class="w-full px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-b-md text-left">
+                                        Cancel
+                                    </button>
                                 </div>
                             </div>
+                            @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                            <div id="leave_type_warning" class="hidden text-red-500 text-xs mt-1">
+                                This leave type has no available days.
+                            </div>
+                        </div>
+
+                        <!-- Custom Leave Name Field (hidden by default) -->
+                        <div id="customLeaveNameDiv" class="hidden">
+                            <label for="custom_leave_name" class="block text-sm font-medium text-gray-700">Custom Leave Type Name</label>
+                            <input type="text" name="custom_leave_name" id="custom_leave_name" maxlength="50"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                   placeholder="Enter custom leave type name">
+                            @error('custom_leave_name')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                        </div>
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
                                 <input type="date" name="start_date" id="start_date" value="{{ old('start_date') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
@@ -588,7 +594,7 @@
                             </div>
                             <div>
                                 <label for="reason" class="block text-sm font-medium text-gray-700">Reason</label>
-                                <input type="text" name="reason" id="reason" value="{{ old('reason') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <input type="text" name="reason" id="reason" value="{{ old('reason') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 @error('reason')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                             </div>
                             <button type="submit" id="submitBtn" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">File Leave</button>
@@ -716,7 +722,14 @@
                             <tbody class="bg-white divide-y divide-green-100">
                                 @forelse($leaveRequests as $leave)
                                 <tr class="hover:bg-green-50 transition duration-150">
-                                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">{{ $leave->leave_type ?? $leave->type ?? '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">
+                                        @if($leave->leave_type === 'custom')
+                                            <span class="text-purple-600">{{ $leave->custom_leave_name }}</span>
+                                            <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                        @else
+                                            {{ $leave->leave_type ?? $leave->type ?? '-' }}
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $leave->created_at->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
                                         @if(!empty($leave->start_date) && !empty($leave->end_date))
@@ -1499,13 +1512,26 @@
         // Function to handle leave type change
         function handleLeaveTypeChange(value) {
             const submenu = document.getElementById('monetizationSubmenu');
+            const customLeaveDiv = document.getElementById('customLeaveNameDiv');
+            const reasonField = document.querySelector('textarea[name="reason"]');
 
             if (value === 'others') {
                 submenu.classList.remove('hidden');
+                customLeaveDiv.classList.add('hidden');
                 // Reset the select to show placeholder
                 document.getElementById('leave_type').value = '';
+            } else if (value === 'custom') {
+                submenu.classList.add('hidden');
+                customLeaveDiv.classList.remove('hidden');
+                // Make reason field required for custom leave
+                reasonField.required = true;
+                reasonField.placeholder = 'Please specify the reason for this custom leave...';
             } else {
                 submenu.classList.add('hidden');
+                customLeaveDiv.classList.add('hidden');
+                // Make reason field required for regular leaves
+                reasonField.required = true;
+                reasonField.placeholder = 'Enter reason for leave...';
             }
         }
 

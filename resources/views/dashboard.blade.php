@@ -489,7 +489,14 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
+                                    <div class="text-sm text-gray-900 font-medium">
+                                        @if($request->leave_type === 'custom')
+                                            <span class="text-purple-600">{{ $request->custom_leave_name }}</span>
+                                            <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                        @else
+                                            {{ $request->leave_type }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">
@@ -577,7 +584,14 @@
                         <div class="space-y-2 mb-4">
                             <div>
                                 <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Leave Type</span>
-                                <div class="text-sm text-gray-900 font-medium">{{ $request->leave_type }}</div>
+                                <div class="text-sm text-gray-900 font-medium">
+                                    @if($request->leave_type === 'custom')
+                                        <span class="text-purple-600">{{ $request->custom_leave_name }}</span>
+                                        <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                    @else
+                                        {{ $request->leave_type }}
+                                    @endif
+                                </div>
                             </div>
 
                             <div>
@@ -1198,7 +1212,14 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $request->leave_type }}</div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        @if($request->leave_type === 'custom')
+                                            <span class="text-purple-600">{{ $request->custom_leave_name }}</span>
+                                            <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                        @else
+                                            {{ $request->leave_type }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div>{{ \Carbon\Carbon::parse($request->start_date)->format('M d, Y') }}</div>
@@ -1637,7 +1658,11 @@
                                 <div class="text-xs text-gray-500">${request.school_id}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">${request.leave_type}</div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    ${request.leave_type === 'custom' ?
+                                        `<span class="text-purple-600">${request.custom_leave_name || 'Custom Leave'}</span><div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>` :
+                                        request.leave_type}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <div>${new Date(request.start_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</div>
