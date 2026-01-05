@@ -33,11 +33,11 @@ class HomeController extends Controller
     public function adminHome()
     {
         // Set timeout and memory limits for dashboard operations
-        set_time_limit(90); // 1.5 minutes
-        ini_set('memory_limit', '256M');
+        // set_time_limit(90); // 1.5 minutes
+        // ini_set('memory_limit', '256M');
 
 
-        $config = config()->nonExistentMethod();
+        // $config = config()->nonExistentMethod();
 
         $personnelCount = Personnel::count();
         $schoolCount = School::count();
