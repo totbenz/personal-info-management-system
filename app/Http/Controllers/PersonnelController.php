@@ -12,6 +12,15 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Exports\Sheets\PersonnelDataC1Sheet;
+use App\Exports\Sheets\PersonnelDataC2Sheet;
+use App\Exports\Sheets\PersonnelDataC3Sheet;
+use App\Exports\Sheets\PersonnelDataC4Sheet;
+use App\Exports\Sheets\EducationSheetExport;
+use ZipArchive;
 
 class PersonnelController extends Controller
 {
@@ -144,12 +153,70 @@ class PersonnelController extends Controller
             ])->findOrFail($id);
             Log::info('Personnel found: ' . $personnel->personnel_id);
 
-            // Use the CombinedPDSExport to export both C1 and Education sheets
-            $export = new CombinedPDSExport($personnel);
-            Log::info('CombinedPDSExport instance created');
+            // Create temporary directory
+            $tempDir = storage_path('app/temp/exports/' . uniqid());
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
 
-            // Trigger the export by registering events and letting Excel handle it
-            return Excel::download($export, $export->getFileName());
+            // Generate PDS (C1-C4 all in one file)
+            $templatePath = public_path('report/macro_enabled_cs_form_no_2122.xlsx');
+            $pdsSpreadsheet = IOFactory::load($templatePath);
+
+            // Populate all sheets
+            $c1Sheet = new PersonnelDataC1Sheet($personnel, $pdsSpreadsheet);
+            $c1Sheet->populateSheet();
+
+            $c2Sheet = new PersonnelDataC2Sheet($personnel, $pdsSpreadsheet);
+            $c2Sheet->populateSheet();
+
+            $c3Sheet = new PersonnelDataC3Sheet($personnel, $pdsSpreadsheet);
+            $c3Sheet->populateSheet();
+
+            $c4Sheet = new PersonnelDataC4Sheet($personnel, $pdsSpreadsheet);
+            $c4Sheet->populateSheet();
+
+            $pdsPath = $tempDir . '/PDS_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
+            $pdsWriter = new Xlsx($pdsSpreadsheet);
+            $pdsWriter->save($pdsPath);
+
+            // Generate Education Sheet
+            $educationTemplatePath = public_path('report/Education_Sheet.xlsx');
+            $educationSpreadsheet = IOFactory::load($educationTemplatePath);
+            $educationExport = new EducationSheetExport($personnel);
+
+            $sheets = $educationExport->sheets();
+            foreach ($sheets as $index => $sheet) {
+                $worksheet = $educationSpreadsheet->getSheet($index);
+                $sheet->fillWorksheet($worksheet);
+            }
+
+            $educationPath = $tempDir . '/Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
+            $educationWriter = new Xlsx($educationSpreadsheet);
+            $educationWriter->save($educationPath);
+
+            // Create ZIP file
+            $zipPath = $tempDir . '/PDS_Complete_' . str_replace(' ', '_', $personnel->full_name) . '.zip';
+            $zip = new ZipArchive();
+
+            if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+                $zip->addFile($pdsPath, basename($pdsPath));
+                $zip->addFile($educationPath, basename($educationPath));
+                $zip->close();
+            }
+
+            // Clean up temp files
+            @unlink($pdsPath);
+            @unlink($educationPath);
+            @rmdir($tempDir);
+
+            // Download the ZIP file
+            $filename = 'PDS_Complete_' . str_replace(' ', '_', $personnel->full_name) . '_' . date('Y-m-d') . '.zip';
+            $response = Response::download($zipPath, $filename);
+            $response->deleteFileAfterSend(true);
+
+            return $response;
+
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -179,12 +246,70 @@ class PersonnelController extends Controller
             ])->findOrFail(Auth::user()->personnel->id);
             Log::info('Personnel found: ' . $personnel->personnel_id);
 
-            // Use the CombinedPDSExport to export both C1 and Education sheets
-            $export = new CombinedPDSExport($personnel);
-            Log::info('CombinedPDSExport instance created');
+            // Create temporary directory
+            $tempDir = storage_path('app/temp/exports/' . uniqid());
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
 
-            // Trigger the export by registering events and letting Excel handle it
-            return Excel::download($export, $export->getFileName());
+            // Generate PDS (C1-C4 all in one file)
+            $templatePath = public_path('report/macro_enabled_cs_form_no_2122.xlsx');
+            $pdsSpreadsheet = IOFactory::load($templatePath);
+
+            // Populate all sheets
+            $c1Sheet = new PersonnelDataC1Sheet($personnel, $pdsSpreadsheet);
+            $c1Sheet->populateSheet();
+
+            $c2Sheet = new PersonnelDataC2Sheet($personnel, $pdsSpreadsheet);
+            $c2Sheet->populateSheet();
+
+            $c3Sheet = new PersonnelDataC3Sheet($personnel, $pdsSpreadsheet);
+            $c3Sheet->populateSheet();
+
+            $c4Sheet = new PersonnelDataC4Sheet($personnel, $pdsSpreadsheet);
+            $c4Sheet->populateSheet();
+
+            $pdsPath = $tempDir . '/PDS_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
+            $pdsWriter = new Xlsx($pdsSpreadsheet);
+            $pdsWriter->save($pdsPath);
+
+            // Generate Education Sheet
+            $educationTemplatePath = public_path('report/Education_Sheet.xlsx');
+            $educationSpreadsheet = IOFactory::load($educationTemplatePath);
+            $educationExport = new EducationSheetExport($personnel);
+
+            $sheets = $educationExport->sheets();
+            foreach ($sheets as $index => $sheet) {
+                $worksheet = $educationSpreadsheet->getSheet($index);
+                $sheet->fillWorksheet($worksheet);
+            }
+
+            $educationPath = $tempDir . '/Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
+            $educationWriter = new Xlsx($educationSpreadsheet);
+            $educationWriter->save($educationPath);
+
+            // Create ZIP file
+            $zipPath = $tempDir . '/PDS_Complete_' . str_replace(' ', '_', $personnel->full_name) . '.zip';
+            $zip = new ZipArchive();
+
+            if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+                $zip->addFile($pdsPath, basename($pdsPath));
+                $zip->addFile($educationPath, basename($educationPath));
+                $zip->close();
+            }
+
+            // Clean up temp files
+            @unlink($pdsPath);
+            @unlink($educationPath);
+            @rmdir($tempDir);
+
+            // Download the ZIP file
+            $filename = 'PDS_Complete_' . str_replace(' ', '_', $personnel->full_name) . '_' . date('Y-m-d') . '.zip';
+            $response = Response::download($zipPath, $filename);
+            $response->deleteFileAfterSend(true);
+
+            return $response;
+
         } catch (\Exception $e) {
             Log::error('Error during export: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

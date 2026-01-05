@@ -20,11 +20,28 @@ class PersonnelDataC4Sheet
     public function populateSheet()
     {
         try {
+            Log::info('PersonnelDataC4Sheet::populateSheet called', [
+                'personnelId' => $this->personnel->id,
+                'referenceCount' => $this->personnel->references ? $this->personnel->references->count() : 0,
+                'hasPersonnelDetail' => $this->personnel->personnelDetail ? true : false
+            ]);
+
             $this->populateQuestionnaire();
+            Log::info('Questionnaire populated');
+
             $this->populateReferences();
+            Log::info('References populated');
+
             $this->populateCurrentDate();
+            Log::info('Current date populated');
+
+            Log::info('PersonnelDataC4Sheet::populateSheet completed successfully');
         } catch (\Exception $e) {
-            Log::error('Error populating C4 sheet: ' . $e->getMessage());
+            Log::error('Error in PersonnelDataC4Sheet::populateSheet', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 

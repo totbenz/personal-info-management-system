@@ -36,24 +36,7 @@ class EducationSheetExport implements WithMultipleSheets, WithEvents
 
     public function registerEvents(): array
     {
-        return [
-            BeforeWriting::class => function (BeforeWriting $event) {
-                // Load the template
-                $spreadsheet = IOFactory::load($this->templatePath);
-
-                // Get all sheets
-                $sheets = $this->sheets();
-
-                // Process each sheet
-                foreach ($sheets as $index => $sheet) {
-                    $worksheet = $spreadsheet->getSheet($index);
-                    $sheet->fillWorksheet($worksheet);
-                }
-
-                // Set the modified spreadsheet back to the event
-                $event->writer->setSpreadsheet($spreadsheet);
-            },
-        ];
+        return [];
     }
 }
 

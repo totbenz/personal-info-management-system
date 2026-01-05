@@ -20,12 +20,32 @@ class PersonnelDataC3Sheet
     public function populateSheet()
     {
         try {
+            Log::info('PersonnelDataC3Sheet::populateSheet called', [
+                'personnelId' => $this->personnel->id,
+                'voluntaryWorkCount' => $this->personnel->voluntaryWorks ? $this->personnel->voluntaryWorks->count() : 0,
+                'trainingCount' => $this->personnel->trainingCertifications ? $this->personnel->trainingCertifications->count() : 0,
+                'otherInfoCount' => $this->personnel->otherInformations ? $this->personnel->otherInformations->count() : 0
+            ]);
+
             $this->populateVoluntaryWorks();
+            Log::info('Voluntary works populated');
+
             $this->populateTrainingCertifications();
+            Log::info('Training certifications populated');
+
             $this->populateOtherInformation();
+            Log::info('Other information populated');
+
             $this->populateCurrentDate();
+            Log::info('Current date populated');
+
+            Log::info('PersonnelDataC3Sheet::populateSheet completed successfully');
         } catch (\Exception $e) {
-            Log::error('Error populating C3 sheet: ' . $e->getMessage());
+            Log::error('Error in PersonnelDataC3Sheet::populateSheet', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 
@@ -47,15 +67,8 @@ class PersonnelDataC3Sheet
         if ($this->personnel->voluntaryWorks && $this->personnel->voluntaryWorks->count() > 0) {
             foreach ($this->personnel->voluntaryWorks as $voluntary_work) {
                 if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional Voluntary Work ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values
@@ -92,15 +105,8 @@ class PersonnelDataC3Sheet
         if ($this->personnel->trainingCertifications && $this->personnel->trainingCertifications->count() > 0) {
             foreach ($this->personnel->trainingCertifications as $training_certification) {
                 if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional Training Certification ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values
@@ -140,15 +146,8 @@ class PersonnelDataC3Sheet
             $skillsInformation = $this->personnel->otherInformations->where('type', 'special_skill');
             foreach ($skillsInformation as $skills_information) {
                 if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional Skills Information ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values
@@ -159,20 +158,16 @@ class PersonnelDataC3Sheet
             $worksheet->setCellValue('A' . $startRow, 'N/A');
         }
 
+        // Reset row for nonacademic distinctions
+        $currentRow = $startRow;
+
         // Nonacademic Distinction Information
         if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'nonacademic_distinction')->count() > 0) {
             $nonacademicDistinctionInformation = $this->personnel->otherInformations->where('type', 'nonacademic_distinction');
             foreach ($nonacademicDistinctionInformation as $nonacademic_distinction_information) {
                 if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional Nonacademic Distinction Information ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values
@@ -183,20 +178,16 @@ class PersonnelDataC3Sheet
             $worksheet->setCellValue('C' . $startRow, 'N/A');
         }
 
+        // Reset row for associations
+        $currentRow = $startRow;
+
         // Association Information
         if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'association')->count() > 0) {
             $associationInformation = $this->personnel->otherInformations->where('type', 'association');
             foreach ($associationInformation as $association_information) {
                 if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional Association Information ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values

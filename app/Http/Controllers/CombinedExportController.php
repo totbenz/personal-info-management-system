@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\Sheets\CombinedPDSExport;
+use App\Exports\Sheets\PersonnelDataC1Sheet;
+use App\Exports\Sheets\PersonnelDataC2Sheet;
+use App\Exports\Sheets\PersonnelDataC3Sheet;
+use App\Exports\Sheets\PersonnelDataC4Sheet;
+use App\Exports\Sheets\EducationSheetExport;
 use App\Models\Personnel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,8 +15,6 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Exports\Sheets\PersonnelDataC1Sheet;
-use App\Exports\Sheets\EducationSheetExport;
 use ZipArchive;
 
 class CombinedExportController extends Controller
@@ -32,7 +35,20 @@ class CombinedExportController extends Controller
             // Get personnel
             if ($personnelId) {
                 Log::info('Fetching personnel by ID', ['personnelId' => $personnelId]);
-                $personnel = Personnel::findOrFail($personnelId);
+                $personnel = Personnel::with([
+                    'residentialAddress',
+                    'permanentAddress',
+                    'families',
+                    'children',
+                    'educationEntries',
+                    'civilServiceEligibilities',
+                    'workExperiences',
+                    'voluntaryWorks',
+                    'trainingCertifications',
+                    'otherInformations',
+                    'references',
+                    'personnelDetail'
+                ])->findOrFail($personnelId);
             } else {
                 Log::info('Fetching personnel from authenticated user');
                 // For teacher profile export
@@ -40,7 +56,20 @@ class CombinedExportController extends Controller
                     Log::error('No personnel associated with authenticated user', ['userId' => Auth::id()]);
                     return redirect()->back()->with('error', 'No personnel record found for your account.');
                 }
-                $personnel = Personnel::findOrFail(Auth::user()->personnel->id);
+                $personnel = Personnel::with([
+                    'residentialAddress',
+                    'permanentAddress',
+                    'families',
+                    'children',
+                    'educationEntries',
+                    'civilServiceEligibilities',
+                    'workExperiences',
+                    'voluntaryWorks',
+                    'trainingCertifications',
+                    'otherInformations',
+                    'references',
+                    'personnelDetail'
+                ])->findOrFail(Auth::user()->personnel->id);
             }
 
             Log::info('Personnel found', [
@@ -70,28 +99,37 @@ class CombinedExportController extends Controller
                 }
             }
 
-            // Generate C1 Sheet
-            Log::info('Starting C1 sheet generation');
+            // Generate PDS (C1-C4 all in one file)
+            Log::info('Starting PDS sheet generation');
             $templatePath = public_path('report/macro_enabled_cs_form_no_2122.xlsx');
+            $pdsSpreadsheet = IOFactory::load($templatePath);
 
-            if (!file_exists($templatePath)) {
-                Log::error('C1 template not found', ['templatePath' => $templatePath]);
-                throw new \Exception('C1 template file not found');
-            }
-
-            $c1Spreadsheet = IOFactory::load($templatePath);
-            $c1Sheet = new PersonnelDataC1Sheet($personnel, $c1Spreadsheet);
+            // Populate all sheets
+            Log::info('Populating C1 sheet');
+            $c1Sheet = new PersonnelDataC1Sheet($personnel, $pdsSpreadsheet);
             $c1Sheet->populateSheet();
 
-            $c1Path = $tempDir . '/PDS_C1_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
-            $c1Writer = new Xlsx($c1Spreadsheet);
-            $c1Writer->save($c1Path);
+            Log::info('Populating C2 sheet');
+            $c2Sheet = new PersonnelDataC2Sheet($personnel, $pdsSpreadsheet);
+            $c2Sheet->populateSheet();
 
-            if (!file_exists($c1Path)) {
-                Log::error('Failed to save C1 sheet', ['c1Path' => $c1Path]);
-                throw new \Exception('Failed to save C1 sheet');
+            Log::info('Populating C3 sheet');
+            $c3Sheet = new PersonnelDataC3Sheet($personnel, $pdsSpreadsheet);
+            $c3Sheet->populateSheet();
+
+            Log::info('Populating C4 sheet');
+            $c4Sheet = new PersonnelDataC4Sheet($personnel, $pdsSpreadsheet);
+            $c4Sheet->populateSheet();
+
+            $pdsPath = $tempDir . '/PDS_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
+            $pdsWriter = new Xlsx($pdsSpreadsheet);
+            $pdsWriter->save($pdsPath);
+
+            if (!file_exists($pdsPath)) {
+                Log::error('Failed to save PDS sheet', ['pdsPath' => $pdsPath]);
+                throw new \Exception('Failed to save PDS sheet');
             }
-            Log::info('C1 sheet generated successfully', ['c1Path' => $c1Path]);
+            Log::info('PDS sheet generated successfully', ['pdsPath' => $pdsPath]);
 
             // Generate Education Sheet
             Log::info('Starting Education sheet generation');
@@ -135,12 +173,12 @@ class CombinedExportController extends Controller
                 throw new \Exception('Failed to create ZIP file: ' . $zip->getStatusString());
             }
 
-            $c1FileName = 'PDS_C1_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
+            $pdsFileName = 'PDS_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
             $educationFileName = 'Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '.xlsx';
 
-            if (!$zip->addFile($c1Path, $c1FileName)) {
-                Log::error('Failed to add C1 file to ZIP', ['c1Path' => $c1Path]);
-                throw new \Exception('Failed to add C1 file to ZIP');
+            if (!$zip->addFile($pdsPath, $pdsFileName)) {
+                Log::error('Failed to add PDS file to ZIP', ['pdsPath' => $pdsPath]);
+                throw new \Exception('Failed to add PDS file to ZIP');
             }
 
             if (!$zip->addFile($educationPath, $educationFileName)) {
@@ -158,7 +196,7 @@ class CombinedExportController extends Controller
 
             // Clean up temp files
             Log::info('Cleaning up temp files');
-            @unlink($c1Path);
+            @unlink($pdsPath);
             @unlink($educationPath);
             @rmdir($tempDir);
 

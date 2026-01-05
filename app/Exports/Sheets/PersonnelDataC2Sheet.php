@@ -20,11 +20,28 @@ class PersonnelDataC2Sheet
     public function populateSheet()
     {
         try {
+            Log::info('PersonnelDataC2Sheet::populateSheet called', [
+                'personnelId' => $this->personnel->id,
+                'civilServiceCount' => $this->personnel->civilServiceEligibilities ? $this->personnel->civilServiceEligibilities->count() : 0,
+                'workExperienceCount' => $this->personnel->workExperiences ? $this->personnel->workExperiences->count() : 0
+            ]);
+
             $this->populateCivilServiceEligibilities();
+            Log::info('Civil Service eligibilities populated');
+
             $this->populateWorkExperiences();
+            Log::info('Work experiences populated');
+
             $this->populateCurrentDate();
+            Log::info('Current date populated');
+
+            Log::info('PersonnelDataC2Sheet::populateSheet completed successfully');
         } catch (\Exception $e) {
-            Log::error('Error populating C2 sheet: ' . $e->getMessage());
+            Log::error('Error in PersonnelDataC2Sheet::populateSheet', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 
@@ -40,12 +57,8 @@ class PersonnelDataC2Sheet
         if ($this->personnel->civilServiceEligibilities && $this->personnel->civilServiceEligibilities->count() > 0) {
             foreach ($this->personnel->civilServiceEligibilities as $civil_service_eligibility) {
                 if ($currentRow > $endRow) {
-                    // Copy the current sheet and use the new copy
-                    $newSheet = $worksheet->copy();
-                    $newSheet->setTitle('Additional CSE ' . ($this->worksheet->getParent()->getSheetCount() + 1));
-                    $this->worksheet->getParent()->addSheet($newSheet);
-                    $worksheet = $newSheet;
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values
@@ -84,15 +97,8 @@ class PersonnelDataC2Sheet
         if ($this->personnel->workExperiences && $this->personnel->workExperiences->count() > 0) {
             foreach ($this->personnel->workExperiences as $work_experience) {
                 if ($currentRow > $endRow) {
-                    // Create a new sheet or use the next existing sheet
-                    $currentSheetIndex = $this->worksheet->getParent()->getIndex($worksheet) + 1;
-                    if ($currentSheetIndex >= $this->worksheet->getParent()->getSheetCount()) {
-                        $worksheet = $this->worksheet->getParent()->createSheet();
-                        $worksheet->setTitle('Additional WORK EXPERIENCE ' . ($currentSheetIndex + 1));
-                    } else {
-                        $worksheet = $this->worksheet->getParent()->getSheet($currentSheetIndex);
-                    }
-                    $currentRow = $startRow; // Reset the current row to the start row
+                    // Stop if we exceed the available rows
+                    break;
                 }
 
                 // Populate the cell values

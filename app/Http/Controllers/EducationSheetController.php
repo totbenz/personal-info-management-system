@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exports\Sheets\EducationSheetExport;
 use App\Models\Personnel;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class EducationSheetController extends Controller
 {
@@ -23,9 +25,28 @@ class EducationSheetController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $filename = 'Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '_' . date('Y-m-d') . '.xlsx';
+        // Load the template
+        $templatePath = public_path('report/Education_Sheet.xlsx');
+        $spreadsheet = IOFactory::load($templatePath);
 
-        return Excel::download(new EducationSheetExport($personnel), $filename);
+        // Create export instance and get sheets
+        $educationExport = new EducationSheetExport($personnel);
+        $sheets = $educationExport->sheets();
+
+        // Populate each sheet
+        foreach ($sheets as $index => $sheet) {
+            $worksheet = $spreadsheet->getSheet($index);
+            $sheet->fillWorksheet($worksheet);
+        }
+
+        // Write to temporary file
+        $filename = 'Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '_' . date('Y-m-d') . '.xlsx';
+        $tempPath = storage_path('app/temp/' . $filename);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempPath);
+
+        // Download and delete
+        return Response::download($tempPath, $filename)->deleteFileAfterSend(true);
     }
 
     /**
@@ -45,9 +66,28 @@ class EducationSheetController extends Controller
             abort(404, 'Personnel record not found.');
         }
 
-        $filename = 'Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '_' . date('Y-m-d') . '.xlsx';
+        // Load the template
+        $templatePath = public_path('report/Education_Sheet.xlsx');
+        $spreadsheet = IOFactory::load($templatePath);
 
-        return Excel::download(new EducationSheetExport($personnel), $filename);
+        // Create export instance and get sheets
+        $educationExport = new EducationSheetExport($personnel);
+        $sheets = $educationExport->sheets();
+
+        // Populate each sheet
+        foreach ($sheets as $index => $sheet) {
+            $worksheet = $spreadsheet->getSheet($index);
+            $sheet->fillWorksheet($worksheet);
+        }
+
+        // Write to temporary file
+        $filename = 'Education_Sheet_' . str_replace(' ', '_', $personnel->full_name) . '_' . date('Y-m-d') . '.xlsx';
+        $tempPath = storage_path('app/temp/' . $filename);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempPath);
+
+        // Download and delete
+        return Response::download($tempPath, $filename)->deleteFileAfterSend(true);
     }
 
     /**
