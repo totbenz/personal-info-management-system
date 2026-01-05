@@ -44,6 +44,9 @@ class PersonnelDataC1Sheet
             $this->populateEducation($worksheet);
             Log::info('Education info populated');
 
+            $this->populateChildren($worksheet);
+            Log::info('Children info populated');
+
             $this->populateCurrentDate($worksheet);
             Log::info('Current date populated');
 

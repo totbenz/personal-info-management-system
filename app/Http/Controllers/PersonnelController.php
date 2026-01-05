@@ -128,7 +128,20 @@ class PersonnelController extends Controller
         Log::info('Export method called with id: ' . $id);
 
         try {
-            $personnel = Personnel::findOrFail($id);
+            $personnel = Personnel::with([
+                'residentialAddress',
+                'permanentAddress',
+                'families',
+                'children',
+                'educationEntries',
+                'civilServiceEligibilities',
+                'workExperiences',
+                'voluntaryWorks',
+                'trainingCertifications',
+                'otherInformations',
+                'references',
+                'personnelDetail'
+            ])->findOrFail($id);
             Log::info('Personnel found: ' . $personnel->personnel_id);
 
             // Use the CombinedPDSExport to export both C1 and Education sheets
@@ -150,7 +163,20 @@ class PersonnelController extends Controller
 
         try {
             // Get the authenticated user's personnel data
-            $personnel = Personnel::findOrFail(Auth::user()->personnel->id);
+            $personnel = Personnel::with([
+                'residentialAddress',
+                'permanentAddress',
+                'families',
+                'children',
+                'educationEntries',
+                'civilServiceEligibilities',
+                'workExperiences',
+                'voluntaryWorks',
+                'trainingCertifications',
+                'otherInformations',
+                'references',
+                'personnelDetail'
+            ])->findOrFail(Auth::user()->personnel->id);
             Log::info('Personnel found: ' . $personnel->personnel_id);
 
             // Use the CombinedPDSExport to export both C1 and Education sheets

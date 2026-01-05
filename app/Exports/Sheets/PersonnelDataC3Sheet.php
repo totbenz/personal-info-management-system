@@ -136,8 +136,8 @@ class PersonnelDataC3Sheet
         $currentRow = $startRow;
 
         // Skills Information - Check if otherInformations relationship exists
-        if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'skills')->count() > 0) {
-            $skillsInformation = $this->personnel->otherInformations->where('type', 'skills');
+        if ($this->personnel->otherInformations && $this->personnel->otherInformations->where('type', 'special_skill')->count() > 0) {
+            $skillsInformation = $this->personnel->otherInformations->where('type', 'special_skill');
             foreach ($skillsInformation as $skills_information) {
                 if ($currentRow > $endRow) {
                     // Create a new sheet or use the next existing sheet

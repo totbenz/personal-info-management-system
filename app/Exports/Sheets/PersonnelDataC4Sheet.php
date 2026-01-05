@@ -54,10 +54,10 @@ class PersonnelDataC4Sheet
                 $worksheet->setCellValue($positions['address'] . $row, $reference->address ?? '');
                 $worksheet->setCellValue($positions['phone'] . $row, $reference->tel_no ?? '');
             } else {
-                // Clear unused rows
-                $worksheet->setCellValue($positions['name'] . $row, '');
-                $worksheet->setCellValue($positions['address'] . $row, '');
-                $worksheet->setCellValue($positions['phone'] . $row, '');
+                // Set N/A for unused rows instead of empty
+                $worksheet->setCellValue($positions['name'] . $row, 'N/A');
+                $worksheet->setCellValue($positions['address'] . $row, 'N/A');
+                $worksheet->setCellValue($positions['phone'] . $row, 'N/A');
             }
         }
     }
@@ -74,6 +74,7 @@ class PersonnelDataC4Sheet
         $worksheet = $this->worksheet;
 
         // Check if personnelDetail relationship exists
+        if ($this->personnel->personnelDetail) {
             // Helper function to render checkboxes
             $checkbox = function($value) {
                 return $value ? '☑ Yes   ☐ No' : '☐ Yes   ☑ No';
@@ -103,6 +104,10 @@ class PersonnelDataC4Sheet
             $worksheet->setCellValue('L46', $this->personnel->personnelDetail->disability_id_no ?? 'N/A');
             $worksheet->setCellValue('G47', $checkbox($this->personnel->personnelDetail->solo_parent));
             $worksheet->setCellValue('L48', $this->personnel->personnelDetail->solo_parent_id_no ?? 'N/A');
+        } else {
+            // Set default values if no questionnaire data
+            $this->setDefaultQuestionnaireValues($worksheet);
+        }
     }
 
     private function setDefaultQuestionnaireValues($worksheet)
