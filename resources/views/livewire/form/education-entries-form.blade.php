@@ -58,9 +58,6 @@
                             @if(!empty($education['school_country']))
                                 <p class="mt-1 text-xs text-gray-500">{{ $education['school_country'] }}</p>
                             @endif
-                            @if(!empty($education['language_of_instruction']))
-                                <p class="mt-1 text-xs text-gray-500">Language: {{ $education['language_of_instruction'] }}</p>
-                            @endif
                         </div>
                         <div class="group">
                             <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Degree/Course</span>
@@ -308,12 +305,6 @@
                                 <input type="text" wire:model="entries.{{ $type }}.{{ $index }}.school_country"
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                     placeholder="Country">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-sm text-gray-700 mb-2">Language of Instruction</label>
-                                <input type="text" wire:model="entries.{{ $type }}.{{ $index }}.language_of_instruction"
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                    placeholder="e.g., English, Filipino">
                             </div>
 
                             <div>

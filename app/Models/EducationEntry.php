@@ -48,8 +48,6 @@ class EducationEntry extends Model
         'extracurricular_activities',
         'leadership_roles',
         'awards',
-        // Additional Information
-        'language_of_instruction',
         'remarks',
         'enrollment_date',
         'completion_date',

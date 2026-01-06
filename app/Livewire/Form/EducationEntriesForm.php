@@ -92,8 +92,6 @@ class EducationEntriesForm extends Component
             'extracurricular_activities' => null,
             'leadership_roles' => null,
             'awards' => null,
-            // Additional Information
-            'language_of_instruction' => null,
             'remarks' => null,
             'enrollment_date' => null,
             'completion_date' => null,
@@ -115,7 +113,7 @@ class EducationEntriesForm extends Component
         foreach (['school_name', 'degree_course', 'major', 'minor', 'period_from', 'period_to', 'highest_level_units', 'year_graduated', 'scholarship_honors',
             'school_address', 'school_city', 'school_province', 'school_country', 'gpa', 'gpa_scale', 'class_rank', 'academic_status',
             'thesis_title', 'thesis_advisor', 'license_number', 'license_date', 'license_expiry', 'board_exam_rating',
-            'achievements', 'extracurricular_activities', 'leadership_roles', 'awards', 'language_of_instruction',
+            'achievements', 'extracurricular_activities', 'leadership_roles', 'awards',
             'remarks', 'enrollment_date', 'completion_date'] as $key) {
             $value = $this->normalizeValue(Arr::get($entry, $key));
             if ($value !== null) {
@@ -196,8 +194,6 @@ class EducationEntriesForm extends Component
                 'extracurricular_activities' => $row->extracurricular_activities,
                 'leadership_roles' => $row->leadership_roles,
                 'awards' => $row->awards,
-                // Additional Information
-                'language_of_instruction' => $row->language_of_instruction,
                 'remarks' => $row->remarks,
                 'enrollment_date' => $row->enrollment_date?->format('Y-m-d'),
                 'completion_date' => $row->completion_date?->format('Y-m-d'),
@@ -410,8 +406,6 @@ class EducationEntriesForm extends Component
                         'extracurricular_activities' => Arr::get($entry, 'extracurricular_activities'),
                         'leadership_roles' => Arr::get($entry, 'leadership_roles'),
                         'awards' => Arr::get($entry, 'awards'),
-                        // Additional Information
-                        'language_of_instruction' => Arr::get($entry, 'language_of_instruction'),
                         'remarks' => Arr::get($entry, 'remarks'),
                         'enrollment_date' => Arr::get($entry, 'enrollment_date') ?: null,
                         'completion_date' => Arr::get($entry, 'completion_date') ?: null,
