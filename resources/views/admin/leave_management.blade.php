@@ -50,6 +50,81 @@
             </div>
             @endif
 
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Personnel</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ $stats['total_personnel'] }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Vacation Days</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ $stats['total_vacation_available'] }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Sick Days</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ $stats['total_sick_available'] }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-red-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Critical Leave Status</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ $stats['no_vacation_count'] + $stats['no_sick_count'] }} Personnel</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <!-- Header with filters -->
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -64,22 +139,43 @@
                         </div>
 
                         <!-- Filters -->
-                        <div class="mt-3 sm:mt-0 flex space-x-2">
+                        <div class="mt-3 sm:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                             <form method="GET" action="{{ route('admin.leave-management') }}" class="flex items-center space-x-2">
-                                <label for="role" class="text-sm font-medium text-gray-700">Role:</label>
-                                <select name="role" id="role" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
-                                    <option value="">All Roles</option>
-                                    <option value="school_head" {{ $role == 'school_head' ? 'selected' : '' }}>School Head</option>
-                                    <option value="teacher" {{ $role == 'teacher' ? 'selected' : '' }}>Teacher</option>
-                                    <option value="non_teaching" {{ $role == 'non_teaching' ? 'selected' : '' }}>Non-Teaching</option>
-                                </select>
+                                <div class="flex items-center space-x-2">
+                                    <label for="search" class="text-sm font-medium text-gray-700">Search:</label>
+                                    <input type="text" name="search" id="search" value="{{ request('search') }}"
+                                           placeholder="Name..."
+                                           class="border-gray-300 rounded-md text-sm w-32">
+                                </div>
 
-                                <label for="year" class="text-sm font-medium text-gray-700 ml-4">Year:</label>
-                                <select name="year" id="year" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
-                                    @for($y = 2020; $y <= 2030; $y++)
-                                        <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                                    @endfor
-                                </select>
+                                <div class="flex items-center space-x-2">
+                                    <label for="role" class="text-sm font-medium text-gray-700">Role:</label>
+                                    <select name="role" id="role" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
+                                        <option value="">All Roles</option>
+                                        <option value="school_head" {{ $role == 'school_head' ? 'selected' : '' }}>School Head</option>
+                                        <option value="teacher" {{ $role == 'teacher' ? 'selected' : '' }}>Teacher</option>
+                                        <option value="non_teaching" {{ $role == 'non_teaching' ? 'selected' : '' }}>Non-Teaching</option>
+                                    </select>
+                                </div>
+
+                                <div class="flex items-center space-x-2">
+                                    <label for="year" class="text-sm font-medium text-gray-700">Year:</label>
+                                    <select name="year" id="year" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
+                                        @for($y = 2020; $y <= 2030; $y++)
+                                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">
+                                    Filter
+                                </button>
+
+                                @if(request()->hasAny(['search', 'role', 'year']))
+                                    <a href="{{ route('admin.leave-management') }}" class="px-3 py-1 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700">
+                                        Clear
+                                    </a>
+                                @endif
                             </form>
                         </div>
                     </div>
@@ -159,14 +255,45 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <button onclick="openAddLeaveModal({{ $data['personnel']->id }}, '{{ $data['personnel']->first_name }} {{ $data['personnel']->last_name }}', '{{ ucfirst(str_replace('_', ' ', $data['user']->role)) }}', '{{ $data['personnel']->school ? $data['personnel']->school->school_name : 'No School Assigned' }}')"
-                                                    class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors duration-200">
+                                                    class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors duration-200 mr-2">
                                                 Add Days
+                                            </button>
+                                            <button onclick="openDeductLeaveModal({{ $data['personnel']->id }}, '{{ $data['personnel']->first_name }} {{ $data['personnel']->last_name }}', '{{ ucfirst(str_replace('_', ' ', $data['user']->role)) }}', '{{ $data['personnel']->school ? $data['personnel']->school->school_name : 'No School Assigned' }}')"
+                                                    class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors duration-200">
+                                                Deduct Days
                                             </button>
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            @if($users->hasPages())
+                                {{ $users->links() }}
+                            @endif
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Showing
+                                    <span class="font-medium">{{ $users->firstItem() }}</span>
+                                    to
+                                    <span class="font-medium">{{ $users->lastItem() }}</span>
+                                    of
+                                    <span class="font-medium">{{ $users->total() }}</span>
+                                    results
+                                </p>
+                            </div>
+                            <div>
+                                @if($users->hasPages())
+                                    {{ $users->links() }}
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 @else
                     <!-- Empty State -->
@@ -242,48 +369,167 @@
         </div>
     </div>
 
+    <!-- Deduct Leave Modal -->
+    <div id="deductLeaveModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Deduct Leave Days</h3>
+                    <button id="closeDeductModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="deductLeaveForm" method="POST" action="{{ route('admin.leave-management.deduct') }}">
+                    @csrf
+                    <input type="hidden" id="deduct_modal_personnel_id" name="personnel_id" value="">
+                    <input type="hidden" name="year" value="{{ $year }}">
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Personnel</label>
+                        <div id="deduct_modal_personnel_info" class="p-3 bg-gray-50 rounded-md text-sm text-gray-600"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="deduct_modal_leave_type" class="block text-sm font-medium text-gray-700 mb-2">Leave Type</label>
+                        <select id="deduct_modal_leave_type" name="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            <option value="">Select leave type</option>
+                            <option value="Vacation Leave">Vacation Leave</option>
+                            <option value="Sick Leave">Sick Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="deduct_modal_days_to_deduct" class="block text-sm font-medium text-gray-700 mb-2">Days to Deduct</label>
+                        <input type="number" id="deduct_modal_days_to_deduct" name="days_to_deduct" min="0.5" max="365" step="0.5" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        <p class="mt-1 text-xs text-gray-500">Cannot deduct more than available balance</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="deduct_modal_reason" class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                        <textarea id="deduct_modal_reason" name="reason" rows="3" required
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                                  placeholder="Reason for deducting leave days..."></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-3">
+                        <button type="button" id="cancelDeductModal"
+                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Deduct Days
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Modal functionality
-        const modal = document.getElementById('addLeaveModal');
-        const addLeaveBtn = document.getElementById('addLeaveBtn');
-        const closeModalBtn = document.getElementById('closeModal');
-        const cancelModalBtn = document.getElementById('cancelModal');
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal functionality
+            const modal = document.getElementById('addLeaveModal');
+            const deductModal = document.getElementById('deductLeaveModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelModalBtn = document.getElementById('cancelModal');
+            const closeDeductModalBtn = document.getElementById('closeDeductModal');
+            const cancelDeductModalBtn = document.getElementById('cancelDeductModal');
 
-        function openAddLeaveModal(personnelId, personnelName, personnelRole, schoolName) {
-            document.getElementById('modal_personnel_id').value = personnelId;
-            document.getElementById('modal_personnel_info').innerHTML = `
-                <div><strong>${personnelName}</strong></div>
-                <div class="text-gray-500">${personnelRole} - ${schoolName}</div>
-            `;
-            modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            modal.classList.add('hidden');
-            document.getElementById('addLeaveForm').reset();
-        }
-
-        // Event listeners
-        addLeaveBtn.addEventListener('click', function() {
-            // For the main button, we'll just show instructions or open with empty form
-            alert('Please click "Add Days" next to a specific school head to add leave days for them.');
-        });
-
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelModalBtn.addEventListener('click', closeModal);
-
-        // Close modal when clicking outside
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
+            function openAddLeaveModal(personnelId, personnelName, personnelRole, schoolName) {
+                document.getElementById('modal_personnel_id').value = personnelId;
+                document.getElementById('modal_personnel_info').innerHTML = `
+                    <div><strong>${personnelName}</strong></div>
+                    <div class="text-gray-500">${personnelRole} - ${schoolName}</div>
+                `;
+                modal.classList.remove('hidden');
             }
-        });
 
-        // Close modal on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                closeModal();
+            function openDeductLeaveModal(personnelId, personnelName, personnelRole, schoolName) {
+                document.getElementById('deduct_modal_personnel_id').value = personnelId;
+                document.getElementById('deduct_modal_personnel_info').innerHTML = `
+                    <div><strong>${personnelName}</strong></div>
+                    <div class="text-gray-500">${personnelRole} - ${schoolName}</div>
+                `;
+                deductModal.classList.remove('hidden');
             }
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                document.getElementById('addLeaveForm').reset();
+            }
+
+            function closeDeductModal() {
+                deductModal.classList.add('hidden');
+                document.getElementById('deductLeaveForm').reset();
+            }
+
+            // Make functions global so they can be called from onclick
+            window.openAddLeaveModal = openAddLeaveModal;
+            window.openDeductLeaveModal = openDeductLeaveModal;
+
+            // Event listeners for close buttons
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeModal();
+                });
+            }
+
+            if (cancelModalBtn) {
+                cancelModalBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeModal();
+                });
+            }
+
+            if (closeDeductModalBtn) {
+                closeDeductModalBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeDeductModal();
+                });
+            }
+
+            if (cancelDeductModalBtn) {
+                cancelDeductModalBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeDeductModal();
+                });
+            }
+
+            // Close modal when clicking outside
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeModal();
+                    }
+                });
+            }
+
+            if (deductModal) {
+                deductModal.addEventListener('click', function(e) {
+                    if (e.target === deductModal) {
+                        closeDeductModal();
+                    }
+                });
+            }
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (modal && !modal.classList.contains('hidden')) {
+                        closeModal();
+                    }
+                    if (deductModal && !deductModal.classList.contains('hidden')) {
+                        closeDeductModal();
+                    }
+                }
+            });
         });
     </script>
 </x-app-layout>

@@ -86,7 +86,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-sm font-medium text-{{ $colors[$leave['type']] ?? 'gray' }}-700">{{ $leave['type'] }}</p>
                         <div class="flex items-center space-x-2">
-                            @if(in_array($leave['type'], ['Vacation Leave', 'Sick Leave']))
+                            {{-- @if(in_array($leave['type'], ['Vacation Leave', 'Sick Leave']))
                                 <button class="addLeaveBtn w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
                                         data-leave-type="{{ $leave['type'] }}"
                                         data-current-available="{{ $leave['available'] }}"
@@ -103,7 +103,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M18 12H6" />
                                     </svg>
                                 </button>
-                            @endif
+                            @endif --}}
                             @if($leave['available'] <= 0)
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">No Days</span>
                             @elseif($leave['available'] <= 3)
