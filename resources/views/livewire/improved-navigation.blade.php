@@ -180,15 +180,6 @@
                         {{ __('Monetization') }}
                     </x-nav-link>
                     <x-nav-link
-                        href="{{ route('admin.leave-management') }}"
-                        :active="request()->routeIs('admin.leave-management')"
-                        wire:navigate
-                        class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-                        active-class="bg-white text-[#0f152a] shadow-lg font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
-                        {{ __('Leave Management') }}
-                    </x-nav-link>
-                    <x-nav-link
                         href="{{ route('admin.loyalty-awards') }}"
                         :active="request()->routeIs('admin.loyalty-awards')"
                         wire:navigate
@@ -244,6 +235,17 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75v-6" />
                                 </svg>
                                 <span class="ml-3 text-sm font-medium">Signatures Settings</span>
+                            </a>
+                        </li>
+
+                        <li class="border-b border-gray-100 last:border-0">
+                            <a href="{{ route('admin.leave-management') }}"
+                               class="flex items-center px-4 py-3 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 transition-all duration-200 group"
+                               @click="setTimeout(() => window.location.href = '{{ route('admin.leave-management') }}', 100)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="ml-3 text-sm font-medium">Leave Management</span>
                             </a>
                         </li>
 
