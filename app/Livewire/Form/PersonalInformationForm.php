@@ -232,26 +232,26 @@ class PersonalInformationForm extends PersonnelNavigation
         }
 
 
-        // Prepare data for Personnel
+        // Prepare data for Personnel model
         $data = [
             'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
             'middle_name' => $this->middle_name,
+            'last_name' => $this->last_name,
             'name_ext' => $this->name_ext,
             'date_of_birth' => $this->date_of_birth,
             'place_of_birth' => $this->place_of_birth,
-            'sex' => $this->sex,
             'civil_status' => $this->civil_status,
+            'sex' => $this->sex,
             'citizenship' => $this->citizenship,
+            'blood_type' => $this->blood_type,
             'height' => $this->height,
             'weight' => $this->weight,
-            'blood_type' => $this->blood_type,
-            'salary' => $this->salary, // Use the calculated salary
             'tin' => $this->tin,
             'sss_num' => $this->sss_num,
             'gsis_num' => $this->gsis_num,
             'philhealth_num' => $this->philhealth_num,
             'pagibig_num' => $this->pagibig_num,
+            'salary' => $this->salary,
             'personnel_id' => $this->personnel_id,
             'school_id' => $school->id,
             'position_id' => $this->position_id,
@@ -262,7 +262,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'category' => $this->category,
             'job_status' => $this->job_status,
             'employment_start' => $this->employment_start,
-            'employment_end' => $this->employment_end ?? null,
+            'employment_end' => $this->employment_end ?: null, // Convert empty string to null
             'email' => $this->email,
             'tel_no' => $this->tel_no,
             'mobile_no' => $this->mobile_no,
@@ -289,7 +289,14 @@ class PersonalInformationForm extends PersonnelNavigation
                 ($this->personnel->employment_end != $this->employment_end &&
                     $this->personnel->employment_start != $this->employment_start);
 
-            if ($isDirty) {
+            // Position or school changes always create service record
+            $positionOrSchoolChanged = ($this->personnel->position_id != $this->position_id)
+                || ($this->personnel->school_id != $this->school_id);
+
+            // Create service record if:
+            // 1. Fields are dirty AND employment_end is set, OR
+            // 2. Position or school changed
+            if (($isDirty && !empty($this->employment_end)) || $positionOrSchoolChanged) {
                 $this->createServiceRecord($school, $this->personnel, $this->separation_cause_input);
             }
 
@@ -578,7 +585,14 @@ class PersonalInformationForm extends PersonnelNavigation
             || ($this->school_id != $this->original_school_id);
         $isDateDirty = ($this->employment_start != $this->original_employment_start)
             || ($this->employment_end != $this->original_employment_end);
-        $this->show_separation_cause_input = $isAllDirty || $isDateDirty;
+
+        // Show separation cause input if:
+        // 1. Any field is dirty AND employment_end is set, OR
+        // 2. Position or school changed (these always need separation cause)
+        $positionOrSchoolChanged = ($this->position_id != $this->original_position_id)
+            || ($this->school_id != $this->original_school_id);
+
+        $this->show_separation_cause_input = ($isAllDirty && !empty($this->employment_end)) || $positionOrSchoolChanged;
     }
 
     public function rules()
@@ -607,7 +621,7 @@ class PersonalInformationForm extends PersonnelNavigation
             'category' => 'required',
             'job_status' => 'required',
             'employment_start' => 'required',
-            'employment_end' => 'required',
+            'employment_end' => 'nullable|date',
             'leave_of_absence_without_pay_count' => 'nullable',
             'tin' => 'required|min:8|max:12',
             'sss_num' => 'nullable|size:10',
@@ -626,7 +640,15 @@ class PersonalInformationForm extends PersonnelNavigation
             || ($this->employment_end != $this->original_employment_end);
         $isSalaryGradeDirty = ($this->salary_grade_id != ($this->personnel->salary_grade_id ?? null));
         $isStepIncrementDirty = ($this->step_increment != ($this->personnel->step_increment ?? null));
-        if ($isAllDirty || $isDateDirty) {
+
+        // Position or school changes always require separation cause
+        $positionOrSchoolChanged = ($this->position_id != $this->original_position_id)
+            || ($this->school_id != $this->original_school_id);
+
+        // Require separation cause if:
+        // 1. Any field is dirty AND employment_end is set, OR
+        // 2. Position or school changed
+        if ((($isAllDirty || $isDateDirty) && !empty($this->employment_end)) || $positionOrSchoolChanged) {
             $rules['separation_cause_input'] = 'required|string|max:255';
         }
         return $rules;

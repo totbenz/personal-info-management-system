@@ -161,4 +161,11 @@ class UpdatePersonalInformationForm extends PersonalInformationForm
     {
         $this->validateOnly('separation_cause_input');
     }
+
+    public function updatedEmploymentEnd()
+    {
+        $this->validateOnly('employment_end');
+        // Update the separation cause input visibility when employment_end changes
+        $this->updateShowSeparationCauseInput();
+    }
 }
