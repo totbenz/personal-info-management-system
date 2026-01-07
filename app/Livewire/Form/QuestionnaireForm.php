@@ -49,6 +49,21 @@ class QuestionnaireForm extends PersonnelNavigation
         'solo_parent_id_no' => 'required_if:solo_parent,1|nullable|string|max:255',
     ];
 
+    // Custom validation for mutual exclusivity
+    public function validate($rules = null, $messages = [], $attributes = [])
+    {
+        $validated = parent::validate($rules, $messages, $attributes);
+
+        // Custom validation: cannot have both third and fourth degree as YES
+        if ($this->consanguinity_third_degree == 1 && $this->consanguinity_fourth_degree == 1) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'consanguinity_mutual_exclusive' => 'Both third and fourth degree consanguinity cannot be YES. If you are within the third degree, you are automatically within the fourth degree, so only select third degree as YES.'
+            ]);
+        }
+
+        return $validated;
+    }
+
     protected $messages = [
         'consanguinity_third_degree_details.required_if' => 'Please provide details for third degree consanguinity.',
         'administrative_offense_details.required_if' => 'Please provide details for administrative offense.',
@@ -116,14 +131,22 @@ class QuestionnaireForm extends PersonnelNavigation
 
     public function updatedConsanguinityThirdDegree($value)
     {
-        if ($value != 1) {
+        if ($value == 1) {
+            // If third degree is YES, fourth degree must be NO
+            $this->consanguinity_fourth_degree = 0;
+            $this->consanguinity_third_degree_details = null; // Clear details to force re-entry
+        } else {
             $this->consanguinity_third_degree_details = null;
         }
     }
 
     public function updatedConsanguinityFourthDegree($value)
     {
-        if ($value != 1) {
+        if ($value == 1) {
+            // If fourth degree is YES, third degree must be NO
+            $this->consanguinity_third_degree = 0;
+            $this->consanguinity_third_degree_details = null; // Clear details to force re-entry
+        } else {
             $this->consanguinity_third_degree_details = null;
         }
     }

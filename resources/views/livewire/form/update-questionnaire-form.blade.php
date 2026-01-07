@@ -5,7 +5,7 @@
                 <div>
                     <div class="mt-3 mb-6">
                         <h6 class="text-sm mt-3 mb-2 font-medium">
-                            Are you related to core appointing or re-appointing or recommending the promotion or office or to the person who has immediate supervision over Bureau or Department where you will be appointed.
+                            Are you related to core appointing or re-appointing or recommending the promotion or office or to the person who has immediate supervision over Bureau or Department where you will be appointed. Note: Third and fourth degree consanguinity are mutually exclusive. If you are within the third degree, you are automatically within the fourth degree, so only select third degree as YES. Fourth degree YES only applies if third degree is NO (for LGU employees).
                         </h6>
                         <div class="mx-5 w-[45rem] mt-3 flex space-x-3 items-center">
                             <div class="w-10/12">
@@ -36,6 +36,11 @@
                             </span>
                         </div>
                         @endif
+                        @error('consanguinity_mutual_exclusive')
+                            <div class="mx-5 mt-2 text-red-600 text-sm">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="mt-3 mb-6">
