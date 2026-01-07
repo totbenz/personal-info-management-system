@@ -62,7 +62,7 @@
                             </div>
                             <h3 class="text-lg font-medium text-gray-900">Manage Leave Balances for All Personnel</h3>
                         </div>
-                        
+
                         <!-- Filters -->
                         <div class="mt-3 sm:mt-0 flex space-x-2">
                             <form method="GET" action="{{ route('admin.leave-management') }}" class="flex items-center space-x-2">
@@ -73,7 +73,7 @@
                                     <option value="teacher" {{ $role == 'teacher' ? 'selected' : '' }}>Teacher</option>
                                     <option value="non_teaching" {{ $role == 'non_teaching' ? 'selected' : '' }}>Non-Teaching</option>
                                 </select>
-                                
+
                                 <label for="year" class="text-sm font-medium text-gray-700 ml-4">Year:</label>
                                 <select name="year" id="year" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
                                     @for($y = 2020; $y <= 2030; $y++)
@@ -83,16 +83,6 @@
                             </form>
                         </div>
                     </div>
-                </div>
-
-                <!-- Add Leave Days Button -->
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <button id="addLeaveBtn" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-green-700 active:from-green-700 active:to-green-800 focus:outline-none focus:border-green-900 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Add Leave Days
-                    </button>
                 </div>
 
                 @if(count($leaveData) > 0)
@@ -141,7 +131,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                                 @if($data['user']->role === 'school_head') bg-purple-100 text-purple-800
                                                 @elseif($data['user']->role === 'teacher') bg-green-100 text-green-800
                                                 @else bg-blue-100 text-blue-800 @endif">
@@ -168,7 +158,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="openAddLeaveModal({{ $data['personnel']->id }}, '{{ $data['personnel']->first_name }} {{ $data['personnel']->last_name }}', '{{ ucfirst(str_replace('_', ' ', $data['user']->role)) }}', '{{ $data['personnel']->school ? $data['personnel']->school->school_name : 'No School Assigned' }}')" 
+                                            <button onclick="openAddLeaveModal({{ $data['personnel']->id }}, '{{ $data['personnel']->first_name }} {{ $data['personnel']->last_name }}', '{{ ucfirst(str_replace('_', ' ', $data['user']->role)) }}', '{{ $data['personnel']->school ? $data['personnel']->school->school_name : 'No School Assigned' }}')"
                                                     class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors duration-200">
                                                 Add Days
                                             </button>
@@ -204,17 +194,17 @@
                         </svg>
                     </button>
                 </div>
-                
+
                 <form id="addLeaveForm" method="POST" action="{{ route('admin.leave-management.add') }}">
                     @csrf
                     <input type="hidden" id="modal_personnel_id" name="personnel_id" value="">
                     <input type="hidden" name="year" value="{{ $year }}">
-                    
+
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Personnel</label>
                         <div id="modal_personnel_info" class="p-3 bg-gray-50 rounded-md text-sm text-gray-600"></div>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="modal_leave_type" class="block text-sm font-medium text-gray-700 mb-2">Leave Type</label>
                         <select id="modal_leave_type" name="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -223,26 +213,26 @@
                             <option value="Sick Leave">Sick Leave</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="modal_days_to_add" class="block text-sm font-medium text-gray-700 mb-2">Days to Add</label>
-                        <input type="number" id="modal_days_to_add" name="days_to_add" min="1" max="365" required 
+                        <input type="number" id="modal_days_to_add" name="days_to_add" min="1" max="365" required
                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="modal_reason" class="block text-sm font-medium text-gray-700 mb-2">Reason (Optional)</label>
-                        <textarea id="modal_reason" name="reason" rows="3" 
+                        <textarea id="modal_reason" name="reason" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                   placeholder="Reason for adding leave days..."></textarea>
                     </div>
-                    
+
                     <div class="flex items-center justify-end space-x-3">
-                        <button type="button" id="cancelModal" 
+                        <button type="button" id="cancelModal"
                                 class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Cancel
                         </button>
-                        <button type="submit" 
+                        <button type="submit"
                                 class="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Add Days
                         </button>
