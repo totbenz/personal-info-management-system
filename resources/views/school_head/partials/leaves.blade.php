@@ -90,6 +90,14 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
                                 </button>
+                                <button class="deductLeaveBtn w-6 h-6 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
+                                        data-leave-type="{{ $leave['type'] }}"
+                                        data-current-available="{{ $leave['available'] }}"
+                                        title="Deduct {{ $leave['type'] }} days">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M18 12H6" />
+                                    </svg>
+                                </button>
                             @endif
                             @if($leave['available'] <= 0)
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -579,6 +587,11 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if($errors->has('error'))
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    {{ $errors->first('error') }}
+                </div>
+            @endif
             @if($errors->has('days_to_add') || $errors->has('reason') || $errors->has('year') || $errors->has('leave_type'))
                 <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
                     <ul class="list-disc list-inside space-y-1">
@@ -642,6 +655,93 @@
                 <button type="submit" id="addLeaveSubmitBtn"
                         class="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition">
                     Add Leave Days
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Deduct Leave Days Modal (hidden by default) -->
+    <div id="deductLeaveModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+            <button id="closeDeductLeaveModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Deduct <span id="deductLeaveModalTitle">Leave</span> Days</h3>
+            @if(session('success') && !session('cto_success'))
+                <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if($errors->has('error'))
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    {{ $errors->first('error') }}
+                </div>
+            @endif
+            @if($errors->has('days_to_deduct') || $errors->has('reason') || $errors->has('year') || $errors->has('leave_type'))
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    <ul class="list-disc list-inside space-y-1">
+                        @if($errors->has('days_to_deduct'))
+                            <li class="text-sm">{{ $errors->first('days_to_deduct') }}</li>
+                        @endif
+                        @if($errors->has('reason'))
+                            <li class="text-sm">{{ $errors->first('reason') }}</li>
+                        @endif
+                        @if($errors->has('year'))
+                            <li class="text-sm">{{ $errors->first('year') }}</li>
+                        @endif
+                        @if($errors->has('leave_type'))
+                            <li class="text-sm">{{ $errors->first('leave_type') }}</li>
+                        @endif
+                    </ul>
+                </div>
+            @endif
+
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div class="text-sm text-red-800">
+                        <p class="font-medium">Current Balance: <span id="deductCurrentBalance">0</span> days</p>
+                        <p class="text-xs mt-1">Deducting leave days will decrease your available balance for this leave type.</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('school_head.leaves.deduct') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" id="deductLeaveType" name="leave_type" value="">
+                <input type="hidden" name="year" value="{{ $year ?? date('Y') }}">
+
+                <div>
+                    <label for="days_to_deduct" class="block text-sm font-medium text-gray-700">Days to Deduct</label>
+                    <input type="number" name="days_to_deduct" id="days_to_deduct" min="0.5" max="365" step="0.5" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                           value="{{ old('days_to_deduct') }}"
+                           placeholder="Enter number of days">
+                    <p class="text-xs text-gray-500 mt-1">Enter the number of days you want to deduct (0.5-365)</p>
+                </div>
+
+                <div>
+                    <label for="deduct_leave_reason" class="block text-sm font-medium text-gray-700">Reason for Deduction</label>
+                    <textarea name="reason" id="deduct_leave_reason" rows="3" required maxlength="255"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                              placeholder="e.g., Leave cancellation, Correction error, Adjustments...">{{ old('reason') }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Briefly explain why you're deducting these leave days</p>
+                </div>
+
+                <div id="deductLeavePreview" class="hidden mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                    <p class="font-medium">Preview:</p>
+                    <p>Current balance: <span id="deductPreviewCurrent">0</span> days</p>
+                    <p>Deducting: <span id="deductPreviewDeducting">0</span> days</p>
+                    <p class="font-bold">New balance: <span id="deductPreviewNew">0</span> days</p>
+                </div>
+
+                <button type="submit" id="deductLeaveSubmitBtn"
+                        class="w-full px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition">
+                    Deduct Leave Days
                 </button>
             </form>
         </div>
@@ -913,15 +1013,23 @@
         @endif
 
         // Auto-open add leave modal if there are add leave validation errors
-        @if($errors->has('days_to_add') || $errors->has('reason') || $errors->has('year') || $errors->has('leave_type'))
+        @if($errors->has('days_to_add') || $errors->has('error'))
             if (document.getElementById('addLeaveModal')) {
                 document.getElementById('addLeaveModal').classList.remove('hidden');
                 document.getElementById('addLeaveModal').classList.add('flex');
             }
         @endif
 
+        // Auto-open deduct leave modal if there are deduct leave validation errors
+        @if($errors->has('days_to_deduct') || $errors->has('error'))
+            if (document.getElementById('deductLeaveModal')) {
+                document.getElementById('deductLeaveModal').classList.remove('hidden');
+                document.getElementById('deductLeaveModal').classList.add('flex');
+            }
+        @endif
+
         // Auto-open leave modal if there are leave validation errors
-        @if($errors->any() && !($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add')))
+        @if($errors->any() && !($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description') || $errors->has('days_to_add') || $errors->has('days_to_deduct')))
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
@@ -941,6 +1049,19 @@
         var previewAdding = document.getElementById('previewAdding');
         var previewNew = document.getElementById('previewNew');
 
+        // Deduct Leave Modal functionality
+        var deductLeaveModal = document.getElementById('deductLeaveModal');
+        var closeDeductLeaveModal = document.getElementById('closeDeductLeaveModal');
+        var deductLeaveBtns = document.querySelectorAll('.deductLeaveBtn');
+        var deductLeaveModalTitle = document.getElementById('deductLeaveModalTitle');
+        var deductLeaveType = document.getElementById('deductLeaveType');
+        var deductCurrentBalance = document.getElementById('deductCurrentBalance');
+        var daysToDeduct = document.getElementById('days_to_deduct');
+        var deductLeavePreview = document.getElementById('deductLeavePreview');
+        var deductPreviewCurrent = document.getElementById('deductPreviewCurrent');
+        var deductPreviewDeducting = document.getElementById('deductPreviewDeducting');
+        var deductPreviewNew = document.getElementById('deductPreviewNew');
+
         // Add event listeners for add leave buttons
         addLeaveBtns.forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -959,11 +1080,37 @@
             });
         });
 
+        // Add event listeners for deduct leave buttons
+        deductLeaveBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var leaveType = this.getAttribute('data-leave-type');
+                var currentAvailable = this.getAttribute('data-current-available');
+
+                // Set modal content
+                deductLeaveModalTitle.textContent = leaveType;
+                deductLeaveType.value = leaveType;
+                deductCurrentBalance.textContent = currentAvailable;
+                deductPreviewCurrent.textContent = currentAvailable;
+
+                // Show modal
+                deductLeaveModal.classList.remove('hidden');
+                deductLeaveModal.classList.add('flex');
+            });
+        });
+
         // Close add leave modal
         if (closeAddLeaveModal) {
             closeAddLeaveModal.addEventListener('click', function() {
                 addLeaveModal.classList.add('hidden');
                 addLeaveModal.classList.remove('flex');
+            });
+        }
+
+        // Close deduct leave modal
+        if (closeDeductLeaveModal) {
+            closeDeductLeaveModal.addEventListener('click', function() {
+                deductLeaveModal.classList.add('hidden');
+                deductLeaveModal.classList.remove('flex');
             });
         }
 
@@ -973,6 +1120,16 @@
                 if (e.target === addLeaveModal) {
                     addLeaveModal.classList.add('hidden');
                     addLeaveModal.classList.remove('flex');
+                }
+            });
+        }
+
+        // Close deduct modal when clicking outside
+        if (deductLeaveModal) {
+            deductLeaveModal.addEventListener('click', function(e) {
+                if (e.target === deductLeaveModal) {
+                    deductLeaveModal.classList.add('hidden');
+                    deductLeaveModal.classList.remove('flex');
                 }
             });
         }
@@ -991,6 +1148,24 @@
                     addLeavePreview.classList.remove('hidden');
                 } else {
                     addLeavePreview.classList.add('hidden');
+                }
+            });
+        }
+
+        // Preview calculation for deduct leave
+        if (daysToDeduct) {
+            daysToDeduct.addEventListener('input', function() {
+                var deducting = parseFloat(this.value) || 0;
+                var current = parseFloat(deductPreviewCurrent.textContent) || 0;
+                var newTotal = Math.max(0, current - deducting);
+
+                deductPreviewDeducting.textContent = deducting;
+                deductPreviewNew.textContent = newTotal;
+
+                if (deducting > 0) {
+                    deductLeavePreview.classList.remove('hidden');
+                } else {
+                    deductLeavePreview.classList.add('hidden');
                 }
             });
         }

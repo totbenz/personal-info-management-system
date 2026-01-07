@@ -421,6 +421,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Non-Teaching Leave Routes
         Route::post('non-teaching/leaves/add', [App\Http\Controllers\NonTeachingLeaveController::class, 'addLeave'])->name('non_teaching.leaves.add');
+        Route::post('non-teaching/leaves/deduct', [App\Http\Controllers\NonTeachingLeaveController::class, 'deductLeave'])->name('non_teaching.leaves.deduct');
 
         // (CTO request route defined once globally below to avoid duplicates)
 
@@ -463,6 +464,7 @@ Route::middleware(['auth'])->group(function () {
         // School Head Leaves
         Route::get('school-head/leaves', [App\Http\Controllers\SchoolHeadLeaveController::class, 'index'])->name('school_head.leaves');
         Route::post('school-head/leaves/add', [App\Http\Controllers\SchoolHeadLeaveController::class, 'addLeave'])->name('school_head.leaves.add');
+        Route::post('school-head/leaves/deduct', [App\Http\Controllers\SchoolHeadLeaveController::class, 'deductLeave'])->name('school_head.leaves.deduct');
         // (Global CTO request route defined below)
 
         // Leave request submission for school heads

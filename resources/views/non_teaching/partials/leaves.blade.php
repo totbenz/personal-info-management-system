@@ -95,6 +95,14 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
                                 </button>
+                                <button class="deductLeaveBtn w-6 h-6 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
+                                        data-leave-type="{{ $leave['type'] }}"
+                                        data-current-available="{{ $leave['available'] }}"
+                                        title="Deduct {{ $leave['type'] }} days">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M18 12H6" />
+                                    </svg>
+                                </button>
                             @endif
                             @if($leave['available'] <= 0)
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">No Days</span>
@@ -606,6 +614,62 @@
             </form>
         </div>
     </div>
+
+    <!-- Deduct Leave Days Modal -->
+    <div id="deductLeaveModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+            <button id="closeDeductLeaveModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Deduct <span id="deductLeaveModalTitle">Leave</span> Days</h3>
+            @if(session('success') && !session('cto_success'))
+                <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">{{ session('success') }}</div>
+            @endif
+            @if($errors->has('days_to_deduct') || $errors->has('reason') || $errors->has('year') || $errors->has('leave_type'))
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    <ul class="list-disc list-inside space-y-1">
+                        @if($errors->has('days_to_deduct'))<li class="text-sm">{{ $errors->first('days_to_deduct') }}</li>@endif
+                        @if($errors->has('reason'))<li class="text-sm">{{ $errors->first('reason') }}</li>@endif
+                        @if($errors->has('year'))<li class="text-sm">{{ $errors->first('year') }}</li>@endif
+                        @if($errors->has('leave_type'))<li class="text-sm">{{ $errors->first('leave_type') }}</li>@endif
+                    </ul>
+                </div>
+            @endif
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div class="text-sm text-red-800">
+                        <p class="font-medium">Current Balance: <span id="deductCurrentBalance">0</span> days</p>
+                        <p class="text-xs mt-1">Deducting leave days will reduce your available balance for this leave type.</p>
+                    </div>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('non_teaching.leaves.deduct') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" id="deductLeaveType" name="leave_type" value="">
+                <input type="hidden" name="year" value="{{ $year ?? date('Y') }}">
+                <div>
+                    <label for="days_to_deduct" class="block text-sm font-medium text-gray-700">Days to Deduct</label>
+                    <input type="number" name="days_to_deduct" id="days_to_deduct" min="0.5" max="365" step="0.5" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Enter number of days">
+                </div>
+                <div>
+                    <label for="deduct_leave_reason" class="block text-sm font-medium text-gray-700">Reason for Deducting Leave</label>
+                    <textarea name="reason" id="deduct_leave_reason" rows="3" required maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., Leave without pay, Unauthorized absence, Correction..."></textarea>
+                </div>
+                <div id="deductLeavePreview" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+                    <p class="font-medium">Preview:</p>
+                    <p>Current balance: <span id="deductPreviewCurrent">0</span> days</p>
+                    <p>Deducting: <span id="deductPreviewDeducting">0</span> days</p>
+                    <p class="font-bold">New balance: <span id="deductPreviewNew">0</span> days</p>
+                </div>
+                <button type="submit" id="deductLeaveSubmitBtn" class="w-full px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition">Deduct Leave Days</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -842,53 +906,126 @@
     if (ctoReason) ctoReason.addEventListener('input', validateCTOForm);
 
     // Add Leave Days Modal
-    const addLeaveModal = document.getElementById('addLeaveModal');
-    const closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
-    const addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
-    const addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
-    const addLeaveType = document.getElementById('addLeaveType');
-    const currentBalance = document.getElementById('currentBalance');
-    const daysToAdd = document.getElementById('days_to_add');
-    const addLeavePreview = document.getElementById('addLeavePreview');
-    const previewCurrent = document.getElementById('previewCurrent');
-    const previewAdding = document.getElementById('previewAdding');
-    const previewNew = document.getElementById('previewNew');
+    function initializeLeaveModals() {
+        // Add Leave Modal functionality
+        const addLeaveModal = document.getElementById('addLeaveModal');
+        const closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
+        const addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
+        const addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
+        const addLeaveType = document.getElementById('addLeaveType');
+        const currentBalance = document.getElementById('currentBalance');
+        const daysToAdd = document.getElementById('days_to_add');
+        const addLeavePreview = document.getElementById('addLeavePreview');
+        const previewCurrent = document.getElementById('previewCurrent');
+        const previewAdding = document.getElementById('previewAdding');
+        const previewNew = document.getElementById('previewNew');
 
-    addLeaveBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const leaveType = this.getAttribute('data-leave-type');
-            const currentAvailable = this.getAttribute('data-current-available');
-            addLeaveModalTitle.textContent = leaveType;
-            addLeaveType.value = leaveType;
-            currentBalance.textContent = currentAvailable;
-            previewCurrent.textContent = currentAvailable;
-            addLeaveModal.classList.remove('hidden');
-            addLeaveModal.classList.add('flex');
+        // Add event listeners for add leave buttons
+        addLeaveBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const leaveType = this.getAttribute('data-leave-type');
+                const currentAvailable = this.getAttribute('data-current-available');
+                addLeaveModalTitle.textContent = leaveType;
+                addLeaveType.value = leaveType;
+                currentBalance.textContent = currentAvailable;
+                previewCurrent.textContent = currentAvailable;
+                addLeaveModal.classList.remove('hidden');
+                addLeaveModal.classList.add('flex');
+            });
         });
-    });
 
-    if (closeAddLeaveModal) closeAddLeaveModal.addEventListener('click', () => {
-        addLeaveModal.classList.add('hidden');
-        addLeaveModal.classList.remove('flex');
-    });
-    if (addLeaveModal) addLeaveModal.addEventListener('click', e => {
-        if (e.target === addLeaveModal) {
+        if (closeAddLeaveModal) closeAddLeaveModal.addEventListener('click', () => {
             addLeaveModal.classList.add('hidden');
             addLeaveModal.classList.remove('flex');
-        }
-    });
+        });
+        if (addLeaveModal) addLeaveModal.addEventListener('click', e => {
+            if (e.target === addLeaveModal) {
+                addLeaveModal.classList.add('hidden');
+                addLeaveModal.classList.remove('flex');
+            }
+        });
 
-    if (daysToAdd) daysToAdd.addEventListener('input', function() {
-        const adding = parseInt(this.value)||0;
-        const current = parseInt(previewCurrent.textContent)||0;
-        const newTotal = current + adding;
-        previewAdding.textContent=adding;
-        previewNew.textContent=newTotal;
-        if(adding>0){
-            addLeavePreview.classList.remove('hidden');
-        } else {
-            addLeavePreview.classList.add('hidden');
+        if (daysToAdd) daysToAdd.addEventListener('input', function() {
+            const adding = parseInt(this.value)||0;
+            const current = parseInt(previewCurrent.textContent)||0;
+            const newTotal = current + adding;
+            previewAdding.textContent=adding;
+            previewNew.textContent=newTotal;
+            if(adding>0){
+                addLeavePreview.classList.remove('hidden');
+            } else {
+                addLeavePreview.classList.add('hidden');
+            }
+        });
+
+        // Deduct Leave Modal functionality
+        const deductLeaveModal = document.getElementById('deductLeaveModal');
+        const closeDeductLeaveModal = document.getElementById('closeDeductLeaveModal');
+        const deductLeaveBtns = document.querySelectorAll('.deductLeaveBtn');
+        const deductLeaveModalTitle = document.getElementById('deductLeaveModalTitle');
+        const deductLeaveType = document.getElementById('deductLeaveType');
+        const deductCurrentBalance = document.getElementById('deductCurrentBalance');
+        const daysToDeduct = document.getElementById('days_to_deduct');
+        const deductLeavePreview = document.getElementById('deductLeavePreview');
+        const deductPreviewCurrent = document.getElementById('deductPreviewCurrent');
+        const deductPreviewDeducting = document.getElementById('deductPreviewDeducting');
+        const deductPreviewNew = document.getElementById('deductPreviewNew');
+
+        deductLeaveBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const leaveType = this.getAttribute('data-leave-type');
+                const currentAvailable = this.getAttribute('data-current-available');
+                deductLeaveModalTitle.textContent = leaveType;
+                deductLeaveType.value = leaveType;
+                deductCurrentBalance.textContent = currentAvailable;
+                deductPreviewCurrent.textContent = currentAvailable;
+                deductLeaveModal.classList.remove('hidden');
+                deductLeaveModal.classList.add('flex');
+            });
+        });
+
+        if (closeDeductLeaveModal) closeDeductLeaveModal.addEventListener('click', () => {
+            deductLeaveModal.classList.add('hidden');
+            deductLeaveModal.classList.remove('flex');
+        });
+        if (deductLeaveModal) deductLeaveModal.addEventListener('click', e => {
+            if (e.target === deductLeaveModal) {
+                deductLeaveModal.classList.add('hidden');
+                deductLeaveModal.classList.remove('flex');
+            }
+        });
+
+        if (daysToDeduct) daysToDeduct.addEventListener('input', function() {
+            const deducting = parseFloat(this.value)||0;
+            const current = parseFloat(deductPreviewCurrent.textContent)||0;
+            const newTotal = current - deducting;
+            deductPreviewDeducting.textContent=deducting;
+            deductPreviewNew.textContent=newTotal;
+            if(deducting>0){
+                deductLeavePreview.classList.remove('hidden');
+            } else {
+                deductLeavePreview.classList.add('hidden');
+            }
+        });
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeLeaveModals();
+
+        // Also initialize when Livewire updates
+        if (typeof Livewire !== 'undefined') {
+            Livewire.hook('message.processed', () => {
+                setTimeout(initializeLeaveModals, 100);
+            });
         }
+
+        // Also initialize on page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                setTimeout(initializeLeaveModals, 100);
+            }
+        });
     });
 
     function calculateDays() {
@@ -963,6 +1100,28 @@
             ctoModal.classList.remove('hidden');
             ctoModal.classList.add('flex');
         }
+    @endif
+
+    // Auto-open add leave modal if there are add leave validation errors
+    @if($errors->has('days_to_add') || $errors->has('error'))
+        document.addEventListener('DOMContentLoaded', function() {
+            const addLeaveModal = document.getElementById('addLeaveModal');
+            if (addLeaveModal) {
+                addLeaveModal.classList.remove('hidden');
+                addLeaveModal.classList.add('flex');
+            }
+        });
+    @endif
+
+    // Auto-open deduct leave modal if there are deduct leave validation errors
+    @if($errors->has('days_to_deduct') || $errors->has('error'))
+        document.addEventListener('DOMContentLoaded', function() {
+            const deductLeaveModal = document.getElementById('deductLeaveModal');
+            if (deductLeaveModal) {
+                deductLeaveModal.classList.remove('hidden');
+                deductLeaveModal.classList.add('flex');
+            }
+        });
     @endif
 
     // Monetization Modal JavaScript
@@ -1188,6 +1347,12 @@
         const closeCtoBtn = document.getElementById('closeCtoRequestModal');
         const closeLeaveBtn = document.getElementById('closeLeaveRequestModal');
 
+        // Add Leave Modal buttons
+        const addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
+        const deductLeaveBtns = document.querySelectorAll('.deductLeaveBtn');
+        const closeAddLeaveBtn = document.getElementById('closeAddLeaveModal');
+        const closeDeductLeaveBtn = document.getElementById('closeDeductLeaveModal');
+
         if (ctoRequestBtn) {
             ctoRequestBtn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1208,6 +1373,107 @@
                 if (modal) {
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
+                }
+            });
+        }
+
+        // Add Leave button listeners
+        addLeaveBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const leaveType = this.getAttribute('data-leave-type');
+                const currentAvailable = this.getAttribute('data-current-available');
+                const modal = document.getElementById('addLeaveModal');
+
+                if (modal) {
+                    // Set modal values
+                    const modalTitle = document.getElementById('addLeaveModalTitle');
+                    const leaveTypeInput = document.getElementById('addLeaveType');
+                    const currentBalanceSpan = document.getElementById('currentBalance');
+                    const previewCurrent = document.getElementById('previewCurrent');
+
+                    if (modalTitle) modalTitle.textContent = leaveType;
+                    if (leaveTypeInput) leaveTypeInput.value = leaveType;
+                    if (currentBalanceSpan) currentBalanceSpan.textContent = currentAvailable;
+                    if (previewCurrent) previewCurrent.textContent = currentAvailable;
+
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        });
+
+        // Deduct Leave button listeners
+        deductLeaveBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const leaveType = this.getAttribute('data-leave-type');
+                const currentAvailable = this.getAttribute('data-current-available');
+                const modal = document.getElementById('deductLeaveModal');
+
+                if (modal) {
+                    // Set modal values
+                    const modalTitle = document.getElementById('deductLeaveModalTitle');
+                    const leaveTypeInput = document.getElementById('deductLeaveType');
+                    const currentBalanceSpan = document.getElementById('deductCurrentBalance');
+                    const previewCurrent = document.getElementById('deductPreviewCurrent');
+
+                    if (modalTitle) modalTitle.textContent = leaveType;
+                    if (leaveTypeInput) leaveTypeInput.value = leaveType;
+                    if (currentBalanceSpan) currentBalanceSpan.textContent = currentAvailable;
+                    if (previewCurrent) previewCurrent.textContent = currentAvailable;
+
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        });
+
+        // Close button listeners for add/deduct modals
+        if (closeAddLeaveBtn) {
+            closeAddLeaveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = document.getElementById('addLeaveModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        if (closeDeductLeaveBtn) {
+            closeDeductLeaveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = document.getElementById('deductLeaveModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        // Click outside to close for add/deduct modals
+        const addLeaveModal = document.getElementById('addLeaveModal');
+        const deductLeaveModal = document.getElementById('deductLeaveModal');
+
+        if (addLeaveModal) {
+            addLeaveModal.addEventListener('click', function(e) {
+                if (e.target === addLeaveModal) {
+                    addLeaveModal.classList.add('hidden');
+                    addLeaveModal.classList.remove('flex');
+                }
+            });
+        }
+
+        if (deductLeaveModal) {
+            deductLeaveModal.addEventListener('click', function(e) {
+                if (e.target === deductLeaveModal) {
+                    deductLeaveModal.classList.add('hidden');
+                    deductLeaveModal.classList.remove('flex');
                 }
             });
         }

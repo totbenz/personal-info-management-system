@@ -210,28 +210,32 @@ class SchoolHeadLeaveAccrualService
             } else {
                 // For existing records, check if we need to update
                 $currentTotal = $leaveRecord->available + $leaveRecord->used;
+                $manualAdjustment = $leaveRecord->manual_adjustment ?? 0;
+                $adjustedTotal = $currentTotal - $manualAdjustment;
                 $accruedTotal = $accrualData['total_accrued'];
 
                 // Use tolerance for floating point comparison
                 $tolerance = 0.5; // Half day tolerance
-                $needsUpdate = ($currentTotal + $tolerance) < $accruedTotal;
+                $needsUpdate = ($adjustedTotal + $tolerance) < $accruedTotal;
 
                 Log::info("Checking if update needed", [
                     'school_head_id' => $schoolHeadId,
                     'leave_type' => $leaveType,
                     'year' => $year,
                     'current_total' => $currentTotal,
+                    'manual_adjustment' => $manualAdjustment,
+                    'adjusted_total' => $adjustedTotal,
                     'accrued_total' => $accruedTotal,
-                    'difference' => $accruedTotal - $currentTotal,
+                    'difference' => $accruedTotal - $adjustedTotal,
                     'needs_update' => $needsUpdate
                 ]);
 
-                // Only update if the current total is significantly less than the accrued amount
+                // Only update if the adjusted total is significantly less than the accrued amount
                 // This preserves deductions while allowing new accruals
                 if ($needsUpdate) {
                     $previousAvailable = $leaveRecord->available;
                     // Add only the difference to available
-                    $difference = $accrualData['total_accrued'] - $currentTotal;
+                    $difference = $accruedData['total_accrued'] - $adjustedTotal;
                     $leaveRecord->available += $difference;
 
                     Log::info("Added additional accrual to existing record", [
@@ -251,6 +255,7 @@ class SchoolHeadLeaveAccrualService
                         'leave_type' => $leaveType,
                         'year' => $year,
                         'current_total' => $currentTotal,
+                        'adjusted_total' => $adjustedTotal,
                         'accrued_total' => $accrualData['total_accrued']
                     ]);
                 }

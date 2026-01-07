@@ -487,8 +487,6 @@ class HomeController extends Controller
         $userSex = $personnel->sex ?? null;
         $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex);
 
-        $personnel->initializeLeaveBalancesToZeroForRole('teacher', $year);
-
         app(MonthlyLeaveAccrualService::class)->updateTeacherLeaveRecords($personnel->id, $year);
 
         // Get existing leave records for this year

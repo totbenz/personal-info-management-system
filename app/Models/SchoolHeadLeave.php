@@ -14,6 +14,7 @@ class SchoolHeadLeave extends Model
         'leave_type',
         'year',
         'available',
+        'manual_adjustment',
         'used',
         'ctos_earned',
         'remarks',
