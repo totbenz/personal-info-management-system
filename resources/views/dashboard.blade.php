@@ -12,7 +12,10 @@
     </x-slot>
 
     <!-- Dashboard Content -->
-    <div x-data="{ showSchools: false, showPersonnels: false, showUsers: false, showJobStatus: false, showDistrict: false, showDivision: false, selectedStatus: '', selectedDistrict: '', selectedDivision: '' }" class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pr-80">
+    <div x-data="{ showSchools: false, showPersonnels: false, showUsers: false, showJobStatus: false, showDistrict: false, showDivision: '', selectedStatus: '', selectedDistrict: '', selectedDivision: '' }" class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pr-80">
+
+        <!-- Confirm Modal Component -->
+        <x-confirm-modal />
 
         <!-- Success Message -->
         @if(session('success'))
@@ -1814,6 +1817,43 @@
                         }
                     }
             });
+
+            // Wait for DOM to be ready before setting up event listeners
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupModal);
+            } else {
+                setupModal();
+            }
+
+            function setupModal() {
+                const modal = document.getElementById('confirmModal');
+                const cancelBtn = document.getElementById('cancelBtn');
+                const confirmBtn = document.getElementById('confirmBtn');
+
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', handleConfirmModalCancel);
+                }
+
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', handleConfirmModalConfirm);
+                }
+
+                if (modal) {
+                    // Close on backdrop click
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            handleConfirmModalCancel();
+                        }
+                    });
+                }
+
+                // Close on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                        handleConfirmModalCancel();
+                    }
+                });
+            }
         </script>
 
 </x-app-layout>

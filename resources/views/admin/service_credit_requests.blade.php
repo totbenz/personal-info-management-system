@@ -12,6 +12,8 @@
 
     <div class="py-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Confirm Modal Component -->
+            <x-confirm-modal />
             @if(session('success'))
             <div class="mb-6">
                 <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
@@ -159,5 +161,44 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Wait for DOM to be ready before setting up event listeners
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupModal);
+        } else {
+            setupModal();
+        }
+
+        function setupModal() {
+            const modal = document.getElementById('confirmModal');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', handleConfirmModalCancel);
+            }
+
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', handleConfirmModalConfirm);
+            }
+
+            if (modal) {
+                // Close on backdrop click
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        handleConfirmModalCancel();
+                    }
+                });
+            }
+
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                    handleConfirmModalCancel();
+                }
+            });
+        }
+    </script>
 
 </x-app-layout>
