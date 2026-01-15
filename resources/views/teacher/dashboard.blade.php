@@ -268,14 +268,26 @@
 
             <!-- Available Leaves Section -->
             @php
+            // Define colors for different leave types
             $colors = [
-            'Service Credit Leave' => 'blue',
+            'Service Credit' => 'blue',
             'Sick Leave' => 'emerald',
+            'Vacation Leave' => 'green',
+            'Personal Leave' => 'yellow',
+            'Force Leave' => 'orange',
             'Maternity Leave' => 'pink',
             'Rehabilitation Leave' => 'red',
             'Solo Parent Leave' => 'amber',
             'Study Leave' => 'indigo',
             ];
+
+            // Get teacher's leave records from database for current year
+            $teacherId = Auth::user()->personnel->id;
+            $currentYear = now()->year;
+            $teacherLeaves = \App\Models\TeacherLeave::where('teacher_id', $teacherId)
+                ->where('year', $currentYear)
+                ->get()
+                ->keyBy('leave_type');
 
             // Override: display only the mandated leave set with custom rules
             $userSex = Auth::user()->personnel->sex ?? null;
@@ -283,12 +295,16 @@
 
             $displayLeaves = [];
 
-            // Service Credit Leave (taken from Service Credit)
+            // Get Service Credit balance (if exists)
+            $serviceCreditRecord = $teacherLeaves->get('Service Credit') ?? $teacherLeaves->get('Service Credit Leave');
+            $serviceCreditBalance = $serviceCreditRecord?->available ?? 0;
+
+            // Service Credit (taken from Service Credit)
             $displayLeaves[] = [
-            'type' => 'Service Credit Leave',
-            'available' => null, // null indicates service credit based
+            'type' => 'Service Credit',
+            'available' => $serviceCreditBalance,
             'max' => null,
-            'used' => null,
+            'used' => $serviceCreditRecord?->used ?? 0,
             'source' => 'Service Credit',
             'description' => 'Taken from Service Credit balance.'
             ];
@@ -296,70 +312,73 @@
             // Sick Leave (taken from Service Credit)
             $displayLeaves[] = [
             'type' => 'Sick Leave',
-            'available' => null,
+            'available' => $serviceCreditBalance,
             'max' => null,
-            'used' => null,
+            'used' => 0,
             'source' => 'Service Credit',
             'description' => 'Taken from Service Credit balance.'
             ];
 
-            // Maternity Leave (only for female; +15 days if solo parent)
-            if ($userSex === 'female') {
-            $maternityDays = $isSoloParent ? 120 : 105; // base 105 + 15 if solo parent
-            $displayLeaves[] = [
-            'type' => 'Maternity Leave',
-            'available' => $maternityDays,
-            'max' => $maternityDays,
-            'used' => 0,
-            'description' => $isSoloParent ? '120 days (includes additional 15 days for Solo Parent).' : '105 days standard allocation.'
-            ];
+            // Helper function to get leave descriptions
+            $getLeaveDescription = function($leaveType, $defaultDays, $isSoloParent) {
+                switch($leaveType) {
+                    case 'Vacation Leave':
+                        return "$defaultDays days vacation leave per year.";
+                    case 'Personal Leave':
+                        return "$defaultDays days personal leave per year.";
+                    case 'Force Leave':
+                        return "5 days force leave as required.";
+                    case 'Maternity Leave':
+                        return $isSoloParent ? "$defaultDays days (includes additional 15 days for Solo Parent)." : "$defaultDays days standard allocation.";
+                    case 'Rehabilitation Leave':
+                        return "Up to $defaultDays days for injury/accident in line of duty.";
+                    case 'Solo Parent Leave':
+                        return "$defaultDays days annual leave for solo parents.";
+                    case 'Study Leave':
+                        return "Up to $defaultDays days for study purposes (per policy).";
+                    default:
+                        return "$defaultDays days leave allocation.";
+                }
+            };
+
+            // Get other leaves from database or use defaults
+            $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves(0, $isSoloParent, $userSex);
+
+            foreach ($defaultLeaves as $leaveType => $defaultDays) {
+                // Skip if already added (Service Credit and Sick Leave)
+                if (in_array($leaveType, ['Service Credit', 'Sick Leave'])) {
+                    continue;
+                }
+
+                // Skip Maternity Leave for male teachers
+                if ($leaveType === 'Maternity Leave' && $userSex !== 'female') {
+                    continue;
+                }
+
+                // Skip Solo Parent Leave if not solo parent
+                if ($leaveType === 'Solo Parent Leave' && !$isSoloParent) {
+                    continue;
+                }
+
+                // Get actual leave record or create default
+                $leaveRecord = $teacherLeaves->get($leaveType);
+                $available = $leaveRecord?->available ?? $defaultDays;
+                $used = $leaveRecord?->used ?? 0;
+
+                $displayLeaves[] = [
+                'type' => $leaveType,
+                'available' => $available,
+                'max' => $defaultDays,
+                'used' => $used,
+                'description' => $getLeaveDescription($leaveType, $defaultDays, $isSoloParent)
+                ];
             }
 
-            // Rehabilitation Leave – 180 days (in case of accident in line of duty)
-            $displayLeaves[] = [
-            'type' => 'Rehabilitation Leave',
-            'available' => 180,
-            'max' => 180,
-            'used' => 0,
-            'description' => 'Up to 180 days for injury/accident in line of duty.'
-            ];
-
-            // Solo Parent Leave – 7 days (only if solo parent)
-            if ($isSoloParent) {
-            $displayLeaves[] = [
-            'type' => 'Solo Parent Leave',
-            'available' => 7,
-            'max' => 7,
-            'used' => 0,
-            'description' => '7 days annual leave for solo parents.'
-            ];
-            }
-
-            // Study Leave – 180 days
-            $displayLeaves[] = [
-            'type' => 'Study Leave',
-            'available' => 180,
-            'max' => 180,
-            'used' => 0,
-            'description' => 'Up to 180 days for study purposes (per policy).'
-            ];
-
-            // Fetch current Service Credit balance
-            $serviceCreditRecord = \App\Models\TeacherLeave::where('teacher_id', Auth::user()->personnel->id)
-            ->where('leave_type', 'Service Credit')
-            ->where('year', now()->year)
-            ->first();
-            $serviceCreditBalance = $serviceCreditRecord?->available ?? 0;
-
-            // Prepare balances for JS (only numeric leaves)
+            // Prepare balances for JS
             $leaveBalances = [];
             foreach($displayLeaves as $leave) {
-            if (is_numeric($leave['available'])) {
-            $leaveBalances[$leave['type']] = $leave['available'];
+                $leaveBalances[$leave['type']] = $leave['available'];
             }
-            }
-            // For Sick Leave, use Service Credit balance
-            $leaveBalances['Sick Leave'] = $serviceCreditBalance;
             @endphp
 
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-8">
@@ -1497,19 +1516,96 @@
         function handleLeaveTypeChange(value) {
             const customLeaveDiv = document.getElementById('customLeaveNameDiv');
             const reasonField = document.querySelector('textarea[name="reason"]');
+            const leaveTypeSelect = document.getElementById('leave_type');
+            const submitBtn = document.getElementById('submitBtn');
 
             if (value === 'custom') {
                 customLeaveDiv.classList.remove('hidden');
                 // Make reason field required for custom leave
                 reasonField.required = true;
                 reasonField.placeholder = 'Please specify the reason for this custom leave...';
+                // Enable submit for custom leave
+                submitBtn.disabled = false;
             } else {
                 customLeaveDiv.classList.add('hidden');
                 // Make reason field required for regular leaves
                 reasonField.required = true;
                 reasonField.placeholder = 'Enter reason for leave...';
+
+                // Check available days and validate dates
+                validateLeaveDates();
             }
         }
+
+        // Function to calculate days between dates
+        function calculateDays(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both dates
+            return diffDays;
+        }
+
+        // Function to validate leave dates against available balance
+        function validateLeaveDates() {
+            const leaveTypeSelect = document.getElementById('leave_type');
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            const dateWarning = document.getElementById('date_warning');
+            const daysInfo = document.getElementById('days_info');
+            const totalDaysSpan = document.getElementById('total_days');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
+            const availableDays = parseInt(selectedOption.dataset.available) || 0;
+            const leaveType = leaveTypeSelect.value;
+
+            // Skip validation for custom leave
+            if (leaveType === 'custom') {
+                dateWarning.classList.add('hidden');
+                daysInfo.classList.add('hidden');
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Check if dates are selected
+            if (!startDateInput.value || !endDateInput.value) {
+                dateWarning.classList.add('hidden');
+                daysInfo.classList.add('hidden');
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Calculate requested days
+            const requestedDays = calculateDays(startDateInput.value, endDateInput.value);
+
+            // Show total days info
+            totalDaysSpan.textContent = requestedDays;
+            daysInfo.classList.remove('hidden');
+
+            // Validate against available days
+            if (requestedDays > availableDays) {
+                dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
+                dateWarning.classList.remove('hidden');
+                submitBtn.disabled = true;
+            } else {
+                dateWarning.classList.add('hidden');
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Add event listeners for date changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+
+            if (startDateInput) {
+                startDateInput.addEventListener('change', validateLeaveDates);
+            }
+            if (endDateInput) {
+                endDateInput.addEventListener('change', validateLeaveDates);
+            }
+        });
     </script>
 
 </x-app-layout>

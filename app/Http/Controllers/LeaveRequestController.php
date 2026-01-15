@@ -92,7 +92,7 @@ class LeaveRequestController extends Controller
             }
         }
 
-        // For teachers, validate only specific leave types that have limits
+        // For teachers, validate against actual available balance for all leave types
         if ($user->role === 'teacher') {
             $personnel = $user->personnel;
             if ($personnel) {
@@ -100,16 +100,26 @@ class LeaveRequestController extends Controller
                 $endDate = Carbon::parse($request->end_date);
                 $requestedDays = $startDate->diffInDays($endDate) + 1;
 
-                // Check leave type specific limits for teachers
+                // Get teacher's leave records for current year
+                $currentYear = now()->year;
+                $this->ensureTeacherLeaveRecordsExist($personnel);
+                $teacherLeaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+                    ->where('year', $currentYear)
+                    ->get()
+                    ->keyBy('leave_type');
+
+                // Check leave type specific limits and availability
                 if ($request->leave_type === 'Solo Parent Leave') {
                     if (!$personnel->is_solo_parent) {
                         return redirect()->back()
                             ->withErrors(['leave_type' => 'You are not eligible for Solo Parent Leave.'])
                             ->withInput();
                     }
-                    if ($requestedDays > 7) {
+                    $soloParentLeave = $teacherLeaves->get('Solo Parent Leave');
+                    $available = $soloParentLeave?->available ?? 0;
+                    if ($requestedDays > $available) {
                         return redirect()->back()
-                            ->withErrors(['leave_days' => 'Solo Parent Leave is limited to 7 days per year.'])
+                            ->withErrors(['leave_days' => "Insufficient Solo Parent Leave balance. You have {$available} day(s) available, requested {$requestedDays}."])
                             ->withInput();
                     }
                 } elseif ($request->leave_type === 'Maternity Leave') {
@@ -119,32 +129,41 @@ class LeaveRequestController extends Controller
                             ->withErrors(['leave_type' => 'Maternity Leave is only available for female personnel.'])
                             ->withInput();
                     }
-                    $maxDays = $personnel->is_solo_parent ? 120 : 105;
-                    if ($requestedDays > $maxDays) {
+                    $maternityLeave = $teacherLeaves->get('Maternity Leave');
+                    $available = $maternityLeave?->available ?? 0;
+                    if ($requestedDays > $available) {
                         return redirect()->back()
-                            ->withErrors(['leave_days' => "Maternity Leave is limited to {$maxDays} days."])
+                            ->withErrors(['leave_days' => "Insufficient Maternity Leave balance. You have {$available} day(s) available, requested {$requestedDays}."])
                             ->withInput();
                     }
                 } elseif (in_array($request->leave_type, ['Rehabilitation Leave', 'Study Leave'])) {
-                    if ($requestedDays > 180) {
+                    $leave = $teacherLeaves->get($request->leave_type);
+                    $available = $leave?->available ?? 0;
+                    if ($requestedDays > $available) {
                         return redirect()->back()
-                            ->withErrors(['leave_days' => "{$request->leave_type} is limited to 180 days."])
+                            ->withErrors(['leave_days' => "Insufficient {$request->leave_type} balance. You have {$available} day(s) available, requested {$requestedDays}."])
                             ->withInput();
                     }
                 } elseif ($request->leave_type === 'Force Leave') {
-                    if ($requestedDays > 5) {
+                    $forceLeave = $teacherLeaves->get('Force Leave');
+                    $available = $forceLeave?->available ?? 0;
+                    if ($requestedDays > $available) {
                         return redirect()->back()
-                            ->withErrors(['leave_days' => 'Force Leave is limited to 5 days per year.'])
+                            ->withErrors(['leave_days' => "Insufficient Force Leave balance. You have {$available} day(s) available, requested {$requestedDays}."])
+                            ->withInput();
+                    }
+                } elseif ($request->leave_type === 'Vacation Leave') {
+                    $vacationLeave = $teacherLeaves->get('Vacation Leave');
+                    $available = $vacationLeave?->available ?? 0;
+                    if ($requestedDays > $available) {
+                        return redirect()->back()
+                            ->withErrors(['leave_days' => "Insufficient Vacation Leave balance. You have {$available} day(s) available, requested {$requestedDays}."])
                             ->withInput();
                     }
                 }
-                // Personal & Sick Leave require sufficient Service Credit balance
-                if (in_array($request->leave_type, ['Personal Leave','Sick Leave'])) {
-                    $year = now()->year;
-                    $serviceCredit = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
-                        ->where('leave_type', 'Service Credit')
-                        ->where('year', $year)
-                        ->first();
+                // Service Credit Leave and Sick Leave require sufficient Service Credit balance
+                elseif (in_array($request->leave_type, ['Service Credit Leave', 'Personal Leave','Sick Leave'])) {
+                    $serviceCredit = $teacherLeaves->get('Service Credit') ?? $teacherLeaves->get('Service Credit Leave');
                     $available = $serviceCredit?->available ?? 0;
                     if ($available < $requestedDays) {
                         return redirect()->back()
