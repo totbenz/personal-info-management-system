@@ -126,6 +126,9 @@ class DLAppForLeaveController extends Controller
                     case 'vawc leave':
                         $sheet->setCellValue('C28', '✓');
                         break;
+                    case 'service credit':
+                        $sheet->setCellValue('C22', '✓');
+                        break;
                 }
             }
 

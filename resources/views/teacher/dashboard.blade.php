@@ -299,6 +299,10 @@
             $serviceCreditRecord = $teacherLeaves->get('Service Credit') ?? $teacherLeaves->get('Service Credit Leave');
             $serviceCreditBalance = $serviceCreditRecord?->available ?? 0;
 
+            // Get Sick Leave balance (if exists)
+            $sickLeaveRecord = $teacherLeaves->get('Sick Leave');
+            $sickLeaveBalance = $sickLeaveRecord?->available ?? 0;
+
             // Service Credit (taken from Service Credit)
             $displayLeaves[] = [
             'type' => 'Service Credit',
@@ -309,14 +313,14 @@
             'description' => 'Taken from Service Credit balance.'
             ];
 
-            // Sick Leave (taken from Service Credit)
+            // Sick Leave (has its own balance)
             $displayLeaves[] = [
             'type' => 'Sick Leave',
-            'available' => $serviceCreditBalance,
+            'available' => $sickLeaveBalance,
             'max' => null,
-            'used' => 0,
-            'source' => 'Service Credit',
-            'description' => 'Taken from Service Credit balance.'
+            'used' => $sickLeaveRecord?->used ?? 0,
+            'source' => 'Sick Leave',
+            'description' => 'Taken from Sick Leave balance.'
             ];
 
             // Helper function to get leave descriptions
@@ -345,8 +349,8 @@
             $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves(0, $isSoloParent, $userSex);
 
             foreach ($defaultLeaves as $leaveType => $defaultDays) {
-                // Skip if already added (Service Credit and Sick Leave)
-                if (in_array($leaveType, ['Service Credit', 'Sick Leave'])) {
+                // Skip if already added (Service Credit only)
+                if ($leaveType === 'Service Credit') {
                     continue;
                 }
 
@@ -395,7 +399,8 @@
                         </svg>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="px-3 py-1 bg-purple-50 border border-purple-200 rounded-md text-xs font-medium text-purple-700" title="Current Service Credit balance used for Personal & Sick Leave">Service Credit: {{ number_format($serviceCreditBalance,2) }} days</div>
+                        <div class="px-3 py-1 bg-purple-50 border border-purple-200 rounded-md text-xs font-medium text-purple-700" title="Service Credit balance">Service Credit: {{ number_format($serviceCreditBalance,2) }} days</div>
+                        <div class="px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-md text-xs font-medium text-emerald-700" title="Sick Leave balance">Sick Leave: {{ number_format($sickLeaveBalance,2) }} days</div>
                         <button id="serviceCreditRequestBtn" class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Service Credit" onclick="document.getElementById('serviceCreditRequestModal').classList.remove('hidden'); document.getElementById('serviceCreditRequestModal').classList.add('flex');">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />

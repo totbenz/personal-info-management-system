@@ -654,7 +654,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/leave-management', [\App\Http\Controllers\LeaveManagementController::class, 'index'])->name('admin.leave-management');
         Route::post('/admin/leave-management/add', [\App\Http\Controllers\LeaveManagementController::class, 'addLeave'])->name('admin.leave-management.add');
         Route::post('/admin/leave-management/deduct', [\App\Http\Controllers\LeaveManagementController::class, 'deductLeave'])->name('admin.leave-management.deduct');
-        Route::get('/admin/leave-management/personnel/{personnelId}', [\App\Http\Controllers\LeaveManagementController::class, 'getPersonnelLeaves'])->name('admin.leave-management.personnel');
+        Route::get('/admin/leave-management/personnel/{personnelId}/leaves', [\App\Http\Controllers\LeaveManagementController::class, 'getPersonnelLeaves'])->name('admin.leave-management.personnel.leaves');
+
+        // New simple route for personnel leave types
+        Route::get('/api/personnel/{personnelId}/leave-types', [\App\Http\Controllers\PersonnelLeaveController::class, 'getLeaveTypes']);
 
         Route::controller(SchoolController::class)->group(function () {
             Route::get('schools/', 'index')->name('schools.index');

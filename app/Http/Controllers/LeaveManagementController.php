@@ -202,7 +202,7 @@ class LeaveManagementController extends Controller
     {
         $request->validate([
             'personnel_id' => 'required|exists:personnels,id',
-            'leave_type' => 'required|string|in:Vacation Leave,Sick Leave',
+            'leave_type' => 'required|string',
             'days_to_add' => 'required|integer|min:1|max:365',
             'reason' => 'nullable|string|max:255',
             'year' => 'required|integer|min:2020|max:2030',
@@ -346,7 +346,7 @@ class LeaveManagementController extends Controller
     {
         $request->validate([
             'personnel_id' => 'required|exists:personnels,id',
-            'leave_type' => 'required|string|in:Vacation Leave,Sick Leave',
+            'leave_type' => 'required|string',
             'days_to_deduct' => 'required|numeric|min:0.5|max:365',
             'reason' => 'required|string|max:255',
             'year' => 'required|integer|min:2020|max:2030',
@@ -495,55 +495,92 @@ class LeaveManagementController extends Controller
         $personnelId = $request->input('personnel_id');
         $year = $request->input('year', Carbon::now()->year);
 
+        Log::info('getPersonnelLeaves called', [
+            'personnelId' => $personnelId,
+            'year' => $year
+        ]);
+
         $personnel = Personnel::find($personnelId);
         if (!$personnel) {
+            Log::error('Personnel not found', ['personnelId' => $personnelId]);
             return response()->json(['error' => 'Personnel not found'], 404);
         }
 
-        $user = User::whereHas('personnel', function ($query) use ($personnel) {
-            $query->where('id', $personnel->id);
-        })->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
+        Log::info('Personnel found', [
+            'personnelId' => $personnel->id,
+            'name' => $personnel->first_name . ' ' . $personnel->last_name
+        ]);
 
         $leaveData = [];
+        $leaveTypes = [];
+        $personnelRole = '';
 
-        foreach (['Vacation Leave', 'Sick Leave'] as $leaveType) {
-            $leave = null;
+        // Check each leave table for this personnel ID
+        // Check teacher_leaves first
+        $teacherLeaves = TeacherLeave::where('teacher_id', $personnelId)
+            ->where('year', $year)
+            ->get();
 
-            if ($user->role === 'school_head') {
-                $leave = SchoolHeadLeave::where('school_head_id', $personnelId)
-                    ->where('leave_type', $leaveType)
-                    ->where('year', $year)
-                    ->first();
-            } elseif ($user->role === 'teacher') {
-                $leave = TeacherLeave::where('teacher_id', $personnelId)
-                    ->where('leave_type', $leaveType)
-                    ->where('year', $year)
-                    ->first();
-            } elseif ($user->role === 'non_teaching') {
-                $leave = NonTeachingLeave::where('non_teaching_id', $personnelId)
-                    ->where('leave_type', $leaveType)
-                    ->where('year', $year)
-                    ->first();
+        if ($teacherLeaves->count() > 0) {
+            $personnelRole = 'Teacher';
+            foreach ($teacherLeaves as $leave) {
+                $leaveTypes[] = $leave->leave_type;
+                $leaveData[$leave->leave_type] = [
+                    'available' => $leave->available,
+                    'used' => $leave->used,
+                    'remarks' => $leave->remarks ?? '',
+                ];
             }
-
-            $leaveData[$leaveType] = [
-                'available' => $leave ? $leave->available : 0,
-                'used' => $leave ? $leave->used : 0,
-                'remarks' => $leave ? $leave->remarks : '',
-            ];
         }
+
+        // Check school_head_leaves
+        $schoolHeadLeaves = SchoolHeadLeave::where('school_head_id', $personnelId)
+            ->where('year', $year)
+            ->get();
+
+        if ($schoolHeadLeaves->count() > 0) {
+            $personnelRole = 'School Head';
+            foreach ($schoolHeadLeaves as $leave) {
+                $leaveTypes[] = $leave->leave_type;
+                $leaveData[$leave->leave_type] = [
+                    'available' => $leave->available,
+                    'used' => $leave->used,
+                    'remarks' => $leave->remarks ?? '',
+                ];
+            }
+        }
+
+        // Check non_teaching_leaves
+        $nonTeachingLeaves = NonTeachingLeave::where('non_teaching_id', $personnelId)
+            ->where('year', $year)
+            ->get();
+
+        if ($nonTeachingLeaves->count() > 0) {
+            $personnelRole = 'Non Teaching';
+            foreach ($nonTeachingLeaves as $leave) {
+                $leaveTypes[] = $leave->leave_type;
+                $leaveData[$leave->leave_type] = [
+                    'available' => $leave->available,
+                    'used' => $leave->used,
+                    'remarks' => $leave->remarks ?? '',
+                ];
+            }
+        }
+
+        Log::info('Returning leave data', [
+            'personnelRole' => $personnelRole,
+            'leaveTypesCount' => count($leaveTypes),
+            'leaveTypes' => $leaveTypes
+        ]);
 
         return response()->json([
             'personnel' => [
                 'id' => $personnel->id,
                 'name' => $personnel->first_name . ' ' . $personnel->last_name,
-                'role' => ucfirst(str_replace('_', ' ', $user->role)),
+                'role' => $personnelRole,
                 'school' => $personnel->school ? $personnel->school->school_name : 'No School Assigned',
             ],
+            'leaveTypes' => $leaveTypes,
             'leaves' => $leaveData,
         ]);
     }

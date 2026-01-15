@@ -196,12 +196,20 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         School
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Vacation Leave
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Sick Leave
-                                    </th>
+                                    @php
+                                        // Get all unique leave types from the first personnel
+                                        $allLeaveTypes = [];
+                                        if(count($leaveData) > 0) {
+                                            foreach($leaveData[0]['leaves'] as $leave) {
+                                                $allLeaveTypes[] = $leave['type'];
+                                            }
+                                        }
+                                    @endphp
+                                    @foreach($allLeaveTypes as $leaveType)
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            {{ $leaveType }}
+                                        </th>
+                                    @endforeach
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -209,10 +217,6 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($leaveData as $data)
-                                    @php
-                                        $vacationLeave = collect($data['leaves'])->firstWhere('type', 'Vacation Leave');
-                                        $sickLeave = collect($data['leaves'])->firstWhere('type', 'Sick Leave');
-                                    @endphp
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
@@ -237,22 +241,19 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $data['personnel']->school ? $data['personnel']->school->school_name : 'No School Assigned' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
-                                                <span class="font-semibold">Available:</span> {{ $vacationLeave['available'] ?? 0 }} days
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                <span class="font-semibold">Used:</span> {{ $vacationLeave['used'] ?? 0 }} days
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
-                                                <span class="font-semibold">Available:</span> {{ $sickLeave['available'] ?? 0 }} days
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                <span class="font-semibold">Used:</span> {{ $sickLeave['used'] ?? 0 }} days
-                                            </div>
-                                        </td>
+                                        @foreach($allLeaveTypes as $leaveType)
+                                            @php
+                                                $leave = collect($data['leaves'])->firstWhere('type', $leaveType);
+                                            @endphp
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">
+                                                    <span class="font-semibold">Available:</span> {{ $leave['available'] ?? 0 }} days
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    <span class="font-semibold">Used:</span> {{ $leave['used'] ?? 0 }} days
+                                                </div>
+                                            </td>
+                                        @endforeach
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <button onclick="openAddLeaveModal({{ $data['personnel']->id }}, '{{ $data['personnel']->first_name }} {{ $data['personnel']->last_name }}', '{{ ucfirst(str_replace('_', ' ', $data['user']->role)) }}', '{{ $data['personnel']->school ? $data['personnel']->school->school_name : 'No School Assigned' }}')"
                                                     class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors duration-200 mr-2">
@@ -336,8 +337,6 @@
                         <label for="modal_leave_type" class="block text-sm font-medium text-gray-700 mb-2">Leave Type</label>
                         <select id="modal_leave_type" name="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select leave type</option>
-                            <option value="Vacation Leave">Vacation Leave</option>
-                            <option value="Sick Leave">Sick Leave</option>
                         </select>
                     </div>
 
@@ -396,8 +395,6 @@
                         <label for="deduct_modal_leave_type" class="block text-sm font-medium text-gray-700 mb-2">Leave Type</label>
                         <select id="deduct_modal_leave_type" name="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                             <option value="">Select leave type</option>
-                            <option value="Vacation Leave">Vacation Leave</option>
-                            <option value="Sick Leave">Sick Leave</option>
                         </select>
                     </div>
 
@@ -447,6 +444,44 @@
                     <div><strong>${personnelName}</strong></div>
                     <div class="text-gray-500">${personnelRole} - ${schoolName}</div>
                 `;
+
+                console.log('Opening modal for personnel:', personnelId);
+
+                // Fetch leave types using the new simple endpoint
+                fetch(`/api/personnel/${personnelId}/leave-types?year={{ $year }}`)
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Received data:', data);
+                        if (data.error) {
+                            console.error(data.error);
+                            return;
+                        }
+
+                        const leaveTypeSelect = document.getElementById('modal_leave_type');
+                        leaveTypeSelect.innerHTML = '<option value="">Select leave type</option>';
+
+                        if (data.leaveTypes && data.leaveTypes.length > 0) {
+                            data.leaveTypes.forEach(type => {
+                                const option = document.createElement('option');
+                                option.value = type;
+                                option.textContent = `${type} (${data.leaves[type].available} days available)`;
+                                leaveTypeSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.value = "";
+                            option.textContent = "No leave records found";
+                            option.disabled = true;
+                            leaveTypeSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
                 modal.classList.remove('hidden');
             }
 
@@ -456,6 +491,44 @@
                     <div><strong>${personnelName}</strong></div>
                     <div class="text-gray-500">${personnelRole} - ${schoolName}</div>
                 `;
+
+                console.log('Opening deduct modal for personnel:', personnelId);
+
+                // Fetch leave types using the new simple endpoint
+                fetch(`/api/personnel/${personnelId}/leave-types?year={{ $year }}`)
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Received data:', data);
+                        if (data.error) {
+                            console.error(data.error);
+                            return;
+                        }
+
+                        const leaveTypeSelect = document.getElementById('deduct_modal_leave_type');
+                        leaveTypeSelect.innerHTML = '<option value="">Select leave type</option>';
+
+                        if (data.leaveTypes && data.leaveTypes.length > 0) {
+                            data.leaveTypes.forEach(type => {
+                                const option = document.createElement('option');
+                                option.value = type;
+                                option.textContent = `${type} (${data.leaves[type].available} days available)`;
+                                leaveTypeSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.value = "";
+                            option.textContent = "No leave records found";
+                            option.disabled = true;
+                            leaveTypeSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
                 deductModal.classList.remove('hidden');
             }
 
