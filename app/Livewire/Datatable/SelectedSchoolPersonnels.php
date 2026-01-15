@@ -63,11 +63,12 @@ class SelectedSchoolPersonnels extends Component
 
     public function doSort($column)
     {
-        if ($this->sortColumn == $column) {
-            $this->sortDirection = $this->sortDirection ? 'DESC' : 'ASC';
-            return;
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'ASC' ? 'DESC' : 'ASC';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'ASC';
         }
-        $this->sortColumn = $column;
     }
 
     public function export()
@@ -133,6 +134,13 @@ class SelectedSchoolPersonnels extends Component
         return $query;
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['selectedSchool', 'selectedCategory', 'selectedPosition', 'selectedJobStatus', 'search']);
+        $this->sortColumn = 'id';
+        $this->sortDirection = 'ASC';
+    }
+
     public function render()
     {
         $query = $this->filterPersonnelsBySchool($this->schoolId);
@@ -148,7 +156,18 @@ class SelectedSchoolPersonnels extends Component
                 $query->where('job_status', $this->selectedJobStatus);
             })
             ->search($this->search)
-            ->orderBy($this->sortColumn, $this->sortDirection)
+            ->when($this->sortColumn === 'position_title', function ($query) {
+                $query->join('positions', 'personnels.position_id', '=', 'positions.id')
+                      ->orderBy('positions.title', $this->sortDirection);
+            })
+            ->when($this->sortColumn === 'school_name', function ($query) {
+                $query->join('schools', 'personnels.school_id', '=', 'schools.id')
+                      ->orderBy('schools.school_name', $this->sortDirection);
+            })
+            ->when(!in_array($this->sortColumn, ['position_title', 'school_name']), function ($query) {
+                $query->orderBy($this->sortColumn, $this->sortDirection);
+            })
+            ->select('personnels.*')
             ->paginate(10);
 
         return view('livewire.datatable.selected-school-personnels', [

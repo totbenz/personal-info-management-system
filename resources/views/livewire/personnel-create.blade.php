@@ -2,9 +2,9 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Create New Personnel</h2>
-        <a href="{{ route('personnels.index') }}" class="text-gray-600 hover:text-gray-800">
+        <a href="javascript:history.back()" class="text-gray-600 hover:text-gray-800">
             <button class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                Back to List
+                Back
             </button>
         </a>
     </div>

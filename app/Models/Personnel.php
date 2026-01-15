@@ -341,12 +341,19 @@ class Personnel extends Model
 
     public function scopeSearch($query, $value)
     {
-        $query->where('personnel_id', "like", "%{$value}%")
-            ->orWhere(function ($query) use ($value) {
-                $query->whereRaw("CONCAT(first_name, ' ', SUBSTRING(middle_name, 1, 1), '. ', last_name) LIKE ?", ["%{$value}%"]);
-            })
-            ->orWhere('school_id', "like", "%{$value}%")
-            ->orWhere('category', "like", "%{$value}%");
+        if (empty($value)) {
+            return $query;
+        }
+
+        return $query->where(function ($query) use ($value) {
+            $query->where('personnel_id', "like", "%{$value}%")
+                ->orWhere(function ($query) use ($value) {
+                    $query->whereRaw("CONCAT(first_name, ' ', IFNULL(middle_name, ''), ' ', last_name) LIKE ?", ["%{$value}%"]);
+                })
+                ->orWhere('first_name', "like", "%{$value}%")
+                ->orWhere('last_name', "like", "%{$value}%")
+                ->orWhere('category', "like", "%{$value}%");
+        });
     }
 
     public static function getLoyaltyAwardees()

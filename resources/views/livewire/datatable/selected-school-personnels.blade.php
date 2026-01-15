@@ -1,9 +1,8 @@
 ﻿<div class="mx-5 my-8 p-3">
     <div class="flex justify-between">
         <div class="w-1/4 inline-flex space-x-4">
-            @include('personnel.modal.create-modal')
             <div class="flex justify-between space-x-3">
-                <a href="#" x-on:click="$openModal('create-personnel-modal')">
+                <a href="{{ route('personnels.create') }}">
                     <button class="py-2 px-4 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
                         New Personnel
                     </button>
@@ -42,7 +41,8 @@
         </div> -->
     </div>
     <div class="mt-5 overflow-x-auto">
-        <div class="my-2 flex space-x-2">
+        <!-- Filters Section -->
+        <div class="my-2 flex flex-wrap gap-2">
             <div class="w-[9rem] px-0.5 text-xs">
                 <x-native-select wire:model.live.debounce.300ms="selectedJobStatus">
                     <option value="">Select status</option>
@@ -87,6 +87,11 @@
                     option-description="school_name" />
             </div>
             @endif
+            <div class="flex items-center px-2">
+                <button wire:click="resetFilters" class="text-xs text-gray-600 hover:text-gray-800 underline">
+                    Reset Filters
+                </button>
+            </div>
         </div>
         <div class="overflow-hidden rounded-lg shadow border border-gray-200 bg-white">
             <table class="min-w-full divide-y divide-gray-200">
@@ -100,7 +105,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th wire:click="doSort('personnel_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                        <th wire:click="doSort('last_name')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
                             <div class="flex items-center gap-x-1">
                                 Name
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -116,7 +121,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th wire:click="doSort('position_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                        <th wire:click="doSort('position_title')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
                             <div class="flex items-center gap-x-1">
                                 Position
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -132,7 +137,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th wire:click="doSort('school_id')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
+                        <th wire:click="doSort('school_name')" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 cursor-pointer group">
                             <div class="flex items-center gap-x-1">
                                 School Name
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400 group-hover:text-main transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -144,24 +149,22 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @foreach ($personnels as $index => $personnel)
-                    <tr wire:click="viewPersonnel({{ $personnel->id }})" wire:loading.class="opacity-60" class="text-sm hover:bg-gray-50 cursor-pointer transition">
+                    @forelse ($personnels as $personnel)
+                    <tr wire:key="personnel-{{ $personnel->id }}" wire:click="viewPersonnel({{ $personnel->id }})" wire:loading.class="opacity-60" class="text-sm hover:bg-gray-50 cursor-pointer transition">
                         <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->personnel_id }}</td>
                         <td class="px-4 py-3 whitespace-nowrap text-gray-900 font-medium capitalize">{{ $personnel->fullName() }}</td>
                         <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">
                             <span class="inline-block rounded px-2 py-0.5 text-xs bg-gray-100 text-gray-600">{{ $personnel->job_status }}</span>
                         </td>
-                        <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->position->title }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->position?->title ?? 'N/A' }}</td>
                         <td class="px-4 py-3 whitespace-nowrap capitalize text-gray-700">{{ $personnel->category }}</td>
-                        <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->school->school_name }}</td>
-
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700">{{ $personnel->school?->school_name ?? 'N/A' }}</td>
                     </tr>
-                    @endforeach
-                    @if ($personnels->isEmpty())
+                    @empty
                     <tr wire:loading.class="opacity-60">
                         <td colspan="6" class="px-4 py-6 text-center text-gray-400 text-sm">No Personnel Found</td>
                     </tr>
-                    @endif
+                    @endforelse
                 </tbody>
             </table>
         </div>
