@@ -67,8 +67,11 @@ class ElementarySheet implements WithEvents
 
         Log::info('Found elementary entries', ['count' => $educationEntries->count()]);
 
-        // Fill data for each entry
-        foreach ($educationEntries as $index => $entry) {
+        // Skip the first entry, start from the second one
+        $startIndex = $educationEntries->count() > 0 ? 1 : 0;
+
+        // Fill data for each entry (starting from second entry)
+        foreach ($educationEntries->slice($startIndex) as $index => $entry) {
             $row = 4 + $index; // Starting from row 4
 
             Log::info('Processing elementary entry', [
@@ -123,7 +126,10 @@ class SecondarySheet implements WithEvents
             ->orderBy('sort_order')
             ->get();
 
-        foreach ($educationEntries as $index => $entry) {
+        // Skip the first entry, start from the second one
+        $startIndex = $educationEntries->count() > 0 ? 1 : 0;
+
+        foreach ($educationEntries->slice($startIndex) as $index => $entry) {
             $row = 4 + $index; // Starting from row 4
 
             $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
@@ -163,7 +169,10 @@ class VocationalSheet implements WithEvents
             ->orderBy('sort_order')
             ->get();
 
-        foreach ($educationEntries as $index => $entry) {
+        // Skip the first entry, start from the second one
+        $startIndex = $educationEntries->count() > 0 ? 1 : 0;
+
+        foreach ($educationEntries->slice($startIndex) as $index => $entry) {
             $row = 4 + $index; // Starting from row 4
 
             $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
@@ -203,7 +212,10 @@ class CollegeSheet implements WithEvents
             ->orderBy('sort_order')
             ->get();
 
-        foreach ($educationEntries as $index => $entry) {
+        // Skip the first entry, start from the second one
+        $startIndex = $educationEntries->count() > 0 ? 1 : 0;
+
+        foreach ($educationEntries->slice($startIndex) as $index => $entry) {
             $row = 4 + $index; // Starting from row 4
 
             $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');
@@ -243,7 +255,10 @@ class GraduateStudiesSheet implements WithEvents
             ->orderBy('sort_order')
             ->get();
 
-        foreach ($educationEntries as $index => $entry) {
+        // Skip the first entry, start from the second one
+        $startIndex = $educationEntries->count() > 0 ? 1 : 0;
+
+        foreach ($educationEntries->slice($startIndex) as $index => $entry) {
             $row = 4 + $index; // Starting from row 4
 
             $worksheet->setCellValue('C' . $row, $entry->school_name ?? 'N/A');

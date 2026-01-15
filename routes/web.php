@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceRecordController;
 use App\Http\Controllers\NosaController;
-use App\Http\Controllers\NosiController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\SalaryChangesController;
 use App\Http\Controllers\EducationSheetController;

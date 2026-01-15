@@ -38,7 +38,8 @@ class QuestionnaireForm extends PersonnelNavigation
     protected $rules = [
         'consanguinity_third_degree_details' => 'required_if:consanguinity_third_degree,1|required_if:consanguinity_fourth_degree,1|nullable|string|max:255',
         'administrative_offense_details' => 'required_if:found_guilty_administrative_offense,1|nullable|string|max:255',
-        'criminally_charged_details' => 'required_if:criminally_charged,1|nullable|string|max:255',
+        'criminally_charged_date_filed' => 'required_if:criminally_charged,1|nullable|date',
+        'criminally_charged_status' => 'required_if:criminally_charged,1|nullable|string|max:255',
         'convicted_crime_details' => 'required_if:convicted_crime,1|nullable|string|max:255',
         'separation_details' => 'required_if:separated_from_service,1|nullable|string|max:255',
         'candidate_details' => 'required_if:candidate_last_year,1|nullable|string|max:255',
@@ -67,7 +68,6 @@ class QuestionnaireForm extends PersonnelNavigation
     protected $messages = [
         'consanguinity_third_degree_details.required_if' => 'Please provide details for third degree consanguinity.',
         'administrative_offense_details.required_if' => 'Please provide details for administrative offense.',
-        'criminally_charged_details.required_if' => 'Please provide details for criminal charge.',
         'criminally_charged_date_filed.required_if' => 'Please provide the date filed for criminal charge.',
         'criminally_charged_status.required_if' => 'Please provide the status for criminal charge.',
         'convicted_crime_details.required_if' => 'Please provide details for conviction.',
@@ -173,6 +173,8 @@ class QuestionnaireForm extends PersonnelNavigation
         \Log::info('criminally_charged updated', ['value' => $value, 'type' => gettype($value)]);
         if ($value != 1) {
             $this->criminally_charged_details = null;
+            $this->criminally_charged_date_filed = null;
+            $this->criminally_charged_status = null;
         }
     }
 
@@ -290,6 +292,8 @@ class QuestionnaireForm extends PersonnelNavigation
                 'administrative_offense_details' => $this->administrative_offense_details,
                 'criminally_charged' => (bool) ($this->criminally_charged ?? 0),
                 'criminally_charged_details' => $this->criminally_charged_details,
+                'criminally_charged_date_filed' => $this->criminally_charged_date_filed,
+                'criminally_charged_status' => $this->criminally_charged_status,
                 'convicted_crime' => (bool) ($this->convicted_crime ?? 0),
                 'convicted_crime_details' => $this->convicted_crime_details,
                 'separated_from_service' => (bool) ($this->separated_from_service ?? 0),

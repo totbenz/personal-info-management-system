@@ -88,10 +88,17 @@
                             </div>
                         </div>
                     </div>
-                    @if($criminally_charged_details)
+                    @if($criminally_charged == 1)
                     <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                         <span class="w-[20rem]">
-                            <x-input class="form-control w-full" type="text" label="If YES, give details" id="criminally_charged_details" wire:model="criminally_charged_details" disabled/>
+                            <x-input class="form-control w-full" type="date" label="Date Filed:" id="criminally_charged_date_filed" wire:model="criminally_charged_date_filed" disabled/>
+                        </span>
+                    </div>
+                    @endif
+                    @if($criminally_charged == 1)
+                    <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
+                        <span class="w-[20rem]">
+                            <x-input class="form-control w-full" type="text" label="Status of case/s:" id="criminally_charged_status" wire:model="criminally_charged_status" disabled/>
                         </span>
                     </div>
                     @endif
@@ -367,7 +374,12 @@
                                 @if($criminally_charged == 1)
                                 <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
                                     <span class="w-[20rem]">
-                                        <x-input class="form-control w-full" type="text" label="If YES, give details" id="criminally_charged_details" wire:model="criminally_charged_details"/>
+                                        <x-input class="form-control w-full" type="date" label="Date Filed:" id="criminally_charged_date_filed" wire:model="criminally_charged_date_filed"/>
+                                    </span>
+                                </div>
+                                <div class="mx-5 mt-2.5 w-[57.5rem] flex justify-end">
+                                    <span class="w-[20rem]">
+                                        <x-input class="form-control w-full" type="text" label="Status of case/s:" id="criminally_charged_status" wire:model="criminally_charged_status"/>
                                     </span>
                                 </div>
                                 @endif
