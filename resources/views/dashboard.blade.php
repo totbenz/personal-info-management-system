@@ -749,7 +749,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 font-medium">{{ $request->requested_hours }} hours</div>
+                                    <div class="text-sm text-gray-900 font-medium">{{ number_format($request->total_hours, 2) }} hours</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-blue-600">{{ $request->cto_days_earned }} days</div>
@@ -823,7 +823,7 @@
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Hours Worked</div>
-                                <div class="text-sm font-medium text-gray-900">{{ $request->requested_hours }} hours</div>
+                                <div class="text-sm font-medium text-gray-900">{{ number_format($request->total_hours, 2) }} hours</div>
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">CTO Earned</div>
@@ -1391,7 +1391,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">
-                                        {{ $request->requested_hours }} hours
+                                        {{ number_format($request->total_hours, 2) }} hours
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

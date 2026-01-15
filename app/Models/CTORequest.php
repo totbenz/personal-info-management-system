@@ -81,7 +81,7 @@ class CTORequest extends Model
      */
     public function getCtoDaysEarnedAttribute(): float
     {
-        return $this->requested_hours / 8;
+        return round(($this->total_hours ?? $this->requested_hours) / 8, 2);
     }
 
     /**

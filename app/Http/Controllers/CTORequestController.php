@@ -159,44 +159,24 @@ class CTORequestController extends Controller
             ])->withInput();
         }
 
-        // Compute total hours robustly
+        // Compute total hours robustly - calculate morning and afternoon separately
         $totalHours = 0.0;
 
-        // Calculate based on Morning In and Afternoon Out (User Request)
-        if ($request->filled('morning_in') && $request->filled('afternoon_out')) {
+        foreach ($segments as $seg) {
             try {
-                $in = Carbon::createFromFormat('H:i', $request->morning_in);
-                $out = Carbon::createFromFormat('H:i', $request->afternoon_out);
+                $in = Carbon::createFromFormat('H:i', $seg['in']);
+                $out = Carbon::createFromFormat('H:i', $seg['out']);
                 $diff = $out->floatDiffInRealMinutes($in) / 60; // float hours
-
                 if ($diff <= 0) {
                     return redirect()->back()->withErrors([
-                        'time' => 'Invalid time range: Afternoon Time Out must be after Morning Time In.'
+                        'time' => 'Invalid time range for ' . $seg['label'] . ' segment.'
                     ])->withInput();
                 }
-                $totalHours = $diff;
+                $totalHours += $diff;
             } catch (\Exception $e) {
                 return redirect()->back()->withErrors([
-                    'time' => 'Failed to parse time range.'
+                    'time' => 'Failed to parse time segment ' . $seg['label'] . '.'
                 ])->withInput();
-            }
-        } else {
-            foreach ($segments as $seg) {
-                try {
-                    $in = Carbon::createFromFormat('H:i', $seg['in']);
-                    $out = Carbon::createFromFormat('H:i', $seg['out']);
-                    $diff = $out->floatDiffInRealMinutes($in) / 60; // float hours
-                    if ($diff <= 0) {
-                        return redirect()->back()->withErrors([
-                            'time' => 'Invalid time range for ' . $seg['label'] . ' segment.'
-                        ])->withInput();
-                    }
-                    $totalHours += $diff;
-                } catch (\Exception $e) {
-                    return redirect()->back()->withErrors([
-                        'time' => 'Failed to parse time segment ' . $seg['label'] . '.'
-                    ])->withInput();
-                }
             }
         }
 
