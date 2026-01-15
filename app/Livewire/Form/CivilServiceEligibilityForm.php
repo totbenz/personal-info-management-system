@@ -20,11 +20,11 @@ class CivilServiceEligibilityForm extends Component
 
     protected $rules = [
         'old_civil_services.*.title' => 'required',
-        'old_civil_services.*.rating' => 'required',
+        'old_civil_services.*.rating' => 'nullable',
         'old_civil_services.*.date_of_exam' => 'required',
         'old_civil_services.*.place_of_exam' => 'required',
         'old_civil_services.*.license_num' => 'required',
-        'old_civil_services.*.license_date_of_validity' => 'required',
+        'old_civil_services.*.license_date_of_validity' => 'nullable',
         'new_civil_services.*.title' => 'required',
         'new_civil_services.*.rating' => 'nullable',
         'new_civil_services.*.date_of_exam' => 'required',
@@ -47,7 +47,7 @@ class CivilServiceEligibilityForm extends Component
                     'date_of_exam' => $child->date_of_exam,
                     'place_of_exam' => $child->place_of_exam,
                     'license_num' => $child->license_num,
-                    'license_date_of_validity' => $child->license_date_of_validity,
+                    'license_date_of_validity' => $child->license_date_of_validity === '1970-01-01' ? '' : $child->license_date_of_validity,
                 ];
             })->toArray();
 
@@ -93,20 +93,16 @@ class CivilServiceEligibilityForm extends Component
             // Delete the civil service eligibility from the database
             $civilServiceModel->delete();
 
+            // Remove from the array
+            unset($this->old_civil_services[$index]);
+            // Re-index the array
+            $this->old_civil_services = array_values($this->old_civil_services);
+
             session()->flash('flash.banner', 'Civil Service Eligibility deleted successfully');
             session()->flash('flash.bannerStyle', 'success');
         } catch (\Throwable $th) {
             session()->flash('flash.banner', 'Failed to delete Civil Service Eligibility');
             session()->flash('flash.bannerStyle', 'danger');
-        }
-        session(['active_personnel_tab' => 'civil_service_eligibility']);
-
-        if (Auth::user()->role === "teacher") {
-            return redirect()->route('personnel.profile');
-        } elseif (Auth::user()->role === "school_head") {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
-        } else {
-            return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
         }
     }
 
@@ -140,28 +136,64 @@ class CivilServiceEligibilityForm extends Component
 
         if ($this->personnel->civilServiceEligibilities()->exists()) {
             foreach ($this->old_civil_services as $civil_service) {
+                // Debug logging
+                \Log::info('License date value: ' . $civil_service['license_date_of_validity']);
+                \Log::info('License date type: ' . gettype($civil_service['license_date_of_validity']));
+
+                // Prepare the data
+                $updateData = [
+                    'title' => $civil_service['title'],
+                    'rating' => $civil_service['rating'] ?: null,
+                    'date_of_exam' => $civil_service['date_of_exam'],
+                    'place_of_exam' => $civil_service['place_of_exam'],
+                    'license_num' => $civil_service['license_num'],
+                ];
+
+                // Only include license_date_of_validity if it's not empty
+                if (isset($civil_service['license_date_of_validity']) &&
+                    $civil_service['license_date_of_validity'] !== '' &&
+                    $civil_service['license_date_of_validity'] !== '1970-01-01' &&
+                    $civil_service['license_date_of_validity'] !== null) {
+                    $updateData['license_date_of_validity'] = $civil_service['license_date_of_validity'];
+                } else {
+                    $updateData['license_date_of_validity'] = null;
+                }
+
+                \Log::info('Final license date to save: ' . $updateData['license_date_of_validity']);
+
                 $this->personnel->civilServiceEligibilities()->where('id', $civil_service['id'])
-                    ->update([
-                        'title' => $civil_service['title'],
-                        'rating' => $civil_service['rating'],
-                        'date_of_exam' => $civil_service['date_of_exam'],
-                        'place_of_exam' => $civil_service['place_of_exam'],
-                        'license_num' => $civil_service['license_num'],
-                        'license_date_of_validity' => $civil_service['license_date_of_validity'] ?: null
-                    ]);
+                    ->update($updateData);
             }
         }
 
         if ($this->new_civil_services != null) {
             foreach ($this->new_civil_services as $civil_service) {
-                $this->personnel->civilServiceEligibilities()->create([
+                // Debug logging
+                \Log::info('NEW - License date value: ' . $civil_service['license_date_of_validity']);
+                \Log::info('NEW - License date type: ' . gettype($civil_service['license_date_of_validity']));
+
+                // Prepare the data
+                $createData = [
                     'title' => $civil_service['title'],
-                    'rating' => $civil_service['rating'],
+                    'rating' => $civil_service['rating'] ?: null,
                     'date_of_exam' => $civil_service['date_of_exam'],
                     'place_of_exam' => $civil_service['place_of_exam'],
                     'license_num' => $civil_service['license_num'],
-                    'license_date_of_validity' => $civil_service['license_date_of_validity'] ?: null
-                ]);
+                ];
+
+                // Only include license_date_of_validity if it's not empty
+                if (isset($civil_service['license_date_of_validity']) &&
+                    $civil_service['license_date_of_validity'] !== '' &&
+                    $civil_service['license_date_of_validity'] !== '1970-01-01' &&
+                    $civil_service['license_date_of_validity'] !== null) {
+                    $createData['license_date_of_validity'] = $civil_service['license_date_of_validity'];
+                } else {
+                    $createData['license_date_of_validity'] = null;
+                }
+
+                \Log::info('NEW - Final license date to save: ' . $createData['license_date_of_validity']);
+
+                $this->personnel->civilServiceEligibilities()->create($createData);
             }
         }
 

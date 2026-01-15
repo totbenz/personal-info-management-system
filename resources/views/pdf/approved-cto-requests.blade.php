@@ -122,7 +122,7 @@
         <h1 class="font-semibold canterbury-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px; margin-bottom: 2px;">Department of Education</h1>
         <p style="font-size: 13px;">REGION VIII</p>
         <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
-        <hr class="border-gray-300 mt-3 border-t-2">
+        <hr class="border-gray-300 mt-1 border-t-2 mb-2">
         <p class="mt-2 text-left" style="font-size: 15px;">Office of the Schools Division Superintendent</p>
     </div>
 

@@ -19,6 +19,11 @@ class CivilServiceEligibility extends Model
                            'license_date_of_validity'
                         ];
 
+    protected $casts = [
+        'date_of_exam' => 'date',
+        'license_date_of_validity' => 'date'
+    ];
+
     public function personnel(): BelongsTo
     {
         return $this->belongsTo(Personnel::class);

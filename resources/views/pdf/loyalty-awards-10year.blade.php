@@ -73,7 +73,7 @@
 <body>
     <div class="page-container">
         <div class="content">
-            <div class="text-center mb-6 ">
+            <div class="text-center mb-6">
                 <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
                 <h2 class="canterbury-font mb-2">Republic of the Philippines</h2>
                 <h1 class="font-semibold canterbury-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px; margin-bottom: 2px;">Department of Education</h1>

@@ -73,7 +73,7 @@
                             </div>
                             <div class="w-1/12 text-xs">
                                 <p class="text-sm leading-none text-gray-600 ml-2">
-                                    {{ $civil_service_eligibility->rating }}
+                                    {{ $civil_service_eligibility->rating ?: 'N/A' }}
                                 </p>
                             </div>
                             <div class="ps-3 w-2/12 text-xs">
@@ -93,7 +93,7 @@
                             </div>
                             <div class="ps-3 w-2/12 text-xs">
                                 <p class="text-sm leading-none text-gray-600 ml-2">
-                                    {{ date('m-d-Y', strtotime($civil_service_eligibility->license_date_of_validity)) }}
+                                    {{ $civil_service_eligibility->license_date_of_validity ? date('m-d-Y', strtotime($civil_service_eligibility->license_date_of_validity)) : 'N/A' }}
                                 </p>
                             </div>
                         </div>

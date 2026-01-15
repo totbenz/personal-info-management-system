@@ -77,24 +77,21 @@
     </style>
 </head>
 <body>
-    <div class="headers" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
-        <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 100px; height: auto; position: absolute; left: 7%; top: 7%; transform: translateY(-50%);">
-        <div style="text-align: center; flex-grow: 1;">
-            <h4 class="canterbury-font">
-                Republic of the Philippines <br>
-                Department of Education<br>
-                Region VIII - Eastern Visayas
-            </h4>
-            <h3>
-                SCHOOLS DIVISION OF BAYBAY CITY<br>
-                <span>Brgy. Gaas, Baybay City, Leyte</span>
-            </h3>
-            <h3 class="service-record">SERVICE RECORD</h3>
-        </div>
-        <img src="{{ public_path('image/division-logo.png') }}" alt="division Logo" style="width: 100px; height: auto; position: absolute; right: 7%; top: 7%; transform: translateY(-50%);">
-        <div style="font-size: 14px; position: absolute; right: 0;">
-            Employee No. <span style="text-decoration: underline;">{{$personnel->personnel_id}}</span>
-        </div>
+    <div class="text-center mb-6">
+        <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
+        <h2 class="canterbury-font mb-2">Republic of the Philippines</h2>
+        <h1 class="font-semibold canterbury-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px; margin-bottom: 2px;">Department of Education</h1>
+        <p style="font-size: 13px;">REGION VIII</p>
+        <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
+        <hr class="border-gray-300 mt-1 border-t-2 mb-2">
+        <p class="mt-2 text-left" style="font-size: 15px;">Office of the Schools Division Superintendent</p>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <h3 style="text-align: center; margin-top: 30px; font-size: 16px; font-weight: bold;">SERVICE RECORD</h3>
+    <div style="font-size: 14px; text-align: right; margin-bottom: 20px;">
+        Employee No. <span style="text-decoration: underline;">{{$personnel->personnel_id}}</span>
     </div>
     <br><br>
     <div style="font-size: 14px; width: 100%; text-align: left; margin-top: 20px; display: flex; align-items: center;">

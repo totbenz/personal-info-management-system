@@ -366,8 +366,17 @@ class FamilyForm extends PersonnelNavigation
             }
 
             // Save children information
+            \Log::info('Saving children - old_children count: ' . count($this->old_children));
+            \Log::info('Saving children - new_children count: ' . count($this->new_children));
+
             if ($this->personnel->children()->exists()) {
                 foreach ($this->old_children as $child) {
+                    // Skip if child doesn't have an ID (shouldn't happen, but just in case)
+                    if (!isset($child['id'])) {
+                        continue;
+                    }
+
+                    \Log::info('Updating child ID: ' . $child['id']);
                     $this->personnel->children()->where('id', $child['id'])
                         ->update([
                             'relationship' => 'children',
@@ -380,15 +389,23 @@ class FamilyForm extends PersonnelNavigation
                 }
             }
 
-            if($this->new_children != null)
+            if(!empty($this->new_children))
             {
-                foreach ($this->new_children as $new_child) {
+                foreach ($this->new_children as $index => $new_child) {
                     // Skip empty children entries
                     if (empty($new_child['first_name']) && empty($new_child['last_name'])) {
+                        \Log::info('Skipping empty child at index: ' . $index);
                         continue;
                     }
 
-                    $this->personnel->children()->create([
+                    // Ensure all required fields are present
+                    if (empty($new_child['first_name']) || empty($new_child['middle_name']) || empty($new_child['last_name']) || empty($new_child['date_of_birth'])) {
+                        \Log::info('Skipping incomplete child at index: ' . $index . ' - missing required fields');
+                        continue;
+                    }
+
+                    \Log::info('Creating new child: ' . json_encode($new_child));
+                    $createdChild = $this->personnel->children()->create([
                         'relationship' => 'children',
                         'first_name' => $new_child['first_name'],
                         'middle_name' => $new_child['middle_name'],
@@ -396,6 +413,7 @@ class FamilyForm extends PersonnelNavigation
                         'name_extension' => $new_child['name_ext'],
                         'date_of_birth' => $new_child['date_of_birth'],
                     ]);
+                    \Log::info('Created child with ID: ' . $createdChild->id);
                 }
             }
 
@@ -422,8 +440,10 @@ class FamilyForm extends PersonnelNavigation
             ]);
             return;
         } catch (\Exception $e) {
+            \Log::error('Error saving family information: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             $this->dispatch('show-error-alert', [
-                'message' => 'An error occurred while saving family information.'
+                'message' => 'An error occurred while saving family information: ' . $e->getMessage()
             ]);
             return;
         }

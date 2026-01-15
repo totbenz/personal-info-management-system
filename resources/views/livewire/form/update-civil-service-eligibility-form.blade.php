@@ -29,7 +29,7 @@
                         <input id="title_{{ $index }}" type="text" wire:model="old_civil_services.{{ $index }}.title" name="old_civil_services[{{ $index }}][title]" placeholder="Title" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
                     </div>
                     <div class="w-1/12 ps-3 text-xs">
-                        <input id="rating_{{ $index }}" type="text" wire:model="old_civil_services.{{ $index }}.rating" name="old_civil_services[{{ $index }}][rating]" placeholder="Rating" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
+                        <input id="rating_{{ $index }}" type="text" wire:model="old_civil_services.{{ $index }}.rating" name="old_civil_services[{{ $index }}][rating]" placeholder="Rating" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0"/>
                     </div>
                     <div class="w-2/12 ps-3 text-xs">
                         <input id="date_of_exam_{{ $index }}" type="date" wire:model="old_civil_services.{{ $index }}.date_of_exam" name="old_civil_services[{{ $index }}][date_of_exam]" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
@@ -41,10 +41,10 @@
                         <input id="license_num_{{ $index }}" type="text" wire:model="old_civil_services.{{ $index }}.license_num" name="old_civil_services[{{ $index }}][license_num]" placeholder="License Number" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
                     </div>
                     <div class="w-2/12 ps-3 text-xs">
-                        <input id="license_date_of_validity_{{ $index }}" type="date" wire:model="old_civil_services.{{ $index }}.license_date_of_validity" name="old_civil_services[{{ $index }}][license_date_of_validity]" placeholder="Date of Validity" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
+                        <input id="license_date_of_validity_{{ $index }}" type="date" wire:model="old_civil_services.{{ $index }}.license_date_of_validity" name="old_civil_services[{{ $index }}][license_date_of_validity]" placeholder="Date of Validity" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0"/>
                     </div>
                     <div class="w-1/12 ps-3 text-xs">
-                        <button @wire:click="removeOldField({{ $index }})" class="m-0 p-0 text-gray-400 hover:text-red-600 hover:scale-105 duration-300">
+                        <button wire:click="removeOldField({{ $index }})" wire:confirm="Are you sure you want to delete this civil service eligibility?" class="m-0 p-0 text-gray-400 hover:text-red-600 hover:scale-105 duration-300">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                             </svg>
@@ -67,7 +67,7 @@
                             <input id="title_{{ $index }}" type="text" wire:model="new_civil_services.{{ $index }}.title" name="new_civil_services[{{ $index }}][title]" placeholder="Title" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
                         </div>
                         <div class="w-1/12 ps-3 text-xs">
-                            <input id="rating_{{ $index }}" type="text" wire:model="new_civil_services.{{ $index }}.rating" name="new_civil_services[{{ $index }}][rating]" placeholder="Rating" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
+                            <input id="rating_{{ $index }}" type="text" wire:model="new_civil_services.{{ $index }}.rating" name="new_civil_services[{{ $index }}][rating]" placeholder="Rating" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0"/>
                         </div>
                         <div class="w-2/12 ps-3 text-xs">
                             <input id="date_of_exam_{{ $index }}" type="date" wire:model="new_civil_services.{{ $index }}.date_of_exam" name="new_civil_services[{{ $index }}][date_of_exam]" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
@@ -79,7 +79,7 @@
                             <input id="license_num_{{ $index }}" type="text" wire:model="new_civil_services.{{ $index }}.license_num" name="new_civil_services[{{ $index }}][license_num]" placeholder="License Number" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
                         </div>
                         <div class="w-2/12 ps-3 text-xs">
-                            <input id="license_date_of_validity_{{ $index }}" type="date" wire:model="new_civil_services.{{ $index }}.license_date_of_validity" name="new_civil_services[{{ $index }}][license_date_of_validity]" placeholder="Date of Validity" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0" required/>
+                            <input id="license_date_of_validity_{{ $index }}" type="date" wire:model="new_civil_services.{{ $index }}.license_date_of_validity" name="new_civil_services[{{ $index }}][license_date_of_validity]" placeholder="Date of Validity" class="w-full rounded-s-md border-none appearance-none placeholder-gray-400 focus:ring-0"/>
                         </div>
                         <div class="w-1/12 ps-3 text-xs">
                             <button wire:click="removeNewField({{ $index }})" class="m-0 p-0 text-gray-400 hover:text-red-600 hover:scale-105 duration-300">

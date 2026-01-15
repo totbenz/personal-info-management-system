@@ -494,13 +494,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');
     Route::get('/service-records/{personnelId}', [ServiceRecordController::class, 'index'])->name('service-records.index');
 
-    // //NOSA
-    // Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download');
-    // Route::get('/nosa/{personnelId}/preview', [NosaController::class, 'preview'])->name('nosa.preview');
+    //NOSA
+    Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download')->middleware('timeout.prevention');
+    Route::get('/nosa/{personnelId}/preview', [NosaController::class, 'preview'])->name('nosa.preview')->middleware('timeout.prevention');
 
-    // //NOSI
-    // Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download');
-    // Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview');
+    //NOSI
+    Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download')->middleware('timeout.prevention');
+    Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview')->middleware('timeout.prevention');
     //DOWNLOAD ALL with timeout prevention
     Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download')->middleware('timeout.prevention');
 

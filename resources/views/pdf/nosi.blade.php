@@ -35,13 +35,13 @@
 </head>
 
 <body class="text-gray-900">
-    <div class="text-center mb-6 ">
+    <div class="text-center mb-6">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
         <h2 class="canterbury-font mb-2">Republic of the Philippines</h2>
         <h1 class="font-semibold canterbury-font" style="font-size: 24px; margin-top:-20px; letter-spacing:1px; margin-bottom: 2px;">Department of Education</h1>
-        <p style="font-size: 13px; margin-top: -5px;">REGION VIII</p>
+        <p style="font-size: 13px;">REGION VIII</p>
         <p style="font-size: 13px;">SCHOOLS DIVISION OF BAYBAY CITY, LEYTE</p>
-        <hr class="border-gray-300 mt-3 border-t-2">
+        <hr class="border-gray-300 mt-1 border-t-2 mb-2">
         <p class="mt-2 text-left" style="font-size: 15px;">Office of the Schools Division Superintendent</p>
     </div>
 

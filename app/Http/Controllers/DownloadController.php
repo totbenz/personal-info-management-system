@@ -59,20 +59,54 @@ class DownloadController extends Controller
         $files = [];
 
         try {
+            // Prepare salary change data
+            $salaryChange = $personnel->salaryChanges()
+                ->orderBy('adjusted_monthly_salary_date', 'desc')
+                ->first() ?? (object)[
+                    'adjusted_monthly_salary_date' => null,
+                    'previous_salary_grade' => 0,
+                    'previous_salary_step' => 0,
+                    'actual_monthly_salary_as_of_date' => null,
+                    'previous_salary' => 0,
+                    'current_salary' => 0,
+                    'current_salary_grade' => 0,
+                    'current_salary_step' => 0
+                ];
+
+            // Prepare signature data
+            $schools_division_superintendent_signature = \App\Models\Signature::where('position_name', 'Schools Division Superintendent')
+                ->first() ?? (object)[
+                    'employee_name' => '',
+                    'position_name' => 'Schools Division Superintendent'
+                ];
+
             // Generate all PDFs
             $documents = [
-                ['view' => 'pdf.service-record', 'name' => preg_replace('/[^A-Za-z0-9_\-\s]/', '_', $personnel->last_name . ' ' . $personnel->first_name) . ' - Service Record.pdf'],
-                ['view' => 'pdf.nosa', 'name' => preg_replace('/[^A-Za-z0-9_\-\s]/', '_', $personnel->last_name . ' ' . $personnel->first_name) . ' - NOSA.pdf'],
-                ['view' => 'pdf.nosi', 'name' => preg_replace('/[^A-Za-z0-9_\-\s]/', '_', $personnel->last_name . ' ' . $personnel->first_name) . ' - NOSI.pdf']
+                [
+                    'view' => 'pdf.service-record',
+                    'name' => preg_replace('/[^A-Za-z0-9_\-\s]/', '_', $personnel->last_name . ' ' . $personnel->first_name) . ' - Service Record.pdf',
+                    'data' => ['personnel' => $personnel, 'serviceRecords' => $serviceRecords]
+                ],
+                [
+                    'view' => 'pdf.nosa',
+                    'name' => preg_replace('/[^A-Za-z0-9_\-\s]/', '_', $personnel->last_name . ' ' . $personnel->first_name) . ' - NOSA.pdf',
+                    'data' => ['personnel' => $personnel, 'salaryChange' => $salaryChange]
+                ],
+                [
+                    'view' => 'pdf.nosi',
+                    'name' => preg_replace('/[^A-Za-z0-9_\-\s]/', '_', $personnel->last_name . ' ' . $personnel->first_name) . ' - NOSI.pdf',
+                    'data' => [
+                        'personnel' => $personnel,
+                        'salaryChange' => $salaryChange,
+                        'schools_division_superintendent_signature' => $schools_division_superintendent_signature
+                    ]
+                ]
             ];
 
             foreach ($documents as $doc) {
                 try {
                     Log::info("Generating PDF: " . $doc['name']);
-                    $pdf = Pdf::loadView($doc['view'], [
-                        'personnel' => $personnel,
-                        'serviceRecords' => $serviceRecords
-                    ]);
+                    $pdf = Pdf::loadView($doc['view'], $doc['data']);
 
                     $filePath = $tempDir . '/' . $doc['name'];
                     $pdfContent = $pdf->output();
@@ -303,22 +337,62 @@ class DownloadController extends Controller
      */
     public function downloadSpecific($personnelId, $type)
     {
-        ini_set('memory_limit', '512M'); // or '1024M' for 1GB
+        // Set timeout and memory limits
+        set_time_limit(60);
+        ini_set('memory_limit', '512M');
+
         try {
-            $personnel = Personnel::findOrFail($personnelId);
+            $personnel = Personnel::with(['position', 'salaryChanges', 'school'])
+                ->findOrFail($personnelId);
             $serviceRecords = $personnel->serviceRecords()->with('position')->get();
 
             $fileName = '';
             $viewName = '';
+            $data = [
+                'personnel' => $personnel,
+                'serviceRecords' => $serviceRecords
+            ];
 
             switch ($type) {
                 case 'nosa':
                     $viewName = 'pdf.nosa';
                     $fileName = 'NOSA_' . $personnel->id . '.pdf';
+                    // Add salary change data for NOSA
+                    $data['salaryChange'] = $personnel->salaryChanges()
+                        ->orderBy('adjusted_monthly_salary_date', 'desc')
+                        ->first() ?? (object)[
+                            'adjusted_monthly_salary_date' => null,
+                            'previous_salary_grade' => 0,
+                            'previous_salary_step' => 0,
+                            'actual_monthly_salary_as_of_date' => null,
+                            'previous_salary' => 0,
+                            'current_salary' => 0,
+                            'current_salary_grade' => 0,
+                            'current_salary_step' => 0
+                        ];
                     break;
                 case 'nosi':
                     $viewName = 'pdf.nosi';
                     $fileName = 'NOSI_' . $personnel->id . '.pdf';
+                    // Add salary change data for NOSI
+                    $data['salaryChange'] = $personnel->salaryChanges()
+                        ->orderBy('adjusted_monthly_salary_date', 'desc')
+                        ->first() ?? (object)[
+                            'adjusted_monthly_salary_date' => null,
+                            'previous_salary_grade' => 0,
+                            'previous_salary_step' => 0,
+                            'actual_monthly_salary_as_of_date' => null,
+                            'previous_salary' => 0,
+                            'current_salary' => 0,
+                            'current_salary_grade' => 0,
+                            'current_salary_step' => 0
+                        ];
+                    // Add signature data for NOSI
+                    $data['schools_division_superintendent_signature'] = \App\Models\Signature::where('position_name', 'Schools Division Superintendent')
+                        ->first() ?? (object)[
+                            'employee_name' => '',
+                            'position_name' => 'Schools Division Superintendent'
+                        ];
                     break;
                 case 'service-record':
                     $viewName = 'pdf.service-record';
@@ -328,10 +402,7 @@ class DownloadController extends Controller
                     return response()->json(['error' => 'Invalid document type'], 400);
             }
 
-            $pdf = Pdf::loadView($viewName, [
-                'personnel' => $personnel,
-                'serviceRecords' => $serviceRecords
-            ]);
+            $pdf = Pdf::loadView($viewName, $data);
 
             return $pdf->download($fileName);
 

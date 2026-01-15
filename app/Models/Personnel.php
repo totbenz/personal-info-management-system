@@ -162,7 +162,7 @@ class Personnel extends Model
 
     public function children()
     {
-        return $this->hasMany(Family::class)->where('relationship', 'child');
+        return $this->hasMany(Family::class)->where('relationship', 'children');
     }
 
     public function educations(): HasMany
