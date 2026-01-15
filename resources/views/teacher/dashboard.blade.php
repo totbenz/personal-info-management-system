@@ -269,7 +269,7 @@
             <!-- Available Leaves Section -->
             @php
             $colors = [
-            'Personal Leave' => 'blue',
+            'Service Credit Leave' => 'blue',
             'Sick Leave' => 'emerald',
             'Maternity Leave' => 'pink',
             'Rehabilitation Leave' => 'red',
@@ -283,9 +283,9 @@
 
             $displayLeaves = [];
 
-            // Personal Leave (taken from Service Credit)
+            // Service Credit Leave (taken from Service Credit)
             $displayLeaves[] = [
-            'type' => 'Personal Leave',
+            'type' => 'Service Credit Leave',
             'available' => null, // null indicates service credit based
             'max' => null,
             'used' => null,
