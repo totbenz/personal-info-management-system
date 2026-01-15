@@ -723,23 +723,63 @@
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         initializeModals();
+        initializeLeaveModals();
+
+        // Initialize CTO time calculation
+        initializeCTOTimeCalculation();
 
         // Also initialize when Livewire updates
         if (typeof Livewire !== 'undefined') {
             Livewire.hook('message.processed', () => {
-                setTimeout(initializeModals, 100);
+                setTimeout(() => {
+                    initializeModals();
+                    initializeLeaveModals();
+                    initializeCTOTimeCalculation();
+                }, 100);
             });
         }
 
         // Also initialize on page visibility change
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                setTimeout(initializeModals, 100);
+                setTimeout(() => {
+                    initializeModals();
+                    initializeLeaveModals();
+                    initializeCTOTimeCalculation();
+                }, 100);
             }
         });
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    // Function to initialize CTO time calculation
+    function initializeCTOTimeCalculation() {
+        const ctoMorningIn = document.getElementById('morning_in');
+        const ctoMorningOut = document.getElementById('morning_out');
+        const ctoAfternoonIn = document.getElementById('afternoon_in');
+        const ctoAfternoonOut = document.getElementById('afternoon_out');
+        const ctoWorkDate = document.getElementById('work_date');
+        const ctoReason = document.getElementById('cto_reason');
+
+        // Add event listeners for time calculation
+        if (ctoMorningIn) {
+            ctoMorningIn.addEventListener('input', calculateCTOHours);
+            ctoMorningIn.addEventListener('change', calculateCTOHours);
+        }
+        if (ctoMorningOut) {
+            ctoMorningOut.addEventListener('input', calculateCTOHours);
+            ctoMorningOut.addEventListener('change', calculateCTOHours);
+        }
+        if (ctoAfternoonIn) {
+            ctoAfternoonIn.addEventListener('input', calculateCTOHours);
+            ctoAfternoonIn.addEventListener('change', calculateCTOHours);
+        }
+        if (ctoAfternoonOut) {
+            ctoAfternoonOut.addEventListener('input', calculateCTOHours);
+            ctoAfternoonOut.addEventListener('change', calculateCTOHours);
+        }
+        if (ctoWorkDate) ctoWorkDate.addEventListener('change', validateCTOForm);
+        if (ctoReason) ctoReason.addEventListener('input', validateCTOForm);
+    }
         // Show SweetAlert notifications for session messages
     @if(session('success'))
         Swal.fire({
@@ -818,6 +858,9 @@
     }
 
     // CTO Modal variables
+    const ctoBtn = document.getElementById('ctoRequestBtn');
+    const ctoModal = document.getElementById('ctoRequestModal');
+    const ctoCloseBtn = document.getElementById('closeCtoRequestModal');
     const ctoMorningIn = document.getElementById('morning_in');
     const ctoMorningOut = document.getElementById('morning_out');
     const ctoAfternoonIn = document.getElementById('afternoon_in');
@@ -828,16 +871,18 @@
     const ctoDaysEarned = document.getElementById('cto_days_earned');
     const ctoSubmitBtn = document.getElementById('cto_submit_btn');
 
-    if(ctoBtn && ctoModal && ctoCloseBtn) {
+    if (ctoBtn && ctoModal && ctoCloseBtn) {
         ctoBtn.addEventListener('click', () => {
             ctoModal.classList.remove('hidden');
             ctoModal.classList.add('flex');
+            // Re-initialize time calculation when modal opens
+            setTimeout(initializeCTOTimeCalculation, 50);
         });
         ctoCloseBtn.addEventListener('click', () => {
             ctoModal.classList.add('hidden');
             ctoModal.classList.remove('flex');
         });
-        ctoModal.addEventListener('click', e => {
+        ctoModal.addEventListener('click', (e) => {
             if (e.target === ctoModal) {
                 ctoModal.classList.add('hidden');
                 ctoModal.classList.remove('flex');
@@ -895,15 +940,7 @@
         return isValid;
     }
 
-    // Event listeners for time calculation
-    if (ctoMorningIn) ctoMorningIn.addEventListener('change', calculateCTOHours);
-    if (ctoMorningOut) ctoMorningOut.addEventListener('change', calculateCTOHours);
-    if (ctoAfternoonIn) ctoAfternoonIn.addEventListener('change', calculateCTOHours);
-    if (ctoAfternoonOut) ctoAfternoonOut.addEventListener('change', calculateCTOHours);
-    const ctoWorkDate = document.getElementById('work_date');
-    if (ctoWorkDate) ctoWorkDate.addEventListener('change', validateCTOForm);
-    const ctoReason = document.getElementById('cto_reason');
-    if (ctoReason) ctoReason.addEventListener('input', validateCTOForm);
+    // Event listeners for time calculation are now handled in initializeCTOTimeCalculation()
 
     // Add Leave Days Modal
     function initializeLeaveModals() {
@@ -1009,24 +1046,6 @@
         });
     }
 
-    // Initialize on DOM ready
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeLeaveModals();
-
-        // Also initialize when Livewire updates
-        if (typeof Livewire !== 'undefined') {
-            Livewire.hook('message.processed', () => {
-                setTimeout(initializeLeaveModals, 100);
-            });
-        }
-
-        // Also initialize on page visibility change
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                setTimeout(initializeLeaveModals, 100);
-            }
-        });
-    });
 
     function calculateDays() {
         if (!startDateInput.value || !endDateInput.value) {
@@ -1078,7 +1097,13 @@
     // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            [modal, ctoModal, addLeaveModal].forEach(modal => {
+            [
+                document.getElementById('leaveRequestModal'),
+                document.getElementById('ctoRequestModal'),
+                document.getElementById('addLeaveModal'),
+                document.getElementById('deductLeaveModal'),
+                document.getElementById('monetizationModal')
+            ].forEach(modal => {
                 if (modal && !modal.classList.contains('hidden')) {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
@@ -1089,9 +1114,9 @@
 
     // Auto-open modals on validation errors
     @if($errors->any())
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        if (document.getElementById('leaveRequestModal')) {
+            document.getElementById('leaveRequestModal').classList.remove('hidden');
+            document.getElementById('leaveRequestModal').classList.add('flex');
         }
     @endif
 
@@ -1099,6 +1124,8 @@
         if (ctoModal) {
             ctoModal.classList.remove('hidden');
             ctoModal.classList.add('flex');
+            // Initialize time calculation when modal auto-opens
+            setTimeout(initializeCTOTimeCalculation, 50);
         }
     @endif
 
