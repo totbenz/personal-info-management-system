@@ -544,23 +544,7 @@
                                         @endif
                                     @endforeach
                                     <option value="custom">Custom Leave</option>
-                                    <option value="others" data-available="0">Others ▼</option>
                                 </select>
-
-                                <!-- Monetization Submenu -->
-                                <div id="monetizationSubmenu" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 hidden">
-                                    <a href="{{ route('teacher.monetization.history') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md">
-                                        <span class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Monetization
-                                        </span>
-                                    </a>
-                                    <button type="button" onclick="closeMonetizationSubmenu()" class="w-full px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-b-md text-left">
-                                        Cancel
-                                    </button>
-                                </div>
                             </div>
                             @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                             <div id="leave_type_warning" class="hidden text-red-500 text-xs mt-1">
@@ -1511,44 +1495,21 @@
 
         // Function to handle leave type change
         function handleLeaveTypeChange(value) {
-            const submenu = document.getElementById('monetizationSubmenu');
             const customLeaveDiv = document.getElementById('customLeaveNameDiv');
             const reasonField = document.querySelector('textarea[name="reason"]');
 
-            if (value === 'others') {
-                submenu.classList.remove('hidden');
-                customLeaveDiv.classList.add('hidden');
-                // Reset the select to show placeholder
-                document.getElementById('leave_type').value = '';
-            } else if (value === 'custom') {
-                submenu.classList.add('hidden');
+            if (value === 'custom') {
                 customLeaveDiv.classList.remove('hidden');
                 // Make reason field required for custom leave
                 reasonField.required = true;
                 reasonField.placeholder = 'Please specify the reason for this custom leave...';
             } else {
-                submenu.classList.add('hidden');
                 customLeaveDiv.classList.add('hidden');
                 // Make reason field required for regular leaves
                 reasonField.required = true;
                 reasonField.placeholder = 'Enter reason for leave...';
             }
         }
-
-        // Function to close monetization submenu
-        function closeMonetizationSubmenu() {
-            document.getElementById('monetizationSubmenu').classList.add('hidden');
-        }
-
-        // Close submenu when clicking outside
-        document.addEventListener('click', function(event) {
-            const submenu = document.getElementById('monetizationSubmenu');
-            const select = document.getElementById('leave_type');
-
-            if (!select.contains(event.target) && !submenu.contains(event.target)) {
-                submenu.classList.add('hidden');
-            }
-        });
     </script>
 
 </x-app-layout>

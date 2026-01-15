@@ -96,15 +96,6 @@
                         inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
                         {{ __('Profile') }}
                     </x-nav-link>
-                    <x-nav-link
-                        href="{{ route('teacher.monetization.history') }}"
-                        :active="request()->routeIs('teacher.monetization.history')"
-                        wire:navigate
-                        class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-                        active-class="bg-white text-[#0f152a] shadow-lg font-bold"
-                        inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
-                        {{ __('Monetization') }}
-                    </x-nav-link>
                     @elseif (Auth::user()->role == 'non_teaching')
                     <x-nav-link
                         href="{{ route('non_teaching.dashboard') }}"

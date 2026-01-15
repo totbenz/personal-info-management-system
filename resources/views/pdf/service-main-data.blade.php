@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Service Record</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('resources/css/fonts.css') }}">
 
     <style>
@@ -13,14 +15,22 @@
             font-style: normal;
         }
 
-        .canterbury-font {
-            font-family: 'Canterbury' !important;
-            font-weight: normal;
+        @page {
+            size: legal;
+            margin: 0.25in 0.5in 0 0.5in;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 14in;
             font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
+
+        .canterbury-font {
+            font-family: 'Canterbury' !important;
+            font-weight: normal;
         }
         h4 {
             text-align: center;
@@ -76,7 +86,7 @@
         }
     </style>
 </head>
-<body>
+<body class="text-gray-900">
     <div class="text-center mb-6">
         <img src="{{ public_path('image/kagawaran-ng-edukasyon-logo.png') }}" alt="deped Logo" style="width: 80px; height: auto; margin-bottom: 10px;">
         <h2 class="canterbury-font mb-2">Republic of the Philippines</h2>

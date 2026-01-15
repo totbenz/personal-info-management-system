@@ -402,14 +402,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Leave request submission
         Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
-
-        // Leave Monetization
-        Route::get('/teacher/monetization/create', [LeaveMonetizationController::class, 'create'])->name('teacher.monetization.create');
-        Route::post('/teacher/monetization', [LeaveMonetizationController::class, 'store'])->name('teacher.monetization.store');
-        Route::get('/teacher/monetization/history', [LeaveMonetizationController::class, 'history'])->name('teacher.monetization.history');
-
-        // Monetization Download
-        Route::get('/teacher/monetization-application/download/{monetizationId}/{signatureChoice?}', [MonetizationDownloadController::class, 'downloadExcel'])->name('teacher.monetization.download');
     });
 
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
