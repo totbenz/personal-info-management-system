@@ -785,6 +785,8 @@
             newCtoBtn.addEventListener('click', function() {
                 ctoModal.classList.remove('hidden');
                 ctoModal.classList.add('flex');
+                // Calculate initial hours in case there are pre-filled values
+                setTimeout(calculateCTOHours, 100);
             });
         }
 
@@ -979,18 +981,22 @@
         // Event listeners for CTO calculation
         if (ctoMorningIn) {
             ctoMorningIn.addEventListener('change', calculateCTOHours);
+            ctoMorningIn.addEventListener('input', calculateCTOHours);
         }
 
         if (ctoMorningOut) {
             ctoMorningOut.addEventListener('change', calculateCTOHours);
+            ctoMorningOut.addEventListener('input', calculateCTOHours);
         }
 
         if (ctoAfternoonIn) {
             ctoAfternoonIn.addEventListener('change', calculateCTOHours);
+            ctoAfternoonIn.addEventListener('input', calculateCTOHours);
         }
 
         if (ctoAfternoonOut) {
             ctoAfternoonOut.addEventListener('change', calculateCTOHours);
+            ctoAfternoonOut.addEventListener('input', calculateCTOHours);
         }
 
         // Event listeners for CTO form validation

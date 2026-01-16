@@ -404,7 +404,8 @@ class LeaveMonetizationController extends Controller
             try {
                 $this->schoolHeadMonetizationService->processApprovedMonetization($schoolHeadMonetization);
 
-                $schoolHeadMonetization->admin_remarks = $request->admin_remarks;
+                // Note: school_head_monetizations table doesn't have admin_remarks column
+                // $schoolHeadMonetization->admin_remarks = $request->admin_remarks;
                 $schoolHeadMonetization->save();
 
                 Log::info('Admin approved school head monetization', [
@@ -478,7 +479,8 @@ class LeaveMonetizationController extends Controller
                     $request->rejection_reason
                 );
 
-                $schoolHeadMonetization->admin_remarks = $request->admin_remarks;
+                // Note: school_head_monetizations table doesn't have admin_remarks column
+                // $schoolHeadMonetization->admin_remarks = $request->admin_remarks;
                 $schoolHeadMonetization->save();
 
                 Log::info('Admin rejected school head monetization', [

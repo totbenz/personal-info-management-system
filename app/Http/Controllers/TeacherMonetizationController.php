@@ -29,41 +29,30 @@ class TeacherMonetizationController extends Controller
             return redirect()->back()->with('error', 'Personnel record not found.');
         }
 
-        // Get current year's leave records
+        // Get current year's leave records from database only
         $year = Carbon::now()->year;
         $existingLeaves = TeacherLeave::where('teacher_id', $personnel->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
 
-        // Get default leaves based on profile
-        $teacher = Personnel::find($personnel->id);
-        $soloParent = $teacher->is_solo_parent ?? false;
-        $userSex = $teacher->sex ?? null;
-        $defaultLeaves = TeacherLeave::defaultLeaves($soloParent, $userSex);
-
-        // Prepare leave data array
+        // Prepare leave data array using only database records
         $leaveData = [];
-        foreach ($defaultLeaves as $type => $defaultMax) {
-            $record = $existingLeaves->get($type);
-            $available = $record ? $record->available : $defaultMax;
-            $used = $record ? $record->used : 0;
-
-            $calculatedMax = max($defaultMax, $available + $used);
+        foreach ($existingLeaves as $type => $record) {
             $leaveData[] = [
                 'type' => $type,
-                'max' => $calculatedMax,
-                'available' => $available,
-                'used' => $used,
-                'ctos_earned' => 0,
-                'remarks' => $record ? $record->remarks : '',
+                'max' => $record->available + $record->used, // Total from database
+                'available' => $record->available,            // From database
+                'used' => $record->used,                      // From database
+                'ctos_earned' => $record->ctos_earned,        // From database
+                'remarks' => $record->remarks,                // From database
             ];
         }
 
         // Filter based on user profile
-        $userSex = $teacher->sex ?? null;
-        $isSoloParent = $teacher->is_solo_parent ?? false;
-        $civilStatus = $teacher->civil_status ?? null;
+        $userSex = $personnel->sex ?? null;
+        $isSoloParent = $personnel->is_solo_parent ?? false;
+        $civilStatus = $personnel->civil_status ?? null;
 
         $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex, $isSoloParent, $civilStatus) {
             if ($leave['type'] === 'Compensatory Time Off') return false;
@@ -75,10 +64,12 @@ class TeacherMonetizationController extends Controller
             return true;
         });
 
-        // Create leave balances array
+        // Create leave balances array with normalized keys
         $leaveBalances = [];
         foreach ($filteredLeaveData as $leave) {
-            $leaveBalances[$leave['type']] = $leave['available'];
+            // Normalize the leave type to title case for consistency
+            $normalizedType = ucwords(strtolower($leave['type']));
+            $leaveBalances[$normalizedType] = $leave['available'];
         }
 
         return view('teacher.monetization.create', compact('leaveBalances'));
@@ -205,38 +196,30 @@ class TeacherMonetizationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Get current leave balances
+        // Get current leave balances from database only
         $year = Carbon::now()->year;
         $existingLeaves = TeacherLeave::where('teacher_id', $personnel->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
 
-        $teacher = Personnel::find($personnel->id);
-        $soloParent = $teacher->is_solo_parent ?? false;
-        $userSex = $teacher->sex ?? null;
-        $defaultLeaves = TeacherLeave::defaultLeaves($soloParent, $userSex);
-
         $leaveData = [];
-        foreach ($defaultLeaves as $type => $defaultMax) {
-            $record = $existingLeaves->get($type);
-            $available = $record ? $record->available : $defaultMax;
-            $used = $record ? $record->used : 0;
-
+        // Only use what's in the database
+        foreach ($existingLeaves as $type => $record) {
             $leaveData[] = [
                 'type' => $type,
-                'max' => max($defaultMax, $available + $used),
-                'available' => $available,
-                'used' => $used,
-                'ctos_earned' => 0,
-                'remarks' => $record ? $record->remarks : '',
+                'max' => $record->available + $record->used, // Total from database
+                'available' => $record->available,            // From database
+                'used' => $record->used,                      // From database
+                'ctos_earned' => $record->ctos_earned,        // From database
+                'remarks' => $record->remarks,                // From database
             ];
         }
 
         // Filter based on user profile
-        $userSex = $teacher->sex ?? null;
-        $isSoloParent = $teacher->is_solo_parent ?? false;
-        $civilStatus = $teacher->civil_status ?? null;
+        $userSex = $personnel->sex ?? null;
+        $isSoloParent = $personnel->is_solo_parent ?? false;
+        $civilStatus = $personnel->civil_status ?? null;
 
         $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex, $isSoloParent, $civilStatus) {
             if ($leave['type'] === 'Compensatory Time Off') return false;
@@ -248,10 +231,12 @@ class TeacherMonetizationController extends Controller
             return true;
         });
 
-        // Create leave balances array
+        // Create leave balances array with normalized keys
         $leaveBalances = [];
         foreach ($filteredLeaveData as $leave) {
-            $leaveBalances[$leave['type']] = $leave['available'];
+            // Normalize the leave type to title case for consistency
+            $normalizedType = ucwords(strtolower($leave['type']));
+            $leaveBalances[$normalizedType] = $leave['available'];
         }
 
         return view('teacher.monetization.history', compact('monetizationRequests', 'leaveBalances'));

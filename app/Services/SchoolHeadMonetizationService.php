@@ -88,16 +88,26 @@ class SchoolHeadMonetizationService
      */
     private function deductFromSchoolHeadLeave($schoolHeadId, $leaveType, $days, $year)
     {
+        // Try to find the leave record with different case variations
         $leaveRecord = SchoolHeadLeave::where('school_head_id', $schoolHeadId)
-            ->where('leave_type', $leaveType)
             ->where('year', $year)
+            ->where(function($query) use ($leaveType) {
+                $query->where('leave_type', $leaveType)
+                      ->orWhere('leave_type', strtoupper($leaveType))
+                      ->orWhere('leave_type', strtolower($leaveType));
+            })
             ->first();
 
         if (!$leaveRecord) {
             Log::warning('School Head leave record not found', [
                 'school_head_id' => $schoolHeadId,
                 'leave_type' => $leaveType,
-                'year' => $year
+                'year' => $year,
+                'searched_types' => [
+                    $leaveType,
+                    strtoupper($leaveType),
+                    strtolower($leaveType)
+                ]
             ]);
             return false;
         }

@@ -16,23 +16,36 @@
                         <!-- Available Leave Balances -->
                         <div>
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Available Leave Balances</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                    <p class="text-sm font-medium text-blue-600">Vacation Leave</p>
-                                    <p class="text-3xl font-bold text-blue-900">{{ $leaveBalances['Vacation Leave'] ?? 0 }} days</p>
+
+                            @if(isset($message))
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                    <div class="flex">
+                                        <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="text-sm text-yellow-800">{{ $message }}</p>
+                                    </div>
                                 </div>
-                                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                                    <p class="text-sm font-medium text-green-600">Sick Leave</p>
-                                    <p class="text-3xl font-bold text-green-900">{{ $leaveBalances['Sick Leave'] ?? 0 }} days</p>
+                            @else
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                        <p class="text-sm font-medium text-blue-600">Vacation Leave</p>
+                                        <p class="text-3xl font-bold text-blue-900">{{ $leaveBalances['Vacation Leave'] ?? 0 }} days</p>
+                                    </div>
+                                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                        <p class="text-sm font-medium text-green-600">Sick Leave</p>
+                                        <p class="text-3xl font-bold text-green-900">{{ $leaveBalances['Sick Leave'] ?? 0 }} days</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
-                                <p class="text-sm text-gray-600">Maximum Monetizable</p>
-                                <p class="text-2xl font-bold text-orange-600" id="maxMonetizableDays">0 days</p>
-                                <p class="text-xs text-gray-500 mt-1">(5 days buffer per leave type is required)</p>
-                            </div>
+                                <div class="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                                    <p class="text-sm text-gray-600">Maximum Monetizable</p>
+                                    <p class="text-2xl font-bold text-orange-600" id="maxMonetizableDays">0 days</p>
+                                    <p class="text-xs text-gray-500 mt-1">(5 days buffer per leave type is required)</p>
+                                </div>
+                            @endif
                         </div>
 
+                        @unless(isset($message))
                         <!-- Days to Monetize -->
                         <div>
                             <label for="days_to_monetize" class="block text-sm font-medium text-gray-700 mb-2">
@@ -73,6 +86,7 @@
                                 Submit Request
                             </button>
                         </div>
+                        @endunless
                     </div>
                 </form>
             </div>
@@ -84,6 +98,8 @@
 <div id="notification" class="fixed top-4 right-4 hidden z-50"></div>
 
 <script>
+// Only run JavaScript if leave balances exist
+@if(!isset($message))
 // Leave balances from backend
 const leaveBalances = @json($leaveBalances);
 
@@ -156,5 +172,6 @@ function showNotification(message, type = 'success') {
         notification.classList.add('hidden');
     }, 5000);
 }
+@endif
 </script>
 </x-app-layout>

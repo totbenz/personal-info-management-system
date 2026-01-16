@@ -256,9 +256,14 @@ class LeaveMonetizationService
     private function deductFromTeacherLeave(int $teacherId, string $year, int $vlDays, int $slDays): void
     {
         if ($vlDays > 0) {
+            // Try to find the leave record with different case variations
             $leave = TeacherLeave::where('teacher_id', $teacherId)
                 ->where('year', $year)
-                ->where('leave_type', 'Vacation Leave')
+                ->where(function($query) {
+                    $query->where('leave_type', 'Vacation Leave')
+                          ->orWhere('leave_type', 'VACATION LEAVE')
+                          ->orWhere('leave_type', 'vacation leave');
+                })
                 ->first();
 
             if ($leave) {
@@ -290,7 +295,11 @@ class LeaveMonetizationService
             // For teachers, deduct from Service Credit instead of Sick Leave
             $serviceCredit = TeacherLeave::where('teacher_id', $teacherId)
                 ->where('year', $year)
-                ->where('leave_type', 'Service Credit')
+                ->where(function($query) {
+                    $query->where('leave_type', 'Service Credit')
+                          ->orWhere('leave_type', 'SERVICE CREDIT')
+                          ->orWhere('leave_type', 'service credit');
+                })
                 ->first();
 
             if ($serviceCredit) {
@@ -328,7 +337,11 @@ class LeaveMonetizationService
         if ($vlDays > 0) {
             $leave = NonTeachingLeave::where('non_teaching_id', $nonTeachingId)
                 ->where('year', $year)
-                ->where('leave_type', 'Vacation Leave')
+                ->where(function($query) {
+                    $query->where('leave_type', 'Vacation Leave')
+                          ->orWhere('leave_type', 'VACATION LEAVE')
+                          ->orWhere('leave_type', 'vacation leave');
+                })
                 ->first();
 
             if ($leave) {
@@ -359,7 +372,11 @@ class LeaveMonetizationService
         if ($slDays > 0) {
             $leave = NonTeachingLeave::where('non_teaching_id', $nonTeachingId)
                 ->where('year', $year)
-                ->where('leave_type', 'Sick Leave')
+                ->where(function($query) {
+                    $query->where('leave_type', 'Sick Leave')
+                          ->orWhere('leave_type', 'SICK LEAVE')
+                          ->orWhere('leave_type', 'sick leave');
+                })
                 ->first();
 
             if ($leave) {
@@ -403,7 +420,11 @@ class LeaveMonetizationService
         if ($vlDays > 0) {
             $leave = SchoolHeadLeave::where('school_head_id', $schoolHeadId)
                 ->where('year', $year)
-                ->where('leave_type', 'Vacation Leave')
+                ->where(function($query) {
+                    $query->where('leave_type', 'Vacation Leave')
+                          ->orWhere('leave_type', 'VACATION LEAVE')
+                          ->orWhere('leave_type', 'vacation leave');
+                })
                 ->first();
 
             Log::info('Found Vacation Leave record', [
@@ -442,7 +463,11 @@ class LeaveMonetizationService
         if ($slDays > 0) {
             $leave = SchoolHeadLeave::where('school_head_id', $schoolHeadId)
                 ->where('year', $year)
-                ->where('leave_type', 'Sick Leave')
+                ->where(function($query) {
+                    $query->where('leave_type', 'Sick Leave')
+                          ->orWhere('leave_type', 'SICK LEAVE')
+                          ->orWhere('leave_type', 'sick leave');
+                })
                 ->first();
 
             Log::info('Found Sick Leave record', [
