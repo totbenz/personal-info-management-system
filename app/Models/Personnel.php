@@ -64,6 +64,10 @@ class Personnel extends Model
 
     protected $casts = [
         'is_solo_parent' => 'boolean',
+        'date_of_birth' => 'date',
+        'employment_start' => 'date',
+        'employment_end' => 'date',
+        'salary_changed_at' => 'date',
     ];
 
     // Boot method to attach the saved event

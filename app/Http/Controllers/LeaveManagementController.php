@@ -44,7 +44,11 @@ class LeaveManagementController extends Controller
         $leaveData = [];
         foreach ($users as $user) {
             if ($user->personnel) {
-                $personnelLeaves = $this->getPersonnelLeaveData($user, $year);
+                // Update the database first
+                $this->updateLeaveDataInDatabase($user->personnel, $user->role, $year);
+
+                // Then get the updated data
+                $personnelLeaves = $this->getPersonnelLeaveDataFromDatabase($user, $year);
 
                 $leaveData[] = [
                     'personnel' => $user->personnel,
@@ -149,6 +153,538 @@ class LeaveManagementController extends Controller
     }
 
     /**
+     * Update leave data in database for a personnel
+     */
+    private function updateLeaveDataInDatabase($personnel, $role, $year)
+    {
+        // First, run monthly accrual for Sick Leave only (Vacation Leave removed for teachers)
+        if ($role === 'teacher' || $role === 'non_teaching') {
+            $accrualService = new \App\Services\MonthlyLeaveAccrualService();
+            if ($role === 'teacher') {
+                $accrualService->updateTeacherLeaveRecords($personnel->id, $year);
+            } else {
+                $accrualService->updateNonTeachingLeaveRecords($personnel->id, $year);
+            }
+        } elseif ($role === 'school_head') {
+            // For school heads, use monthly accrual for Vacation and Sick leave
+            $this->accrueLeaveForSchoolHead($personnel, $year);
+        }
+
+        // Then, update fixed allocation leaves
+        $this->updateFixedAllocationLeaves($personnel, $role, $year);
+    }
+
+    /**
+     * Accrue monthly leave for school heads
+     */
+    private function accrueLeaveForSchoolHead($personnel, $year)
+    {
+        $leaveTypes = ['Vacation Leave', 'Sick Leave'];
+
+        foreach ($leaveTypes as $leaveType) {
+            $leave = \App\Models\SchoolHeadLeave::firstOrCreate([
+                'school_head_id' => $personnel->id,
+                'leave_type' => $leaveType,
+                'year' => $year,
+            ], [
+                'available' => 0,
+                'used' => 0,
+                'ctos_earned' => 0,
+                'remarks' => 'Auto-initialized',
+            ]);
+
+            // Calculate monthly accrual (same as other roles)
+            $eligibleMonths = $this->getEligibleMonths($personnel, $year);
+            $accruedTotal = 1.25 * $eligibleMonths;
+
+            $currentTotal = (float) $leave->available + (float) $leave->used;
+            $tolerance = 0.01;
+
+            if ($leave->wasRecentlyCreated || ($currentTotal + $tolerance) < $accruedTotal) {
+                if ($leave->wasRecentlyCreated) {
+                    $leave->available = $accruedTotal;
+                    $leave->remarks = "Auto-accrued: {$eligibleMonths} month(s) × 1.25 = {$accruedTotal} (" . now()->format('M d, Y') . ")";
+                } else {
+                    $difference = $accruedTotal - $currentTotal;
+                    $leave->available += $difference;
+                    $leave->remarks = ($leave->remarks ?? '') . " | +{$difference} (monthly accrual " . now()->format('M d, Y') . ")";
+                }
+                $leave->save();
+            }
+        }
+    }
+
+    /**
+     * Get eligible months for accrual calculation
+     */
+    private function getEligibleMonths($personnel, $year)
+    {
+        if (!$personnel->employment_start) {
+            return 0;
+        }
+
+        $employmentStart = Carbon::parse($personnel->employment_start);
+        $currentDate = Carbon::now();
+
+        $startDate = Carbon::create($year, 1, 1);
+        if ($employmentStart->year === $year && $employmentStart->month > 1) {
+            $startDate = $employmentStart->copy()->startOfMonth();
+        }
+
+        $endDate = Carbon::create($year, 12, 31);
+        if ($currentDate->year === $year) {
+            $endDate = $currentDate->copy()->endOfMonth();
+        }
+
+        if ($startDate->gt($endDate)) {
+            return 0;
+        }
+
+        $months = $startDate->diffInMonths($endDate);
+
+        if ($currentDate->year === $year && $currentDate->day >= 1) {
+            $months = min($months + 1, 12);
+        }
+
+        return min($months, 12);
+    }
+
+    /**
+     * Update fixed allocation leaves (non-accruing)
+     */
+    private function updateFixedAllocationLeaves($personnel, $role, $year)
+    {
+        if ($role === 'school_head') {
+            $fixedLeaves = [
+                'MANDATORY FORCED LEAVE' => 5,
+                'SPECIAL PRIVILEGE LEAVE' => 3,
+                'MATERNITY LEAVE' => ($personnel->sex === 'female') ?
+                    (($personnel->is_solo_parent ?? false) ? 120 : 105) : 0,
+                'PATERNITY LEAVE' => ($personnel->sex === 'male') ? 7 : 0,
+                'SOLO PARENT LEAVE' => ($personnel->is_solo_parent ?? false) ? 7 : 0,
+                'STUDY LEAVE' => 180,
+                'VAWC LEAVE' => 10,
+                'REHABILITATION PRIVILEGE' => 180,
+                'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($personnel->sex === 'female') ? 60 : 0,
+                'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
+                'ADOPTION LEAVE' => $this->getAdoptionLeaveDays($personnel),
+            ];
+
+            foreach ($fixedLeaves as $leaveType => $maxDays) {
+                $leave = \App\Models\SchoolHeadLeave::firstOrCreate([
+                    'school_head_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                ], [
+                    'available' => 0,
+                    'used' => 0,
+                    'ctos_earned' => 0,
+                    'remarks' => 'Auto-initialized',
+                ]);
+
+                if ($leave->available == 0) {
+                    $leave->available = $maxDays;
+                    $leave->remarks = 'Updated with fixed allocation on ' . now()->format('M d, Y');
+                    $leave->save();
+                }
+            }
+        } elseif ($role === 'teacher') {
+            $fixedLeaves = [
+                'MATERNITY LEAVE' => ($personnel->sex === 'female') ?
+                    (($personnel->is_solo_parent ?? false) ? 120 : 105) : 0,
+                'PATERNITY LEAVE' => ($personnel->sex === 'male') ? 7 : 0,
+                'SOLO PARENT LEAVE' => ($personnel->is_solo_parent ?? false) ? 7 : 0,
+                'STUDY LEAVE' => 180,
+                'VAWC LEAVE' => 10,
+                'REHABILITATION PRIVILEGE' => 180,
+                'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($personnel->sex === 'female') ? 60 : 0,
+                'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
+                'ADOPTION LEAVE' => $this->getAdoptionLeaveDays($personnel),
+            ];
+
+            foreach ($fixedLeaves as $leaveType => $maxDays) {
+                $leave = \App\Models\TeacherLeave::firstOrCreate([
+                    'teacher_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                ], [
+                    'available' => 0,
+                    'used' => 0,
+                    'remarks' => 'Auto-initialized',
+                ]);
+
+                if ($leave->available == 0) {
+                    $leave->available = $maxDays;
+                    $leave->remarks = 'Updated with fixed allocation on ' . now()->format('M d, Y');
+                    $leave->save();
+                }
+            }
+        } elseif ($role === 'non_teaching') {
+            $fixedLeaves = [
+                'MANDATORY FORCED LEAVE' => 5,
+                'SPECIAL PRIVILEGE LEAVE' => 3,
+                'MATERNITY LEAVE' => ($personnel->sex === 'female') ?
+                    (($personnel->is_solo_parent ?? false) ? 120 : 105) : 0,
+                'PATERNITY LEAVE' => ($personnel->sex === 'male') ? 7 : 0,
+                'SOLO PARENT LEAVE' => ($personnel->is_solo_parent ?? false) ? 7 : 0,
+                'STUDY LEAVE' => 180,
+                'VAWC LEAVE' => 10,
+                'REHABILITATION PRIVILEGE' => 180,
+                'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($personnel->sex === 'female') ? 60 : 0,
+                'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
+                'ADOPTION LEAVE' => $this->getAdoptionLeaveDays($personnel),
+            ];
+
+            foreach ($fixedLeaves as $leaveType => $maxDays) {
+                $leave = \App\Models\NonTeachingLeave::firstOrCreate([
+                    'non_teaching_id' => $personnel->id,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                ], [
+                    'available' => 0,
+                    'used' => 0,
+                    'remarks' => 'Auto-initialized',
+                ]);
+
+                if ($leave->available == 0) {
+                    $leave->available = $maxDays;
+                    $leave->remarks = 'Updated with fixed allocation on ' . now()->format('M d, Y');
+                    $leave->save();
+                }
+            }
+        }
+    }
+
+    /**
+     * Get adoption leave days based on gender and civil status
+     */
+    private function getAdoptionLeaveDays($personnel)
+    {
+        if ($personnel->sex === 'female') {
+            return 60;
+        } elseif ($personnel->sex === 'male') {
+            return ($personnel->civil_status === 'single') ? 60 : 7;
+        }
+        return 0;
+    }
+
+    /**
+     * Get leave data directly from database (no calculations)
+     */
+    private function getPersonnelLeaveDataFromDatabase($user, $year)
+    {
+        $personnel = $user->personnel;
+        $personnelLeaves = [];
+
+        if ($user->role === 'school_head') {
+            $leaves = SchoolHeadLeave::where('school_head_id', $personnel->id)
+                ->where('year', $year)
+                ->get();
+
+            foreach ($leaves as $leave) {
+                $personnelLeaves[] = [
+                    'type' => $leave->leave_type,
+                    'max' => $leave->available, // Using available as max since it's the actual allocated value
+                    'available' => $leave->available,
+                    'used' => $leave->used,
+                    'record_id' => $leave->id,
+                ];
+            }
+        } elseif ($user->role === 'teacher') {
+            $leaves = TeacherLeave::where('teacher_id', $personnel->id)
+                ->where('year', $year)
+                ->get();
+
+            foreach ($leaves as $leave) {
+                $personnelLeaves[] = [
+                    'type' => $leave->leave_type,
+                    'max' => $leave->available, // Using available as max since it's the actual allocated value
+                    'available' => $leave->available,
+                    'used' => $leave->used,
+                    'record_id' => $leave->id,
+                ];
+            }
+        } elseif ($user->role === 'non_teaching') {
+            $leaves = NonTeachingLeave::where('non_teaching_id', $personnel->id)
+                ->where('year', $year)
+                ->get();
+
+            foreach ($leaves as $leave) {
+                $personnelLeaves[] = [
+                    'type' => $leave->leave_type,
+                    'max' => $leave->available, // Using available as max since it's the actual allocated value
+                    'available' => $leave->available,
+                    'used' => $leave->used,
+                    'record_id' => $leave->id,
+                ];
+            }
+        }
+
+        return $personnelLeaves;
+    }
+
+    /**
+     * Update personnel leave data in database based on calculations
+     */
+    public function updatePersonnelLeaveData(Request $request)
+    {
+        $request->validate([
+            'personnel_id' => 'required|exists:personnels,id',
+            'year' => 'required|integer|min:2020|max:2030',
+        ]);
+
+        try {
+            $personnel = Personnel::findOrFail($request->personnel_id);
+            $year = $request->year;
+
+            // Find the user associated with this personnel
+            $user = User::where('personnel_id', $personnel->id)->first();
+
+            if (!$user) {
+                return response()->json(['error' => 'No user account found for this personnel.'], 404);
+            }
+
+            // Skip admin role
+            if ($user->role === 'admin') {
+                return response()->json(['error' => 'Admin users do not have leave allocations.'], 400);
+            }
+
+            $updatedLeaves = [];
+
+            if ($user->role === 'school_head') {
+                $defaultLeaves = SchoolHeadLeave::defaultLeaves(
+                    $personnel->is_solo_parent ?? false,
+                    $personnel->sex ?? null
+                );
+
+                foreach ($defaultLeaves as $leaveType => $maxDays) {
+                    $leave = SchoolHeadLeave::firstOrCreate([
+                        'school_head_id' => $personnel->id,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                    ], [
+                        'available' => 0,
+                        'used' => 0,
+                        'ctos_earned' => 0,
+                        'remarks' => 'Auto-initialized',
+                    ]);
+
+                    // Only update if available is 0 to preserve manually adjusted values
+                    if ($leave->available == 0) {
+                        $leave->available = $maxDays;
+                        $leave->remarks = 'Updated with default allocation on ' . now()->format('M d, Y');
+                        $leave->save();
+                        $updatedLeaves[] = $leaveType;
+                    }
+                }
+            } elseif ($user->role === 'teacher') {
+                $yearsOfService = $personnel->employment_start ?
+                    Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
+
+                $defaultLeaves = TeacherLeave::defaultLeaves(
+                    $yearsOfService,
+                    $personnel->is_solo_parent ?? false,
+                    $personnel->sex ?? null
+                );
+
+                foreach ($defaultLeaves as $leaveType => $maxDays) {
+                    $leave = TeacherLeave::firstOrCreate([
+                        'teacher_id' => $personnel->id,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                    ], [
+                        'available' => 0,
+                        'used' => 0,
+                        'remarks' => 'Auto-initialized',
+                    ]);
+
+                    // Only update if available is 0 to preserve manually adjusted values
+                    if ($leave->available == 0) {
+                        $leave->available = $maxDays;
+                        $leave->remarks = 'Updated with default allocation on ' . now()->format('M d, Y');
+                        $leave->save();
+                        $updatedLeaves[] = $leaveType;
+                    }
+                }
+            } elseif ($user->role === 'non_teaching') {
+                $yearsOfService = $personnel->employment_start ?
+                    Carbon::parse($personnel->employment_start)->diffInYears(Carbon::now()) : 0;
+
+                $defaultLeaves = NonTeachingLeave::defaultLeaves(
+                    $yearsOfService,
+                    $personnel->is_solo_parent ?? false,
+                    $personnel->sex ?? null,
+                    $personnel->civil_status ?? null
+                );
+
+                foreach ($defaultLeaves as $leaveType => $maxDays) {
+                    $leave = NonTeachingLeave::firstOrCreate([
+                        'non_teaching_id' => $personnel->id,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                    ], [
+                        'available' => 0,
+                        'used' => 0,
+                        'remarks' => 'Auto-initialized',
+                    ]);
+
+                    // Only update if available is 0 to preserve manually adjusted values
+                    if ($leave->available == 0) {
+                        $leave->available = $maxDays;
+                        $leave->remarks = 'Updated with default allocation on ' . now()->format('M d, Y');
+                        $leave->save();
+                        $updatedLeaves[] = $leaveType;
+                    }
+                }
+            }
+
+            // Log the action
+            Log::info('Leave data updated in database', [
+                'admin_user_id' => Auth::id(),
+                'personnel_id' => $personnel->id,
+                'personnel_name' => $personnel->first_name . ' ' . $personnel->last_name,
+                'personnel_role' => $user->role,
+                'year' => $year,
+                'updated_leaves' => $updatedLeaves,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Leave data updated successfully',
+                'updated_leaves' => $updatedLeaves,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to update leave data', [
+                'error' => $e->getMessage(),
+                'personnel_id' => $request->personnel_id,
+                'year' => $request->year,
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to update leave data. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Process leave accrual for all personnel (triggered by admin)
+     */
+    public function processAllAccruals(Request $request)
+    {
+        $request->validate([
+            'year' => 'required|integer|min:2020|max:2030',
+        ]);
+
+        try {
+            $year = $request->year;
+            $processedCount = 0;
+            $accrualService = new \App\Services\MonthlyLeaveAccrualService();
+
+            // Get all active personnel (teacher, non_teaching, school_head)
+            $users = User::whereIn('role', ['teacher', 'non_teaching', 'school_head'])
+                ->whereHas('personnel', function ($query) {
+                    $query->whereNotNull('employment_start');
+                })
+                ->with('personnel')
+                ->get();
+
+            foreach ($users as $user) {
+                try {
+                    // Get employment start date
+                    $employmentStart = $user->personnel->employment_start;
+                    if ($employmentStart) {
+                        // Convert to Carbon if it's a string
+                        if (is_string($employmentStart)) {
+                            $employmentStart = \Carbon\Carbon::parse($employmentStart);
+                        }
+                    }
+
+                    // Force update by first resetting Vacation and Sick leave to 0
+                    if ($user->role === 'teacher') {
+                        // Reset Sick leave only (Vacation Leave is removed from accrual)
+                        \App\Models\TeacherLeave::where('teacher_id', $user->personnel->id)
+                            ->where('year', $year)
+                            ->whereIn('leave_type', ['Sick Leave'])
+                            ->update(['available' => 0, 'remarks' => 'Reset before accrual on ' . now()->format('M d, Y')]);
+
+                        // Process accrual
+                        $result = $accrualService->updateTeacherLeaveRecords($user->personnel->id, $year);
+                        // Always count as processed since we're forcing the update
+                        $processedCount++;
+                        Log::info("Processed accrual for teacher: {$user->personnel->first_name} {$user->personnel->last_name}");
+                    } elseif ($user->role === 'non_teaching') {
+                        // Reset Vacation and Sick leave
+                        \App\Models\NonTeachingLeave::where('non_teaching_id', $user->personnel->id)
+                            ->where('year', $year)
+                            ->whereIn('leave_type', ['Vacation Leave', 'Sick Leave'])
+                            ->update(['available' => 0, 'remarks' => 'Reset before accrual on ' . now()->format('M d, Y')]);
+
+                        // Process accrual
+                        $result = $accrualService->updateNonTeachingLeaveRecords($user->personnel->id, $year);
+                        // Always count as processed since we're forcing the update
+                        $processedCount++;
+                        Log::info("Processed accrual for non-teaching: {$user->personnel->first_name} {$user->personnel->last_name}");
+                    } elseif ($user->role === 'school_head') {
+                        // Reset Vacation and Sick leave
+                        \App\Models\SchoolHeadLeave::where('school_head_id', $user->personnel->id)
+                            ->where('year', $year)
+                            ->whereIn('leave_type', ['Vacation Leave', 'Sick Leave'])
+                            ->update(['available' => 0, 'ctos_earned' => 0, 'remarks' => 'Reset before accrual on ' . now()->format('M d, Y')]);
+
+                        // For school heads, handle separately
+                        $this->accrueLeaveForSchoolHead($user->personnel, $year);
+                        $processedCount++;
+                        Log::info("Processed accrual for school head: {$user->personnel->first_name} {$user->personnel->last_name}");
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Failed to process accrual for {$user->personnel->first_name} {$user->personnel->last_name}: {$e->getMessage()}");
+                }
+            }
+
+            // Also update fixed allocation leaves for all
+            foreach ($users as $user) {
+                // Skip if employment_start is invalid
+                $employmentStart = $user->personnel->employment_start;
+                if ($employmentStart) {
+                    // Convert to Carbon if it's a string
+                    if (is_string($employmentStart)) {
+                        $employmentStart = \Carbon\Carbon::parse($employmentStart);
+                    }
+
+                    // Comment out the year check to allow old dates
+                    // if ($employmentStart->year < 1900) {
+                    //     continue;
+                    // }
+                }
+                $this->updateFixedAllocationLeaves($user->personnel, $user->role, $year);
+            }
+
+            Log::info('Batch leave accrual processed', [
+                'admin_user_id' => Auth::id(),
+                'year' => $year,
+                'processed_count' => $processedCount,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Leave accrual processed successfully for {$processedCount} personnel.",
+                'processed_count' => $processedCount,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to process batch leave accrual', [
+                'error' => $e->getMessage(),
+                'admin_user_id' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to process leave accrual. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
      * Calculate leave statistics for dashboard
      */
     private function calculateLeaveStats($year)
@@ -171,7 +707,7 @@ class LeaveManagementController extends Controller
             if (!$user->personnel) continue;
 
             $stats['total_personnel']++;
-            $leaves = $this->getPersonnelLeaveData($user, $year);
+            $leaves = $this->getPersonnelLeaveDataFromDatabase($user, $year);
 
             foreach ($leaves as $leave) {
                 if ($leave['type'] === 'Vacation Leave') {

@@ -160,7 +160,7 @@
 
                                 <div class="flex items-center space-x-2">
                                     <label for="year" class="text-sm font-medium text-gray-700">Year:</label>
-                                    <select name="year" id="year" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
+                                    <select name="year" id="year-select" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
                                         @for($y = 2020; $y <= 2030; $y++)
                                             <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                                         @endfor
@@ -177,6 +177,14 @@
                                     </a>
                                 @endif
                             </form>
+
+                            <!-- Process Accruals Button -->
+                            <button id="process-accruals-btn" class="px-3 py-1 bg-orange-600 text-white text-sm rounded-md hover:bg-orange-700 flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span>Process Accruals</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -601,6 +609,57 @@
                     if (deductModal && !deductModal.classList.contains('hidden')) {
                         closeDeductModal();
                     }
+                }
+            });
+
+            // Process Accruals Button
+            document.getElementById('process-accruals-btn').addEventListener('click', function() {
+                if (confirm('Process leave accruals for all personnel? This will update Vacation and Sick leave based on months worked and set fixed allocations for other leave types.')) {
+                    const year = document.getElementById('year-select').value;
+
+                    // Show loading state
+                    this.disabled = true;
+                    this.innerHTML = `
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Processing...</span>
+                    `;
+
+                    fetch('/admin/leave-management/process-accruals', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            year: parseInt(year)
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while processing accruals.');
+                    })
+                    .finally(() => {
+                        // Reset button state
+                        this.disabled = false;
+                        this.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span>Process Accruals</span>
+                        `;
+                    });
                 }
             });
         });

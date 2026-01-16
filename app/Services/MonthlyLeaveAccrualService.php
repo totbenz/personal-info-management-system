@@ -47,14 +47,15 @@ class MonthlyLeaveAccrualService
 
         $employmentStart = Carbon::parse($personnel->employment_start);
 
-        if ($employmentStart->year > $year) {
-            return [];
-        }
+        // Remove this check to allow processing even if employment_start > year
+        // if ($employmentStart->year > $year) {
+        //     return [];
+        // }
 
         $eligibleMonths = $this->getEligibleMonths($employmentStart, $year);
         $accruedTotal = 1.25 * $eligibleMonths;
 
-        $leaveTypes = ['Vacation Leave', 'Sick Leave'];
+        $leaveTypes = ['Sick Leave']; // Only Sick Leave accrues monthly, Vacation Leave is removed
         $updated = [];
 
         foreach ($leaveTypes as $leaveType) {

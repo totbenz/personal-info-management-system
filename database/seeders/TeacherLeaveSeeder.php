@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\NonTeachingLeave;
+use App\Models\TeacherLeave;
 use App\Models\Personnel;
 use Carbon\Carbon;
 
-class NonTeachingLeaveSeeder extends Seeder
+class TeacherLeaveSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,29 +18,27 @@ class NonTeachingLeaveSeeder extends Seeder
         $personnelIds = [1, 2, 3, 4];
         $year = Carbon::now()->year;
 
-        // Define leave types for non-teaching staff
+        // Define leave types for teachers
         $leaveTypes = [
-            'VACATION LEAVE',
             'SICK LEAVE',
-            'MANDATORY FORCED LEAVE',
             'MATERNITY LEAVE',
             'PATERNITY LEAVE',
-            'SPECIAL PRIVILEGE LEAVE',
             'SOLO PARENT LEAVE',
             'STUDY LEAVE',
             'VAWC LEAVE',
             'REHABILITATION PRIVILEGE',
             'SPECIAL LEAVE BENEFITS FOR WOMEN',
             'SPECIAL EMERGENCY (CALAMITY LEAVE)',
-            'ADOPTION LEAVE'
+            'ADOPTION LEAVE',
+            'SERVICE CREDIT'
         ];
 
-        // Only create for personnel_id 4 (non_teaching role)
-        $personnel = Personnel::find(4);
+        // Only create for personnel_id 3 (teacher role)
+        $personnel = Personnel::find(3);
         if ($personnel) {
             foreach ($leaveTypes as $leaveType) {
-                NonTeachingLeave::firstOrCreate([
-                    'non_teaching_id' => $personnel->id,
+                TeacherLeave::firstOrCreate([
+                    'teacher_id' => $personnel->id,
                     'leave_type' => $leaveType,
                     'year' => $year,
                 ], [

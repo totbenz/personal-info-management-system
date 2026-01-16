@@ -35,13 +35,14 @@ class TeacherLeave extends Model
         $baseLeaveCredits = max(15, $yearsOfService * 15); // 15 days per year of service, minimum 15
 
         $leaves = [
-            'Vacation Leave' => $baseLeaveCredits,
+            // 'Vacation Leave' => $baseLeaveCredits,
             'Sick Leave' => $baseLeaveCredits,
             'Personal Leave' => $baseLeaveCredits,
             'Force Leave' => 5,
             'Rehabilitation Leave' => 180,
             'Solo Parent Leave' => $soloParent ? 7 : 0,
             'Study Leave' => 180,
+            'Service Credit' => 0, // To be updated based on actual service credits
         ];
 
         // Only add Maternity Leave for female teachers

@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
             ServiceRecordSeeder::class,
             EventSeeder::class,
             NonTeachingLeaveSeeder::class,
+            TeacherLeaveSeeder::class,
+            SchoolHeadLeaveSeeder::class,
         ]);
     }
 }

@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Personnel;
 use App\Models\User;
+use App\Models\TeacherLeave;
+use App\Models\SchoolHeadLeave;
+use App\Models\NonTeachingLeave;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -29,12 +33,15 @@ class UserController extends Controller
 
             $personnel = Personnel::where('personnel_id', $request->personnel_id)->firstOrFail();
 
-            User::create([
+            $user = User::create([
                 'personnel_id' => $personnel->id,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
             ]);
+
+            // Create initial leave data based on role
+            $this->createInitialLeaveData($personnel->id, $request->role);
 
             $message = 'User Data Added Successfully';
             $bannerStyle = 'success';
@@ -144,6 +151,95 @@ class UserController extends Controller
         $userModel->save();
 
         return back()->with('success', 'Password updated successfully.');
+    }
+
+    /**
+     * Create initial leave data for a new user based on their role
+     */
+    private function createInitialLeaveData($personnelId, $role)
+    {
+        $year = Carbon::now()->year;
+
+        if ($role === 'teacher') {
+            $leaveTypes = [
+                'SICK LEAVE',
+                'MATERNITY LEAVE',
+                'PATERNITY LEAVE',
+                'SOLO PARENT LEAVE',
+                'STUDY LEAVE',
+                'VAWC LEAVE',
+                'REHABILITATION PRIVILEGE',
+                'SPECIAL LEAVE BENEFITS FOR WOMEN',
+                'SPECIAL EMERGENCY (CALAMITY LEAVE)',
+                'ADOPTION LEAVE'
+            ];
+
+            foreach ($leaveTypes as $leaveType) {
+                TeacherLeave::create([
+                    'teacher_id' => $personnelId,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                    'available' => 0,
+                    'used' => 0,
+                    'remarks' => 'Auto-generated on account creation',
+                ]);
+            }
+        } elseif ($role === 'school_head') {
+            $leaveTypes = [
+                'VACATION LEAVE',
+                'SICK LEAVE',
+                'MANDATORY FORCED LEAVE',
+                'MATERNITY LEAVE',
+                'PATERNITY LEAVE',
+                'SPECIAL PRIVILEGE LEAVE',
+                'SOLO PARENT LEAVE',
+                'STUDY LEAVE',
+                'VAWC LEAVE',
+                'REHABILITATION PRIVILEGE',
+                'SPECIAL LEAVE BENEFITS FOR WOMEN',
+                'SPECIAL EMERGENCY (CALAMITY LEAVE)',
+                'ADOPTION LEAVE'
+            ];
+
+            foreach ($leaveTypes as $leaveType) {
+                SchoolHeadLeave::create([
+                    'school_head_id' => $personnelId,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                    'available' => 0,
+                    'used' => 0,
+                    'ctos_earned' => 0,
+                    'remarks' => 'Auto-generated on account creation',
+                ]);
+            }
+        } elseif ($role === 'non_teaching') {
+            $leaveTypes = [
+                'VACATION LEAVE',
+                'SICK LEAVE',
+                'MANDATORY FORCED LEAVE',
+                'MATERNITY LEAVE',
+                'PATERNITY LEAVE',
+                'SPECIAL PRIVILEGE LEAVE',
+                'SOLO PARENT LEAVE',
+                'STUDY LEAVE',
+                'VAWC LEAVE',
+                'REHABILITATION PRIVILEGE',
+                'SPECIAL LEAVE BENEFITS FOR WOMEN',
+                'SPECIAL EMERGENCY (CALAMITY LEAVE)',
+                'ADOPTION LEAVE'
+            ];
+
+            foreach ($leaveTypes as $leaveType) {
+                NonTeachingLeave::create([
+                    'non_teaching_id' => $personnelId,
+                    'leave_type' => $leaveType,
+                    'year' => $year,
+                    'available' => 0,
+                    'used' => 0,
+                    'remarks' => 'Auto-generated on account creation',
+                ]);
+            }
+        }
     }
 }
 
