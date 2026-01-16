@@ -165,34 +165,28 @@ class HomeController extends Controller
         $userSex = $schoolHead->sex ?? null;
         $defaultLeaves = \App\Models\SchoolHeadLeave::defaultLeaves($soloParent, $userSex);
 
-        // Automatically update leave records with calculated accruals
-        $accrualService->updateLeaveRecords($schoolHead->id, $year);
+        // Remove automatic accrual - let admin control it via Process Accruals button
+        // $accrualService->updateLeaveRecords($schoolHead->id, $year);
 
         // Update CTO balance using the new service
         $ctoService->updateSchoolHeadLeaveBalance($schoolHead->id);
 
-        // Get existing leave records for this year (now they should all exist and be updated)
+        // Get existing leave records for this year from database only
         $leaves = \App\Models\SchoolHeadLeave::where('school_head_id', $schoolHead->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
 
         $leaveData = [];
-        foreach ($defaultLeaves as $type => $defaultMax) {
-            $leave = $leaves->get($type);
-            $available = $leave ? $leave->available : $defaultMax;
-            $used = $leave ? $leave->used : 0;
-
-            // Calculate dynamic max: if available exceeds default, use available + used as the new max
-            $calculatedMax = max($defaultMax, $available + $used);
-
+        // Only use what's in the database, no defaults
+        foreach ($leaves as $type => $leave) {
             $leaveData[] = [
                 'type' => $type,
-                'max' => $calculatedMax,
-                'available' => $available,
-                'used' => $used,
-                'ctos_earned' => $leave ? $leave->ctos_earned : 0,
-                'remarks' => $leave ? $leave->remarks : '',
+                'max' => $leave->available + $leave->used, // Total from database
+                'available' => $leave->available,            // From database
+                'used' => $leave->used,                      // From database
+                'ctos_earned' => $leave->ctos_earned,        // From database
+                'remarks' => $leave->remarks,                // From database
             ];
         }
 
@@ -487,7 +481,8 @@ class HomeController extends Controller
         $userSex = $personnel->sex ?? null;
         $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex);
 
-        app(MonthlyLeaveAccrualService::class)->updateTeacherLeaveRecords($personnel->id, $year);
+        // Remove automatic accrual - let admin control it via Process Accruals button
+        // app(MonthlyLeaveAccrualService::class)->updateTeacherLeaveRecords($personnel->id, $year);
 
         // Get existing leave records for this year
         $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
@@ -704,27 +699,25 @@ class HomeController extends Controller
 
         // $personnel->initializeLeaveBalancesToZeroForRole('non_teaching', $year);
 
-        app(MonthlyLeaveAccrualService::class)->updateNonTeachingLeaveRecords($personnel->id, $year);
+        // Remove automatic accrual - let admin control it via Process Accruals button
+        // app(MonthlyLeaveAccrualService::class)->updateNonTeachingLeaveRecords($personnel->id, $year);
 
-        // Fetch any existing NonTeachingLeave records if model/table exists (legacy compatibility)
+        // Fetch all leave records from database (no defaults, no calculations)
         $existingLeaves = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
 
         $leaveData = [];
-        foreach ($defaultLeaves as $type => $defaultMax) {
-            $record = $existingLeaves->get($type);
-            $available = $record ? $record->available : $defaultMax;
-            $used = $record ? $record->used : 0;
-            $calculatedMax = max($defaultMax, $available + $used);
+        // Only use what's in the database, no defaults
+        foreach ($existingLeaves as $type => $record) {
             $leaveData[] = [
                 'type' => $type,
-                'max' => $calculatedMax,
-                'available' => $available,
-                'used' => $used,
+                'max' => $record->available + $record->used, // Total from database
+                'available' => $record->available,
+                'used' => $record->used,
                 'ctos_earned' => 0,
-                'remarks' => $record ? $record->remarks : '',
+                'remarks' => $record->remarks,
             ];
         }
 

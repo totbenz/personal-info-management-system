@@ -289,94 +289,57 @@
                 ->get()
                 ->keyBy('leave_type');
 
-            // Override: display only the mandated leave set with custom rules
-            $userSex = Auth::user()->personnel->sex ?? null;
-            $isSoloParent = Auth::user()->personnel->is_solo_parent ?? false;
-
+            // Initialize display leaves array
             $displayLeaves = [];
 
-            // Get Service Credit balance (if exists)
-            $serviceCreditRecord = $teacherLeaves->get('Service Credit') ?? $teacherLeaves->get('Service Credit Leave');
-            $serviceCreditBalance = $serviceCreditRecord?->available ?? 0;
-
-            // Get Sick Leave balance (if exists)
-            $sickLeaveRecord = $teacherLeaves->get('Sick Leave');
-            $sickLeaveBalance = $sickLeaveRecord?->available ?? 0;
-
-            // Service Credit (taken from Service Credit)
-            $displayLeaves[] = [
-            'type' => 'Service Credit',
-            'available' => $serviceCreditBalance,
-            'max' => null,
-            'used' => $serviceCreditRecord?->used ?? 0,
-            'source' => 'Service Credit',
-            'description' => 'Taken from Service Credit balance.'
-            ];
-
-            // Sick Leave (has its own balance)
-            $displayLeaves[] = [
-            'type' => 'Sick Leave',
-            'available' => $sickLeaveBalance,
-            'max' => null,
-            'used' => $sickLeaveRecord?->used ?? 0,
-            'source' => 'Sick Leave',
-            'description' => 'Taken from Sick Leave balance.'
-            ];
-
-            // Helper function to get leave descriptions
-            $getLeaveDescription = function($leaveType, $defaultDays, $isSoloParent) {
-                switch($leaveType) {
-                    case 'Vacation Leave':
-                        return "$defaultDays days vacation leave per year.";
-                    case 'Personal Leave':
-                        return "$defaultDays days personal leave per year.";
-                    case 'Force Leave':
-                        return "5 days force leave as required.";
-                    case 'Maternity Leave':
-                        return $isSoloParent ? "$defaultDays days (includes additional 15 days for Solo Parent)." : "$defaultDays days standard allocation.";
-                    case 'Rehabilitation Leave':
-                        return "Up to $defaultDays days for injury/accident in line of duty.";
-                    case 'Solo Parent Leave':
-                        return "$defaultDays days annual leave for solo parents.";
-                    case 'Study Leave':
-                        return "Up to $defaultDays days for study purposes (per policy).";
-                    default:
-                        return "$defaultDays days leave allocation.";
-                }
-            };
-
-            // Get other leaves from database or use defaults
-            $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves(0, $isSoloParent, $userSex);
-
-            foreach ($defaultLeaves as $leaveType => $defaultDays) {
-                // Skip if already added (Service Credit only)
-                if ($leaveType === 'Service Credit') {
-                    continue;
-                }
-
-                // Skip Maternity Leave for male teachers
-                if ($leaveType === 'Maternity Leave' && $userSex !== 'female') {
-                    continue;
-                }
-
-                // Skip Solo Parent Leave if not solo parent
-                if ($leaveType === 'Solo Parent Leave' && !$isSoloParent) {
-                    continue;
-                }
-
-                // Get actual leave record or create default
-                $leaveRecord = $teacherLeaves->get($leaveType);
-                $available = $leaveRecord?->available ?? $defaultDays;
-                $used = $leaveRecord?->used ?? 0;
-
+            // Get Service Credit balance from database
+            $serviceCreditRecord = $teacherLeaves->get('SERVICE CREDIT') ?? $teacherLeaves->get('Service Credit') ?? $teacherLeaves->get('Service Credit Leave');
+            if ($serviceCreditRecord) {
                 $displayLeaves[] = [
-                'type' => $leaveType,
-                'available' => $available,
-                'max' => $defaultDays,
-                'used' => $used,
-                'description' => $getLeaveDescription($leaveType, $defaultDays, $isSoloParent)
+                    'type' => 'Service Credit',
+                    'available' => $serviceCreditRecord->available,
+                    'max' => $serviceCreditRecord->available + $serviceCreditRecord->used,
+                    'used' => $serviceCreditRecord->used,
+                    'source' => 'Database',
+                    'description' => 'Service Credit leave balance from database.'
                 ];
             }
+
+            // Get Sick Leave balance from database
+            $sickLeaveRecord = $teacherLeaves->get('SICK LEAVE') ?? $teacherLeaves->get('Sick Leave');
+            if ($sickLeaveRecord) {
+                $displayLeaves[] = [
+                    'type' => 'Sick Leave',
+                    'available' => $sickLeaveRecord->available,
+                    'max' => $sickLeaveRecord->available + $sickLeaveRecord->used,
+                    'used' => $sickLeaveRecord->used,
+                    'source' => 'Database',
+                    'description' => 'Sick Leave balance from database.'
+                ];
+            }
+
+            // Get all other leaves from database (no defaults, no calculations)
+            foreach ($teacherLeaves as $leaveType => $leaveRecord) {
+                // Skip if already added
+                if ($leaveType === 'SERVICE CREDIT' || $leaveType === 'Service Credit' ||
+                    $leaveType === 'Service Credit Leave' || $leaveType === 'SICK LEAVE' || $leaveType === 'Sick Leave') {
+                    continue;
+                }
+
+                // Add leave record from database
+                $displayLeaves[] = [
+                    'type' => $leaveType,
+                    'available' => $leaveRecord->available,
+                    'max' => $leaveRecord->available + $leaveRecord->used,
+                    'used' => $leaveRecord->used,
+                    'source' => 'Database',
+                    'description' => "{$leaveType} balance from database."
+                ];
+            }
+
+            // Set variables for display in header
+            $serviceCreditBalance = $serviceCreditRecord?->available ?? 0;
+            $sickLeaveBalance = $sickLeaveRecord?->available ?? 0;
 
             // Prepare balances for JS
             $leaveBalances = [];

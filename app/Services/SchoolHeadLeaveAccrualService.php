@@ -235,7 +235,7 @@ class SchoolHeadLeaveAccrualService
                 if ($needsUpdate) {
                     $previousAvailable = $leaveRecord->available;
                     // Add only the difference to available
-                    $difference = $accruedData['total_accrued'] - $adjustedTotal;
+                    $difference = $accruedTotal - $adjustedTotal;
                     $leaveRecord->available += $difference;
 
                     Log::info("Added additional accrual to existing record", [
@@ -245,7 +245,7 @@ class SchoolHeadLeaveAccrualService
                         'previous_available' => $previousAvailable,
                         'new_available' => $leaveRecord->available,
                         'difference_added' => $difference,
-                        'accrual_total' => $accrualData['total_accrued']
+                        'accrual_total' => $accruedTotal
                     ]);
 
                     $leaveRecord->save();
@@ -256,7 +256,7 @@ class SchoolHeadLeaveAccrualService
                         'year' => $year,
                         'current_total' => $currentTotal,
                         'adjusted_total' => $adjustedTotal,
-                        'accrued_total' => $accrualData['total_accrued']
+                        'accrued_total' => $accruedTotal
                     ]);
                 }
             }
