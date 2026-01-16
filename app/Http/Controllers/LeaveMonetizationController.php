@@ -58,16 +58,10 @@ class LeaveMonetizationController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        // Prepare leave data for the modal (same as dashboard)
+        // Get current year's leave records from database only
         $year = now()->year;
-        $userSex = $personnel->sex ?? null;
-        $civilStatus = $personnel->civil_status ?? null;
-        $isSoloParent = $personnel->is_solo_parent ?? false;
-        $yearsOfService = $personnel->employment_start ? \Carbon\Carbon::parse($personnel->employment_start)->diffInYears(now()) : 0;
 
-        // Get default leaves based on user type
         if ($user->role == 'teacher') {
-            $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $isSoloParent, $userSex, $civilStatus);
             $existingLeaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
                 ->where('year', $year)
                 ->get()
@@ -80,7 +74,6 @@ class LeaveMonetizationController extends Controller
                 ->first();
             $serviceCreditBalance = $serviceCredit ? $serviceCredit->available : 0;
         } else {
-            $defaultLeaves = \App\Models\NonTeachingLeave::defaultLeaves($yearsOfService, $isSoloParent, $userSex, $civilStatus);
             $existingLeaves = \App\Models\NonTeachingLeave::where('non_teaching_id', $personnel->id)
                 ->where('year', $year)
                 ->get()
@@ -88,31 +81,42 @@ class LeaveMonetizationController extends Controller
             $serviceCreditBalance = 0;
         }
 
-        $leaveData = [];
-        foreach ($defaultLeaves as $type => $defaultMax) {
-            $record = $existingLeaves->get($type);
+        // If no leave records exist, show empty
+        if ($existingLeaves->isEmpty()) {
+            $leaveBalances = [];
+            return view('monetization.history', compact('monetizationRequests', 'leaveBalances'));
+        }
 
+        // Prepare leave data array using only database records
+        $leaveData = [];
+        foreach ($existingLeaves as $type => $record) {
             // For teachers, use Service Credit balance for Sick Leave
-            if ($user->role == 'teacher' && $type == 'Sick Leave') {
+            if ($user->role == 'teacher' && $type == 'Service Credit') {
+                // Skip Service Credit in regular leave list
+                continue;
+            } else if ($user->role == 'teacher' && $type == 'Sick Leave') {
                 $available = $serviceCreditBalance;
                 $used = 0; // Service Credit usage is tracked separately
             } else {
-                $available = $record ? $record->available : $defaultMax;
-                $used = $record ? $record->used : 0;
+                $available = $record->available;
+                $used = $record->used;
             }
 
-            $calculatedMax = max($defaultMax, $available + $used);
             $leaveData[] = [
                 'type' => $type,
-                'max' => $calculatedMax,
-                'available' => $available,
-                'used' => $used,
-                'ctos_earned' => 0,
-                'remarks' => $record ? $record->remarks : '',
+                'max' => $record->available + $record->used, // Total from database
+                'available' => $available,                    // From database
+                'used' => $used,                              // From database
+                'ctos_earned' => $record->ctos_earned ?? 0,   // From database
+                'remarks' => $record->remarks ?? '',           // From database
             ];
         }
 
         // Filter leave data based on user profile
+        $userSex = $personnel->sex ?? null;
+        $civilStatus = $personnel->civil_status ?? null;
+        $isSoloParent = $personnel->is_solo_parent ?? false;
+
         $filteredLeaveData = array_filter($leaveData, function($leave) use ($userSex, $isSoloParent, $civilStatus) {
             if ($leave['type'] === 'Compensatory Time Off') return false;
             if (!$isSoloParent && $leave['type'] === 'Solo Parent Leave') return false;
@@ -121,10 +125,12 @@ class LeaveMonetizationController extends Controller
             return true;
         });
 
-        // Create leave balances array
+        // Create leave balances array with normalized keys
         $leaveBalances = [];
         foreach ($filteredLeaveData as $leave) {
-            $leaveBalances[$leave['type']] = $leave['available'];
+            // Normalize the leave type to title case for consistency
+            $normalizedType = ucwords(strtolower($leave['type']));
+            $leaveBalances[$normalizedType] = $leave['available'];
         }
 
         return view('monetization.history', compact('monetizationRequests', 'leaveBalances'));
@@ -388,7 +394,39 @@ class LeaveMonetizationController extends Controller
      */
     public function approve(Request $request, $id)
     {
-        // Check if this is a school head monetization
+        // First check if this is a regular teacher/non-teaching monetization
+        $monetization = LeaveMonetization::find($id);
+
+        if ($monetization) {
+            // Handle regular teacher/non-teaching monetization
+            if ($monetization->status !== 'pending') {
+                return redirect()->back()->with('error', 'This request has already been processed.');
+            }
+
+            $request->validate([
+                'admin_remarks' => 'nullable|string|max:500',
+            ]);
+
+            try {
+                $this->monetizationService->processApprovedMonetization($monetization);
+
+                $monetization->update([
+                    'admin_remarks' => $request->admin_remarks,
+                ]);
+
+                return redirect()->back()->with('success', 'Monetization request approved successfully!');
+
+            } catch (\Exception $e) {
+                Log::error('Error approving monetization', [
+                    'monetization_id' => $monetization->id,
+                    'error' => $e->getMessage()
+                ]);
+
+                return redirect()->back()->with('error', 'An error occurred while approving the request.');
+            }
+        }
+
+        // Then check if this is a school head monetization
         $schoolHeadMonetization = SchoolHeadMonetization::find($id);
 
         if ($schoolHeadMonetization) {
@@ -420,38 +458,13 @@ class LeaveMonetizationController extends Controller
                     'monetization_id' => $schoolHeadMonetization->id,
                     'error' => $e->getMessage()
                 ]);
+
                 return redirect()->back()->with('error', 'An error occurred while approving the request.');
             }
         }
 
-        // Handle regular teacher/non-teaching monetization
-        $monetization = LeaveMonetization::findOrFail($id);
-
-        if ($monetization->status !== 'pending') {
-            return redirect()->back()->with('error', 'This request has already been processed.');
-        }
-
-        $request->validate([
-            'admin_remarks' => 'nullable|string|max:500',
-        ]);
-
-        try {
-            $this->monetizationService->processApprovedMonetization($monetization);
-
-            $monetization->update([
-                'admin_remarks' => $request->admin_remarks,
-            ]);
-
-            return redirect()->back()->with('success', 'Monetization request approved successfully!');
-
-        } catch (\Exception $e) {
-            Log::error('Error approving monetization', [
-                'monetization_id' => $monetization->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return redirect()->back()->with('error', 'An error occurred while approving the request.');
-        }
+        // If neither found
+        return redirect()->back()->with('error', 'Monetization request not found.');
     }
 
     /**
@@ -459,7 +472,41 @@ class LeaveMonetizationController extends Controller
      */
     public function reject(Request $request, $id)
     {
-        // Check if this is a school head monetization
+        // First check if this is a regular teacher/non-teaching monetization
+        $monetization = LeaveMonetization::find($id);
+
+        if ($monetization) {
+            // Handle regular teacher/non-teaching monetization
+            if ($monetization->status !== 'pending') {
+                return redirect()->back()->with('error', 'This request has already been processed.');
+            }
+
+            $request->validate([
+                'rejection_reason' => 'required|string|max:500',
+                'admin_remarks' => 'nullable|string|max:500',
+            ]);
+
+            try {
+                $this->monetizationService->processRejectedMonetization(
+                    $monetization,
+                    $request->rejection_reason
+                );
+
+                $monetization->update([
+                    'admin_remarks' => $request->admin_remarks,
+                ]);
+
+                return redirect()->back()->with('success', 'Monetization request rejected.');
+            } catch (\Exception $e) {
+                Log::error('Error rejecting monetization', [
+                    'monetization_id' => $monetization->id,
+                    'error' => $e->getMessage()
+                ]);
+                return redirect()->back()->with('error', 'An error occurred while rejecting the request.');
+            }
+        }
+
+        // Then check if this is a school head monetization
         $schoolHeadMonetization = SchoolHeadMonetization::find($id);
 
         if ($schoolHeadMonetization) {
@@ -500,29 +547,7 @@ class LeaveMonetizationController extends Controller
             }
         }
 
-        // Handle regular teacher/non-teaching monetization
-        $monetization = LeaveMonetization::findOrFail($id);
-
-        if ($monetization->status !== 'pending') {
-            return redirect()->back()->with('error', 'This request has already been processed.');
-        }
-
-        $request->validate([
-            'rejection_reason' => 'required|string|max:500',
-            'admin_remarks' => 'nullable|string|max:500',
-        ]);
-
-        try {
-            $this->monetizationService->processRejectedMonetization($monetization, $request->rejection_reason, $request->admin_remarks);
-
-            return redirect()->back()->with('success', 'Monetization request rejected.');
-        } catch (\Exception $e) {
-            Log::error('Error rejecting monetization', [
-                'monetization_id' => $monetization->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return redirect()->back()->with('error', 'An error occurred while rejecting the request.');
-        }
+        // If neither found
+        return redirect()->back()->with('error', 'Monetization request not found.');
     }
 }
