@@ -191,9 +191,9 @@ class LeaveRequestController extends Controller
         }
 
         try {
-            // Calculate day_debt for SICK LEAVE and SERVICE CREDIT requests
+            // Calculate day_debt for SICK LEAVE, SERVICE CREDIT, and Others requests
             $dayDebt = 0;
-            if ($user->role === 'teacher' && in_array($request->leave_type, ['SICK LEAVE', 'SERVICE CREDIT'])) {
+            if ($user->role === 'teacher' && in_array($request->leave_type, ['SICK LEAVE', 'SERVICE CREDIT', 'custom'])) {
                 $personnel = $user->personnel;
                 if ($personnel) {
                     $currentYear = now()->year;
@@ -208,8 +208,15 @@ class LeaveRequestController extends Controller
                         $requestedDays = $startDate->diffInDays($endDate) + 1;
                         $newBalance = $serviceCredit->available - $requestedDays;
 
-                        // Calculate day_debt if balance will go negative
-                        if ($newBalance < 0) {
+                        // For Terminal Leave (custom), block if exceeding Service Credit
+                        if ($request->leave_type === 'custom' && $requestedDays > $serviceCredit->available) {
+                            return redirect()->back()
+                                ->withErrors(['leave_dates' => 'Terminal Leave cannot exceed available Service Credit balance. Available: ' . $serviceCredit->available . ' days, Requested: ' . $requestedDays . ' days.'])
+                                ->withInput();
+                        }
+
+                        // Calculate day_debt if balance will go negative (only for SICK LEAVE and SERVICE CREDIT)
+                        if (in_array($request->leave_type, ['SICK LEAVE','SERVICE CREDIT']) && $newBalance < 0) {
                             $dayDebt = abs($newBalance);
                             Log::info('Day debt calculated during submission', [
                                 'teacher_id' => $personnel->id,
@@ -364,7 +371,7 @@ class LeaveRequestController extends Controller
             ->first();
 
         // If Personal or Sick leave, deduct from Service Credit pool instead of its own record
-        if (in_array($leaveType, ['Personal Leave','SICK LEAVE','SERVICE CREDIT'])) {
+        if (in_array($leaveType, ['Personal Leave','SICK LEAVE','SERVICE CREDIT','custom'])) {
             $serviceCredit = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
                 ->where('leave_type', 'SERVICE CREDIT') // Updated to capitalized
                 ->where('year', $currentYear)
@@ -374,8 +381,8 @@ class LeaveRequestController extends Controller
                 $newBalance = $serviceCredit->available - $leaveDays;
                 $dayDebt = 0;
 
-                // Handle day_debt logic for SICK LEAVE and SERVICE CREDIT
-                if (($leaveType === 'SICK LEAVE' || $leaveType === 'SERVICE CREDIT') && $newBalance < 0) {
+                // Handle day_debt logic for SICK LEAVE and SERVICE CREDIT only (not Terminal Leave)
+                if (in_array($leaveType, ['SICK LEAVE','SERVICE CREDIT']) && $newBalance < 0) {
                     $dayDebt = abs($newBalance); // Store the negative amount as positive debt
                     $serviceCredit->available = 0; // Set to 0, not negative
                 } else {

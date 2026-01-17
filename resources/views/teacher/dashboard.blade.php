@@ -533,7 +533,7 @@
                                             @endif
                                         @endif
                                     @endforeach
-                                    <option value="custom">Custom Leave</option>
+                                    <option value="custom" data-available="{{ $serviceCreditBalance ?? 0 }}">Others</option>
                                 </select>
                             </div>
                             @error('leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
@@ -542,12 +542,18 @@
                             </div>
                         </div>
 
-                        <!-- Custom Leave Name Field (hidden by default) -->
+                        <!-- Others Leave Name Field (hidden by default) -->
                         <div id="customLeaveNameDiv" class="hidden">
-                            <label for="custom_leave_name" class="block text-sm font-medium text-gray-700">Custom Leave Type Name</label>
-                            <input type="text" name="custom_leave_name" id="custom_leave_name" maxlength="50"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                   placeholder="Enter custom leave type name">
+                            <label for="custom_leave_name" class="block text-sm font-medium text-gray-700">Others Leave Type Name</label>
+                            <div class="mt-1 flex space-x-2">
+                                <input type="text" name="custom_leave_name" id="custom_leave_name" maxlength="50"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm flex-1"
+                                       placeholder="Enter others leave type name">
+                                <button type="button" onclick="setTerminalLeave()"
+                                        class="px-3 py-2 bg-blue-500 text-white text-xs font-medium rounded-md hover:bg-blue-600 transition-colors duration-200 whitespace-nowrap">
+                                    Terminal Leave
+                                </button>
+                            </div>
                             @error('custom_leave_name')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                         </div>
                             <div>
@@ -700,7 +706,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-800">
                                         @if($leave->leave_type === 'custom')
                                             <span class="text-purple-600">{{ $leave->custom_leave_name }}</span>
-                                            <div class="text-xs text-gray-500 font-normal">(Custom Leave)</div>
+                                            <div class="text-xs text-gray-500 font-normal">(Others)</div>
                                         @else
                                             {{ $leave->leave_type ?? $leave->type ?? '-' }}
                                         @endif
@@ -1588,10 +1594,10 @@
 
             if (value === 'custom') {
                 customLeaveDiv.classList.remove('hidden');
-                // Make reason field required for custom leave
+                // Make reason field required for others leave
                 reasonField.required = true;
-                reasonField.placeholder = 'Please specify the reason for this custom leave...';
-                // Enable submit for custom leave
+                reasonField.placeholder = 'Please specify the reason for this others leave...';
+                // Enable submit for others leave
                 submitBtn.disabled = false;
             } else {
                 customLeaveDiv.classList.add('hidden');
@@ -1599,7 +1605,7 @@
                 reasonField.required = true;
                 reasonField.placeholder = 'Enter reason for leave...';
 
-                // Check available days and validate dates
+                // Check available days and validate dates (including Others)
                 validateLeaveDates();
             }
         }
@@ -1630,14 +1636,6 @@
             const leaveType = leaveTypeSelect.value;
 
             console.log('Leave type:', leaveType, 'Available days:', availableDays); // Debug line
-
-            // Skip validation for custom leave
-            if (leaveType === 'custom') {
-                dateWarning.classList.add('hidden');
-                daysInfo.classList.add('hidden');
-                submitBtn.disabled = false;
-                return;
-            }
 
             // Check if dates are selected
             if (!startDateInput.value || !endDateInput.value) {
@@ -1680,6 +1678,12 @@
                         dateWarning.classList.add('text-red-500'); // Red error
                         submitBtn.disabled = true;
                     }
+                } else if (leaveType === 'custom') {
+                    // Block Others (Terminal Leave) if exceeding Service Credit balance
+                    dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available Service Credit balance (${availableDays} days). Terminal Leave cannot exceed available Service Credit days.`;
+                    dateWarning.classList.remove('hidden', 'text-orange-600');
+                    dateWarning.classList.add('text-red-500'); // Red error
+                    submitBtn.disabled = true; // Block submission
                 } else {
                     // Block other leave types
                     dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
@@ -1708,6 +1712,16 @@
                 endDateInput.addEventListener('input', validateLeaveDates);
             }
         });
+
+        // Function to set Terminal Leave in the custom leave name field
+        function setTerminalLeave() {
+            const customLeaveNameField = document.getElementById('custom_leave_name');
+            if (customLeaveNameField) {
+                customLeaveNameField.value = 'Terminal Leave';
+                // Trigger any input events if needed
+                customLeaveNameField.dispatchEvent(new Event('input'));
+            }
+        }
     </script>
 
 </x-app-layout>
