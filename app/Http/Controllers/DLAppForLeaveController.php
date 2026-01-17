@@ -77,17 +77,21 @@ class DLAppForLeaveController extends Controller
 
             // Add check marks based on leave type
             $leaveType = strtolower($leaveRequest->leave_type);
+            $customLeaveName = strtolower($leaveRequest->custom_leave_name ?? '');
 
-            // Check if this is a custom leave
-            if ($leaveType === 'custom') {
-                // Check for custom leave name in request data (if available)
-                $customLeaveName = $leaveRequest->custom_leave_name ?? 'Custom Leave';
+            // Handle Terminal Leave (custom leave with "Terminal Leave" name)
+            if ($leaveType === 'custom' && $customLeaveName === 'terminal leave') {
+                // Add check mark in J33 for Terminal Leave
+                $sheet->setCellValue('J33', '✓');
 
-                // Add check mark in C33 for custom leave
+                // Also add custom leave name in F33
+                $sheet->setCellValue('F33', $leaveRequest->custom_leave_name);
+            } elseif ($leaveType === 'custom') {
+                // Add check mark in C33 for other custom leaves
                 $sheet->setCellValue('C33', '✓');
 
                 // Add custom leave name in F33
-                $sheet->setCellValue('F33', $customLeaveName);
+                $sheet->setCellValue('F33', $leaveRequest->custom_leave_name);
             } else {
                 switch ($leaveType) {
                     case 'force leave':
