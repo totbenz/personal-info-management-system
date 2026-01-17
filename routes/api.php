@@ -97,3 +97,7 @@ Route::get('/personnel-list', function () {
     });
 })->name('api.personnel_list.index');
 
+Route::get('/salary-grades', function () {
+    return \App\Models\SalaryGrade::orderBy('grade')->get(['id', 'grade']);
+})->name('api.salary_grades.index');
+

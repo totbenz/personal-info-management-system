@@ -447,6 +447,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
             Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');
+            Route::post('/school-head/personnel/store', 'schoolHeadPersonnelStore')->name('school_head.personnel.store');
             Route::get('personnel/{personnel}/combined-export', [CombinedExportController::class, 'exportCombinedPDS'])->name('pds.combined-export');
             Route::get('personnel/{personnel}/education-sheet/export', [EducationSheetController::class, 'export'])->name('pds.education-sheet.export');
             Route::get('/personnel/profile', [PersonnelController::class, 'profile'])->name('personnels.profile');
