@@ -1302,65 +1302,68 @@
                     });
                 }
 
-                // Service Credit Modal logic & auto-calculation
-                (function() {
-                    const scBtn = document.getElementById('serviceCreditRequestBtn');
-                    const scModal = document.getElementById('serviceCreditRequestModal');
-                    const scClose = document.getElementById('closeServiceCreditRequestModal');
-                    const form = document.getElementById('serviceCreditForm');
-                    const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
-                    const hoursSpan = document.getElementById('scHours');
-                    const daysSpan = document.getElementById('scDays');
+                // Service Credit Modal logic & auto-calculation will be initialized in DOMContentLoaded
 
-                    function parseTime(val) {
-                        if (!val) return null;
-                        const [h, m] = val.split(':').map(Number);
-                        return h * 60 + m;
-                    }
+                // Initialize Service Credit Modal
+                const scBtn = document.getElementById('serviceCreditRequestBtn');
+                const scModal = document.getElementById('serviceCreditRequestModal');
+                const scClose = document.getElementById('closeServiceCreditRequestModal');
+                const form = document.getElementById('serviceCreditForm');
+                const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
+                const hoursSpan = document.getElementById('scHours');
+                const daysSpan = document.getElementById('scDays');
 
-                    function diffHours(start, end) {
-                        if (start === null || end === null) return 0;
-                        const d = (end - start) / 60;
-                        return d > 0 ? d : 0;
-                    }
+                function parseTime(val) {
+                    if (!val) return null;
+                    const [h, m] = val.split(':').map(Number);
+                    return h * 60 + m;
+                }
 
-                    function recompute() {
-                        if (!form) return;
-                        const mi = parseTime(form.morning_in.value);
-                        const mo = parseTime(form.morning_out.value);
-                        const ai = parseTime(form.afternoon_in.value);
-                        const ao = parseTime(form.afternoon_out.value);
-                        let total = diffHours(mi, mo) + diffHours(ai, ao);
-                        // Cap at 16 for safety
-                        if (total > 16) total = 16;
-                        hoursSpan.textContent = total.toFixed(2);
-                        daysSpan.textContent = (total / 8).toFixed(2);
-                    }
-                    timeInputs.forEach(inp => inp.addEventListener('change', recompute));
-                    if (scBtn) {
-                        scBtn.addEventListener('click', () => {
-                            scModal.classList.remove('hidden');
-                            scModal.classList.add('flex');
-                            recompute();
-                        });
-                    }
-                    if (scClose) {
-                        scClose.addEventListener('click', () => {
+                function diffHours(start, end) {
+                    if (start === null || end === null) return 0;
+                    const d = (end - start) / 60;
+                    return d > 0 ? d : 0;
+                }
+
+                function recompute() {
+                    if (!form) return;
+                    const mi = parseTime(form.morning_in?.value || '');
+                    const mo = parseTime(form.morning_out?.value || '');
+                    const ai = parseTime(form.afternoon_in?.value || '');
+                    const ao = parseTime(form.afternoon_out?.value || '');
+                    let total = diffHours(mi, mo) + diffHours(ai, ao);
+                    // Cap at 16 for safety
+                    if (total > 16) total = 16;
+                    hoursSpan.textContent = total.toFixed(2);
+                    daysSpan.textContent = (total / 8).toFixed(2);
+                }
+
+                timeInputs.forEach(inp => inp.addEventListener('change', recompute));
+                timeInputs.forEach(inp => inp.addEventListener('input', recompute));
+
+                if (scBtn) {
+                    scBtn.addEventListener('click', () => {
+                        scModal.classList.remove('hidden');
+                        scModal.classList.add('flex');
+                        recompute();
+                    });
+                }
+                if (scClose) {
+                    scClose.addEventListener('click', () => {
+                        scModal.classList.add('hidden');
+                        scModal.classList.remove('flex');
+                    });
+                }
+
+                // Close modal when clicking outside
+                if (scModal) {
+                    scModal.addEventListener('click', function(e) {
+                        if (e.target === scModal) {
                             scModal.classList.add('hidden');
                             scModal.classList.remove('flex');
-                        });
-                    }
-
-                    // Close modal when clicking outside
-                    if (scModal) {
-                        scModal.addEventListener('click', function(e) {
-                            if (e.target === scModal) {
-                                scModal.classList.add('hidden');
-                                scModal.classList.remove('flex');
-                            }
-                        });
-                    }
-                })();
+                        }
+                    });
+                }
             });
         </script>
 
@@ -1431,7 +1434,90 @@
                     if (modal) {
                         modal.classList.remove('hidden');
                         modal.classList.add('flex');
+                        // Trigger recompute for service credit calculation
+                        const form = document.getElementById('serviceCreditForm');
+                        if (form) {
+                            const hoursSpan = document.getElementById('scHours');
+                            const daysSpan = document.getElementById('scDays');
+                            if (hoursSpan && daysSpan) {
+                                // Parse time values
+                                const mi = form.morning_in?.value;
+                                const mo = form.morning_out?.value;
+                                const ai = form.afternoon_in?.value;
+                                const ao = form.afternoon_out?.value;
+
+                                function parseTime(val) {
+                                    if (!val) return null;
+                                    const [h, m] = val.split(':').map(Number);
+                                    return h * 60 + m;
+                                }
+
+                                function diffHours(start, end) {
+                                    if (start === null || end === null) return 0;
+                                    const d = (end - start) / 60;
+                                    return d > 0 ? d : 0;
+                                }
+
+                                // Calculate total
+                                const morningIn = parseTime(mi);
+                                const morningOut = parseTime(mo);
+                                const afternoonIn = parseTime(ai);
+                                const afternoonOut = parseTime(ao);
+                                let total = diffHours(morningIn, morningOut) + diffHours(afternoonIn, afternoonOut);
+
+                                // Cap at 16 for safety
+                                if (total > 16) total = 16;
+
+                                hoursSpan.textContent = total.toFixed(2);
+                                daysSpan.textContent = (total / 8).toFixed(2);
+                            }
+                        }
                     }
+                });
+            }
+
+            // Add real-time calculation listeners for service credit form
+            const scForm = document.getElementById('serviceCreditForm');
+            if (scForm) {
+                const scTimeInputs = scForm.querySelectorAll('input[type="time"]');
+                const scHoursSpan = document.getElementById('scHours');
+                const scDaysSpan = document.getElementById('scDays');
+
+                function recomputeServiceCredit() {
+                    const mi = scForm.morning_in?.value;
+                    const mo = scForm.morning_out?.value;
+                    const ai = scForm.afternoon_in?.value;
+                    const ao = scForm.afternoon_out?.value;
+
+                    function parseTime(val) {
+                        if (!val) return null;
+                        const [h, m] = val.split(':').map(Number);
+                        return h * 60 + m;
+                    }
+
+                    function diffHours(start, end) {
+                        if (start === null || end === null) return 0;
+                        const d = (end - start) / 60;
+                        return d > 0 ? d : 0;
+                    }
+
+                    const morningIn = parseTime(mi);
+                    const morningOut = parseTime(mo);
+                    const afternoonIn = parseTime(ai);
+                    const afternoonOut = parseTime(ao);
+                    let total = diffHours(morningIn, morningOut) + diffHours(afternoonIn, afternoonOut);
+
+                    if (total > 16) total = 16;
+
+                    if (scHoursSpan && scDaysSpan) {
+                        scHoursSpan.textContent = total.toFixed(2);
+                        scDaysSpan.textContent = (total / 8).toFixed(2);
+                    }
+                }
+
+                scTimeInputs.forEach(inp => {
+                    inp.addEventListener('input', recomputeServiceCredit);
+                    inp.addEventListener('change', recomputeServiceCredit);
                 });
             }
 
