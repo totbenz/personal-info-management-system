@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             NonTeachingLeaveSeeder::class,
             TeacherLeaveSeeder::class,
             SchoolHeadLeaveSeeder::class,
+            PersonnelWithRelatedDataSeeder::class,
         ]);
     }
 }

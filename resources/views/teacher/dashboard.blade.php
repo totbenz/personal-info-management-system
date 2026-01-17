@@ -270,15 +270,15 @@
             @php
             // Define colors for different leave types
             $colors = [
-            'Service Credit' => 'blue',
-            'Sick Leave' => 'emerald',
-            'Vacation Leave' => 'green',
-            'Personal Leave' => 'yellow',
-            'Force Leave' => 'orange',
-            'Maternity Leave' => 'pink',
-            'Rehabilitation Leave' => 'red',
-            'Solo Parent Leave' => 'amber',
-            'Study Leave' => 'indigo',
+            'SERVICE CREDIT' => 'blue',
+            'SICK LEAVE' => 'emerald',
+            'VACATION LEAVE' => 'green',
+            'PERSONAL LEAVE' => 'yellow',
+            'FORCE LEAVE' => 'orange',
+            'MATERNITY LEAVE' => 'pink',
+            'REHABILITATION LEAVE' => 'red',
+            'SOLO PARENT LEAVE' => 'amber',
+            'STUDY LEAVE' => 'indigo',
             ];
 
             // Get teacher's leave records from database for current year
@@ -292,24 +292,25 @@
             // Initialize display leaves array
             $displayLeaves = [];
 
-            // Get Service Credit balance from database
+            // Get Service Credit balance from database (but don't add to displayLeaves for dropdown)
             $serviceCreditRecord = $teacherLeaves->get('SERVICE CREDIT') ?? $teacherLeaves->get('Service Credit') ?? $teacherLeaves->get('Service Credit Leave');
-            if ($serviceCreditRecord) {
-                $displayLeaves[] = [
-                    'type' => 'Service Credit',
-                    'available' => $serviceCreditRecord->available,
-                    'max' => $serviceCreditRecord->available + $serviceCreditRecord->used,
-                    'used' => $serviceCreditRecord->used,
-                    'source' => 'Database',
-                    'description' => 'Service Credit leave balance from database.'
-                ];
-            }
+            // Service Credit is excluded from dropdown - handled by dedicated button
+            // if ($serviceCreditRecord) {
+            //     $displayLeaves[] = [
+            //         'type' => 'SERVICE CREDIT',
+            //         'available' => $serviceCreditRecord->available,
+            //         'max' => $serviceCreditRecord->available + $serviceCreditRecord->used,
+            //         'used' => $serviceCreditRecord->used,
+            //         'source' => 'Database',
+            //         'description' => 'Service Credit leave balance from database.'
+            //     ];
+            // }
 
             // Get Sick Leave balance from database
             $sickLeaveRecord = $teacherLeaves->get('SICK LEAVE') ?? $teacherLeaves->get('Sick Leave');
             if ($sickLeaveRecord) {
                 $displayLeaves[] = [
-                    'type' => 'Sick Leave',
+                    'type' => 'SICK LEAVE',
                     'available' => $sickLeaveRecord->available,
                     'max' => $sickLeaveRecord->available + $sickLeaveRecord->used,
                     'used' => $sickLeaveRecord->used,
@@ -524,10 +525,12 @@
                                     <select name="leave_type" id="leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="handleLeaveTypeChange(this.value)">
                                     <option value="">Select type</option>
                                     @foreach($displayLeaves as $leave)
-                                        @if($leave['available'] > 0)
-                                            <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">{{ $leave['type'] }} ({{ $leave['available'] }} days available)</option>
-                                        @else
-                                            <option value="{{ $leave['type'] }}" disabled class="text-gray-400" data-available="0">{{ $leave['type'] }} (No days available)</option>
+                                        @if($leave['type'] !== 'SERVICE CREDIT')
+                                            @if($leave['available'] > 0)
+                                                <option value="{{ $leave['type'] }}" data-available="{{ $leave['available'] }}">{{ $leave['type'] }} ({{ $leave['available'] }} days available)</option>
+                                            @else
+                                                <option value="{{ $leave['type'] }}" disabled class="text-gray-400" data-available="0">{{ $leave['type'] }} (No days available)</option>
+                                            @endif
                                         @endif
                                     @endforeach
                                     <option value="custom">Custom Leave</option>
@@ -1602,6 +1605,8 @@
 
         // Function to validate leave dates against available balance
         function validateLeaveDates() {
+            console.log('validateLeaveDates called'); // Debug line
+
             const leaveTypeSelect = document.getElementById('leave_type');
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
@@ -1613,6 +1618,8 @@
             const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
             const availableDays = parseInt(selectedOption.dataset.available) || 0;
             const leaveType = leaveTypeSelect.value;
+
+            console.log('Leave type:', leaveType, 'Available days:', availableDays); // Debug line
 
             // Skip validation for custom leave
             if (leaveType === 'custom') {
@@ -1630,6 +1637,14 @@
                 return;
             }
 
+            // Check if leave type is selected
+            if (!leaveType || leaveType === '') {
+                dateWarning.classList.add('hidden');
+                daysInfo.classList.remove('hidden'); // Show days info even without leave type
+                submitBtn.disabled = true; // Disable submit until leave type is selected
+                return;
+            }
+
             // Calculate requested days
             const requestedDays = calculateDays(startDateInput.value, endDateInput.value);
 
@@ -1639,10 +1654,31 @@
 
             // Validate against available days
             if (requestedDays > availableDays) {
-                dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
-                dateWarning.classList.remove('hidden');
-                submitBtn.disabled = true;
+                if (leaveType === 'SICK LEAVE' || leaveType === 'SERVICE CREDIT') {
+                    // Allow SICK LEAVE and SERVICE CREDIT but show warning about Service Credit
+                    const serviceCreditDays = availableDays; // Both use Service Credit balance
+                    const willZeroServiceCredit = requestedDays >= serviceCreditDays;
+
+                    if (willZeroServiceCredit) {
+                        dateWarning.textContent = `Warning: This leave request will turn your Service Credit balance to 0. Requested: ${requestedDays} days, Available: ${serviceCreditDays} days.`;
+                        dateWarning.classList.remove('hidden', 'text-red-500');
+                        dateWarning.classList.add('text-orange-600'); // Orange warning instead of red
+                        submitBtn.disabled = false; // Allow submission
+                    } else {
+                        dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
+                        dateWarning.classList.remove('hidden', 'text-orange-600');
+                        dateWarning.classList.add('text-red-500'); // Red error
+                        submitBtn.disabled = true;
+                    }
+                } else {
+                    // Block other leave types
+                    dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
+                    dateWarning.classList.remove('hidden', 'text-orange-600');
+                    dateWarning.classList.add('text-red-500');
+                    submitBtn.disabled = true;
+                }
             } else {
+                dateWarning.classList.remove('hidden', 'text-orange-600', 'text-red-500');
                 dateWarning.classList.add('hidden');
                 submitBtn.disabled = false;
             }
@@ -1655,9 +1691,11 @@
 
             if (startDateInput) {
                 startDateInput.addEventListener('change', validateLeaveDates);
+                startDateInput.addEventListener('input', validateLeaveDates);
             }
             if (endDateInput) {
                 endDateInput.addEventListener('change', validateLeaveDates);
+                endDateInput.addEventListener('input', validateLeaveDates);
             }
         });
     </script>

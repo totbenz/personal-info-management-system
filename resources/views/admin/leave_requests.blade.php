@@ -76,6 +76,9 @@
                                     Duration
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Day Debt
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Reason
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -136,6 +139,15 @@
                                     <div class="text-xs text-gray-500">
                                         {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s)
                                     </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($request->day_debt && $request->day_debt > 0)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            {{ $request->day_debt }} days
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-gray-400">None</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm text-gray-900 max-w-xs" title="{{ $request->reason }}">

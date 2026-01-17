@@ -55,7 +55,7 @@ class MonthlyLeaveAccrualService
         $eligibleMonths = $this->getEligibleMonths($employmentStart, $year);
         $accruedTotal = 1.25 * $eligibleMonths;
 
-        $leaveTypes = ['Sick Leave']; // Only Sick Leave accrues monthly, Vacation Leave is removed
+        $leaveTypes = $role === 'teacher' ? [] : ['Sick Leave']; // Sick Leave removed for teachers only
         $updated = [];
 
         foreach ($leaveTypes as $leaveType) {

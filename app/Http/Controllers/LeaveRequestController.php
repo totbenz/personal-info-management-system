@@ -232,7 +232,7 @@ class LeaveRequestController extends Controller
     // Admin views pending requests
     public function index()
     {
-        $requests = LeaveRequest::where('status', 'pending')->with('user')->get();
+        $requests = LeaveRequest::with('user')->orderBy('created_at', 'desc')->get();
         return view('admin.leave_requests', compact('requests'));
     }
 
@@ -270,15 +270,17 @@ class LeaveRequestController extends Controller
     {
         $user = $leave->user;
         if (!$user) {
+            Log::error("User not found for leave request ID: {$leave->id}");
             return;
         }
 
         $personnel = $user->personnel;
         if (!$personnel) {
+            Log::error("Personnel not found for user ID: {$user->id}");
             return;
         }
 
-        // Calculate the number of days for this leave request
+        // Calculate leave days
         $startDate = Carbon::parse($leave->start_date);
         $endDate = Carbon::parse($leave->end_date);
         $leaveDays = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end dates
@@ -293,7 +295,7 @@ class LeaveRequestController extends Controller
                 $this->updateSchoolHeadLeaveBalance($leave);
                 break;
             case 'teacher':
-                $this->updateTeacherLeaveBalance($personnel, $leave->leave_type, $leaveDays);
+                $this->updateTeacherLeaveBalance($personnel, $leave->leave_type, $leaveDays, $leave);
                 break;
             case 'non_teaching':
                 $this->updateNonTeachingLeaveBalance($personnel, $leave->leave_type, $leaveDays);
@@ -304,7 +306,7 @@ class LeaveRequestController extends Controller
     /**
      * Update teacher leave balance when leave is approved
      */
-    private function updateTeacherLeaveBalance($personnel, $leaveType, $leaveDays)
+    private function updateTeacherLeaveBalance($personnel, $leaveType, $leaveDays, LeaveRequest $leave)
     {
         // Skip balance update for custom leaves
         if ($leaveType === 'custom') {
@@ -329,23 +331,54 @@ class LeaveRequestController extends Controller
             ->first();
 
         // If Personal or Sick leave, deduct from Service Credit pool instead of its own record
-        if (in_array($leaveType, ['Personal Leave','Sick Leave'])) {
+        if (in_array($leaveType, ['Personal Leave','SICK LEAVE','SERVICE CREDIT'])) {
             $serviceCredit = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
-                ->where('leave_type', 'Service Credit')
+                ->where('leave_type', 'SERVICE CREDIT') // Updated to capitalized
                 ->where('year', $currentYear)
                 ->first();
             if ($serviceCredit) {
                 $previousAvailable = $serviceCredit->available;
+                $newBalance = $serviceCredit->available - $leaveDays;
+                $dayDebt = 0;
+
+                // Handle day_debt logic for SICK LEAVE and SERVICE CREDIT
+                if (($leaveType === 'SICK LEAVE' || $leaveType === 'SERVICE CREDIT') && $newBalance < 0) {
+                    $dayDebt = abs($newBalance); // Store the negative amount as positive debt
+                    $serviceCredit->available = 0; // Set to 0, not negative
+                } else {
+                    $serviceCredit->available = max(0, $newBalance); // Normal deduction
+                }
+
                 $serviceCredit->used += $leaveDays; // track consumption
-                $serviceCredit->available = max(0, $serviceCredit->available - $leaveDays);
                 $serviceCredit->remarks = trim(($serviceCredit->remarks ? $serviceCredit->remarks.'; ' : '')."{$leaveType} used {$leaveDays} day(s) on ".now()->format('Y-m-d'));
                 $serviceCredit->save();
+
+                // Update day_debt in leave request
+                if ($dayDebt > 0) {
+                    $leave->day_debt = $dayDebt;
+                    $leave->save();
+                }
+
+                // Auto-sync SICK LEAVE to match SERVICE CREDIT
+                if ($leaveType === 'SICK LEAVE') {
+                    $sickLeave = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+                        ->where('leave_type', 'SICK LEAVE')
+                        ->where('year', $currentYear)
+                        ->first();
+                    if ($sickLeave) {
+                        $sickLeave->available = $serviceCredit->available;
+                        $sickLeave->remarks = trim(($sickLeave->remarks ? $sickLeave->remarks.'; ' : '')."Auto-synced with Service Credit on ".now()->format('Y-m-d'));
+                        $sickLeave->save();
+                    }
+                }
+
                 \Log::info('Service Credit deducted for leave', [
                     'teacher_id' => $personnel->id,
                     'leave_type' => $leaveType,
                     'days_deducted' => $leaveDays,
                     'previous_available' => $previousAvailable,
-                    'new_available' => $serviceCredit->available
+                    'new_available' => $serviceCredit->available,
+                    'day_debt' => $dayDebt
                 ]);
             }
             return; // do not proceed with per-leave-type logic

@@ -479,7 +479,16 @@ class HomeController extends Controller
         $year = now()->year;
         $soloParent = $personnel->is_solo_parent ?? false;
         $userSex = $personnel->sex ?? null;
-        $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex);
+
+        // Get current Service Credit availability for this teacher
+        $serviceCreditRecord = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+            ->where('year', $year)
+            ->where('leave_type', 'SERVICE CREDIT')
+            ->first();
+        $serviceCreditAvailability = $serviceCreditRecord ? $serviceCreditRecord->available : 0;
+
+        // Call defaultLeaves with Service Credit availability to ensure SICK LEAVE = SERVICE CREDIT
+        $defaultLeaves = \App\Models\TeacherLeave::defaultLeaves($yearsOfService, $soloParent, $userSex, $serviceCreditAvailability);
 
         // Remove automatic accrual - let admin control it via Process Accruals button
         // app(MonthlyLeaveAccrualService::class)->updateTeacherLeaveRecords($personnel->id, $year);
@@ -489,6 +498,30 @@ class HomeController extends Controller
             ->where('year', $year)
             ->get()
             ->keyBy('leave_type');
+
+        // Ensure SICK LEAVE always matches SERVICE CREDIT availability
+        $serviceCreditLeave = $leaves->get('SERVICE CREDIT');
+        if ($serviceCreditLeave) {
+            $sickLeaveRecord = \App\Models\TeacherLeave::firstOrCreate(
+                [
+                    'teacher_id' => $personnel->id,
+                    'leave_type' => 'SICK LEAVE',
+                    'year' => $year,
+                ],
+                [
+                    'available' => $serviceCreditLeave->available,
+                    'used' => 0,
+                    'remarks' => 'Auto-synced with Service Credit on ' . now()->format('M d, Y H:i'),
+                ]
+            );
+
+            // Update existing SICK LEAVE to match SERVICE CREDIT
+            if (!$sickLeaveRecord->wasRecentlyCreated) {
+                $sickLeaveRecord->available = $serviceCreditLeave->available;
+                $sickLeaveRecord->remarks = ($sickLeaveRecord->remarks ?? '') . ' | Updated to match Service Credit on ' . now()->format('M d, Y H:i');
+                $sickLeaveRecord->save();
+            }
+        }
 
         // Re-fetch after ensuring any missing records exist and accrual updates are applied
         $leaves = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)

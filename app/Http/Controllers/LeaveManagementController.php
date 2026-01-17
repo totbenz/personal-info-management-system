@@ -602,17 +602,18 @@ class LeaveManagementController extends Controller
 
                     // Force update by first resetting Vacation and Sick leave to 0
                     if ($user->role === 'teacher') {
-                        // Reset Sick leave only (Vacation Leave is removed from accrual)
-                        \App\Models\TeacherLeave::where('teacher_id', $user->personnel->id)
-                            ->where('year', $year)
-                            ->whereIn('leave_type', ['Sick Leave'])
-                            ->update(['available' => 0, 'remarks' => 'Reset before accrual on ' . now()->format('M d, Y')]);
+                        // Skip Sick Leave for teachers - only reset other leave types if needed
+                        // Note: Sick Leave is removed from accrual for teachers
+                        // \App\Models\TeacherLeave::where('teacher_id', $user->personnel->id)
+                        //     ->where('year', $year)
+                        //     ->whereIn('leave_type', ['Sick Leave'])
+                        //     ->update(['available' => 0, 'remarks' => 'Reset before accrual on ' . now()->format('M d, Y')]);
 
-                        // Process accrual
+                        // Process accrual (will skip Sick Leave for teachers)
                         $result = $accrualService->updateTeacherLeaveRecords($user->personnel->id, $year);
                         // Always count as processed since we're forcing the update
                         $processedCount++;
-                        Log::info("Processed accrual for teacher: {$user->personnel->first_name} {$user->personnel->last_name}");
+                        Log::info("Processed accrual for teacher: {$user->personnel->first_name} {$user->personnel->last_name} (Sick Leave excluded)");
                     } elseif ($user->role === 'non_teaching') {
                         // Reset Vacation and Sick leave
                         \App\Models\NonTeachingLeave::where('non_teaching_id', $user->personnel->id)

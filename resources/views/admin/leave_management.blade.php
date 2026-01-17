@@ -614,7 +614,7 @@
 
             // Process Accruals Button
             document.getElementById('process-accruals-btn').addEventListener('click', function() {
-                if (confirm('Process leave accruals for all personnel? This will update Vacation and Sick leave based on months worked and set fixed allocations for other leave types.')) {
+                if (confirm('Process leave accruals for all personnel? This will update Vacation and Sick leave based on months worked (Sick Leave excluded for teachers) and set fixed allocations for other leave types.')) {
                     const year = document.getElementById('year-select').value;
 
                     // Show loading state

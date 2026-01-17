@@ -30,24 +30,24 @@ class TeacherLeave extends Model
     /**
      * Default leave allocations for teachers
      */
-    public static function defaultLeaves($yearsOfService = 0, $soloParent = false, $userSex = null)
+    public static function defaultLeaves($yearsOfService = 0, $soloParent = false, $userSex = null, $serviceCreditAvailability = 0)
     {
         $baseLeaveCredits = max(15, $yearsOfService * 15); // 15 days per year of service, minimum 15
 
         $leaves = [
-            // 'Vacation Leave' => $baseLeaveCredits,
-            'Sick Leave' => $baseLeaveCredits,
-            'Personal Leave' => $baseLeaveCredits,
-            'Force Leave' => 5,
-            'Rehabilitation Leave' => 180,
-            'Solo Parent Leave' => $soloParent ? 7 : 0,
-            'Study Leave' => 180,
-            'Service Credit' => 0, // To be updated based on actual service credits
+            // 'VACATION LEAVE' => $baseLeaveCredits,
+            'SICK LEAVE' => $serviceCreditAvailability, // Always equal to Service Credit availability
+            'PERSONAL LEAVE' => $baseLeaveCredits,
+            'FORCE LEAVE' => 5,
+            'REHABILITATION LEAVE' => 180,
+            'SOLO PARENT LEAVE' => $soloParent ? 7 : 0,
+            'STUDY LEAVE' => 180,
+            'SERVICE CREDIT' => $serviceCreditAvailability, // Service Credit availability
         ];
 
         // Only add Maternity Leave for female teachers
         if ($userSex === 'female') {
-            $leaves['Maternity Leave'] = $soloParent ? 120 : 105;
+            $leaves['MATERNITY LEAVE'] = $soloParent ? 120 : 105;
         }
 
         return $leaves;
