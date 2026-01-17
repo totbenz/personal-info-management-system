@@ -260,6 +260,11 @@ class CombinedExportController extends Controller
             return $user->personnel_id === $personnel->id;
         }
 
+        // Non-teaching can only export their own
+        if ($user->role === 'non_teaching') {
+            return $user->personnel_id === $personnel->id;
+        }
+
         return false;
     }
 }

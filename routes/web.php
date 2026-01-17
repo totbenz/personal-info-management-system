@@ -389,6 +389,9 @@ Route::middleware(['auth'])->group(function () {
     // Profile route - accessible to all authenticated users (controller handles role logic)
     Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile')->middleware('auth');
 
+    // Non-teaching combined export route - accessible to all authenticated users (controller handles role logic)
+    Route::get('/non-teaching-profile/combined-export', [CombinedExportController::class, 'exportCombinedPDS'])->name('non-teaching-profile.combined-export')->middleware('auth');
+
     // PERSONNEL ACCESS - TEACHER
     Route::middleware(['user-access:teacher'])->group(function () {
         Route::get('/teacher-dashboard', [HomeController::class, 'teacherDashboard'])->name('teacher.dashboard');
