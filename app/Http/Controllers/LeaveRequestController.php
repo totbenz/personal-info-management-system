@@ -191,6 +191,38 @@ class LeaveRequestController extends Controller
         }
 
         try {
+            // Calculate day_debt for SICK LEAVE and SERVICE CREDIT requests
+            $dayDebt = 0;
+            if ($user->role === 'teacher' && in_array($request->leave_type, ['SICK LEAVE', 'SERVICE CREDIT'])) {
+                $personnel = $user->personnel;
+                if ($personnel) {
+                    $currentYear = now()->year;
+                    $serviceCredit = \App\Models\TeacherLeave::where('teacher_id', $personnel->id)
+                        ->where('leave_type', 'SERVICE CREDIT')
+                        ->where('year', $currentYear)
+                        ->first();
+
+                    if ($serviceCredit) {
+                        $startDate = Carbon::parse($request->start_date);
+                        $endDate = Carbon::parse($request->end_date);
+                        $requestedDays = $startDate->diffInDays($endDate) + 1;
+                        $newBalance = $serviceCredit->available - $requestedDays;
+
+                        // Calculate day_debt if balance will go negative
+                        if ($newBalance < 0) {
+                            $dayDebt = abs($newBalance);
+                            Log::info('Day debt calculated during submission', [
+                                'teacher_id' => $personnel->id,
+                                'leave_type' => $request->leave_type,
+                                'requested_days' => $requestedDays,
+                                'service_credit_available' => $serviceCredit->available,
+                                'day_debt' => $dayDebt
+                            ]);
+                        }
+                    }
+                }
+            }
+
             LeaveRequest::create([
                 'user_id' => Auth::id(),
                 'leave_type' => $request->leave_type,
@@ -200,6 +232,7 @@ class LeaveRequestController extends Controller
                 'status' => 'pending',
                 'custom_leave_name' => $request->leave_type === 'custom' ? $request->custom_leave_name : null,
                 'custom_leave_reason' => $request->leave_type === 'custom' ? $request->custom_leave_reason : null,
+                'day_debt' => $dayDebt,
             ]);
 
             // If this is a school head, ensure their leave records are initialized for the current year
@@ -353,8 +386,8 @@ class LeaveRequestController extends Controller
                 $serviceCredit->remarks = trim(($serviceCredit->remarks ? $serviceCredit->remarks.'; ' : '')."{$leaveType} used {$leaveDays} day(s) on ".now()->format('Y-m-d'));
                 $serviceCredit->save();
 
-                // Update day_debt in leave request
-                if ($dayDebt > 0) {
+                // Update day_debt in leave request (only if not already calculated during submission)
+                if ($dayDebt > 0 && !$leave->day_debt) {
                     $leave->day_debt = $dayDebt;
                     $leave->save();
                 }

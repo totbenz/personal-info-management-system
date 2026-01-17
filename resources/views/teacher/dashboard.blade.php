@@ -689,6 +689,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Leave Type</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Filed Date</th>
                                     <th class="px-6 py-3 text-center text-xs font-bold text-green-700 uppercase tracking-wider">Number of Days</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-green-700 uppercase tracking-wider">Day Debt</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-center text-xs font-bold text-green-700 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -710,6 +711,15 @@
                                         {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}
                                         @else
                                         -
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if($leave->day_debt && $leave->day_debt > 0)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                {{ $leave->day_debt }} days
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-400">None</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -736,7 +746,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No leave requests found.</td>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">No leave requests found.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

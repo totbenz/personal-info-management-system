@@ -113,6 +113,20 @@
             color: white;
             background-color: #10B981;
         }
+
+        .day-debt-badge {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            background-color: #EF4444;
+        }
+
+        .no-debt {
+            color: #9CA3AF;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -156,13 +170,14 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">#</th>
-                    <th style="width: 20%;">Personnel Name</th>
+                    <th style="width: 18%;">Personnel Name</th>
                     <th style="width: 10%;">Role</th>
-                    <th style="width: 20%;">School</th>
-                    <th style="width: 15%;">Leave Type</th>
-                    <th style="width: 15%;">Leave Period</th>
-                    <th style="width: 8%;">Days</th>
-                    <th style="width: 12%;">Approved Date</th>
+                    <th style="width: 18%;">School</th>
+                    <th style="width: 13%;">Leave Type</th>
+                    <th style="width: 13%;">Leave Period</th>
+                    <th style="width: 7%;">Days</th>
+                    <th style="width: 8%;">Day Debt</th>
+                    <th style="width: 11%;">Approved Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -211,6 +226,15 @@
                         <span class="days-badge">
                             {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }}
                         </span>
+                    </td>
+                    <td>
+                        @if($request->day_debt && $request->day_debt > 0)
+                            <span class="day-debt-badge">
+                                {{ $request->day_debt }}
+                            </span>
+                        @else
+                            <span class="no-debt">-</span>
+                        @endif
                     </td>
                     <td>
                         {{ $request->updated_at->format('M d, Y') }}

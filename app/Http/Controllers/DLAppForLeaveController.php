@@ -132,6 +132,13 @@ class DLAppForLeaveController extends Controller
                 }
             }
 
+            // Add leave deficit (day_debt) to B58 if it exists
+            if ($leaveRequest->day_debt && $leaveRequest->day_debt > 0) {
+                $sheet->setCellValue('B58', $leaveRequest->day_debt);
+            } else {
+                $sheet->setCellValue('B58', '0'); // Set to 0 if no day debt
+            }
+
             // Get Administrative Officer VI signature from signatures table
             $adminOfficerSignature = Signature::where('position', 'Administrative Officer VI (HRMO II)')->first();
             if ($adminOfficerSignature) {

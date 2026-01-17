@@ -79,6 +79,9 @@
                                     Day Debt
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Reason
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -149,6 +152,21 @@
                                         <span class="text-xs text-gray-400">None</span>
                                     @endif
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($request->status === 'pending')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Pending
+                                        </span>
+                                    @elseif($request->status === 'approved')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Approved
+                                        </span>
+                                    @elseif($request->status === 'denied')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Denied
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm text-gray-900 max-w-xs" title="{{ $request->reason }}">
                                         {{ Str::limit($request->reason, 50) }}
@@ -159,32 +177,36 @@
                                     <div class="text-xs text-gray-500">{{ $request->created_at->format('h:i A') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" id="approveForm{{$request->id}}" class="inline">
-                                            @csrf
-                                            <input type="hidden" name="status" value="approved">
-                                            <button type="button"
-                                                onclick="showConfirmModal('approve', function() { document.getElementById('approveForm{{$request->id}}').submit(); })"
-                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                Approve
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" id="denyForm{{$request->id}}" class="inline">
-                                            @csrf
-                                            <input type="hidden" name="status" value="denied">
-                                            <button type="button"
-                                                onclick="showConfirmModal('deny', function() { document.getElementById('denyForm{{$request->id}}').submit(); })"
-                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                                Deny
-                                            </button>
-                                        </form>
-                                    </div>
+                                    @if($request->status === 'pending')
+                                        <div class="flex space-x-2">
+                                            <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" id="approveForm{{$request->id}}" class="inline">
+                                                @csrf
+                                                <input type="hidden" name="status" value="approved">
+                                                <button type="button"
+                                                    onclick="showConfirmModal('approve', function() { document.getElementById('approveForm{{$request->id}}').submit(); })"
+                                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                    Approve
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.leave-requests.update', $request->id) }}" id="denyForm{{$request->id}}" class="inline">
+                                                @csrf
+                                                <input type="hidden" name="status" value="denied">
+                                                <button type="button"
+                                                    onclick="showConfirmModal('deny', function() { document.getElementById('denyForm{{$request->id}}').submit(); })"
+                                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                    Deny
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400">Processed</span>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
