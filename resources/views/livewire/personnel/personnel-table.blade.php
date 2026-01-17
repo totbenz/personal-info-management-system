@@ -1,19 +1,16 @@
 <div>
+    <!-- Personnel Table Component -->
+<div>
     <!-- Header Section -->
     <div class="mx-5 my-8 p-3">
         <div class="flex justify-between items-center mb-5">
             <div class="flex space-x-3">
-                @if(auth()->user()->role === 'school_head')
-                    <!-- Show modal button for school heads -->
-                    @livewire('school-head.create-personnel-button')
-                @else
-                    <!-- Show regular create button for admins -->
-                    <a href="{{ route('personnels.create') }}">
-                        <button class="py-2 px-4 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
-                            New Personnel
-                        </button>
-                    </a>
-                @endif
+                <!-- Show regular create button for admins -->
+                <a href="{{ route('personnels.create') }}">
+                    <button class="py-2 px-4 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
+                        New Personnel
+                    </button>
+                </a>
                 <button wire:click='export' class="py-2 px-4 bg-white font-medium text-xs tracking-wider rounded-md border-2 border-main hover:bg-main hover:text-white text-main duration-300 h-10">
                     Export Excel
                 </button>
@@ -265,4 +262,6 @@
         </div>
         @endif
     </div>
+</div>
+
 </div>

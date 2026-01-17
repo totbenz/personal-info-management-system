@@ -55,6 +55,48 @@
     @livewireScripts
     <wireui:scripts />
     <x-toaster-hub />
+
+    <script>
+        // Fix for WireUI components and wire:navigate issues
+        let wireuiInitialized = false;
+
+        function initializeWireUI() {
+            if (wireuiInitialized) return;
+
+            if (window.WireUi && window.Alpine) {
+                // Store original Alpine.data
+                const originalData = window.Alpine.data;
+
+                // Ensure all WireUI components are registered
+                if (window.WireUi.select && !window.Alpine.data('wireui_select')) {
+                    window.Alpine.data('wireui_select', window.WireUi.select);
+                }
+                if (window.WireUi.nativeSelect && !window.Alpine.data('wireui_native_select')) {
+                    window.Alpine.data('wireui_native_select', window.WireUi.nativeSelect);
+                }
+
+                wireuiInitialized = true;
+                console.log('WireUI components initialized');
+            }
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initializeWireUI, 100);
+        });
+
+        // Re-initialize on Livewire navigation
+        if (window.Livewire) {
+            window.Livewire.hook('component.init', () => {
+                setTimeout(initializeWireUI, 50);
+            });
+        }
+
+        // Also try on Alpine init
+        document.addEventListener('alpine:init', () => {
+            setTimeout(initializeWireUI, 50);
+        });
+    </script>
 </body>
 
 </html>
