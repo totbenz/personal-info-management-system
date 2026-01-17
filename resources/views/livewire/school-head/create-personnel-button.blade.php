@@ -1,8 +1,5 @@
 <!-- Create Personnel Button for School Head -->
 <div>
-    <!-- Include Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <div x-data>
         <!-- Button to trigger modal -->
         <button @click="$dispatch('open-create-personnel-modal')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">

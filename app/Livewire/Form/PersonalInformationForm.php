@@ -44,7 +44,7 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->last_name = $this->personnel->last_name;
                 $this->middle_name = $this->personnel->middle_name;
                 $this->name_ext = $this->personnel->name_ext;
-                $this->date_of_birth = $this->personnel->date_of_birth;
+                $this->date_of_birth = $this->personnel->date_of_birth ? date('Y-m-d', strtotime($this->personnel->date_of_birth)) : null;
                 $this->place_of_birth = $this->personnel->place_of_birth;
                 $this->civil_status = $this->personnel->civil_status;
                 $this->sex = $this->personnel->sex;
@@ -71,14 +71,14 @@ class PersonalInformationForm extends PersonnelNavigation
                 $this->salary_changed_at = $this->personnel->salary_changed_at;
                 $this->category = $this->personnel->category;
                 $this->job_status = $this->personnel->job_status;
-                $this->employment_start = $this->personnel->employment_start;
+                $this->employment_start = $this->personnel->employment_start ? date('Y-m-d', strtotime($this->personnel->employment_start)) : null;
                 $this->leave_of_absence_without_pay_count = $this->personnel->leave_of_absence_without_pay_count;
                 if ($this->personnel->employment_end) {
-                    $this->employment_end = $this->personnel->employment_end;
+                    $this->employment_end = date('Y-m-d', strtotime($this->personnel->employment_end));
                 }
                 $this->email = $this->personnel->email;
-                $this->tel_no = $this->personnel->tel_no;
-                $this->mobile_no = $this->personnel->mobile_no;
+                $this->tel_no = $this->personnel->tel_no ? preg_replace('/[^\d]/', '', $this->personnel->tel_no) : null;
+                $this->mobile_no = $this->personnel->mobile_no ? preg_replace('/[^\d]/', '', $this->personnel->mobile_no) : null;
 
                 // Calculate salary based on current salary_grade_id and step_increment
                 $this->calculateSalary();

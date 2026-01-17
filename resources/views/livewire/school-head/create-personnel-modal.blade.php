@@ -1,8 +1,11 @@
 <!-- Create Personnel Modal for School Head - Matches Admin Form Structure -->
+@persist('personnelModal')
 <div>
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('personnelModal', () => ({
+// Initialize personnelModal component
+function initPersonnelModal() {
+    if (window.Alpine && !window.Alpine.store('personnelModal')) {
+        Alpine.data('personnelModal', () => ({
         show: false,
         activeTab: 'personal',
         positions: [],
@@ -150,7 +153,14 @@ document.addEventListener('alpine:init', () => {
             }
         }
     }));
-});
+}
+
+// Initialize on alpine:init or immediately if Alpine is already loaded
+if (window.Alpine) {
+    initPersonnelModal();
+} else {
+    document.addEventListener('alpine:init', initPersonnelModal);
+}
 </script>
 
 <div x-data="personnelModal" class="fixed inset-0 z-50 overflow-y-auto" x-show="show" x-cloak>
@@ -509,3 +519,4 @@ document.addEventListener('alpine:init', () => {
 }
 </style>
 </div>
+@endpersist
