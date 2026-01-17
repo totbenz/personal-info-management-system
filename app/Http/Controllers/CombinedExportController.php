@@ -250,9 +250,9 @@ class CombinedExportController extends Controller
             return true;
         }
 
-        // School head can export personnel from their school
+        // School head can export personnel from their school or their own profile
         if ($user->role === 'school_head') {
-            return $user->school_id === $personnel->school_id;
+            return ($user->school_id === $personnel->school_id) || ($user->personnel_id === $personnel->id);
         }
 
         // Teacher can only export their own

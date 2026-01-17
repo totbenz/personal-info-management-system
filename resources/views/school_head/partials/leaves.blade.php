@@ -796,6 +796,109 @@
                 ctoModal.classList.remove('flex');
             });
         }
+
+        // CTO time calculation event listeners
+        var ctoMorningIn = document.getElementById('morning_in');
+        var ctoMorningOut = document.getElementById('morning_out');
+        var ctoAfternoonIn = document.getElementById('afternoon_in');
+        var ctoAfternoonOut = document.getElementById('afternoon_out');
+        var ctoTotalHoursInput = document.getElementById('total_hours');
+        var ctoHoursInfo = document.getElementById('cto_hours_info');
+        var ctoHoursDisplay = document.getElementById('cto_hours_display');
+        var ctoDaysEarned = document.getElementById('cto_days_earned');
+        var ctoSubmitBtn = document.getElementById('cto_submit_btn');
+
+        // CTO time calculation function
+        function calculateCTOHours() {
+            var totalHours = 0;
+
+            // Calculate morning hours
+            if (ctoMorningIn && ctoMorningOut && ctoMorningIn.value && ctoMorningOut.value) {
+                const morningStart = new Date('2000-01-01 ' + ctoMorningIn.value);
+                const morningEnd = new Date('2000-01-01 ' + ctoMorningOut.value);
+                if (morningEnd > morningStart) {
+                    totalHours += (morningEnd.getTime() - morningStart.getTime()) / (1000 * 60 * 60);
+                }
+            }
+
+            // Calculate afternoon hours
+            if (ctoAfternoonIn && ctoAfternoonOut && ctoAfternoonIn.value && ctoAfternoonOut.value) {
+                const afternoonStart = new Date('2000-01-01 ' + ctoAfternoonIn.value);
+                const afternoonEnd = new Date('2000-01-01 ' + ctoAfternoonOut.value);
+                if (afternoonEnd > afternoonStart) {
+                    totalHours += (afternoonEnd.getTime() - afternoonStart.getTime()) / (1000 * 60 * 60);
+                }
+            }
+
+            // Round to 2 decimal places
+            totalHours = Math.round(totalHours * 100) / 100;
+
+            if (totalHours <= 0) {
+                if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
+                if (ctoTotalHoursInput) ctoTotalHoursInput.value = '';
+                if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
+                return 0;
+            }
+
+            const days = (totalHours / 8).toFixed(2);
+
+            if (ctoTotalHoursInput) ctoTotalHoursInput.value = totalHours;
+            if (ctoHoursDisplay) ctoHoursDisplay.textContent = totalHours;
+            if (ctoDaysEarned) ctoDaysEarned.textContent = days;
+            if (ctoHoursInfo) ctoHoursInfo.classList.remove('hidden');
+
+            // Enable submit if all required fields are filled
+            validateCTOForm();
+
+            return totalHours;
+        }
+
+        // CTO form validation function
+        function validateCTOForm() {
+            const workDate = document.getElementById('work_date');
+            const reason = document.getElementById('cto_reason');
+            const hours = ctoTotalHoursInput ? ctoTotalHoursInput.value : '';
+
+            const isValid = workDate && workDate.value &&
+                           reason && reason.value.trim().length >= 10 &&
+                           hours > 0;
+
+            if (ctoSubmitBtn) ctoSubmitBtn.disabled = !isValid;
+
+            return isValid;
+        }
+
+        // Attach event listeners for CTO calculation
+        if (ctoMorningIn) {
+            ctoMorningIn.addEventListener('change', calculateCTOHours);
+            ctoMorningIn.addEventListener('input', calculateCTOHours);
+        }
+
+        if (ctoMorningOut) {
+            ctoMorningOut.addEventListener('change', calculateCTOHours);
+            ctoMorningOut.addEventListener('input', calculateCTOHours);
+        }
+
+        if (ctoAfternoonIn) {
+            ctoAfternoonIn.addEventListener('change', calculateCTOHours);
+            ctoAfternoonIn.addEventListener('input', calculateCTOHours);
+        }
+
+        if (ctoAfternoonOut) {
+            ctoAfternoonOut.addEventListener('change', calculateCTOHours);
+            ctoAfternoonOut.addEventListener('input', calculateCTOHours);
+        }
+
+        // Event listeners for CTO form validation
+        var ctoWorkDate = document.getElementById('work_date');
+        if (ctoWorkDate) {
+            ctoWorkDate.addEventListener('change', validateCTOForm);
+        }
+
+        var ctoReason = document.getElementById('cto_reason');
+        if (ctoReason) {
+            ctoReason.addEventListener('input', validateCTOForm);
+        }
     }
 
     // Initialize on DOM ready
@@ -888,127 +991,6 @@
             });
         }
 
-        // CTO Modal controls
-        var ctoBtn = document.getElementById('ctoRequestBtn');
-        var ctoModal = document.getElementById('ctoRequestModal');
-        var ctoCloseBtn = document.getElementById('closeCtoRequestModal');
-        var ctoMorningIn = document.getElementById('morning_in');
-        var ctoMorningOut = document.getElementById('morning_out');
-        var ctoAfternoonIn = document.getElementById('afternoon_in');
-        var ctoAfternoonOut = document.getElementById('afternoon_out');
-        var ctoTotalHoursInput = document.getElementById('total_hours');
-        var ctoHoursInfo = document.getElementById('cto_hours_info');
-        var ctoHoursDisplay = document.getElementById('cto_hours_display');
-        var ctoDaysEarned = document.getElementById('cto_days_earned');
-        var ctoSubmitBtn = document.getElementById('cto_submit_btn');
-
-        if(ctoBtn && ctoModal && ctoCloseBtn) {
-            ctoCloseBtn.addEventListener('click', function() {
-                ctoModal.classList.add('hidden');
-                ctoModal.classList.remove('flex');
-            });
-
-            // Close modal when clicking outside
-            ctoModal.addEventListener('click', function(e) {
-                if (e.target === ctoModal) {
-                    ctoModal.classList.add('hidden');
-                    ctoModal.classList.remove('flex');
-                }
-            });
-        }
-
-        // CTO time calculation
-        function calculateCTOHours() {
-            var totalHours = 0;
-
-            // Always calculate morning and afternoon hours separately
-            // Calculate morning hours
-            if (ctoMorningIn && ctoMorningOut && ctoMorningIn.value && ctoMorningOut.value) {
-                const morningStart = new Date('2000-01-01 ' + ctoMorningIn.value);
-                const morningEnd = new Date('2000-01-01 ' + ctoMorningOut.value);
-                if (morningEnd > morningStart) {
-                    totalHours += (morningEnd.getTime() - morningStart.getTime()) / (1000 * 60 * 60);
-                }
-            }
-
-            // Calculate afternoon hours
-            if (ctoAfternoonIn && ctoAfternoonOut && ctoAfternoonIn.value && ctoAfternoonOut.value) {
-                const afternoonStart = new Date('2000-01-01 ' + ctoAfternoonIn.value);
-                const afternoonEnd = new Date('2000-01-01 ' + ctoAfternoonOut.value);
-                if (afternoonEnd > afternoonStart) {
-                    totalHours += (afternoonEnd.getTime() - afternoonStart.getTime()) / (1000 * 60 * 60);
-                }
-            }
-
-            // Round to 2 decimal places
-            totalHours = Math.round(totalHours * 100) / 100;
-
-            if (totalHours <= 0) {
-                if (ctoHoursInfo) ctoHoursInfo.classList.add('hidden');
-                if (ctoTotalHoursInput) ctoTotalHoursInput.value = '';
-                if (ctoSubmitBtn) ctoSubmitBtn.disabled = true;
-                return 0;
-            }
-
-            const days = (totalHours / 8).toFixed(2);
-
-            if (ctoTotalHoursInput) ctoTotalHoursInput.value = totalHours;
-            if (ctoHoursDisplay) ctoHoursDisplay.textContent = totalHours;
-            if (ctoDaysEarned) ctoDaysEarned.textContent = days;
-            if (ctoHoursInfo) ctoHoursInfo.classList.remove('hidden');
-
-            // Enable submit if all required fields are filled
-            validateCTOForm();
-
-            return totalHours;
-        }
-
-        // CTO form validation
-        function validateCTOForm() {
-            const workDate = document.getElementById('work_date');
-            const reason = document.getElementById('cto_reason');
-            const hours = ctoTotalHoursInput ? ctoTotalHoursInput.value : '';
-
-            const isValid = workDate && workDate.value &&
-                           reason && reason.value.trim().length >= 10 &&
-                           hours > 0;
-
-            if (ctoSubmitBtn) ctoSubmitBtn.disabled = !isValid;
-
-            return isValid;
-        }
-
-        // Event listeners for CTO calculation
-        if (ctoMorningIn) {
-            ctoMorningIn.addEventListener('change', calculateCTOHours);
-            ctoMorningIn.addEventListener('input', calculateCTOHours);
-        }
-
-        if (ctoMorningOut) {
-            ctoMorningOut.addEventListener('change', calculateCTOHours);
-            ctoMorningOut.addEventListener('input', calculateCTOHours);
-        }
-
-        if (ctoAfternoonIn) {
-            ctoAfternoonIn.addEventListener('change', calculateCTOHours);
-            ctoAfternoonIn.addEventListener('input', calculateCTOHours);
-        }
-
-        if (ctoAfternoonOut) {
-            ctoAfternoonOut.addEventListener('change', calculateCTOHours);
-            ctoAfternoonOut.addEventListener('input', calculateCTOHours);
-        }
-
-        // Event listeners for CTO form validation
-        var ctoWorkDate = document.getElementById('work_date');
-        if (ctoWorkDate) {
-            ctoWorkDate.addEventListener('change', validateCTOForm);
-        }
-
-        var ctoReason = document.getElementById('cto_reason');
-        if (ctoReason) {
-            ctoReason.addEventListener('input', validateCTOForm);
-        }
 
         // Auto-open CTO modal if there are CTO validation errors
         @if($errors->has('total_hours') || $errors->has('work_date') || $errors->has('morning_in') || $errors->has('morning_out') || $errors->has('afternoon_in') || $errors->has('afternoon_out') || $errors->has('time') || $errors->has('reason') || $errors->has('description'))
