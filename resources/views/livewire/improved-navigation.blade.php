@@ -57,8 +57,8 @@
                         {{ __('Monetization') }}
                     </x-nav-link>
                     <x-nav-link
-                        href="{{ route('personnels.profile', ['personnel' => Auth::user()->personnel->id]) }}"
-                        :active="request()->routeIs('personnels.profile', ['personnel' => Auth::user()->personnel->id])"
+                        href="{{ route('personnels.profile') }}"
+                        :active="request()->routeIs('personnels.profile')"
                         wire:navigate
                         class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                         active-class="bg-white text-[#0f152a] shadow-lg font-bold"
@@ -88,8 +88,8 @@
                         {{ __('Teacher Dashboard') }}
                     </x-nav-link>
                     <x-nav-link
-                        href="{{ route('personnel.profile', ['personnel' => Auth::user()->personnel->id]) }}"
-                        :active="request()->routeIs('personnel.profile', ['personnel' => Auth::user()->personnel->id])"
+                        href="{{ route('personnel.profile') }}"
+                        :active="request()->routeIs('personnel.profile')"
                         wire:navigate
                         class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                         active-class="bg-white text-[#0f152a] shadow-lg font-bold"
@@ -107,8 +107,8 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     <x-nav-link
-                        href="{{ route('personnel.profile2', ['personnel' => Auth::user()->personnel->id]) }}"
-                        :active="request()->routeIs('personnels.profile2', ['personnel' => Auth::user()->personnel->id])"
+                        href="{{ route('personnel.profile') }}"
+                        :active="request()->routeIs('personnel.profile')"
                         wire:navigate
                         class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                         active-class="bg-white text-[#0f152a] shadow-lg font-bold"

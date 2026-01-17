@@ -113,9 +113,11 @@ class PersonalInformationForm extends PersonnelNavigation
         $this->updateMode = false;
 
         if (Auth::user()->role === "teacher") {
+            return redirect()->route('personnel.profile');
+        } elseif (Auth::user()->role === "non_teaching") {
+            return redirect()->route('personnel.profile');
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('personnels.profile');
-        } elseif (Auth::user()->role === "schoool_head") {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
         }
@@ -485,9 +487,11 @@ class PersonalInformationForm extends PersonnelNavigation
         ]);
 
         if (Auth::user()->role === "teacher") {
+            return redirect()->route('personnel.profile');
+        } elseif (Auth::user()->role === "non_teaching") {
+            return redirect()->route('personnel.profile');
+        } elseif (Auth::user()->role === "school_head") {
             return redirect()->route('personnels.profile');
-        } elseif (Auth::user()->role === "schoool_head") {
-            return redirect()->route('school_personnels.show', ['personnel' => $this->personnel->id]);
         } else {
             return redirect()->route('personnels.show', ['personnel' => $this->personnel->id]);
         }

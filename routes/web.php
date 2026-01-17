@@ -386,13 +386,14 @@ Route::middleware(['auth'])->group(function () {
     // Leave Application Excel Download (accessible to all authenticated users)
     Route::get('/leave-application/download/{leaveRequestId}/{signatureChoice?}', [\App\Http\Controllers\DLAppForLeaveController::class, 'downloadExcel'])->name('leave-application.download');
 
+    // Profile route - accessible to all authenticated users (controller handles role logic)
+    Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile')->middleware('auth');
+
     // PERSONNEL ACCESS - TEACHER
     Route::middleware(['user-access:teacher'])->group(function () {
         Route::get('/teacher-dashboard', [HomeController::class, 'teacherDashboard'])->name('teacher.dashboard');
-        Route::get('profile/{personnel}', [PersonnelController::class, 'profile'])->name('personnel.profile');
-        Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
-        Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
+        Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('teacher.personnel.export');
 
         // Service Credit Routes
         Route::post('/service-credit-request', [ServiceCreditRequestController::class, 'store'])->name('service-credit-request.store');
@@ -407,9 +408,8 @@ Route::middleware(['auth'])->group(function () {
     // PERSONNEL ACCESS - NON TEACHING (separate dashboard route name)
     Route::middleware(['user-access:non_teaching'])->group(function () {
         Route::get('/non-teaching-dashboard', [HomeController::class, 'nonTeachingDashboard'])->name('non_teaching.dashboard');
-        Route::get('/profile', [PersonnelController::class, 'profile'])->name('personnel.profile2');
         Route::patch('personnels/{personnel}', [PersonnelController::class, 'update'])->name('personnels.update');
-        Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('personnels.export');
+        Route::get('personnel/export/{personnel}', [PersonnelController::class, 'export'])->name('non_teaching.personnel.export');
 
         // Non-Teaching Leave Routes
         Route::post('non-teaching/leaves/add', [App\Http\Controllers\NonTeachingLeaveController::class, 'addLeave'])->name('non_teaching.leaves.add');
@@ -491,9 +491,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/personnels/{personnelId}/download-nosa', [NosaController::class, 'download'])->name('nosa.download')->middleware('timeout.prevention');
     Route::get('/nosa/{personnelId}/preview', [NosaController::class, 'preview'])->name('nosa.preview')->middleware('timeout.prevention');
 
-    //NOSI
-    Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download')->middleware('timeout.prevention');
-    Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview')->middleware('timeout.prevention');
+    //NOSI - Temporarily commented out due to missing controller
+    // Route::get('/personnels/{personnelId}/download-nosi', [NosiController::class, 'download'])->name('nosi.download')->middleware('timeout.prevention');
+    // Route::get('/nosi/{personnelId}/preview', [NosiController::class, 'preview'])->name('nosi.preview')->middleware('timeout.prevention');
     //DOWNLOAD ALL with timeout prevention
     Route::get('/personnels/{personnelId}/download-all', [DownloadController::class, 'downloadAll'])->name('download-all.download')->middleware('timeout.prevention');
 
