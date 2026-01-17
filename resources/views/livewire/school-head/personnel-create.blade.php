@@ -1,0 +1,511 @@
+<div>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Create New Personnel</h2>
+        <a href="/personnels" class="text-gray-600 hover:text-gray-800">
+            <button class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                Back
+            </button>
+        </a>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="{{ $activeTab === 'personal' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }} rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
+                    1
+                </div>
+                <span class="ml-2 text-sm font-medium {{ $activeTab === 'personal' ? 'text-blue-600' : 'text-gray-500' }}">Personal Info</span>
+            </div>
+            <div class="flex-1 h-1 mx-4 {{ $activeTab === 'work' || $activeTab === 'government' ? 'bg-blue-600' : 'bg-gray-300' }}"></div>
+            <div class="flex items-center">
+                <div class="{{ $activeTab === 'work' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }} rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
+                    2
+                </div>
+                <span class="ml-2 text-sm font-medium {{ $activeTab === 'work' ? 'text-blue-600' : 'text-gray-500' }}">Work Info</span>
+            </div>
+            <div class="flex-1 h-1 mx-4 {{ $activeTab === 'government' ? 'bg-blue-600' : 'bg-gray-300' }}"></div>
+            <div class="flex items-center">
+                <div class="{{ $activeTab === 'government' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }} rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
+                    3
+                </div>
+                <span class="ml-2 text-sm font-medium {{ $activeTab === 'government' ? 'text-blue-600' : 'text-gray-500' }}">Government Info</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form wire:submit.prevent="save">
+        <!-- Personal Information Tab -->
+        <div class="{{ $activeTab !== 'personal' ? 'hidden' : '' }}">
+            <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Personal Information</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Name Fields -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('first_name') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="first_name"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('first_name') ? 'border-red-500' : '' }}">
+                        @error('first_name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                        <input type="text" wire:model="middle_name"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('last_name') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="last_name"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('last_name') ? 'border-red-500' : '' }}">
+                        @error('last_name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name Extension</label>
+                        <input type="text" wire:model="name_ext" placeholder="e.g., Jr., Sr., III"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('name_ext')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Sex and Civil Status -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('sex') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Sex <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="sex"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('sex') ? 'border-red-500' : '' }}">
+                            <option value="">Select Sex</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                        @error('sex')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('civil_status') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Civil Status <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="civil_status"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('civil_status') ? 'border-red-500' : '' }}">
+                            <option value="">Select Status</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="widowed">Widowed</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="seperated">Separated</option>
+                            <option value="others">Others</option>
+                        </select>
+                        @error('civil_status')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Birth Information -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('date_of_birth') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Date of Birth <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" wire:model="date_of_birth"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('date_of_birth') ? 'border-red-500' : '' }}">
+                        @error('date_of_birth')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('place_of_birth') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Place of Birth <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="place_of_birth"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('place_of_birth') ? 'border-red-500' : '' }}">
+                        @error('place_of_birth')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Physical Attributes -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Citizenship</label>
+                        <input type="text" wire:model="citizenship"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('citizenship')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
+                        <select wire:model="blood_type"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select Blood Type</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
+                        <input type="text" wire:model="height" placeholder="e.g., 170"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+                        <input type="text" wire:model="weight" placeholder="e.g., 65"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" wire:model="email"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telephone No.</label>
+                        <input type="tel" wire:model="tel_no"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mobile No.</label>
+                        <input type="tel" wire:model="mobile_no"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-end">
+                <button type="button" wire:click="nextTab"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Work Information Tab -->
+        <div class="{{ $activeTab !== 'work' ? 'hidden' : '' }}">
+            <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Work Information</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Employee ID and School -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('personnel_id') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Employee ID <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="personnel_id"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('personnel_id') ? 'border-red-500' : '' }}">
+                        @error('personnel_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">School</label>
+                        <input type="text"
+                               value="{{ Auth::user()->school->school_name ?? '' }}"
+                               readonly
+                               class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm">
+                        <input type="hidden" wire:model="school_id">
+                    </div>
+
+                    <!-- Position and Appointment -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('position_id') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Position <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="position_id"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('position_id') ? 'border-red-500' : '' }}">
+                            <option value="">Select Position</option>
+                            @foreach($positions as $position)
+                                <option value="{{ $position->id }}">{{ $position->title }}</option>
+                            @endforeach
+                        </select>
+                        @error('position_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('appointment') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Appointment <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="appointment"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('appointment') ? 'border-red-500' : '' }}">
+                            <option value="">Select Appointment</option>
+                            <option value="regular">Regular</option>
+                            <option value="part-time">Part Time</option>
+                            <option value="temporary">Temporary</option>
+                            <option value="contract">Contract</option>
+                        </select>
+                        @error('appointment')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Salary Information -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('fund_source') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Fund Source <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="fund_source"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('fund_source') ? 'border-red-500' : '' }}">
+                        @error('fund_source')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('salary_grade_id') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Salary Grade <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="salary_grade_id"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('salary_grade_id') ? 'border-red-500' : '' }}">
+                            <option value="">Select Grade</option>
+                            @foreach($salaryGrades as $grade)
+                                <option value="{{ $grade->id }}">{{ $grade->grade }}</option>
+                            @endforeach
+                        </select>
+                        @error('salary_grade_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('step_increment') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Step Increment <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="step_increment"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('step_increment') ? 'border-red-500' : '' }}">
+                            <option value="">Select Step</option>
+                            @foreach($steps as $step)
+                                <option value="{{ $step }}">Step {{ $step }}</option>
+                            @endforeach
+                        </select>
+                        @error('step_increment')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Employment Details -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('category') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Category <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="category"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('category') ? 'border-red-500' : '' }}">
+                            <option value="">Select Category</option>
+                            <option value="SDO Personnel">SDO Personnel</option>
+                            <option value="School Head">School Head</option>
+                            <option value="Elementary School Teacher">Elementary School Teacher</option>
+                            <option value="Junior High School Teacher">Junior High School Teacher</option>
+                            <option value="Senior High School Teacher">Senior High School Teacher</option>
+                            <option value="School Non-teaching Personnel">School Non-teaching Personnel</option>
+                        </select>
+                        @error('category')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('job_status') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Job Status <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="job_status" placeholder="e.g., Active, On Leave"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('job_status') ? 'border-red-500' : '' }}">
+                        @error('job_status')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Employment Dates -->
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('employment_start') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            Employment Start <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" wire:model="employment_start"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('employment_start') ? 'border-red-500' : '' }}">
+                        @error('employment_start')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Employment End</label>
+                        <input type="date" wire:model="employment_end"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('employment_end')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pantilla of Personnel</label>
+                        <input type="text" wire:model="pantilla_of_personnel"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Solo Parent Checkbox -->
+                    <div class="flex items-center">
+                        <input type="checkbox" wire:model="is_solo_parent" id="is_solo_parent"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="is_solo_parent" class="ml-2 block text-sm text-gray-900">
+                            Solo Parent
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between">
+                <button type="button" wire:click="previousTab"
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i> Previous
+                </button>
+                <button type="button" wire:click="nextTab"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Government Information Tab -->
+        <div class="{{ $activeTab !== 'government' ? 'hidden' : '' }}">
+            <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Government Information</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium {{ $errors->has('tin') ? 'text-red-600' : 'text-gray-700' }} mb-1">
+                            TIN <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="tin" maxlength="12" placeholder="12 digits"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ $errors->has('tin') ? 'border-red-500' : '' }}">
+                        @error('tin')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SSS No.</label>
+                        <input type="text" wire:model="sss_num" maxlength="10" placeholder="10 digits"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('sss_num')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">GSIS No.</label>
+                        <input type="text" wire:model="gsis_num" maxlength="11" placeholder="11 digits"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('gsis_num')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">PhilHealth No.</label>
+                        <input type="text" wire:model="philhealth_num" maxlength="12" placeholder="12 digits"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('philhealth_num')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">PAG-IBIG No.</label>
+                        <input type="text" wire:model="pagibig_num" maxlength="12" placeholder="12 digits"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @error('pagibig_num')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between">
+                <button type="button" wire:click="previousTab"
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i> Previous
+                </button>
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-save mr-2"></i> Save Personnel
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Listen for redirect event
+    window.addEventListener('redirectToList', (event) => {
+        setTimeout(() => {
+            window.location.href = event.detail;
+        }, 1500);
+    });
+
+    // Listen for validation errors
+    window.addEventListener('showValidationErrors', (event) => {
+        const errors = event.detail;
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            html: errors.join('<br>'),
+            confirmButtonText: 'OK'
+        });
+    });
+
+    // Listen for success message
+    window.addEventListener('showSuccess', (event) => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: event.detail,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    });
+
+    // Listen for error message
+    window.addEventListener('showError', (event) => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: event.detail,
+            confirmButtonText: 'OK'
+        });
+    });
+});
+</script>

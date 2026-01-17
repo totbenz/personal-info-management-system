@@ -446,7 +446,8 @@ Route::middleware(['auth'])->group(function () {
         });
         //personnel routes
         Route::controller(PersonnelController::class)->group(function () {
-            Route::get('personnels/', 'index')->name('school_personnels.index');
+            Route::get('personnels/', 'schoolPersonnelIndex')->name('school_personnels.index');
+            Route::get('school-head/personnel/create', 'personnelCreate')->name('school_head.personnels.create');
             Route::get('personnels/{personnel}/edit', 'edit')->name('school_personnels.edit');
             Route::patch('personnels/{personnel}', 'update')->name('school_personnels.update');
             Route::get('personnel/{personnel}/export', [PersonnelController::class, 'export'])->name('pds.export');

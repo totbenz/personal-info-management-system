@@ -55,6 +55,15 @@ class PersonnelController extends Controller
         return view('personnel.index', compact('personnels'));
     }
 
+    public function schoolPersonnelIndex()
+    {
+        // For school heads, only show personnel from their school
+        $schoolId = Auth::user()->school->id ?? null;
+        $personnels = Personnel::where('school_id', $schoolId)->get();
+
+        return view('livewire.personnel.personnel-table', ['schoolId' => $schoolId]);
+    }
+
     public function show($id)
     {
         $personnel = Personnel::with([
@@ -124,6 +133,11 @@ class PersonnelController extends Controller
     public function create()
     {
         return view('personnel.create');
+    }
+
+    public function personnelCreate()
+    {
+        return view('school-head.personnel-create');
     }
 
     public function loyaltyAwards()
