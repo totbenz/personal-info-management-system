@@ -173,10 +173,12 @@ class LoyaltyAwardController extends Controller
 
             // Can claim 5-year milestone if they have claimed the 10-year award
             // and have reached the next milestone (15, 20, 25, etc.)
-            return $yearsOfService > 10 &&
-                $claimedCount > 0 &&
-                $claimedCount < $maxClaims &&
-                (($yearsOfService - 10) % 5 == 0);
+            if ($yearsOfService > 10 && $claimedCount > 0 && $claimedCount < $maxClaims) {
+                // Calculate the next milestone they can claim
+                $nextMilestone = 10 + ($claimedCount * 5);
+                return $yearsOfService >= $nextMilestone;
+            }
+            return false;
         });
 
         $date = now()->format('F d, Y');

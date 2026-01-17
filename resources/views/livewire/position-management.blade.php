@@ -5,22 +5,82 @@
             Livewire.on('showSuccess', (message) => {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Success',
+                    title: 'Success!',
                     text: message,
-                    timer: 2000,
+                    timer: 3000,
+                    timerProgressBar: true,
                     showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    customClass: {
+                        popup: 'colored-toast'
+                    }
                 });
             });
 
             Livewire.on('showError', (message) => {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
+                    title: 'Error!',
                     text: message,
+                    confirmButtonColor: '#dc2626',
+                    confirmButtonText: 'OK',
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                });
+            });
+
+            Livewire.on('showWarning', (message) => {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning!',
+                    text: message,
+                    confirmButtonColor: '#f59e0b',
+                    confirmButtonText: 'OK',
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                });
+            });
+
+            Livewire.on('showInfo', (message) => {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Information',
+                    text: message,
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'OK',
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
                 });
             });
         });
     </script>
+
+    <style>
+        .colored-toast.swal2-icon-success {
+            background-color: #10b981 !important;
+        }
+
+        .colored-toast.swal2-icon-success .swal2-title {
+            color: white !important;
+        }
+
+        .colored-toast.swal2-icon-success .swal2-content {
+            color: white !important;
+        }
+    </style>
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-6 p-6">

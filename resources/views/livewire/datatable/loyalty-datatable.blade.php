@@ -71,10 +71,12 @@
 
             // Can claim 5-year milestone if they have claimed the 10-year award
             // and have reached the next milestone (15, 20, 25, etc.)
-            return $yearsOfService > 10 &&
-            $claimedCount > 0 &&
-            $claimedCount < $maxClaims &&
-                (($yearsOfService - 10) % 5==0);
+            if ($yearsOfService > 10 && $claimedCount > 0 && $claimedCount < $maxClaims) {
+                // Calculate the next milestone they can claim
+                $nextMilestone = 10 + ($claimedCount * 5);
+                return $yearsOfService >= $nextMilestone;
+            }
+            return false;
                 })->count();
                 @endphp
 
@@ -136,10 +138,14 @@
     $maxClaims = $personnel->max_claims ?? 0;
     $yearsOfService = $personnel->years_of_service;
 
-    return $yearsOfService > 10 &&
-    $claimedCount > 0 &&
-    $claimedCount < $maxClaims &&
-        (($yearsOfService - 10) % 5==0);
+    // Can claim 5-year milestone if they have claimed the 10-year award
+    // and have reached the next milestone (15, 20, 25, etc.)
+    if ($yearsOfService > 10 && $claimedCount > 0 && $claimedCount < $maxClaims) {
+        // Calculate the next milestone they can claim
+        $nextMilestone = 10 + ($claimedCount * 5);
+        return $yearsOfService >= $nextMilestone;
+    }
+    return false;
         })->count();
 
         // Count personnel who have completed all their possible claims

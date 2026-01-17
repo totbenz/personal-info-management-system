@@ -112,16 +112,29 @@ class PositionManagement extends Component
         $this->validate();
 
         try {
-            Position::create([
+            // Check if position with same title already exists
+            $existingPosition = Position::where('title', $this->title)->first();
+            if ($existingPosition) {
+                $this->dispatch('showWarning', 'A position with this title already exists!');
+                return;
+            }
+
+            $position = Position::create([
                 'title' => $this->title,
                 'classification' => $this->classification,
             ]);
 
-            $this->dispatch('showSuccess', 'Position created successfully.');
+            $this->dispatch('showSuccess', "Position '{$position->title}' created successfully!");
             $this->closeModal();
 
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                $this->dispatch('showError', 'Database constraint violation. Please check your data.');
+            } else {
+                $this->dispatch('showError', 'Database error occurred while creating position.');
+            }
         } catch (\Exception $e) {
-            $this->dispatch('showError', 'Failed to create position: ' . $e->getMessage());
+            $this->dispatch('showError', 'Failed to create position. Please try again.');
         }
     }
 
@@ -137,16 +150,32 @@ class PositionManagement extends Component
                 return;
             }
 
+            // Check if another position with the same title exists (excluding current one)
+            $existingPosition = Position::where('title', $this->title)
+                ->where('id', '!=', $this->positionId)
+                ->first();
+
+            if ($existingPosition) {
+                $this->dispatch('showWarning', 'Another position with this title already exists!');
+                return;
+            }
+
             $position->update([
                 'title' => $this->title,
                 'classification' => $this->classification,
             ]);
 
-            $this->dispatch('showSuccess', 'Position updated successfully.');
+            $this->dispatch('showSuccess', "Position '{$position->title}' updated successfully!");
             $this->closeModal();
 
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                $this->dispatch('showError', 'Database constraint violation. Please check your data.');
+            } else {
+                $this->dispatch('showError', 'Database error occurred while updating position.');
+            }
         } catch (\Exception $e) {
-            $this->dispatch('showError', 'Failed to update position: ' . $e->getMessage());
+            $this->dispatch('showError', 'Failed to update position. Please try again.');
         }
     }
 
@@ -160,19 +189,27 @@ class PositionManagement extends Component
                 return;
             }
 
+            // Check if position is being used by personnel
+            $personnelCount = \App\Models\Personnel::where('position_id', $this->positionId)->count();
+            if ($personnelCount > 0) {
+                $this->dispatch('showWarning', "Cannot delete position '{$position->title}' because it is assigned to {$personnelCount} personnel record(s). Please reassign or remove personnel first.");
+                return;
+            }
+
+            $positionTitle = $position->title;
             $position->delete();
 
-            $this->dispatch('showSuccess', 'Position deleted successfully.');
+            $this->dispatch('showSuccess', "Position '{$positionTitle}' deleted successfully!");
             $this->closeModal();
 
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->getCode() == 23000) {
-                $this->dispatch('showError', 'Cannot delete this position because it is referenced by other records.');
+                $this->dispatch('showError', 'Cannot delete this position because it is referenced by other records in the database.');
             } else {
-                $this->dispatch('showError', 'Failed to delete position.');
+                $this->dispatch('showError', 'Database error occurred while deleting position.');
             }
         } catch (\Exception $e) {
-            $this->dispatch('showError', 'Failed to delete position.');
+            $this->dispatch('showError', 'Failed to delete position. Please try again.');
         }
     }
 
