@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('leave_requests', function (Blueprint $table) {
-            $table->boolean('uses_cto')->default(false)->after('day_debt');
-            $table->decimal('cto_hours_used', 8, 2)->default(0)->after('uses_cto');
+            $table->string('cto_others_name', 50)->nullable()->after('cto_leave_type');
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('leave_requests', function (Blueprint $table) {
-            $table->dropColumn(['uses_cto', 'cto_hours_used']);
+            $table->dropColumn('cto_others_name');
         });
     }
 };

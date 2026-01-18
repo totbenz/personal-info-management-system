@@ -479,6 +479,12 @@ Route::middleware(['auth'])->group(function () {
     // Leave request submission - available to all authenticated roles
     Route::post('/leave-request', [\App\Http\Controllers\LeaveRequestController::class, 'store'])->name('leave-request.store');
 
+    // CTO-based leave request submission (using CTO balance for Sick/Vacation Leave)
+    Route::post('/leave-request/cto', [\App\Http\Controllers\LeaveRequestController::class, 'storeCtoLeave'])->name('leave-request.store-cto');
+
+    // CTO-based leave request download (CTO form)
+    Route::get('/leave-request/cto/download/{leaveRequestId}', [\App\Http\Controllers\LeaveRequestController::class, 'downloadCtoForm'])->name('leave-request.download-cto');
+
     // Global CTO request route (teacher, non_teaching, school_head)
     Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])
         ->middleware('timeout.prevention')

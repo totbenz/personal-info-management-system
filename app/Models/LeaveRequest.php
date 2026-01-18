@@ -18,6 +18,15 @@ class LeaveRequest extends Model
         'custom_leave_name',
         'custom_leave_reason',
         'day_debt',
+        'is_cto_based',
+        'cto_leave_type',
+        'cto_others_name',
+    ];
+
+    protected $casts = [
+        'is_cto_based' => 'boolean',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function user()

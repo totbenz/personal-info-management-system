@@ -65,17 +65,26 @@
             </svg>
         </div>
         <div class="flex items-center space-x-2">
+            <!-- CTO Request Icon Button (Earn CTO) -->
             <button id="ctoRequestBtn" class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Add Compensatory Time Off" onclick="document.getElementById('ctoRequestModal').classList.remove('hidden'); document.getElementById('ctoRequestModal').classList.add('flex');">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </button>
+
+            <!-- Use CTO Icon Button -->
+            <button id="useCtoBtn" class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Compensatory Time Off" onclick="document.getElementById('useCtoModal').classList.remove('hidden'); document.getElementById('useCtoModal').classList.add('flex');">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+            </button>
+
+            <!-- Leave Request Icon Button -->
             <button id="leaveRequestBtn" class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="File a Leave Request" onclick="document.getElementById('leaveRequestModal').classList.remove('hidden'); document.getElementById('leaveRequestModal').classList.add('flex');">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m3-3h-6m8 5a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10z" />
                 </svg>
             </button>
-
         </div>
     </div>
     <div id="leavesContent" class="transition-all duration-300">
@@ -404,6 +413,94 @@
         </div>
     </div>
 
+    <!-- Use CTO Modal (hidden by default) -->
+    <div id="useCtoModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
+            <button id="closeUseCtoModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onclick="document.getElementById('useCtoModal').classList.add('hidden'); document.getElementById('useCtoModal').classList.remove('flex');">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Request Compensatory Time Off</h3>
+
+            @if(session('cto_usage_success'))
+                <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                    {{ session('cto_usage_success') }}
+                </div>
+            @endif
+            @if($errors->has('cto_usage_error'))
+                <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    {{ $errors->first('cto_usage_error') }}
+                </div>
+            @endif
+
+            <div class="mb-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-cyan-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-sm text-cyan-800">
+                        <p class="font-medium">Available CTO Balance: <span class="text-lg">{{ number_format($ctoBalance['total_available'] ?? 0, 1) }}</span> days</p>
+                        <p class="text-xs mt-1">Use your earned CTO for Sick Leave or Vacation Leave</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('leave-request.store-cto') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" name="is_cto_based" value="1">
+
+                <div>
+                    <label for="cto_leave_type" class="block text-sm font-medium text-gray-700">Use CTO as</label>
+                    <select name="cto_leave_type" id="cto_leave_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="toggleCtoOthersName()">
+                        <option value="">Select leave type</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Vacation Leave">Vacation Leave</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    @error('cto_leave_type')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                </div>
+
+                <!-- CTO Others Name Field (hidden by default) -->
+                <div id="ctoOthersNameDiv" class="hidden">
+                    <label for="cto_others_name" class="block text-sm font-medium text-gray-700">Specify Leave Type Name</label>
+                    <input type="text" name="cto_others_name" id="cto_others_name" maxlength="50"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                           placeholder="Enter leave type name">
+                    @error('cto_others_name')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                </div>
+
+                <div>
+                    <label for="cto_start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" name="start_date" id="cto_start_date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('start_date')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                </div>
+
+                <div>
+                    <label for="cto_end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" name="end_date" id="cto_end_date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('end_date')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                    <div id="cto_days_info" class="text-cyan-600 text-xs mt-1 hidden">
+                        Total days: <span id="cto_total_days">0</span>
+                    </div>
+                    <div id="cto_balance_warning" class="text-red-500 text-xs mt-1 hidden">
+                        Requested days exceed your available CTO balance.
+                    </div>
+                </div>
+
+                <div>
+                    <label for="use_cto_reason" class="block text-sm font-medium text-gray-700">Reason</label>
+                    <textarea name="reason" id="use_cto_reason" rows="2" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Enter reason for using CTO..."></textarea>
+                    @error('reason')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
+                </div>
+
+                <button type="submit" id="useCtoSubmitBtn" class="w-full px-6 py-2 bg-cyan-600 text-white rounded-xl font-semibold hover:bg-cyan-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Submit Compensatory Time Off
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- CTO Request Modal -->
     <div id="ctoRequestModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-8 w-full max-w-md relative">
@@ -493,7 +590,7 @@
                     <label for="cto_description" class="block text-sm font-medium text-gray-700">Additional Details (Optional)</label>
                     <textarea name="description" id="cto_description" rows="2" maxlength="1000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
                 </div>
-                <button type="submit" id="cto_submit_btn" disabled class="w-full px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">Submit CTO Request</button>
+                <button type="submit" id="cto_submit_btn" disabled class="w-full px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">Submit Add Compensatory Time Off</button>
             </form>
         </div>
     </div>
@@ -1561,6 +1658,22 @@
             // Make reason field required for regular leaves
             reasonField.required = true;
             reasonField.placeholder = 'Enter reason for leave...';
+        }
+    }
+
+    // Function to toggle CTO Others name field
+    function toggleCtoOthersName() {
+        const ctoLeaveType = document.getElementById('cto_leave_type');
+        const ctoOthersNameDiv = document.getElementById('ctoOthersNameDiv');
+        const ctoOthersNameInput = document.getElementById('cto_others_name');
+
+        if (ctoLeaveType.value === 'Others') {
+            ctoOthersNameDiv.classList.remove('hidden');
+            ctoOthersNameInput.required = true;
+        } else {
+            ctoOthersNameDiv.classList.add('hidden');
+            ctoOthersNameInput.required = false;
+            ctoOthersNameInput.value = '';
         }
     }
 

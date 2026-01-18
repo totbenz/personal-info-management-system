@@ -10,6 +10,7 @@ use App\Services\CTOService;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class LeaveRequestController extends Controller
 {
@@ -329,6 +330,12 @@ class LeaveRequestController extends Controller
         $personnel->job_status = $leave->leave_type;
         $personnel->save();
 
+        // Handle CTO-based leave requests - deduct from CTO balance instead of regular leave balance
+        if ($leave->is_cto_based) {
+            $this->processCtoBasedLeave($leave, $personnel, $leaveDays);
+            return;
+        }
+
         // Handle different user roles
         switch ($user->role) {
             case 'school_head':
@@ -341,6 +348,61 @@ class LeaveRequestController extends Controller
                 $this->updateNonTeachingLeaveBalance($personnel, $leave->leave_type, $leaveDays);
                 break;
         }
+    }
+
+    /**
+     * Process CTO-based leave request - deduct from CTO entries using FIFO
+     */
+    private function processCtoBasedLeave(LeaveRequest $leave, $personnel, float $leaveDays)
+    {
+        $remainingDays = $leaveDays;
+
+        // Get available CTO entries ordered by earned date (FIFO)
+        $ctoEntries = \App\Models\CTOEntry::getAvailableForSchoolHead($personnel->id);
+
+        foreach ($ctoEntries as $entry) {
+            if ($remainingDays <= 0) {
+                break;
+            }
+
+            $daysToUse = min($remainingDays, $entry->days_remaining);
+
+            try {
+                // Use days from this CTO entry and create usage record
+                $entry->useDays($daysToUse, $leave->id, 'leave', "Used for {$leave->cto_leave_type} leave request");
+
+                Log::info('CTO entry used for leave', [
+                    'cto_entry_id' => $entry->id,
+                    'leave_request_id' => $leave->id,
+                    'days_used' => $daysToUse,
+                    'remaining_in_entry' => $entry->days_remaining
+                ]);
+
+                $remainingDays -= $daysToUse;
+            } catch (\Exception $e) {
+                Log::error('Failed to use CTO entry for leave', [
+                    'cto_entry_id' => $entry->id,
+                    'leave_request_id' => $leave->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        if ($remainingDays > 0) {
+            Log::warning('Not all leave days could be covered by CTO', [
+                'leave_request_id' => $leave->id,
+                'requested_days' => $leaveDays,
+                'uncovered_days' => $remainingDays
+            ]);
+        }
+
+        Log::info('CTO-based leave processed', [
+            'leave_request_id' => $leave->id,
+            'personnel_id' => $personnel->id,
+            'leave_type' => $leave->cto_leave_type,
+            'total_days' => $leaveDays,
+            'days_deducted_from_cto' => $leaveDays - $remainingDays
+        ]);
     }
 
     /**
@@ -883,5 +945,213 @@ class LeaveRequestController extends Controller
                 ]);
             }
         }
+    }
+
+    /**
+     * Store a CTO-based leave request (using CTO balance for Sick/Vacation Leave/Others)
+     */
+    public function storeCtoLeave(Request $request)
+    {
+        $rules = [
+            'cto_leave_type' => 'required|string|in:Sick Leave,Vacation Leave,Others',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'required|string',
+        ];
+
+        // Add validation for cto_others_name if Others is selected
+        if ($request->cto_leave_type === 'Others') {
+            $rules['cto_others_name'] = 'required|string|max:50';
+        }
+
+        $request->validate($rules);
+
+        $user = Auth::user();
+        $personnel = $user->personnel;
+
+        if (!$personnel) {
+            return redirect()->back()
+                ->withErrors(['cto_usage_error' => 'Personnel record not found.'])
+                ->withInput();
+        }
+
+        // Calculate requested days
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+        $requestedDays = $startDate->diffInDays($endDate) + 1;
+
+        // Check CTO balance
+        $availableCto = \App\Models\CTOEntry::getTotalAvailableDays($personnel->id);
+
+        if ($requestedDays > $availableCto) {
+            return redirect()->back()
+                ->withErrors(['cto_usage_error' => "Insufficient CTO balance. You have {$availableCto} days available, but requested {$requestedDays} days."])
+                ->withInput();
+        }
+
+        try {
+            // Create leave request with CTO flag
+            $leaveRequest = LeaveRequest::create([
+                'user_id' => Auth::id(),
+                'leave_type' => $request->cto_leave_type,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'reason' => $request->reason,
+                'status' => 'pending',
+                'is_cto_based' => true,
+                'cto_leave_type' => $request->cto_leave_type,
+                'cto_others_name' => $request->cto_leave_type === 'Others' ? $request->cto_others_name : null,
+            ]);
+
+            Log::info('CTO-based leave request created', [
+                'leave_request_id' => $leaveRequest->id,
+                'user_id' => Auth::id(),
+                'personnel_id' => $personnel->id,
+                'cto_leave_type' => $request->cto_leave_type,
+                'requested_days' => $requestedDays,
+                'available_cto' => $availableCto
+            ]);
+
+            // Redirect based on user role
+            $redirectRoute = match($user->role) {
+                'school_head' => 'school_head.dashboard',
+                'non_teaching' => 'non_teaching.dashboard',
+                default => 'dashboard'
+            };
+
+            return redirect()->route($redirectRoute)->with('cto_usage_success', 'CTO leave request submitted successfully! Awaiting admin approval.');
+
+        } catch (\Exception $e) {
+            Log::error('CTO-based leave request creation failed', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+
+            return redirect()->back()
+                ->withErrors(['cto_usage_error' => 'Failed to submit CTO leave request. Please try again.'])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Download CTO form for CTO-based leave request
+     */
+    public function downloadCtoForm($leaveRequestId)
+    {
+        $leaveRequest = LeaveRequest::with(['user.personnel.position', 'user.personnel.school'])->findOrFail($leaveRequestId);
+
+        // Verify this is a CTO-based leave request
+        if (!$leaveRequest->is_cto_based) {
+            abort(400, 'This leave request is not CTO-based.');
+        }
+
+        $user = Auth::user();
+        $personnel = $leaveRequest->user->personnel;
+
+        // Only allow download if the user is the owner or admin
+        if (!($user->role === 'admin' || ($personnel && $user->personnel && $user->personnel->id === $personnel->id))) {
+            abort(403, 'Unauthorized to download this CTO form.');
+        }
+
+        $templatePath = resource_path('views/forms/CTO.docx');
+
+        if (!file_exists($templatePath)) {
+            abort(404, 'CTO form template not found.');
+        }
+
+        $templateProcessor = new TemplateProcessor($templatePath);
+
+        // Calculate leave days
+        $startDate = Carbon::parse($leaveRequest->start_date);
+        $endDate = Carbon::parse($leaveRequest->end_date);
+        $leaveDays = $startDate->diffInDays($endDate) + 1;
+        $hoursApplied = $leaveDays * 8; // Assuming 8 hours per day
+
+        // Fill in template variables
+        $templateProcessor->setValue('name', $personnel->full_name ?? '-');
+        $templateProcessor->setValue('position', $personnel && $personnel->position ? $personnel->position->title : '-');
+        $templateProcessor->setValue('office', 'DEPED-' . strtoupper($personnel && $personnel->school ? $personnel->school->division : 'BAYBAY CITY DIVISION'));
+        $templateProcessor->setValue('school', $personnel && $personnel->school ? $personnel->school->school_name : '-');
+        $templateProcessor->setValue('date_filed', $leaveRequest->created_at ? $leaveRequest->created_at->format('F d, Y') : '-');
+
+        // Set leave type checkmarks based on cto_leave_type
+        if ($leaveRequest->cto_leave_type === 'Sick Leave') {
+            $templateProcessor->setValue('sick_leave', '☑ Sick Leave');
+            $templateProcessor->setValue('vacation_leave', '☐ Vacation Leave');
+            $templateProcessor->setValue('others_leave', '☐ Others');
+            $templateProcessor->setValue('o_name', '');
+        } elseif ($leaveRequest->cto_leave_type === 'Vacation Leave') {
+            $templateProcessor->setValue('sick_leave', '☐ Sick Leave');
+            $templateProcessor->setValue('vacation_leave', '☑ Vacation Leave');
+            $templateProcessor->setValue('others_leave', '☐ Others');
+            $templateProcessor->setValue('o_name', '');
+        } else {
+            // Others
+            $templateProcessor->setValue('sick_leave', '☐ Sick Leave');
+            $templateProcessor->setValue('vacation_leave', '☐ Vacation Leave');
+            $templateProcessor->setValue('others_leave', '☑ Others');
+            $templateProcessor->setValue('o_name', $leaveRequest->cto_others_name ?? '');
+        }
+
+        // Approval status checkmarks
+        if ($leaveRequest->status === 'approved') {
+            $templateProcessor->setValue('a', '☑');
+            $templateProcessor->setValue('d', '☐');
+        } elseif ($leaveRequest->status === 'denied') {
+            $templateProcessor->setValue('a', '☐');
+            $templateProcessor->setValue('d', '☑');
+        } else {
+            $templateProcessor->setValue('a', '☐');
+            $templateProcessor->setValue('d', '☐');
+        }
+
+        // Number of hours applied
+        $templateProcessor->setValue('hours_applied', number_format($hoursApplied) . ' HRS');
+
+        // Inclusive dates
+        $inclusiveDates = strtoupper($startDate->format('F d, Y'));
+        if ($leaveDays > 1) {
+            $inclusiveDates .= ' - ' . strtoupper($endDate->format('F d, Y'));
+        }
+        $templateProcessor->setValue('inclusive_dates', $inclusiveDates);
+
+        // Work details - for CTO usage, these are the leave dates
+        $templateProcessor->setValue('work_date', $startDate->format('M d, Y'));
+        $templateProcessor->setValue('morning_in', '-');
+        $templateProcessor->setValue('morning_out', '-');
+        $templateProcessor->setValue('afternoon_in', '-');
+        $templateProcessor->setValue('afternoon_out', '-');
+        $templateProcessor->setValue('total_hours', number_format($hoursApplied, 2));
+        $templateProcessor->setValue('reason', $leaveRequest->reason ?? '-');
+        $templateProcessor->setValue('description', $leaveRequest->reason ?? '-');
+        $templateProcessor->setValue('status', ucfirst($leaveRequest->status));
+        $templateProcessor->setValue('approved_at', $leaveRequest->updated_at ? $leaveRequest->updated_at->format('M d, Y') : '-');
+
+        // Certification of Compensatory Overtime Credits
+        $templateProcessor->setValue('coc_as_of', $leaveRequest->updated_at ? strtoupper($leaveRequest->updated_at->format('F d, Y')) : '-');
+
+        // Get remaining CTO balance after this usage
+        $remainingCto = \App\Models\CTOEntry::getTotalAvailableDays($personnel->id);
+        $templateProcessor->setValue('hours_remaining', number_format($remainingCto * 8) . ' HRS');
+
+        // Action taken
+        $actionTaken = $leaveRequest->status === 'approved' ? 'Approved' : ($leaveRequest->status === 'denied' ? 'Disapproved' : '-');
+        $templateProcessor->setValue('action_taken', $actionTaken);
+        $templateProcessor->setValue('disapproved_reason', '');
+
+        // Signatures
+        $templateProcessor->setValue('applicant_name', $personnel->full_name ?? '-');
+        $templateProcessor->setValue('hrmo_name', 'JULIUS CESAR L. DE LA CERNA');
+        $templateProcessor->setValue('hrmo_position', 'HRMO II');
+        $templateProcessor->setValue('sds_name', 'MANUEL P. ALBAÑO, PhD., CESO V');
+        $templateProcessor->setValue('sds_position', 'Schools Division Superintendent');
+        $templateProcessor->setValue('recommending_name', 'JOSEMILO P. RUIZ, EdD, CESE');
+        $templateProcessor->setValue('recommending_position', 'Assistant Schools Division Superintendent');
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'cto_leave_') . '.docx';
+        $templateProcessor->saveAs($tempFile);
+
+        return response()->download($tempFile, 'CTO_Leave_' . $leaveRequest->id . '.docx')->deleteFileAfterSend(true);
     }
 }

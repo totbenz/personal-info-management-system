@@ -245,12 +245,21 @@
                             </span>
                             <p class="text-xs text-gray-500 mt-1">{{ $request->created_at->format('M d, Y') }}</p>
                             @if($request->status === 'approved')
-                            <button onclick="openDownloadModal({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-orange-600 text-orange-700 text-xs font-semibold rounded-full hover:bg-orange-50 transition mt-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
-                                </svg>
-                                <span class="ml-1">Download</span>
-                            </button>
+                                @if($request->is_cto_based)
+                                <a href="{{ route('leave-request.download-cto', ['leaveRequestId' => $request->id]) }}" target="_blank" class="inline-flex items-center px-3 py-1 border border-cyan-600 text-cyan-700 text-xs font-semibold rounded-full hover:bg-cyan-50 transition mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                    </svg>
+                                    <span class="ml-1">CTO Form</span>
+                                </a>
+                                @else
+                                <button onclick="openDownloadModal({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-orange-600 text-orange-700 text-xs font-semibold rounded-full hover:bg-orange-50 transition mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                    </svg>
+                                    <span class="ml-1">Download</span>
+                                </button>
+                                @endif
                             @else
                             <span class="text-xs text-gray-400 mt-2">N/A</span>
                             @endif
@@ -290,7 +299,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Date Filed</th>
                                     <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Total Hours Worked</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Days Gained</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-teal-100">
@@ -313,7 +322,17 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-xs text-gray-400">N/A</span>
+                                        @if($request->status === 'approved')
+                                            @php
+                                            $hoursWorked = $request->total_hours ?? $request->requested_hours ?? 0;
+                                            $daysGained = $hoursWorked / 8;
+                                            @endphp
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                                                +{{ number_format($daysGained, 1) }} {{ $daysGained == 1 ? 'day' : 'days' }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-400">-</span>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty
