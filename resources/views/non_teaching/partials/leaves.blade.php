@@ -65,7 +65,7 @@
             </svg>
         </div>
         <div class="flex items-center space-x-2">
-            <button id="ctoRequestBtn" class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Request Compensatory Time Off" onclick="document.getElementById('ctoRequestModal').classList.remove('hidden'); document.getElementById('ctoRequestModal').classList.add('flex');">
+            <button id="ctoRequestBtn" class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200" title="Add Compensatory Time Off" onclick="document.getElementById('ctoRequestModal').classList.remove('hidden'); document.getElementById('ctoRequestModal').classList.add('flex');">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -412,7 +412,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Request Compensatory Time Off</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Add Compensatory Time Off</h3>
             @if(session('cto_success'))
                 <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">{{ session('cto_success') }}</div>
             @endif
