@@ -1446,6 +1446,80 @@
         }
     }
 
+    // Use CTO Modal - Live validation for date selection
+    const ctoAvailableBalance = {{ $ctoBalance['total_available'] ?? 0 }};
+
+    function validateUseCtoForm() {
+        const startDate = document.getElementById('cto_start_date');
+        const endDate = document.getElementById('cto_end_date');
+        const daysInfo = document.getElementById('cto_days_info');
+        const totalDaysSpan = document.getElementById('cto_total_days');
+        const balanceWarning = document.getElementById('cto_balance_warning');
+        const submitBtn = document.getElementById('useCtoSubmitBtn');
+        const leaveType = document.getElementById('cto_leave_type');
+        const reason = document.getElementById('use_cto_reason');
+
+        if (!startDate || !endDate || !startDate.value || !endDate.value) {
+            if (daysInfo) daysInfo.classList.add('hidden');
+            if (balanceWarning) balanceWarning.classList.add('hidden');
+            if (submitBtn) submitBtn.disabled = true;
+            return;
+        }
+
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+
+        if (end < start) {
+            if (daysInfo) daysInfo.classList.add('hidden');
+            if (balanceWarning) {
+                balanceWarning.textContent = 'End date must be after start date.';
+                balanceWarning.classList.remove('hidden');
+            }
+            if (submitBtn) submitBtn.disabled = true;
+            return;
+        }
+
+        // Calculate days (inclusive)
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        // Show days info
+        if (daysInfo && totalDaysSpan) {
+            totalDaysSpan.textContent = diffDays;
+            daysInfo.classList.remove('hidden');
+        }
+
+        // Check against balance
+        if (diffDays > ctoAvailableBalance) {
+            if (balanceWarning) {
+                balanceWarning.textContent = `Requested ${diffDays} day(s) exceeds your available CTO balance of ${ctoAvailableBalance.toFixed(1)} day(s).`;
+                balanceWarning.classList.remove('hidden');
+            }
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            if (balanceWarning) balanceWarning.classList.add('hidden');
+            // Enable submit only if all required fields are filled
+            const isValid = leaveType && leaveType.value && reason && reason.value.trim().length > 0;
+            if (submitBtn) submitBtn.disabled = !isValid;
+        }
+    }
+
+    // Attach event listeners for Use CTO form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctoStartDate = document.getElementById('cto_start_date');
+        const ctoEndDate = document.getElementById('cto_end_date');
+        const ctoLeaveType = document.getElementById('cto_leave_type');
+        const ctoReason = document.getElementById('use_cto_reason');
+
+        if (ctoStartDate) ctoStartDate.addEventListener('change', validateUseCtoForm);
+        if (ctoEndDate) ctoEndDate.addEventListener('change', validateUseCtoForm);
+        if (ctoLeaveType) ctoLeaveType.addEventListener('change', validateUseCtoForm);
+        if (ctoReason) ctoReason.addEventListener('input', validateUseCtoForm);
+
+        // Initial validation
+        validateUseCtoForm();
+    });
+
     // Function to close monetization submenu
     function closeMonetizationSubmenu() {
         document.getElementById('monetizationSubmenu').classList.add('hidden');
