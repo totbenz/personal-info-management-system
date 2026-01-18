@@ -67,6 +67,9 @@ class DLAppForLeaveController extends Controller
             $workingDays = $this->calculateWorkingDays($leaveRequest->start_date, $leaveRequest->end_date);
             $sheet->setCellValue('E36', $workingDays);
 
+            // Also add total days to B57
+            $sheet->setCellValue('B57', $workingDays);
+
             // Fill full name
             $fullName = trim($personnel->first_name . ' ' . ($personnel->middle_name ? $personnel->middle_name . ' ' : '') . $personnel->last_name);
             $sheet->setCellValue('I38', $fullName);
@@ -133,6 +136,8 @@ class DLAppForLeaveController extends Controller
                     case 'service credit':
                         $sheet->setCellValue('C22', '✓');
                         break;
+                    case 'mandatory forced leave':
+                        $sheet->setCellValue('C21', '✓');
                 }
             }
 

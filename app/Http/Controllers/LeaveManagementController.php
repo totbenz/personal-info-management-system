@@ -267,7 +267,7 @@ class LeaveManagementController extends Controller
                 'REHABILITATION PRIVILEGE' => 180,
                 'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($personnel->sex === 'female') ? 60 : 0,
                 'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
-                'ADOPTION LEAVE' => $this->getAdoptionLeaveDays($personnel),
+                'ADOPTION LEAVE' => ($personnel->sex === 'female') ? 60 : (($personnel->sex === 'male') ? 7 : 0),
             ];
 
             foreach ($fixedLeaves as $leaveType => $maxDays) {
@@ -299,7 +299,7 @@ class LeaveManagementController extends Controller
                 'REHABILITATION PRIVILEGE' => 180,
                 'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($personnel->sex === 'female') ? 60 : 0,
                 'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
-                'ADOPTION LEAVE' => $this->getAdoptionLeaveDays($personnel),
+                'ADOPTION LEAVE' => ($personnel->sex === 'female') ? 60 : (($personnel->sex === 'male') ? 7 : 0),
             ];
 
             foreach ($fixedLeaves as $leaveType => $maxDays) {
@@ -332,7 +332,8 @@ class LeaveManagementController extends Controller
                 'REHABILITATION PRIVILEGE' => 180,
                 'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($personnel->sex === 'female') ? 60 : 0,
                 'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
-                'ADOPTION LEAVE' => $this->getAdoptionLeaveDays($personnel),
+                'ADOPTION LEAVE' => ($personnel->sex === 'female') ? 60 :
+                    (($personnel->sex === 'male' && $personnel->civil_status === 'single') ? 60 : 7),
             ];
 
             foreach ($fixedLeaves as $leaveType => $maxDays) {

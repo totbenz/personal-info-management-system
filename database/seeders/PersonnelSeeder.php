@@ -14,6 +14,6 @@ class PersonnelSeeder extends Seeder
      */
     public function run(): void
     {
-        Personnel::factory()->count(10)->create(); 
+        Personnel::factory()->count(4)->create();
     }
 }

@@ -231,7 +231,9 @@
                                 <p class="text-xs text-gray-600">
                                     {{ \Carbon\Carbon::parse($request->start_date)->format('M d') }} -
                                     {{ \Carbon\Carbon::parse($request->end_date)->format('M d, Y') }}
-                                    ({{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
+                                    ({{ \Carbon\Carbon::parse($request->start_date)->diffInDaysFiltered(function($date) {
+                                        return !in_array($date->dayOfWeek, [0, 6]); // Exclude Sunday (0) and Saturday (6)
+                                    }, \Carbon\Carbon::parse($request->end_date)) + 1 }} day(s))
                                 </p>
                                 <p class="text-xs text-gray-500 mt-1">{{ Str::limit($request->reason, 80) }}</p>
                             </div>

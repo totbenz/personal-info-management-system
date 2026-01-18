@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weekend Exclusion Test</title>
+</head>
+<body>
+    <h2>Test Weekend Exclusion</h2>
+    <label>Start Date: <input type="date" id="start"></label><br><br>
+    <label>End Date: <input type="date" id="end"></label><br><br>
+    <button onclick="calculate()">Calculate Working Days</button>
+    <h3 id="result"></h3>
+    <div id="details"></div>
+
+    <script>
+        function calculate() {
+            const startDate = new Date(document.getElementById('start').value);
+            const endDate = new Date(document.getElementById('end').value);
+
+            if (!startDate || !endDate || endDate < startDate) {
+                document.getElementById('result').textContent = 'Invalid dates';
+                return;
+            }
+
+            let workingDays = 0;
+            let weekendDays = 0;
+            const details = [];
+            const currentDate = new Date(startDate);
+
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    workingDays++;
+                    details.push(`${currentDate.toDateString()} (${dayName}) - WORKING DAY`);
+                } else {
+                    weekendDays++;
+                    details.push(`${currentDate.toDateString()} (${dayName}) - WEEKEND (excluded)`);
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            document.getElementById('result').textContent = `Working Days: ${workingDays}, Weekend Days: ${weekendDays}`;
+            document.getElementById('details').innerHTML = details.join('<br>');
+        }
+    </script>
+</body>
+</html>

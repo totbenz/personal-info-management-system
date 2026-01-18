@@ -431,7 +431,7 @@
                         The selected dates exceed your available leave days.
                     </div>
                     <div id="days_info" class="hidden text-blue-600 text-xs mt-1">
-                        Total days: <span id="total_days">0</span>
+                        Total working days: <span id="total_days">0</span>
                     </div>
                 </div>
                 <div>
@@ -1254,28 +1254,44 @@
             });
         }
 
-        // Date calculation function
+        // Date calculation function (excluding weekends)
         function calculateDays() {
             if (!startDateInput.value || !endDateInput.value) {
                 daysInfo.classList.add('hidden');
                 return 0;
             }
 
-            const startDate = new Date(startDateInput.value);
-            const endDate = new Date(endDateInput.value);
+            // Parse dates using YYYY-MM-DD format to avoid timezone issues
+            const startDate = new Date(startDateInput.value + 'T00:00:00');
+            const endDate = new Date(endDateInput.value + 'T00:00:00');
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                daysInfo.classList.add('hidden');
+                return 0;
+            }
 
             if (endDate < startDate) {
                 daysInfo.classList.add('hidden');
                 return 0;
             }
 
-            const timeDiff = endDate.getTime() - startDate.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+            // Calculate working days (excluding weekends)
+            let workingDays = 0;
+            const currentDate = new Date(startDate);
 
-            totalDaysSpan.textContent = daysDiff;
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                // Exclude Sunday (0) and Saturday (6)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            totalDaysSpan.textContent = workingDays;
             daysInfo.classList.remove('hidden');
 
-            return daysDiff;
+            return workingDays;
         }
 
         // Validation function
@@ -1466,8 +1482,17 @@
             return;
         }
 
-        const start = new Date(startDate.value);
-        const end = new Date(endDate.value);
+        // Parse dates using YYYY-MM-DD format to avoid timezone issues
+        const start = new Date(startDate.value + 'T00:00:00');
+        const end = new Date(endDate.value + 'T00:00:00');
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.error('Invalid date format');
+            if (daysInfo) daysInfo.classList.add('hidden');
+            if (balanceWarning) balanceWarning.classList.add('hidden');
+            if (submitBtn) submitBtn.disabled = true;
+            return;
+        }
 
         if (end < start) {
             if (daysInfo) daysInfo.classList.add('hidden');
@@ -1479,20 +1504,29 @@
             return;
         }
 
-        // Calculate days (inclusive)
-        const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        // Calculate working days (excluding weekends)
+        let workingDays = 0;
+        const currentDate = new Date(start);
+
+        while (currentDate <= end) {
+            const dayOfWeek = currentDate.getDay();
+            // Exclude Sunday (0) and Saturday (6)
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                workingDays++;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
 
         // Show days info
         if (daysInfo && totalDaysSpan) {
-            totalDaysSpan.textContent = diffDays;
+            totalDaysSpan.textContent = workingDays;
             daysInfo.classList.remove('hidden');
         }
 
         // Check against balance
-        if (diffDays > ctoAvailableBalance) {
+        if (workingDays > ctoAvailableBalance) {
             if (balanceWarning) {
-                balanceWarning.textContent = `Requested ${diffDays} day(s) exceeds your available CTO balance of ${ctoAvailableBalance.toFixed(1)} day(s).`;
+                balanceWarning.textContent = `Requested ${workingDays} working day(s) exceeds your available CTO balance of ${ctoAvailableBalance.toFixed(1)} day(s).`;
                 balanceWarning.classList.remove('hidden');
             }
             if (submitBtn) submitBtn.disabled = true;

@@ -158,7 +158,9 @@
             <div>Schools Involved</div>
         </div>
         <div class="stat-box">
-            <div class="stat-number">{{ $requests->sum(function($request) { return \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1; }) }}</div>
+            <div class="stat-number">{{ $requests->sum(function($request) { return \Carbon\Carbon::parse($request->start_date)->diffInDaysFiltered(function($date) {
+                return !in_array($date->dayOfWeek, [0, 6]); // Exclude Sunday (0) and Saturday (6)
+            }, \Carbon\Carbon::parse($request->end_date)) + 1; }) }}</div>
             <div>Total Leave Days</div>
         </div>
     </div>
@@ -224,7 +226,9 @@
                     </td>
                     <td>
                         <span class="days-badge">
-                            {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }}
+                            {{ \Carbon\Carbon::parse($request->start_date)->diffInDaysFiltered(function($date) {
+                                return !in_array($date->dayOfWeek, [0, 6]); // Exclude Sunday (0) and Saturday (6)
+                            }, \Carbon\Carbon::parse($request->end_date)) + 1 }}
                         </span>
                     </td>
                     <td>

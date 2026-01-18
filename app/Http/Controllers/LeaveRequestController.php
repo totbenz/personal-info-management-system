@@ -72,10 +72,10 @@ class LeaveRequestController extends Controller
                 // Ensure leave records exist
                 $this->ensureSchoolHeadLeaveRecordsExist($personnel);
 
-                // Calculate requested days
+                // Calculate requested days (excluding weekends)
                 $startDate = Carbon::parse($request->start_date);
                 $endDate = Carbon::parse($request->end_date);
-                $requestedDays = $startDate->diffInDays($endDate) + 1;
+                $requestedDays = $this->calculateWorkingDays($startDate, $endDate);
 
                 // Check available balance for this leave type
                 $currentYear = now()->year;
@@ -99,7 +99,7 @@ class LeaveRequestController extends Controller
             if ($personnel) {
                 $startDate = Carbon::parse($request->start_date);
                 $endDate = Carbon::parse($request->end_date);
-                $requestedDays = $startDate->diffInDays($endDate) + 1;
+                $requestedDays = $this->calculateWorkingDays($startDate, $endDate);
 
                 // Get teacher's leave records for current year
                 $currentYear = now()->year;
@@ -181,7 +181,7 @@ class LeaveRequestController extends Controller
             if ($personnel && $request->leave_type === 'Force Leave') {
                 $startDate = Carbon::parse($request->start_date);
                 $endDate = Carbon::parse($request->end_date);
-                $requestedDays = $startDate->diffInDays($endDate) + 1;
+                $requestedDays = $this->calculateWorkingDays($startDate, $endDate);
 
                 if ($requestedDays > 5) {
                     return redirect()->back()
@@ -206,7 +206,7 @@ class LeaveRequestController extends Controller
                     if ($serviceCredit) {
                         $startDate = Carbon::parse($request->start_date);
                         $endDate = Carbon::parse($request->end_date);
-                        $requestedDays = $startDate->diffInDays($endDate) + 1;
+                        $requestedDays = $this->calculateWorkingDays($startDate, $endDate);
                         $newBalance = $serviceCredit->available - $requestedDays;
 
                         // For Terminal Leave (custom), block if exceeding Service Credit
@@ -305,6 +305,34 @@ class LeaveRequestController extends Controller
     }
 
     /**
+     * Calculate working days between two dates (excluding weekends)
+     */
+    private function calculateWorkingDays($startDate, $endDate)
+    {
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+
+        // Ensure end date is after start date
+        if ($end->lt($start)) {
+            return 0;
+        }
+
+        // Calculate working days (excluding weekends)
+        $workingDays = 0;
+        $currentDate = $start->copy();
+
+        while ($currentDate->lte($end)) {
+            // Exclude Saturday (6) and Sunday (7)
+            if ($currentDate->dayOfWeek !== Carbon::SATURDAY && $currentDate->dayOfWeek !== Carbon::SUNDAY) {
+                $workingDays++;
+            }
+            $currentDate->addDay();
+        }
+
+        return $workingDays;
+    }
+
+    /**
      * Update leave balance when leave is approved (for all user types)
      */
     private function updateLeaveBalance(LeaveRequest $leave)
@@ -321,10 +349,10 @@ class LeaveRequestController extends Controller
             return;
         }
 
-        // Calculate leave days
+        // Calculate leave days (excluding weekends)
         $startDate = Carbon::parse($leave->start_date);
         $endDate = Carbon::parse($leave->end_date);
-        $leaveDays = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end dates
+        $leaveDays = $this->calculateWorkingDays($startDate, $endDate);
 
         // Update work info: set job_status to leave type
         $personnel->job_status = $leave->leave_type;
@@ -576,10 +604,10 @@ class LeaveRequestController extends Controller
         // Ensure all leave records exist for this school head
         $this->ensureSchoolHeadLeaveRecordsExist($personnel);
 
-        // Calculate the number of days for this leave request
+        // Calculate the number of days for this leave request (excluding weekends)
         $startDate = Carbon::parse($leave->start_date);
         $endDate = Carbon::parse($leave->end_date);
-        $leaveDays = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end dates
+        $leaveDays = $this->calculateWorkingDays($startDate, $endDate);
 
         // Update work info: set job_status to leave type
         $personnel->job_status = $leave->leave_type;

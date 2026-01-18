@@ -4,8 +4,12 @@ namespace App\Livewire;
 
 use App\Models\User;
 use App\Models\Personnel;
+use App\Models\TeacherLeave;
+use App\Models\SchoolHeadLeave;
+use App\Models\NonTeachingLeave;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Carbon\Carbon;
 
 class AccountManagement extends Component
 {
@@ -159,12 +163,15 @@ class AccountManagement extends Component
                 return;
             }
 
-            User::create([
+            $user = User::create([
                 'email' => $this->email,
                 'password' => bcrypt($this->password),
                 'role' => $this->role,
                 'personnel_id' => $personnel->id,
             ]);
+
+            // Initialize leave balances for the new user
+            $this->initializeLeaveBalances($user);
 
             $this->dispatch('showSuccess', 'Account created successfully.');
             $this->closeModal();
@@ -232,6 +239,120 @@ class AccountManagement extends Component
             }
         } catch (\Exception $e) {
             $this->dispatch('showError', 'Failed to delete account.');
+        }
+    }
+
+    /**
+     * Initialize leave balances for a newly created user based on their role
+     */
+    private function initializeLeaveBalances($user)
+    {
+        $year = Carbon::now()->year;
+        $personnel = $user->personnel;
+
+        if (!$personnel) {
+            return;
+        }
+
+        // Get personnel details for leave calculation
+        $sex = $personnel->sex ?? null;
+        $civilStatus = $personnel->civil_status ?? null;
+        $soloParent = $personnel->solo_parent ?? false;
+        $yearsOfService = $personnel->years_of_service ?? 0;
+        $serviceCreditAvailability = $personnel->service_credit_availability ?? 0;
+
+        switch ($user->role) {
+            case 'teacher':
+                // Use exact same leave types as TeacherLeaveSeeder
+                $leaveTypes = [
+                    'SICK LEAVE',
+                    'MATERNITY LEAVE',
+                    'PATERNITY LEAVE',
+                    'SOLO PARENT LEAVE',
+                    'STUDY LEAVE',
+                    'VAWC LEAVE',
+                    'REHABILITATION PRIVILEGE',
+                    'SPECIAL LEAVE BENEFITS FOR WOMEN',
+                    'SPECIAL EMERGENCY (CALAMITY LEAVE)',
+                    'ADOPTION LEAVE',
+                    'SERVICE CREDIT'
+                ];
+
+                foreach ($leaveTypes as $leaveType) {
+                    TeacherLeave::firstOrCreate([
+                        'teacher_id' => $personnel->id,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                    ], [
+                        'available' => 0,
+                        'used' => 0,
+                        'remarks' => 'Initial balance',
+                    ]);
+                }
+                break;
+
+            case 'school_head':
+                // Use exact same leave types as SchoolHeadLeaveSeeder
+                $leaveTypes = [
+                    'VACATION LEAVE',
+                    'SICK LEAVE',
+                    'MANDATORY FORCED LEAVE',
+                    'MATERNITY LEAVE',
+                    'PATERNITY LEAVE',
+                    'SPECIAL PRIVILEGE LEAVE',
+                    'SOLO PARENT LEAVE',
+                    'STUDY LEAVE',
+                    'VAWC LEAVE',
+                    'REHABILITATION PRIVILEGE',
+                    'SPECIAL LEAVE BENEFITS FOR WOMEN',
+                    'SPECIAL EMERGENCY (CALAMITY LEAVE)',
+                    'ADOPTION LEAVE'
+                ];
+
+                foreach ($leaveTypes as $leaveType) {
+                    SchoolHeadLeave::firstOrCreate([
+                        'school_head_id' => $personnel->id,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                    ], [
+                        'available' => 0,
+                        'used' => 0,
+                        'ctos_earned' => 0,
+                        'remarks' => 'Initial balance',
+                    ]);
+                }
+                break;
+
+            case 'non_teaching':
+                // Use exact same leave types as NonTeachingLeaveSeeder
+                $leaveTypes = [
+                    'VACATION LEAVE',
+                    'SICK LEAVE',
+                    'MANDATORY FORCED LEAVE',
+                    'MATERNITY LEAVE',
+                    'PATERNITY LEAVE',
+                    'SPECIAL PRIVILEGE LEAVE',
+                    'SOLO PARENT LEAVE',
+                    'STUDY LEAVE',
+                    'VAWC LEAVE',
+                    'REHABILITATION PRIVILEGE',
+                    'SPECIAL LEAVE BENEFITS FOR WOMEN',
+                    'SPECIAL EMERGENCY (CALAMITY LEAVE)',
+                    'ADOPTION LEAVE'
+                ];
+
+                foreach ($leaveTypes as $leaveType) {
+                    NonTeachingLeave::firstOrCreate([
+                        'non_teaching_id' => $personnel->id,
+                        'leave_type' => $leaveType,
+                        'year' => $year,
+                    ], [
+                        'available' => 0,
+                        'used' => 0,
+                        'remarks' => 'Initial balance',
+                    ]);
+                }
+                break;
         }
     }
 

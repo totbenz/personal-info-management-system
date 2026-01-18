@@ -35,35 +35,27 @@ class NonTeachingLeave extends Model
         $baseLeaveCredits = max(15, $yearsOfService * 15); // 15 days per year of service, minimum 15
 
         $leaves = [
-            'Vacation Leave' => $baseLeaveCredits,
-            'Sick Leave' => $baseLeaveCredits,
-            'Personal Leave' => $baseLeaveCredits,
-            'Force Leave' => 5,
-            'Rehabilitation Leave' => 180,
-            'Solo Parent Leave' => $soloParent ? 7 : 0,
-            'Study Leave' => 180,
-            'Compensatory Time Off' => 0,
-            'Paternity Leave' => ($userSex === 'female') ? 7 : 0, // Only visible to women
-            'VAWC Leave' => 10, // Visible to all
-            'Special Leave Benefits for Women' => ($userSex === 'female') ? 60 : 0, // Up to 2 months, only for women
-            'Calamity Leave' => 1000, // Unlimited leave
+            'VACATION LEAVE' => $baseLeaveCredits,
+            'SICK LEAVE' => $baseLeaveCredits,
+            'MANDATORY FORCED LEAVE' => 5,
+            'SPECIAL PRIVILEGE LEAVE' => 3,
+            'REHABILITATION PRIVILEGE' => 180,
+            'SOLO PARENT LEAVE' => $soloParent ? 7 : 0,
+            'STUDY LEAVE' => 180,
+            'VAWC LEAVE' => 10,
+            'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($userSex === 'female') ? 60 : 0,
+            'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
+            'ADOPTION LEAVE' => ($userSex === 'female') ? 60 : (($userSex === 'male' && $civilStatus === 'single') ? 60 : 7),
         ];
-
-        // Adoption Leave logic
-        // 60 days for female and single male employees, 7 days for male spouse
-        if ($userSex === 'female') {
-            $leaves['Adoption Leave'] = 60;
-        } elseif ($userSex === 'male') {
-            if ($civilStatus === 'single') {
-                $leaves['Adoption Leave'] = 60;
-            } else {
-                $leaves['Adoption Leave'] = 7;
-            }
-        }
 
         // Only add Maternity Leave for female staff
         if ($userSex === 'female') {
-            $leaves['Maternity Leave'] = $soloParent ? 120 : 105;
+            $leaves['MATERNITY LEAVE'] = $soloParent ? 120 : 105;
+        }
+
+        // Only add Paternity Leave for male staff
+        if ($userSex === 'male') {
+            $leaves['PATERNITY LEAVE'] = 7;
         }
 
         return $leaves;

@@ -569,7 +569,7 @@
                                     The selected dates exceed your available leave days.
                                 </div>
                                 <div id="days_info" class="hidden text-blue-600 text-xs mt-1">
-                                    Total days: <span id="total_days">0</span>
+                                    Total working days: <span id="total_days">0</span>
                                 </div>
                             </div>
                             <div>
@@ -714,7 +714,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $leave->created_at->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
                                         @if(!empty($leave->start_date) && !empty($leave->end_date))
-                                        {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}
+                                        {{ \Carbon\Carbon::parse($leave->start_date)->diffInDaysFiltered(function($date) {
+                                            return !in_array($date->dayOfWeek, [0, 6]); // Exclude Sunday (0) and Saturday (6)
+                                        }, \Carbon\Carbon::parse($leave->end_date)) + 1 }}
                                         @else
                                         -
                                         @endif
@@ -1054,337 +1056,343 @@
                     }
                 });
             });
-                // Show SweetAlert notifications for session messages
-                @if(session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: '{{ session('success') }}',
-                        timer: 3000,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    });
-                @endif
 
-                @if(session('error'))
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: '{{ session('error') }}',
-                        timer: 3000,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    });
-                @endif
+        // Show SweetAlert notifications for session messages
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        @endif
 
-                // Pass leave balances to JavaScript
-                const leaveBalances = @json($leaveBalances);
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        @endif
 
-                // Leave request modal elements
-                var leaveRequestBtn = document.getElementById('leaveRequestBtn');
-                var leaveRequestModal = document.getElementById('leaveRequestModal');
-                var closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
-                var leaveTypeSelect = document.getElementById('leave_type');
-                var startDateInput = document.getElementById('start_date');
-                var endDateInput = document.getElementById('end_date');
-                var submitBtn = document.getElementById('submitBtn');
-                var dateWarning = document.getElementById('date_warning');
-                var daysInfo = document.getElementById('days_info');
-                var totalDaysSpan = document.getElementById('total_days');
-                var leaveTypeWarning = document.getElementById('leave_type_warning');
+        // Pass leave balances to JavaScript
+        const leaveBalances = @json($leaveBalances);
 
-                // Minimize functionality for leaves section
-                var leavesHeaderToggle = document.getElementById('leavesHeaderToggle');
-                var leavesToggleIcon = document.getElementById('leavesToggleIcon');
-                var leavesContent = document.getElementById('leavesContent');
-                var isLeavesMinimized = localStorage.getItem('teacherLeavesMinimized') === 'true';
+        // Leave request modal elements
+        var leaveRequestBtn = document.getElementById('leaveRequestBtn');
+        var leaveRequestModal = document.getElementById('leaveRequestModal');
+        var closeLeaveRequestModal = document.getElementById('closeLeaveRequestModal');
+        var leaveTypeSelect = document.getElementById('leave_type');
+        var startDateInput = document.getElementById('start_date');
+        var endDateInput = document.getElementById('end_date');
+        var submitBtn = document.getElementById('submitBtn');
+        var dateWarning = document.getElementById('date_warning');
+        var daysInfo = document.getElementById('days_info');
+        var totalDaysSpan = document.getElementById('total_days');
+        var leaveTypeWarning = document.getElementById('leave_type_warning');
 
-                // Set initial state for leaves section based on localStorage
+        // Minimize functionality for leaves section
+        var leavesHeaderToggle = document.getElementById('leavesHeaderToggle');
+        var leavesToggleIcon = document.getElementById('leavesToggleIcon');
+        var leavesContent = document.getElementById('leavesContent');
+        var isLeavesMinimized = localStorage.getItem('teacherLeavesMinimized') === 'true';
+
+        // Set initial state for leaves section based on localStorage
+        if (isLeavesMinimized) {
+            leavesContent.style.height = '0';
+            leavesContent.style.overflow = 'hidden';
+            leavesContent.style.opacity = '0';
+            leavesToggleIcon.style.transform = 'rotate(-90deg)';
+        }
+
+        // Leaves section toggle
+        if (leavesHeaderToggle && leavesContent) {
+            leavesHeaderToggle.addEventListener('click', function() {
                 if (isLeavesMinimized) {
+                    // Expand
+                    leavesContent.style.height = 'auto';
+                    leavesContent.style.overflow = 'visible';
+                    leavesContent.style.opacity = '1';
+                    leavesToggleIcon.style.transform = 'rotate(0deg)';
+                    localStorage.setItem('teacherLeavesMinimized', 'false');
+                } else {
+                    // Minimize
                     leavesContent.style.height = '0';
                     leavesContent.style.overflow = 'hidden';
                     leavesContent.style.opacity = '0';
                     leavesToggleIcon.style.transform = 'rotate(-90deg)';
+                    localStorage.setItem('teacherLeavesMinimized', 'true');
                 }
+                isLeavesMinimized = !isLeavesMinimized;
+            });
+        }
 
-                // Leaves section toggle
-                if (leavesHeaderToggle && leavesContent) {
-                    leavesHeaderToggle.addEventListener('click', function() {
-                        if (isLeavesMinimized) {
-                            // Expand
-                            leavesContent.style.height = 'auto';
-                            leavesContent.style.overflow = 'visible';
-                            leavesContent.style.opacity = '1';
-                            leavesToggleIcon.style.transform = 'rotate(0deg)';
-                            localStorage.setItem('teacherLeavesMinimized', 'false');
-                        } else {
-                            // Minimize
-                            leavesContent.style.height = '0';
-                            leavesContent.style.overflow = 'hidden';
-                            leavesContent.style.opacity = '0';
-                            leavesToggleIcon.style.transform = 'rotate(-90deg)';
-                            localStorage.setItem('teacherLeavesMinimized', 'true');
-
-            // Leaves section toggle
-            if (leavesHeaderToggle && leavesContent) {
-                leavesHeaderToggle.addEventListener('click', function() {
-                    if (isLeavesMinimized) {
-                        // Expand
-                        leavesContent.style.height = 'auto';
-                        leavesContent.style.overflow = 'visible';
-                        leavesContent.style.opacity = '1';
-                        leavesToggleIcon.style.transform = 'rotate(0deg)';
-                        localStorage.setItem('teacherLeavesMinimized', 'false');
-                    } else {
-                        // Minimize
-                        leavesContent.style.height = '0';
-                        leavesContent.style.overflow = 'hidden';
-                        leavesContent.style.opacity = '0';
-                        leavesToggleIcon.style.transform = 'rotate(-90deg)';
-                        localStorage.setItem('teacherLeavesMinimized', 'true');
-                    }
-                    isLeavesMinimized = !isLeavesMinimized;
-                });
-            }
-
-            // Close modal when clicking outside
-            if (leaveRequestModal) {
-                leaveRequestModal.addEventListener('click', function(e) {
-                    if (e.target === leaveRequestModal) {
-                        leaveRequestModal.classList.add('hidden');
-                        leaveRequestModal.classList.remove('flex');
-                    }
-                });
-            }
-
-            // Date calculation function
-            function calculateDays() {
-                const startDate = new Date(document.getElementById('start_date').value);
-                const endDate = new Date(document.getElementById('end_date').value);
-
-                if (startDate && endDate) {
-                    const timeDiff = endDate.getTime() - startDate.getTime();
-                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-
-                    if (totalDaysSpan) totalDaysSpan.textContent = daysDiff;
-                    if (daysInfo) daysInfo.classList.remove('hidden');
-
-                    return daysDiff;
+        // Close modal when clicking outside
+        if (leaveRequestModal) {
+            leaveRequestModal.addEventListener('click', function(e) {
+                if (e.target === leaveRequestModal) {
+                    leaveRequestModal.classList.add('hidden');
+                    leaveRequestModal.classList.remove('flex');
                 }
+            });
+        }
+
+        // Date calculation function (excluding weekends)
+        function calculateDays() {
+            const startDateValue = document.getElementById('start_date').value;
+            const endDateValue = document.getElementById('end_date').value;
+
+            if (!startDateValue || !endDateValue) {
+                if (daysInfo) daysInfo.classList.add('hidden');
                 return 0;
             }
 
-            // Validation function
-            function validateLeaveRequest() {
-                    const selectedLeaveType = leaveTypeSelect ? leaveTypeSelect.value : '';
-                    const totalDays = calculateDays();
-                    const availableDays = leaveBalances[selectedLeaveType] || 0;
+            // Parse dates using YYYY-MM-DD format to avoid timezone issues
+            const startDate = new Date(startDateValue + 'T00:00:00');
+            const endDate = new Date(endDateValue + 'T00:00:00');
 
-                    // Reset warnings
-                    if (dateWarning) dateWarning.classList.add('hidden');
-                    if (leaveTypeWarning) leaveTypeWarning.classList.add('hidden');
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                return 0;
+            }
 
-                    let isValid = true;
+            if (endDate < startDate) {
+                if (daysInfo) daysInfo.classList.add('hidden');
+                return 0;
+            }
 
-                    // For teachers, be more lenient with validation
-                    // Only block if Solo Parent Leave is selected but user is not solo parent
-                    if (selectedLeaveType === 'Solo Parent Leave' && availableDays === 0) {
-                        if (leaveTypeWarning) {
-                            leaveTypeWarning.classList.remove('hidden');
-                            leaveTypeWarning.innerHTML = 'You are not eligible for Solo Parent Leave.';
-                        }
-                        isValid = false;
-                    }
+            let workingDays = 0;
+            const currentDate = new Date(startDate);
 
-                    // Check specific limits for limited leave types
-                    if (selectedLeaveType && totalDays > 0) {
-                        let maxAllowed = null;
-                        if (selectedLeaveType === 'Solo Parent Leave' && availableDays > 0) {
-                            maxAllowed = 7;
-                        } else if (selectedLeaveType === 'Maternity Leave') {
-                            maxAllowed = typeof availableDays === 'number' ? availableDays : null;
-                        } else if (selectedLeaveType === 'Rehabilitation Leave' || selectedLeaveType === 'Study Leave') {
-                            maxAllowed = 180;
-                        }
-
-                        if (maxAllowed && totalDays > maxAllowed) {
-                            if (dateWarning) {
-                                dateWarning.classList.remove('hidden');
-                                dateWarning.innerHTML = `The selected dates (${totalDays} days) exceed the maximum allowed for ${selectedLeaveType} (${maxAllowed} days).`;
-                            }
-                            isValid = false;
-                        }
-                    }
-
-                    // Enable/disable submit button
-                    if (submitBtn) {
-                        submitBtn.disabled = !selectedLeaveType || totalDays === 0;
-                    }
-
-                    return isValid;
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                // Exclude Sunday (0) and Saturday (6)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    workingDays++;
                 }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
 
-                // Event listeners for validation
-                if (leaveTypeSelect) {
-                    leaveTypeSelect.addEventListener('change', validateLeaveRequest);
+            if (totalDaysSpan) totalDaysSpan.textContent = workingDays;
+            if (daysInfo) daysInfo.classList.remove('hidden');
+
+            return workingDays;
+        }
+
+        // Validation function
+        function validateLeaveRequest() {
+            const selectedLeaveType = leaveTypeSelect ? leaveTypeSelect.value : '';
+            const totalDays = calculateDays();
+            const availableDays = leaveBalances[selectedLeaveType] || 0;
+
+            // Reset warnings
+            if (dateWarning) dateWarning.classList.add('hidden');
+            if (leaveTypeWarning) leaveTypeWarning.classList.add('hidden');
+
+            let isValid = true;
+
+            // Check if leave type is selected
+            if (!selectedLeaveType) {
+                if (submitBtn) submitBtn.disabled = true;
+                return false;
+            }
+
+            // Check if dates are selected
+            if (totalDays === 0) {
+                if (submitBtn) submitBtn.disabled = true;
+                return false;
+            }
+
+            // Check if Solo Parent Leave is selected but user is not eligible
+            if (selectedLeaveType === 'SOLO PARENT LEAVE' && availableDays === 0) {
+                if (leaveTypeWarning) {
+                    leaveTypeWarning.classList.remove('hidden');
+                    leaveTypeWarning.innerHTML = 'You are not eligible for Solo Parent Leave.';
                 }
+                isValid = false;
+            }
 
-                if (startDateInput) {
-                    startDateInput.addEventListener('change', validateLeaveRequest);
+            // Check if total days exceed available balance for all leave types
+            if (selectedLeaveType && totalDays > 0 && totalDays > availableDays) {
+                if (dateWarning) {
+                    dateWarning.classList.remove('hidden');
+                    dateWarning.innerHTML = `The selected dates (${totalDays} working days) exceed your available ${selectedLeaveType} balance (${availableDays} days).`;
                 }
+                isValid = false;
+            }
 
-                if (endDateInput) {
-                    endDateInput.addEventListener('change', validateLeaveRequest);
-                }
+            // Enable/disable submit button based on validation
+            if (submitBtn) {
+                submitBtn.disabled = !isValid;
+            }
 
-                // Form submissions are handled normally by Laravel
-                // SweetAlert notifications will show based on session messages on page reload
+            return isValid;
+        }
 
-                // Close modals with Escape key
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        [leaveRequestModal, document.getElementById('serviceCreditRequestModal'), document.getElementById('addLeaveModal')].forEach(modal => {
-                            if (modal && !modal.classList.contains('hidden')) {
-                                modal.classList.add('hidden');
-                                modal.classList.remove('flex');
-                            }
-                        });
+        // Event listeners for validation
+        if (leaveTypeSelect) {
+            leaveTypeSelect.addEventListener('change', validateLeaveRequest);
+        }
+
+        if (startDateInput) {
+            startDateInput.addEventListener('change', validateLeaveRequest);
+        }
+
+        if (endDateInput) {
+            endDateInput.addEventListener('change', validateLeaveRequest);
+        }
+
+        // Form submissions are handled normally by Laravel
+        // SweetAlert notifications will show based on session messages on page reload
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                [leaveRequestModal, document.getElementById('serviceCreditRequestModal'), document.getElementById('addLeaveModal')].forEach(modal => {
+                    if (modal && !modal.classList.contains('hidden')) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
                     }
                 });
+            }
+        });
 
-                // Add Leave Modal functionality
-                var addLeaveModal = document.getElementById('addLeaveModal');
-                var closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
-                var addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
-                var addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
-                var addLeaveType = document.getElementById('addLeaveType');
-                var currentBalance = document.getElementById('currentBalance');
-                var daysToAdd = document.getElementById('days_to_add');
-                var addLeavePreview = document.getElementById('addLeavePreview');
-                var previewCurrent = document.getElementById('previewCurrent');
-                var previewAdding = document.getElementById('previewAdding');
-                var previewNew = document.getElementById('previewNew');
+        // Add Leave Modal functionality
+        var addLeaveModal = document.getElementById('addLeaveModal');
+        var closeAddLeaveModal = document.getElementById('closeAddLeaveModal');
+        var addLeaveBtns = document.querySelectorAll('.addLeaveBtn');
+        var addLeaveModalTitle = document.getElementById('addLeaveModalTitle');
+        var addLeaveType = document.getElementById('addLeaveType');
+        var currentBalance = document.getElementById('currentBalance');
+        var daysToAdd = document.getElementById('days_to_add');
+        var addLeavePreview = document.getElementById('addLeavePreview');
+        var previewCurrent = document.getElementById('previewCurrent');
+        var previewAdding = document.getElementById('previewAdding');
+        var previewNew = document.getElementById('previewNew');
 
-                // Add event listeners for add leave buttons
-                addLeaveBtns.forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        var leaveType = this.getAttribute('data-leave-type');
-                        var currentAvailable = this.getAttribute('data-current-available');
+        // Add event listeners for add leave buttons
+        addLeaveBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var leaveType = this.getAttribute('data-leave-type');
+                var currentAvailable = this.getAttribute('data-current-available');
 
-                        // Set modal content
-                        addLeaveModalTitle.textContent = leaveType;
-                        addLeaveType.value = leaveType;
-                        currentBalance.textContent = currentAvailable;
-                        previewCurrent.textContent = currentAvailable;
+                // Set modal content
+                addLeaveModalTitle.textContent = leaveType;
+                addLeaveType.value = leaveType;
+                currentBalance.textContent = currentAvailable;
+                previewCurrent.textContent = currentAvailable;
 
-                        // Show modal
-                        addLeaveModal.classList.remove('hidden');
-                        addLeaveModal.classList.add('flex');
-                    });
-                });
+                // Show modal
+                addLeaveModal.classList.remove('hidden');
+                addLeaveModal.classList.add('flex');
+            });
+        });
 
-                // Close add leave modal
-                if (closeAddLeaveModal) {
-                    closeAddLeaveModal.addEventListener('click', function() {
-                        addLeaveModal.classList.add('hidden');
-                        addLeaveModal.classList.remove('flex');
-                    });
-                }
+        // Close add leave modal
+        if (closeAddLeaveModal) {
+            closeAddLeaveModal.addEventListener('click', function() {
+                addLeaveModal.classList.add('hidden');
+                addLeaveModal.classList.remove('flex');
+            });
+        }
 
-                // Close modal when clicking outside
-                if (addLeaveModal) {
-                    addLeaveModal.addEventListener('click', function(e) {
-                        if (e.target === addLeaveModal) {
-                            addLeaveModal.classList.add('hidden');
-                            addLeaveModal.classList.remove('flex');
-                        }
-                    });
-                }
-
-                // Preview calculation for add leave
-                if (daysToAdd) {
-                    daysToAdd.addEventListener('input', function() {
-                        var adding = parseInt(this.value) || 0;
-                        var current = parseInt(previewCurrent.textContent) || 0;
-                        var newTotal = current + adding;
-
-                        previewAdding.textContent = adding;
-                        previewNew.textContent = newTotal;
-
-                        if (adding > 0) {
-                            addLeavePreview.classList.remove('hidden');
-                        } else {
-                            addLeavePreview.classList.add('hidden');
-                        }
-                    });
-                }
-
-                // Service Credit Modal logic & auto-calculation will be initialized in DOMContentLoaded
-
-                // Initialize Service Credit Modal
-                const scBtn = document.getElementById('serviceCreditRequestBtn');
-                const scModal = document.getElementById('serviceCreditRequestModal');
-                const scClose = document.getElementById('closeServiceCreditRequestModal');
-                const form = document.getElementById('serviceCreditForm');
-                const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
-                const hoursSpan = document.getElementById('scHours');
-                const daysSpan = document.getElementById('scDays');
-
-                function parseTime(val) {
-                    if (!val) return null;
-                    const [h, m] = val.split(':').map(Number);
-                    return h * 60 + m;
-                }
-
-                function diffHours(start, end) {
-                    if (start === null || end === null) return 0;
-                    const d = (end - start) / 60;
-                    return d > 0 ? d : 0;
-                }
-
-                function recompute() {
-                    if (!form) return;
-                    const mi = parseTime(form.morning_in?.value || '');
-                    const mo = parseTime(form.morning_out?.value || '');
-                    const ai = parseTime(form.afternoon_in?.value || '');
-                    const ao = parseTime(form.afternoon_out?.value || '');
-                    let total = diffHours(mi, mo) + diffHours(ai, ao);
-                    // Cap at 16 for safety
-                    if (total > 16) total = 16;
-                    hoursSpan.textContent = total.toFixed(2);
-                    daysSpan.textContent = (total / 8).toFixed(2);
-                }
-
-                timeInputs.forEach(inp => inp.addEventListener('change', recompute));
-                timeInputs.forEach(inp => inp.addEventListener('input', recompute));
-
-                if (scBtn) {
-                    scBtn.addEventListener('click', () => {
-                        scModal.classList.remove('hidden');
-                        scModal.classList.add('flex');
-                        recompute();
-                    });
-                }
-                if (scClose) {
-                    scClose.addEventListener('click', () => {
-                        scModal.classList.add('hidden');
-                        scModal.classList.remove('flex');
-                    });
-                }
-
-                // Close modal when clicking outside
-                if (scModal) {
-                    scModal.addEventListener('click', function(e) {
-                        if (e.target === scModal) {
-                            scModal.classList.add('hidden');
-                            scModal.classList.remove('flex');
-                        }
-                    });
+        // Close modal when clicking outside
+        if (addLeaveModal) {
+            addLeaveModal.addEventListener('click', function(e) {
+                if (e.target === addLeaveModal) {
+                    addLeaveModal.classList.add('hidden');
+                    addLeaveModal.classList.remove('flex');
                 }
             });
-        </script>
+        }
+
+        // Preview calculation for add leave
+        if (daysToAdd) {
+            daysToAdd.addEventListener('input', function() {
+                var adding = parseInt(this.value) || 0;
+                var current = parseInt(previewCurrent.textContent) || 0;
+                var newTotal = current + adding;
+
+                previewAdding.textContent = adding;
+                previewNew.textContent = newTotal;
+
+                if (adding > 0) {
+                    addLeavePreview.classList.remove('hidden');
+                } else {
+                    addLeavePreview.classList.add('hidden');
+                }
+            });
+        }
+
+        // Service Credit Modal logic & auto-calculation will be initialized in DOMContentLoaded
+
+        // Initialize Service Credit Modal
+        const scBtn = document.getElementById('serviceCreditRequestBtn');
+        const scModal = document.getElementById('serviceCreditRequestModal');
+        const scClose = document.getElementById('closeServiceCreditRequestModal');
+        const form = document.getElementById('serviceCreditForm');
+        const timeInputs = form ? form.querySelectorAll('input[type="time"]') : [];
+        const hoursSpan = document.getElementById('scHours');
+        const daysSpan = document.getElementById('scDays');
+
+        function parseTime(val) {
+            if (!val) return null;
+            const [h, m] = val.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function diffHours(start, end) {
+            if (start === null || end === null) return 0;
+            const d = (end - start) / 60;
+            return d > 0 ? d : 0;
+        }
+
+        function recompute() {
+            if (!form) return;
+            const mi = parseTime(form.morning_in?.value || '');
+            const mo = parseTime(form.morning_out?.value || '');
+            const ai = parseTime(form.afternoon_in?.value || '');
+            const ao = parseTime(form.afternoon_out?.value || '');
+            let total = diffHours(mi, mo) + diffHours(ai, ao);
+            // Cap at 16 for safety
+            if (total > 16) total = 16;
+            hoursSpan.textContent = total.toFixed(2);
+            daysSpan.textContent = (total / 8).toFixed(2);
+        }
+
+        timeInputs.forEach(inp => inp.addEventListener('change', recompute));
+        timeInputs.forEach(inp => inp.addEventListener('input', recompute));
+
+        if (scBtn) {
+            scBtn.addEventListener('click', () => {
+                scModal.classList.remove('hidden');
+                scModal.classList.add('flex');
+                recompute();
+            });
+        }
+        if (scClose) {
+            scClose.addEventListener('click', () => {
+                scModal.classList.add('hidden');
+                scModal.classList.remove('flex');
+            });
+        }
+
+        // Close modal when clicking outside
+        if (scModal) {
+            scModal.addEventListener('click', function(e) {
+                if (e.target === scModal) {
+                    scModal.classList.add('hidden');
+                    scModal.classList.remove('flex');
+                }
+            });
+        }
+    </script>
 
         <!-- Download Modal -->
         <div id="downloadModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
@@ -1606,112 +1614,9 @@
                 reasonField.placeholder = 'Enter reason for leave...';
 
                 // Check available days and validate dates (including Others)
-                validateLeaveDates();
+                validateLeaveRequest();
             }
         }
-
-        // Function to calculate days between dates
-        function calculateDays(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both dates
-            return diffDays;
-        }
-
-        // Function to validate leave dates against available balance
-        function validateLeaveDates() {
-            console.log('validateLeaveDates called'); // Debug line
-
-            const leaveTypeSelect = document.getElementById('leave_type');
-            const startDateInput = document.getElementById('start_date');
-            const endDateInput = document.getElementById('end_date');
-            const dateWarning = document.getElementById('date_warning');
-            const daysInfo = document.getElementById('days_info');
-            const totalDaysSpan = document.getElementById('total_days');
-            const submitBtn = document.getElementById('submitBtn');
-
-            const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
-            const availableDays = parseInt(selectedOption.dataset.available) || 0;
-            const leaveType = leaveTypeSelect.value;
-
-            console.log('Leave type:', leaveType, 'Available days:', availableDays); // Debug line
-
-            // Check if dates are selected
-            if (!startDateInput.value || !endDateInput.value) {
-                dateWarning.classList.add('hidden');
-                daysInfo.classList.add('hidden');
-                submitBtn.disabled = false;
-                return;
-            }
-
-            // Check if leave type is selected
-            if (!leaveType || leaveType === '') {
-                dateWarning.classList.add('hidden');
-                daysInfo.classList.remove('hidden'); // Show days info even without leave type
-                submitBtn.disabled = true; // Disable submit until leave type is selected
-                return;
-            }
-
-            // Calculate requested days
-            const requestedDays = calculateDays(startDateInput.value, endDateInput.value);
-
-            // Show total days info
-            totalDaysSpan.textContent = requestedDays;
-            daysInfo.classList.remove('hidden');
-
-            // Validate against available days
-            if (requestedDays > availableDays) {
-                if (leaveType === 'SICK LEAVE' || leaveType === 'SERVICE CREDIT') {
-                    // Allow SICK LEAVE and SERVICE CREDIT but show warning about Service Credit
-                    const serviceCreditDays = availableDays; // Both use Service Credit balance
-                    const willZeroServiceCredit = requestedDays >= serviceCreditDays;
-
-                    if (willZeroServiceCredit) {
-                        dateWarning.textContent = `Warning: This leave request will turn your Service Credit balance to 0. Requested: ${requestedDays} days, Available: ${serviceCreditDays} days.`;
-                        dateWarning.classList.remove('hidden', 'text-red-500');
-                        dateWarning.classList.add('text-orange-600'); // Orange warning instead of red
-                        submitBtn.disabled = false; // Allow submission
-                    } else {
-                        dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
-                        dateWarning.classList.remove('hidden', 'text-orange-600');
-                        dateWarning.classList.add('text-red-500'); // Red error
-                        submitBtn.disabled = true;
-                    }
-                } else if (leaveType === 'custom') {
-                    // Block Others (Terminal Leave) if exceeding Service Credit balance
-                    dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available Service Credit balance (${availableDays} days). Terminal Leave cannot exceed available Service Credit days.`;
-                    dateWarning.classList.remove('hidden', 'text-orange-600');
-                    dateWarning.classList.add('text-red-500'); // Red error
-                    submitBtn.disabled = true; // Block submission
-                } else {
-                    // Block other leave types
-                    dateWarning.textContent = `The selected dates (${requestedDays} days) exceed your available leave days (${availableDays} days).`;
-                    dateWarning.classList.remove('hidden', 'text-orange-600');
-                    dateWarning.classList.add('text-red-500');
-                    submitBtn.disabled = true;
-                }
-            } else {
-                dateWarning.classList.remove('hidden', 'text-orange-600', 'text-red-500');
-                dateWarning.classList.add('hidden');
-                submitBtn.disabled = false;
-            }
-        }
-
-        // Add event listeners for date changes
-        document.addEventListener('DOMContentLoaded', function() {
-            const startDateInput = document.getElementById('start_date');
-            const endDateInput = document.getElementById('end_date');
-
-            if (startDateInput) {
-                startDateInput.addEventListener('change', validateLeaveDates);
-                startDateInput.addEventListener('input', validateLeaveDates);
-            }
-            if (endDateInput) {
-                endDateInput.addEventListener('change', validateLeaveDates);
-                endDateInput.addEventListener('input', validateLeaveDates);
-            }
-        });
 
         // Function to set Terminal Leave in the custom leave name field
         function setTerminalLeave() {

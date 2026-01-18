@@ -62,8 +62,26 @@ class CTORequestController extends Controller
         $hoursApplied = $ctoRequest->total_hours ?? $ctoRequest->requested_hours ?? 0;
         $templateProcessor->setValue('hours_applied', number_format($hoursApplied) . ' HRS');
 
-        // Inclusive dates (work date)
-        $templateProcessor->setValue('inclusive_dates', $ctoRequest->work_date ? strtoupper($ctoRequest->work_date->format('F d, Y')) : '-');
+        // Inclusive dates (work date or leave request dates)
+        $inclusiveDates = $ctoRequest->work_date ? strtoupper($ctoRequest->work_date->format('F d, Y')) : '-';
+
+        // Check if this CTO request has been used for any leave requests
+        $ctoUsages = \App\Models\CTOUsage::whereHas('ctoEntry', function($query) use ($ctoRequest) {
+            $query->where('cto_request_id', $ctoRequest->id);
+        })->with('leaveRequest')->get();
+
+        if ($ctoUsages->isNotEmpty() && $ctoUsages->first()->leaveRequest) {
+            $leaveRequest = $ctoUsages->first()->leaveRequest;
+            if ($leaveRequest->start_date && $leaveRequest->end_date) {
+                if ($leaveRequest->start_date->eq($leaveRequest->end_date)) {
+                    $inclusiveDates = strtoupper($leaveRequest->start_date->format('F d, Y'));
+                } else {
+                    $inclusiveDates = strtoupper($leaveRequest->start_date->format('F d, Y')) . ' - ' . strtoupper($leaveRequest->end_date->format('F d, Y'));
+                }
+            }
+        }
+
+        $templateProcessor->setValue('inclusive_dates', $inclusiveDates);
 
         // Work details
         $templateProcessor->setValue('work_date', $ctoRequest->work_date ? $ctoRequest->work_date->format('M d, Y') : '-');

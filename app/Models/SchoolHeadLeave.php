@@ -23,19 +23,27 @@ class SchoolHeadLeave extends Model
     public static function defaultLeaves($soloParent = false, $userSex = null)
     {
         $leaves = [
-            'Vacation Leave' => 15, // Base amount, will accrue 1.25/month + 15/year
-            'Sick Leave' => 15,     // Base amount, will accrue 1.25/month + 15/year
-            'Special Privilege Leave' => 3,
-            'Force Leave' => 5,
-            'Compensatory Time Off' => 0,
-            'Rehabilitation Leave' => 180,
-            'Solo Parent Leave' => 7,
-            'Study Leave' => 180,
+            'VACATION LEAVE' => 15,
+            'SICK LEAVE' => 15,
+            'MANDATORY FORCED LEAVE' => 5,
+            'SPECIAL PRIVILEGE LEAVE' => 3,
+            'REHABILITATION PRIVILEGE' => 180,
+            'SOLO PARENT LEAVE' => $soloParent ? 7 : 0,
+            'STUDY LEAVE' => 180,
+            'VAWC LEAVE' => 10,
+            'SPECIAL LEAVE BENEFITS FOR WOMEN' => ($userSex === 'female') ? 60 : 0,
+            'SPECIAL EMERGENCY (CALAMITY LEAVE)' => 1000,
+            'ADOPTION LEAVE' => ($userSex === 'female') ? 60 : (($userSex === 'male') ? 7 : 0),
         ];
 
         // Only add Maternity Leave for female users
         if ($userSex === 'female') {
-            $leaves['Maternity Leave'] = $soloParent ? 120 : 105;
+            $leaves['MATERNITY LEAVE'] = $soloParent ? 120 : 105;
+        }
+
+        // Only add Paternity Leave for male users
+        if ($userSex === 'male') {
+            $leaves['PATERNITY LEAVE'] = 7;
         }
 
         return $leaves;

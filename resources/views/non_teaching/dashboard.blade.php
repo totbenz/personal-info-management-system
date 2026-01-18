@@ -250,7 +250,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $leave->created_at->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-center">
                                         @if(!empty($leave->start_date) && !empty($leave->end_date))
-                                        {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}
+                                        {{ \Carbon\Carbon::parse($leave->start_date)->diffInDaysFiltered(function($date) {
+                                            return !in_array($date->dayOfWeek, [0, 6]); // Exclude Sunday (0) and Saturday (6)
+                                        }, \Carbon\Carbon::parse($leave->end_date)) + 1 }}
                                         @else
                                         -
                                         @endif
