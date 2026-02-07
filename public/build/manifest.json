@@ -4,6 +4,11 @@
     "isEntry": true,
     "src": "resources/css/app.css"
   },
+  "resources/css/fonts.css": {
+    "file": "assets/fonts-f67b03af.css",
+    "isEntry": true,
+    "src": "resources/css/fonts.css"
+  },
   "resources/js/app.js": {
     "file": "assets/app-0b5e42d1.js",
     "isEntry": true,
