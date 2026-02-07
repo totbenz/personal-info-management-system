@@ -1,0 +1,7 @@
+build:
+  buildCommand: npm install && npm run build && composer install
+environment:
+  builder: buildpacks
+  buildpacks:
+    - heroku/nodejs
+    - heroku/php

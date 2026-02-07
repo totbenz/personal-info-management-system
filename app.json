@@ -1,0 +1,24 @@
+{
+  "name": "Personal Information Management System",
+  "description": "A comprehensive Laravel-based HRIS system with Livewire and Vite",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/php"
+    }
+  ],
+  "env": {
+    "APP_KEY": {
+      "description": "Laravel application key",
+      "generator": "secret"
+    },
+    "APP_NAME": {
+      "value": "Laravel"
+    },
+    "APP_ENV": {
+      "value": "production"
+    }
+  }
+}
