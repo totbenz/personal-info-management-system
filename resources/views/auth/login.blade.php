@@ -1,160 +1,110 @@
 <x-guest-layout>
-    <div class="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex">
-        <!-- Left: Login Form -->
-        <div class="w-2/5 bg-white flex flex-col justify-center px-16 py-12 overflow-hidden">
-            <div class="flex justify-center mb-8">
-                <x-authentication-card-logo />
-            </div>
-
-            <!-- Welcome Message -->
-            <div class="mb-12">
-                <h1 class="text-3xl font-bold text-gray-900 mb-3">Welcome Back</h1>
-                <p class="text-gray-500 text-base leading-relaxed">
-                    Sign in to your HRIS account to manage personnel and payroll operations.
-                </p>
-            </div>
-
-            <x-validation-errors class="mb-6" />
-
-            @if (session('status'))
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg font-medium text-sm text-green-700">
-                {{ session('status') }}
-            </div>
-            @endif
-
-            <form method="POST" action="{{ route('authenticate') }}" class="space-y-6">
-                @csrf
-
-                <div>
-                    <label for="email" class="block font-semibold text-sm text-gray-800 mb-2">Email Address</label>
-                    <x-input id="email" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main focus:border-transparent transition" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+    <div class="min-h-screen flex items-center justify-center bg-gray-100 py-8">
+        <div class="w-full max-w-7xl bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
+            <!-- Left: Login Form -->
+            <div class="p-8 md:p-12 flex flex-col justify-center">
+                <div class="flex justify-center mb-6">
+                    <x-authentication-card-logo />
                 </div>
 
-                <div>
-                    <label for="password" class="block font-semibold text-sm text-gray-800 mb-2">Password</label>
-                    <div class="relative">
-                        <x-input id="password" class="block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main focus:border-transparent transition" type="password" name="password" required autocomplete="current-password" />
-                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600">
-                            <i id="password-icon" class="fas fa-eye"></i>
-                        </button>
+                <!-- Welcome Message -->
+                <div class="bg-white rounded-xl shadow-sm p-3 mb-8 border border-gray-100">
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold text-gray-900 mb-3">Welcome Back!</h1>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Please enter your credentials to access the<br>
+                            Human Resource Information System
+                        </p>
                     </div>
                 </div>
 
-                <div class="flex items-center">
-                    <input id="remember_me" type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-300 text-main focus:ring-main focus:ring-offset-0">
-                    <label for="remember_me" class="ml-3 text-sm text-gray-700">Keep me signed in</label>
+                <x-validation-errors class="mb-4" />
+
+                @if (session('status'))
+                <div class="mb-4 font-medium text-sm text-green-600">
+                    {{ session('status') }}
                 </div>
+                @endif
 
-                <button type="submit" class="w-full bg-main hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg mt-8">
-                    Sign In
-                </button>
-            </form>
-        </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <form method="POST" action="{{ route('authenticate') }}">
+                        @csrf
 
-        <!-- Right: System Features -->
-        <div class="w-3/5 bg-main text-white flex flex-col justify-start px-12 py-12 overflow-hidden">
-            <div class="mb-8">
-                <h1 class="text-5xl font-bold mb-3">Human Resources Information System</h1>
-                <p class="text-lg text-white opacity-90 font-medium mb-6">DepEd Baybay City Division</p>
-                <div class="w-full h-1 bg-white rounded"></div>
+                        <div>
+                            <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
+                            <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+                        </div>
+
+                        <div class="mt-4">
+                            <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
+                            <div class="relative">
+                                <x-input id="password" class="block mt-1 w-full pr-10" type="password" name="password" required autocomplete="current-password" />
+                                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">
+                                    <i id="password-icon" class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center">
+                            <input id="remember_me" type="checkbox" name="remember" class="rounded border-gray-300 text-main shadow-sm focus:ring-main focus:ring-opacity-50">
+                            <label for="remember_me" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                        </div>
+
+                        <div class="mt-6">
+                            <button type="submit" class="bg-main hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-md w-full uppercase tracking-wider">Login</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pr-4">
-                <div class="grid grid-cols-1 gap-10">
+            <!-- Right: System Info Cards -->
+            <div class="bg-main text-white p-8 md:p-12 flex flex-col gap-4 justify-start overflow-y-auto max-h-screen">
                 <!-- Personnel Management Section -->
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="text-3xl">📋</span>
-                        <h2 class="text-2xl font-bold">Personnel Management</h2>
-                    </div>
-                    <p class="text-white text-opacity-90 leading-relaxed mb-5 text-sm">Comprehensive personnel data management designed to centralize and maintain accurate employee records.</p>
+                <div class="bg-white text-gray-700 p-5 rounded-xl shadow-md">
+                    <h2 class="text-lg font-bold mb-2">📋 Personnel Management</h2>
+                    <p class="text-xs mb-3">Comprehensive personnel data management designed to centralize and maintain accurate employee records.</p>
                     
-                    <div class="grid grid-cols-2 gap-6 ml-1">
-                        <div>
-                            <h3 class="font-semibold text-white mb-3 text-xs uppercase tracking-wide opacity-80">Key Features</h3>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Management of personal information and employee profiles</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Employment details and appointment history</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Educational background and eligibility records</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Work experience and training history</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Government identification records and compliance tracking</span>
-                                </li>
-                            </ul>
-                        </div>
+                    <div class="text-xs space-y-2">
+                        <p class="font-semibold text-gray-800">Key Features:</p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                            <li>Management of personal information and employee profiles</li>
+                            <li>Employment details and appointment history</li>
+                            <li>Educational background and eligibility records</li>
+                            <li>Work experience and training history</li>
+                            <li>Government identification records and compliance tracking</li>
+                        </ul>
 
-                        <div>
-                            <h3 class="font-semibold text-white mb-3 text-xs uppercase tracking-wide opacity-80">HR Documents & Forms</h3>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Personal Data Sheet (PDS)</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Notice of Salary Adjustment (NOSA)</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Notice of Salary Increment (NOSI)</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Service Records</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span class="text-white mt-1 flex-shrink-0">•</span>
-                                    <span class="text-white text-opacity-90">Form 6 & Compensatory Time Off (CTO)</span>
-                                </li>
-                            </ul>
-                        </div>
+                        <p class="font-semibold text-gray-800 mt-2">Official HR Documents:</p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                            <li>Personal Data Sheet (PDS)</li>
+                            <li>Notice of Salary Adjustment (NOSA)</li>
+                            <li>Notice of Salary Increment (NOSI)</li>
+                            <li>Service Records</li>
+                        </ul>
+
+                        <p class="font-semibold text-gray-800 mt-2">Administrative Forms:</p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                            <li>Form 6</li>
+                            <li>Compensatory Time Off (CTO)</li>
+                        </ul>
                     </div>
                 </div>
 
                 <!-- Salary & Awards System Section -->
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="text-3xl">💰</span>
-                        <h2 class="text-2xl font-bold">Salary & Awards System</h2>
-                    </div>
-                    <p class="text-white text-opacity-90 leading-relaxed mb-5 text-sm">Automates compensation monitoring and recognition tracking for accurate salary processing and employee service recognition.</p>
+                <div class="bg-white text-gray-700 p-5 rounded-xl shadow-md">
+                    <h2 class="text-lg font-bold mb-2">💰 Salary & Awards System</h2>
+                    <p class="text-xs mb-3">Module automates compensation monitoring and recognition tracking to ensure accurate salary processing and employee service recognition.</p>
                     
-                    <div class="ml-1">
-                        <h3 class="font-semibold text-white mb-3 text-xs uppercase tracking-wide opacity-80">Key Features</h3>
-                        <ul class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                            <li class="flex items-start gap-3">
-                                <span class="text-white mt-1 flex-shrink-0">•</span>
-                                <span class="text-white text-opacity-90">Automated salary computation based on salary grade and step increments</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-white mt-1 flex-shrink-0">•</span>
-                                <span class="text-white text-opacity-90">Salary adjustment and increment tracking</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-white mt-1 flex-shrink-0">•</span>
-                                <span class="text-white text-opacity-90">Loyalty awards monitoring for long-term service (10, 15, 20+ years)</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-white mt-1 flex-shrink-0">•</span>
-                                <span class="text-white text-opacity-90">Historical salary records and reporting</span>
-                            </li>
+                    <div class="text-xs">
+                        <p class="font-semibold text-gray-800">Key Features:</p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                            <li>Automated salary computation based on salary grade and step increments</li>
+                            <li>Salary adjustment and increment tracking</li>
+                            <li>Loyalty awards monitoring for long-term service (10, 15, 20+ years)</li>
+                            <li>Historical salary records and reporting</li>
                         </ul>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
