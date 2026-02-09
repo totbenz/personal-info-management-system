@@ -1,7 +1,7 @@
 <x-guest-layout>
-    <div class="min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex">
+    <div class="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex">
         <!-- Left: Login Form -->
-        <div class="w-2/5 bg-white flex flex-col justify-center px-16 py-12">
+        <div class="w-2/5 bg-white flex flex-col justify-center px-16 py-12 overflow-hidden">
             <div class="flex justify-center mb-8">
                 <x-authentication-card-logo />
             </div>
@@ -52,14 +52,15 @@
         </div>
 
         <!-- Right: System Features -->
-        <div class="w-3/5 bg-main text-white flex flex-col justify-center px-12 py-12 overflow-y-auto">
-            <div class="mb-12 text-center">
+        <div class="w-3/5 bg-main text-white flex flex-col justify-start px-12 py-12 overflow-hidden">
+            <div class="mb-8">
                 <h1 class="text-5xl font-bold mb-3">Human Resources Information System</h1>
                 <p class="text-lg text-white opacity-90 font-medium mb-6">DepEd Baybay City Division</p>
-                <div class="w-full h-1 bg-white rounded mx-auto"></div>
+                <div class="w-full h-1 bg-white rounded"></div>
             </div>
 
-            <div class="grid grid-cols-1 gap-10">
+            <div class="flex-1 overflow-y-auto pr-4">
+                <div class="grid grid-cols-1 gap-10">
                 <!-- Personnel Management Section -->
                 <div>
                     <div class="flex items-center gap-3 mb-4">
@@ -153,6 +154,7 @@
                         </ul>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
