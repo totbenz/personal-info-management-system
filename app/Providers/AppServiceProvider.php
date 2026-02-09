@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Personnel;
 use App\Observers\PersonnelObserver;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Blade::component('main-button', \App\View\Components\MainButton::class);
+        // Force HTTPS in production
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
+        // Trust proxy headers from Koyeb load balancer
+        $this->app['request']->setTrustedProxies(
+            ['*'],
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL
+        );
     }
 }
