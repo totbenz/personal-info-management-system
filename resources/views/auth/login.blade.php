@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex">
         <!-- Left: Login Form -->
-        <div class="w-full lg:w-2/5 bg-white flex flex-col justify-center px-8 lg:px-16 py-12 overflow-y-auto">
+        <div class="w-full md:w-2/5 bg-white flex flex-col justify-center px-6 md:px-10 lg:px-16 py-8 md:py-12">
             <div class="flex justify-center mb-8">
                 <x-authentication-card-logo />
             </div>
@@ -52,26 +52,26 @@
         </div>
 
         <!-- Right: System Features -->
-        <div class="hidden lg:flex w-3/5 bg-main text-white flex-col justify-center px-12 py-12 overflow-y-auto">
-            <div class="mb-12 flex flex-col items-center justify-center">
-                <h1 class="text-5xl font-bold mb-3 text-center">Human Resource Informaton System</h1>
-                <p class="text-lg text-white opacity-90 font-medium mb-6 text-center">DepEd Baybay City Division</p>
-                <div class="w-full h-1 bg-white rounded"></div>
+        <div class="hidden md:flex w-3/5 bg-main text-white flex-col justify-center px-8 lg:px-12 py-8 lg:py-12 overflow-y-auto">
+            <div class="mb-10 lg:mb-12 text-center">
+                <h1 class="text-4xl lg:text-5xl font-bold mb-2 lg:mb-3">Human Resource Information System</h1>
+                <p class="text-base lg:text-lg text-white opacity-90 font-medium mb-4 lg:mb-6">DepEd Baybay City Division</p>
+                <div class="w-full h-1 bg-white rounded mx-auto"></div>
             </div>
 
-            <div class="grid grid-cols-1 gap-10">
+            <div class="grid grid-cols-1 gap-8 lg:gap-10">
                 <!-- Personnel Management Section -->
                 <div>
                     <div class="flex items-center gap-3 mb-4">
-                        <span class="text-3xl">📋</span>
-                        <h2 class="text-2xl font-bold">Personnel Management</h2>
+                        <span class="text-2xl lg:text-3xl">📋</span>
+                        <h2 class="text-xl lg:text-2xl font-bold">Personnel Management</h2>
                     </div>
-                    <p class="text-white text-opacity-90 leading-relaxed mb-5 text-sm">Comprehensive personnel data management designed to centralize and maintain accurate employee records.</p>
+                    <p class="text-white text-opacity-90 leading-relaxed mb-5 text-sm lg:text-base">Comprehensive personnel data management designed to centralize and maintain accurate employee records.</p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ml-1">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 ml-1">
                         <div>
                             <h3 class="font-semibold text-white mb-3 text-xs uppercase tracking-wide opacity-80">Key Features</h3>
-                            <ul class="space-y-2 text-sm">
+                            <ul class="space-y-2 text-sm lg:text-base">
                                 <li class="flex items-start gap-3">
                                     <span class="text-white mt-1 flex-shrink-0">•</span>
                                     <span class="text-white text-opacity-90">Management of personal information and employee profiles</span>
@@ -97,7 +97,7 @@
 
                         <div>
                             <h3 class="font-semibold text-white mb-3 text-xs uppercase tracking-wide opacity-80">HR Documents & Forms</h3>
-                            <ul class="space-y-2 text-sm">
+                            <ul class="space-y-2 text-sm lg:text-base">
                                 <li class="flex items-start gap-3">
                                     <span class="text-white mt-1 flex-shrink-0">•</span>
                                     <span class="text-white text-opacity-90">Personal Data Sheet (PDS)</span>
@@ -126,14 +126,14 @@
                 <!-- Salary & Awards System Section -->
                 <div>
                     <div class="flex items-center gap-3 mb-4">
-                        <span class="text-3xl">💰</span>
-                        <h2 class="text-2xl font-bold">Salary & Awards System</h2>
+                        <span class="text-2xl lg:text-3xl">💰</span>
+                        <h2 class="text-xl lg:text-2xl font-bold">Salary & Awards System</h2>
                     </div>
-                    <p class="text-white text-opacity-90 leading-relaxed mb-5 text-sm">Automates compensation monitoring and recognition tracking for accurate salary processing and employee service recognition.</p>
+                    <p class="text-white text-opacity-90 leading-relaxed mb-5 text-sm lg:text-base">Automates compensation monitoring and recognition tracking for accurate salary processing and employee service recognition.</p>
                     
                     <div class="ml-1">
                         <h3 class="font-semibold text-white mb-3 text-xs uppercase tracking-wide opacity-80">Key Features</h3>
-                        <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                        <ul class="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2 text-sm lg:text-base">
                             <li class="flex items-start gap-3">
                                 <span class="text-white mt-1 flex-shrink-0">•</span>
                                 <span class="text-white text-opacity-90">Automated salary computation based on salary grade and step increments</span>
