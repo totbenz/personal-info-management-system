@@ -26,11 +26,5 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-
-        // Trust proxy headers from Koyeb load balancer
-        $this->app['request']->setTrustedProxies(
-            ['*'],
-            \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL
-        );
     }
 }
