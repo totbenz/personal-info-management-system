@@ -1182,4 +1182,56 @@ class LeaveRequestController extends Controller
 
         return response()->download($tempFile, 'CTO_Leave_' . $leaveRequest->id . '.docx')->deleteFileAfterSend(true);
     }
+
+    /**
+     * Delete a leave request
+     */
+    public function destroy($id)
+    {
+        try {
+            $leaveRequest = LeaveRequest::findOrFail($id);
+            
+            // Check if the leave request belongs to the current user
+            if ($leaveRequest->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You can only delete your own leave requests.'
+                ], 403);
+            }
+
+            // Check if the leave request can be deleted (only pending requests can be deleted)
+            if ($leaveRequest->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only pending leave requests can be deleted.'
+                ], 422);
+            }
+
+            // Delete the leave request
+            $leaveRequest->delete();
+
+            Log::info('Leave request deleted', [
+                'leave_request_id' => $id,
+                'user_id' => Auth::id(),
+                'leave_type' => $leaveRequest->leave_type
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Leave request deleted successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to delete leave request', [
+                'leave_request_id' => $id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete leave request. Please try again.'
+            ], 500);
+        }
+    }
 }

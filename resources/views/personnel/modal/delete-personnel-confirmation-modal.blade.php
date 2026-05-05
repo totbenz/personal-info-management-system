@@ -11,7 +11,7 @@
         </div>
 
         <x-slot name="footer">
-            <form action="{{ route('personnels.destroy', ['personnel' => $personnel->id]) }}" method="POST">
+            <form id="deletePersonnelForm" action="{{ route('personnels.destroy', ['personnel' => $personnel->id]) }}" method="POST">
                 @csrf
                 @method('DELETE')
                 <div class="flex justify-end gap-x-4">
@@ -28,3 +28,61 @@
         </x-slot>
     </x-card>
 </x-modal>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('deletePersonnelForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Deleting Personnel...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit the form via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Success case
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = data.redirect;
+                    });
+                } else {
+                    // Error case
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot Delete Personnel',
+                        text: data.message,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Okay'
+                    });
+                }
+            })
+            .catch(error => {
+                // Fallback for non-AJAX responses
+                window.location.href = form.action;
+            });
+        });
+    }
+});
+</script>

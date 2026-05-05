@@ -207,17 +207,38 @@
                         </div>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Personnel ID</label>
-                                <select wire:model.live="personnel_id"
-                                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="">Select Personnel ID</option>
-                                    @foreach($personnelList as $personnel)
-                                        <option value="{{ $personnel->personnel_id }}">
-                                            {{ $personnel->personnel_id }} - {{ $personnel->first_name }} {{ $personnel->last_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('personnel_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                <label class="block text-sm font-medium text-gray-700">Personnel</label>
+                                <div class="relative personnel-dropdown-container">
+                                    <input type="text"
+                                           wire:model.live="personnelSearch"
+                                           wire:click="openPersonnelDropdown"
+                                           placeholder="Search by Personnel ID or Name..."
+                                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    
+                                    <!-- Hidden input to store the selected personnel_id -->
+                                    <input type="hidden" wire:model="personnel_id">
+                                    
+                                    @error('personnel_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                    
+                                    <!-- Dropdown Results -->
+                                    @if($showPersonnelDropdown && count($filteredPersonnelList) > 0)
+                                        <div class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                            @foreach($filteredPersonnelList as $personnel)
+                                                <div wire:click="selectPersonnel('{{ $personnel->personnel_id }}', '{{ $personnel->first_name }} {{ $personnel->last_name }}')"
+                                                     class="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0">
+                                                    <div class="font-medium text-gray-900">{{ $personnel->personnel_id }}</div>
+                                                    <div class="text-sm text-gray-600">{{ $personnel->first_name }} {{ $personnel->last_name }}</div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @elseif($showPersonnelDropdown && count($filteredPersonnelList) == 0)
+                                        <div class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                                            <div class="px-3 py-2 text-gray-500">
+                                                No personnel found matching "{{ $personnelSearch }}"
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
 
                             <div>
@@ -440,3 +461,74 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let highlightedIndex = -1;
+
+    // Handle closing dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdowns = document.querySelectorAll('.personnel-dropdown-container');
+        dropdowns.forEach(function(dropdown) {
+            if (!dropdown.contains(event.target)) {
+                @this.set('showPersonnelDropdown', false);
+                highlightedIndex = -1;
+            }
+        });
+    });
+
+    // Listen for the close dropdown event
+    Livewire.on('closePersonnelDropdown', function() {
+        setTimeout(() => {
+            @this.set('showPersonnelDropdown', false);
+            highlightedIndex = -1;
+        }, 200);
+    });
+
+    // Handle keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        const searchInput = document.querySelector('input[wire\\:model="personnelSearch"]');
+        const dropdown = document.querySelector('.personnel-dropdown-container .absolute');
+        
+        if (!searchInput || !dropdown) return;
+
+        const items = dropdown.querySelectorAll('[wire\\:click*="selectPersonnel"]');
+        
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+            updateHighlight(items, highlightedIndex);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            highlightedIndex = Math.max(highlightedIndex - 1, -1);
+            updateHighlight(items, highlightedIndex);
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                items[highlightedIndex].click();
+            }
+        } else if (event.key === 'Escape') {
+            @this.set('showPersonnelDropdown', false);
+            highlightedIndex = -1;
+        }
+    });
+
+    function updateHighlight(items, index) {
+        items.forEach((item, i) => {
+            if (i === index) {
+                item.classList.add('bg-blue-50', 'border-blue-200');
+            } else {
+                item.classList.remove('bg-blue-50', 'border-blue-200');
+            }
+        });
+    }
+
+    // Reset highlight when search input changes
+    const searchInput = document.querySelector('input[wire\\:model="personnelSearch"]');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            highlightedIndex = -1;
+        });
+    }
+});
+</script>

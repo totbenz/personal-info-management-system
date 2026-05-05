@@ -10,8 +10,6 @@ class PersonnelServiceRecordsList extends Component
 {
     public $serviceRecords;
     public $showModal = false;
-    public $showDeleteModal = false;
-    public $deleteId = null;
     public $isEditMode = false;
     public $editId = null;
 
@@ -161,27 +159,20 @@ class PersonnelServiceRecordsList extends Component
         }
     }
 
-    public function confirmDelete($id)
+    public function deleteRecord($recordId)
     {
-        $this->deleteId = $id;
-        $this->showDeleteModal = true;
-    }
-
-    public function cancelDelete()
-    {
-        $this->deleteId = null;
-        $this->showDeleteModal = false;
-    }
-
-    public function deleteRecord()
-    {
-        if ($this->deleteId) {
-            ServiceRecord::where('id', $this->deleteId)->delete();
-            $this->deleteId = null;
-            $this->showDeleteModal = false;
-            // Refresh the list from DB to get latest, eager load position
-            $this->serviceRecords = ServiceRecord::with('position')->where('personnel_id', $this->personnel_id)->get();
+        try {
+            $record = ServiceRecord::findOrFail($recordId);
+            $record->delete();
+            
+            // Refresh the service records collection
+            $this->serviceRecords = $this->serviceRecords->filter(function($record) use ($recordId) {
+                return $record->id != $recordId;
+            });
+            
             session()->flash('success', 'Service record deleted successfully!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to delete service record. Please try again.');
         }
     }
 

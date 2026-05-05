@@ -485,6 +485,9 @@ Route::middleware(['auth'])->group(function () {
     // CTO-based leave request download (CTO form)
     Route::get('/leave-request/cto/download/{leaveRequestId}', [\App\Http\Controllers\LeaveRequestController::class, 'downloadCtoForm'])->name('leave-request.download-cto');
 
+    // Delete leave request
+    Route::delete('/leave-request/{id}', [\App\Http\Controllers\LeaveRequestController::class, 'destroy'])->name('leave-request.destroy');
+
     // Global CTO request route (teacher, non_teaching, school_head)
     Route::post('/cto-request', [\App\Http\Controllers\CTORequestController::class, 'store'])
         ->middleware('timeout.prevention')
@@ -701,6 +704,7 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(SalaryChangesController::class)->group(function () {
             Route::get('personnels/{personnel}/salary-changes', 'index')->name('personnel-salary-changes.index');
             Route::get('personnels/{personnel}/salary-changes/{change}/download', 'download')->name('personnel-salary-changes.download');
+            Route::delete('personnels/{personnel}/salary-changes/{change}', 'destroy')->name('personnel-salary-changes.destroy');
         });
         // Events routes
         Route::resource('events', EventController::class);

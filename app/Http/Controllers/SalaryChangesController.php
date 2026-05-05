@@ -78,9 +78,22 @@ class SalaryChangesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($personnelId, $changeId)
     {
-        //
+        try {
+            $salaryChange = \App\Models\SalaryChange::findOrFail($changeId);
+            
+            // Verify the salary change belongs to the specified personnel
+            if ($salaryChange->personnel_id != $personnelId) {
+                return redirect()->back()->with('error', 'Salary change not found for this personnel.');
+            }
+            
+            $salaryChange->delete();
+            
+            return redirect()->back()->with('success', 'Salary change deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete salary change. Please try again.');
+        }
     }
 
     /**

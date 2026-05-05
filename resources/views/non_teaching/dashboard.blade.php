@@ -267,25 +267,34 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        @if($leave->status === 'approved')
-                                            @if($leave->is_cto_based)
-                                            <a href="{{ route('leave-request.download-cto', ['leaveRequestId' => $leave->id]) }}" target="_blank" class="inline-flex items-center px-3 py-1 border border-cyan-600 text-cyan-700 text-xs font-semibold rounded-full hover:bg-cyan-50 transition">
+                                        <div class="flex justify-center space-x-2">
+                                            @if($leave->status === 'approved')
+                                                @if($leave->is_cto_based)
+                                                <a href="{{ route('leave-request.download-cto', ['leaveRequestId' => $leave->id]) }}" target="_blank" class="inline-flex items-center px-3 py-1 border border-cyan-600 text-cyan-700 text-xs font-semibold rounded-full hover:bg-cyan-50 transition">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                                    </svg>
+                                                    <span class="ml-1">CTO Form</span>
+                                                </a>
+                                                @else
+                                                <button onclick="openDownloadModal({{ $leave->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                                    </svg>
+                                                    <span class="ml-1">Download</span>
+                                                </button>
+                                                @endif
+                                            @endif
+                                            
+                                            @if($leave->status === 'pending')
+                                            <button onclick="deleteLeaveRequest({{ $leave->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-red-600 text-red-700 text-xs font-semibold rounded-full hover:bg-red-50 transition">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
-                                                <span class="ml-1">CTO Form</span>
-                                            </a>
-                                            @else
-                                            <button onclick="openDownloadModal({{ $leave->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-green-600 text-green-700 text-xs font-semibold rounded-full hover:bg-green-50 transition">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
-                                                </svg>
-                                                <span class="ml-1">Download</span>
+                                                <span class="ml-1">Delete</span>
                                             </button>
                                             @endif
-                                        @else
-                                        <span class="text-xs text-gray-400">N/A</span>
-                                        @endif
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
@@ -628,5 +637,62 @@
                 }
             });
         </script>
+
+    <!-- Delete Leave Request Script -->
+    <script>
+    function deleteLeaveRequest(leaveId) {
+        Swal.fire({
+            title: 'Delete Leave Request?',
+            text: "Are you sure you want to delete this leave request? This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                return fetch(`/leave-request/${leaveId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                }).catch(error => {
+                    Swal.showValidationMessage('Request failed: ' + error.message);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (result.value.success) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: result.value.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page to refresh the leave history
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.value.message,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Okay'
+                    });
+                }
+            }
+        });
+    }
+    </script>
 
 </x-app-layout>

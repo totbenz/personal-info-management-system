@@ -333,14 +333,73 @@ class PersonnelController extends Controller
 
     public function destroy($id)
     {
+        // Handle AJAX requests
+        if (request()->ajax() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            try {
+                $personnel = Personnel::findOrFail($id);
+                
+                // Check if personnel has an associated user account
+                if ($personnel->user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot delete personnel with associated user account. Please delete the user account first.'
+                    ]);
+                }
+                
+                $personnel->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Personnel deleted successfully.',
+                    'redirect' => route('personnels.index')
+                ]);
+            } catch (\Illuminate\Database\QueryException $e) {
+                if ($e->getCode() == 23000) {
+                    // Foreign key constraint violation
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot delete this personnel because it is referenced by other records (such as service records, salary changes, or other related data).'
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to delete personnel due to a database error.'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete personnel.'
+                ]);
+            }
+        }
+        
+        // Handle regular form submissions
         try {
             $personnel = Personnel::findOrFail($id);
+            
+            // Check if personnel has an associated user account
+            if ($personnel->user) {
+                session()->flash('flash.banner', 'Cannot delete personnel with associated user account. Please delete the user account first.');
+                session()->flash('flash.bannerStyle', 'danger');
+                return redirect()->route('personnels.index');
+            }
+            
             $personnel->delete();
 
             session()->flash('flash.banner', 'Personnel Deleted Successfully');
             session()->flash('flash.bannerStyle', 'success');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                // Foreign key constraint violation
+                session()->flash('flash.banner', 'Cannot delete this personnel because it is referenced by other records (such as service records, salary changes, or other related data).');
+                session()->flash('flash.bannerStyle', 'danger');
+            } else {
+                session()->flash('flash.banner', 'Failed to delete personnel due to a database error.');
+                session()->flash('flash.bannerStyle', 'danger');
+            }
         } catch (\Exception $e) {
-            session()->flash('flash.banner', 'Failed To Delete Personnel.' . $e);
+            session()->flash('flash.banner', 'Failed to delete personnel.');
             session()->flash('flash.bannerStyle', 'danger');
         }
         return redirect()->route('personnels.index');

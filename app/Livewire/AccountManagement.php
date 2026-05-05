@@ -34,6 +34,9 @@ class AccountManagement extends Component
     public $personnel_id = '';
     public $personnel_name = '';
     public $personnelList = [];
+    public $personnelSearch = '';
+    public $filteredPersonnelList = [];
+    public $showPersonnelDropdown = false;
 
     protected $paginationTheme = 'tailwind';
 
@@ -57,18 +60,59 @@ class AccountManagement extends Component
     {
         $this->resetForm();
         $this->fetchPersonnelList();
+        $this->filteredPersonnelList = $this->personnelList;
     }
 
     public function fetchPersonnelList()
     {
-        // Debug: Get all personnel first to check if data exists
-        $this->personnelList = Personnel::orderBy('id')
+        // Get only personnel who don't have user accounts
+        $this->personnelList = Personnel::whereDoesntHave('user')
+            ->orderBy('personnel_id')
             ->get(['id', 'personnel_id', 'first_name', 'last_name']);
+    }
 
-        // If you want to filter later, uncomment the line below:
-        // $this->personnelList = Personnel::whereDoesntHave('user')
-        //     ->orderBy('personnel_id')
-        //     ->get(['personnel_id', 'first_name', 'last_name']);
+    public function updatedPersonnelSearch()
+    {
+        $this->filterPersonnel();
+    }
+
+    public function filterPersonnel()
+    {
+        if (empty($this->personnelSearch)) {
+            $this->filteredPersonnelList = $this->personnelList;
+        } else {
+            $search = strtolower($this->personnelSearch);
+            $this->filteredPersonnelList = $this->personnelList->filter(function ($personnel) use ($search) {
+                return stripos($personnel->personnel_id, $search) !== false ||
+                       stripos($personnel->first_name, $search) !== false ||
+                       stripos($personnel->last_name, $search) !== false ||
+                       stripos($personnel->first_name . ' ' . $personnel->last_name, $search) !== false;
+            });
+        }
+        $this->showPersonnelDropdown = true;
+    }
+
+    public function selectPersonnel($personnelId, $personnelName)
+    {
+        $this->personnel_id = $personnelId;
+        $this->personnel_name = $personnelName;
+        $this->personnelSearch = $personnelName;
+        $this->showPersonnelDropdown = false;
+        $this->filteredPersonnelList = $this->personnelList;
+        
+        // Trigger the updatedPersonnelId method to update the personnel name
+        $this->updatedPersonnelId();
+    }
+
+    public function openPersonnelDropdown()
+    {
+        $this->filterPersonnel();
+    }
+
+    public function closePersonnelDropdown()
+    {
+        // Add a small delay to allow click events to fire before closing
+        $this->dispatch('closePersonnelDropdown');
     }
 
     public function updatedPersonnelId()
@@ -106,6 +150,9 @@ class AccountManagement extends Component
         $this->role = 'teacher';
         $this->personnel_id = '';
         $this->personnel_name = '';
+        $this->personnelSearch = '';
+        $this->showPersonnelDropdown = false;
+        $this->filteredPersonnelList = $this->personnelList;
         $this->resetErrorBag();
     }
 
