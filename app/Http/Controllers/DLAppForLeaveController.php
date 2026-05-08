@@ -7,6 +7,7 @@ use App\Models\LeaveRequest;
 use App\Models\Personnel;
 use App\Models\SalaryStep;
 use App\Models\Signature;
+use App\Models\User;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -156,15 +157,35 @@ class DLAppForLeaveController extends Controller
 
             // Get School Head based on logged-in user's school
             if ($personnel->school_id) {
-                $schoolHead = Personnel::where('school_id', $personnel->school_id)
-                    ->where('category', 'School Head')
+                // First, try to find a user with school_head role for this school
+                $schoolHeadUser = User::where('role', 'school_head')
+                    ->whereHas('personnel', function ($query) use ($personnel) {
+                        $query->where('school_id', $personnel->school_id);
+                    })
+                    ->with('personnel')
                     ->first();
 
-                if ($schoolHead) {
-                    $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
-                        ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
-                        $schoolHead->last_name);
+                if ($schoolHeadUser && $schoolHeadUser->personnel) {
+                    // Found a user with school_head role for this school
+                    $schoolHeadFullName = trim($schoolHeadUser->personnel->first_name . ' ' .
+                        ($schoolHeadUser->personnel->middle_name ? $schoolHeadUser->personnel->middle_name . ' ' : '') .
+                        $schoolHeadUser->personnel->last_name);
                     $sheet->setCellValue('L53', $schoolHeadFullName);
+                } else {
+                    // Fallback: find personnel with School Head category
+                    $schoolHead = Personnel::where('school_id', $personnel->school_id)
+                        ->where('category', 'School Head')
+                        ->first();
+
+                    if ($schoolHead) {
+                        $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
+                            ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
+                            $schoolHead->last_name);
+                        $sheet->setCellValue('L53', $schoolHeadFullName);
+                    } else {
+                        // No school head found, set N/A
+                        $sheet->setCellValue('L53', 'N/A');
+                    }
                 }
             }
 

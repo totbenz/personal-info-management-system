@@ -295,15 +295,9 @@ function openDownloadModal(monetizationId) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 
-    // Set download URLs based on user role
-    const userRole = '{{ auth()->user()->role }}';
-    if (userRole === 'teacher') {
-        document.getElementById('downloadAssistant').href = `/teacher/monetization-application/download/${monetizationId}/assistant`;
-        document.getElementById('downloadSchools').href = `/teacher/monetization-application/download/${monetizationId}/schools`;
-    } else {
-        document.getElementById('downloadAssistant').href = `/non-teaching/monetization-application/download/${monetizationId}/assistant`;
-        document.getElementById('downloadSchools').href = `/non-teaching/monetization-application/download/${monetizationId}/schools`;
-    }
+    // Set download URLs for non-teaching users
+    document.getElementById('downloadAssistant').href = `/non-teaching/monetization-application/download/${monetizationId}/assistant`;
+    document.getElementById('downloadSchools').href = `/non-teaching/monetization-application/download/${monetizationId}/schools`;
 }
 
 function closeDownloadModal() {

@@ -93,6 +93,12 @@ class MonetizationDownloadController extends Controller
                 $sheet->setCellValue('E53', $adminOfficerSignature->full_name);
             }
 
+            // Get SDS signature from signatures table
+            $sdsSignature = Signature::where('position', 'Schools Division Superintendent')->first();
+            if ($sdsSignature) {
+                $sheet->setCellValue('L53', $sdsSignature->full_name);
+            }
+
             // Get School Head based on logged-in user's school
             if ($personnel->school_id) {
                 $schoolHead = Personnel::where('school_id', $personnel->school_id)
@@ -103,7 +109,8 @@ class MonetizationDownloadController extends Controller
                     $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
                         ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
                         $schoolHead->last_name);
-                    $sheet->setCellValue('L53', $schoolHeadFullName);
+                    // You can place School Head name in another cell if needed
+                    // $sheet->setCellValue('K53', $schoolHeadFullName);
                 }
             }
 
