@@ -137,9 +137,9 @@
         <h3 class="text-xl font-bold text-gray-900 mb-4">Download Monetization Application</h3>
         <p class="text-gray-600 mb-6">Choose the signature type for your monetization application:</p>
         <div class="space-y-3">
-            <a id="downloadAssistant" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+            <a id="downloadAssistant" href="#" onclick="return false;" class="block w-full px-4 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-center font-medium opacity-60">
                 Assistant SDS
-                <p class="text-sm opacity-90">For Assistant School Division Superintendent</p>
+                <p class="text-sm opacity-70">For Assistant School Division Superintendent</p>
             </a>
             <a id="downloadSchools" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
                 Schools SDS

@@ -24,6 +24,8 @@ class DistrictSeeder extends Seeder
             ['name' => 'District 8'],
             ['name' => 'District 9'],
             ['name' => 'District 10'],
+            ['name' => 'SDO Office'],
+            ['name' => 'Cluster Office'],
         ]);
     }
 }

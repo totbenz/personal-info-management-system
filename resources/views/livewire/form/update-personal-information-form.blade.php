@@ -103,7 +103,7 @@
                     option-label="school_id"
                     option-value="id"
                     option-description="school_name"
-                    label="School ID" />
+                    label="School/Office ID" />
             </span>
             <span class="w-3/12">
                 <x-native-select label="Select Category" wire:model="category">
@@ -404,7 +404,7 @@
                     <div wire:loading wire:target="personnel_id" class="text-xs text-blue-600 mt-1">Validating...</div>
                 </span>
                 <span class="w-2/12">
-                    <x-select wire:model="school_id" id="school_id" name="school_id" placeholder="Select a school" :async-data="route('api.schools.index')" option-label="school_id" option-value="id" option-description="school_name" label="School ID" class="form-control" />
+                    <x-select wire:model="school_id" id="school_id" name="school_id" placeholder="Select a school" :async-data="route('api.schools.index')" option-label="school_id" option-value="id" option-description="school_name" label="School/Office ID" class="form-control" />
                     <p class="text-xs text-gray-500 mt-1">Assigned school</p>
                     @error('school_id')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>

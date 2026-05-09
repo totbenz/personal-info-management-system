@@ -73,7 +73,7 @@
                         class="relative px-4 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                         active-class="bg-white text-[#0f152a] shadow-lg font-bold"
                         inactive-class="hover:bg-[#1a223a] hover:text-white hover:shadow-md">
-                        {{ __('Schools') }}
+                        {{ __('Schools/Offices') }}
                     </x-nav-link>
                     @endif
 

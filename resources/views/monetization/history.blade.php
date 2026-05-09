@@ -127,7 +127,7 @@
 <!-- Monetization Modal -->
 <div id="monetizationModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-40 hidden">
     <div class="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg relative">
-        <form id="monetizationForm" method="POST">
+        <form id="monetizationForm" method="POST" action="{{ route(Auth::user()->role . '.monetization.store') }}">
             @csrf
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
@@ -187,9 +187,9 @@
         <h3 class="text-xl font-bold text-gray-900 mb-4">Download Monetization Application</h3>
         <p class="text-gray-600 mb-6">Choose the signature type for your monetization application:</p>
         <div class="space-y-3">
-            <a id="downloadAssistant" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
+            <a id="downloadAssistant" href="#" onclick="return false;" class="block w-full px-4 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-center font-medium opacity-60">
                 Assistant SDS
-                <p class="text-sm opacity-90">For Assistant School Division Superintendent</p>
+                <p class="text-sm opacity-70">For Assistant School Division Superintendent</p>
             </a>
             <a id="downloadSchools" href="#" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center font-medium">
                 Schools SDS

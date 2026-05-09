@@ -4,7 +4,7 @@
         <div class="flex space-x-4">
             @include('school.modal.create-modal')
             <button x-on:click="$openModal('create-school')" class="bg-main text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-500 transition font-semibold">
-                {{ __('New School') }}
+                {{ __('New School/Office') }}
             </button>
             <button wire:click='export' class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition font-semibold">
                 Export Excel

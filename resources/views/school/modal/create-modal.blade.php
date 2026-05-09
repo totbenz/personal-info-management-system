@@ -8,7 +8,7 @@
                 <!-- Title -->
                 <div class="flex space-x-3 justify-between">
                     <span class="w-full">
-                        <h2 class="text-lg font-semibold text-gray-800">Add New School</h2>
+                        <h2 class="text-lg font-semibold text-gray-800">Add New School/Office</h2>
                     </span>
                 </div>
                 <hr class="mb-7">
@@ -16,9 +16,9 @@
                 <div class="m-0 mb-4 p-0 flex space-x-5">
                     <span class="w-2/6">
                         <label for="school_id" class="block font-medium text-sm text-gray-700">
-                            School ID <span class="text-red-500">*</span>
+                            School/Office ID <span class="text-red-500">*</span>
                         </label>
-                        <x-input id="school_id" wire:model="school_id" type="number" name="school_id" placeholder="School ID" required />
+                        <x-input id="school_id" wire:model="school_id" type="number" name="school_id" placeholder="School/Office ID" required />
                     </span>
                     <span class="w-2/6">
                         <label for="division" class="block font-medium text-sm text-gray-700">
@@ -56,7 +56,7 @@
                 <div class="mb-4 flex space-x-3 justify-between">
                     <span class="w-full">
                         <label for="school_name" class="block font-medium text-sm text-gray-700">
-                            School Name <span class="text-red-500">*</span>
+                            School/Office Name <span class="text-red-500">*</span>
                         </label>
                         <x-input id="school_name" wire:model="school_name" type="text" name="school_name" placeholder="School Name" required />
                     </span>
@@ -93,6 +93,7 @@
                             <option value="grade 1-6">Kindergarten to Grade 1-6</option>
                             <option value="grade 7-10">Grade 7-10</option>
                             <option value="grade 11-12">Grade 11-12</option>
+                            <option value="office">Office</option>
                         </x-native-select>
                     </div>
                 </div>

@@ -45,7 +45,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-blue-700 mb-1">School ID</p>
+                                <p class="text-sm font-medium text-blue-700 mb-1">School/Office ID</p>
                                 <p class="text-lg font-bold text-gray-900">{{ $schoolInfo['id'] }}</p>
                             </div>
                         </div>

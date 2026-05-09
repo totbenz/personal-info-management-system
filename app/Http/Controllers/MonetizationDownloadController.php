@@ -93,10 +93,17 @@ class MonetizationDownloadController extends Controller
                 $sheet->setCellValue('E53', $adminOfficerSignature->full_name);
             }
 
-            // Get SDS signature from signatures table
-            $sdsSignature = Signature::where('position', 'Schools Division Superintendent')->first();
-            if ($sdsSignature) {
-                $sheet->setCellValue('L53', $sdsSignature->full_name);
+            // Set L53 based on selected signature choice
+            if ($signatureChoice === 'schools') {
+                $oicAssistant = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
+                if ($oicAssistant) {
+                    $sheet->setCellValue('L53', $oicAssistant->full_name);
+                }
+            } else {
+                $sdsSignature = Signature::where('position', 'Schools Division Superintendent')->first();
+                if ($sdsSignature) {
+                    $sheet->setCellValue('L53', $sdsSignature->full_name);
+                }
             }
 
             // Get School Head based on logged-in user's school

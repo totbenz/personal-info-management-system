@@ -103,7 +103,7 @@
                             option-label="school_id"
                             option-value="id"
                             option-description="school_name"
-                            label="School ID"
+                            label="School/Office ID"
                             class="form-control" />
                         @endif
                     </span>

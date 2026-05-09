@@ -157,34 +157,80 @@ class DLAppForLeaveController extends Controller
 
             // Get School Head based on logged-in user's school
             if ($personnel->school_id) {
-                // First, try to find a user with school_head role for this school
-                $schoolHeadUser = User::where('role', 'school_head')
-                    ->whereHas('personnel', function ($query) use ($personnel) {
-                        $query->where('school_id', $personnel->school_id);
-                    })
-                    ->with('personnel')
-                    ->first();
+                // If current user is a school head
+                if ($user->role === 'school_head') {
+                    // If signature choice is 'schools', populate with OIC Assistant Schools Division Superintendent
+                    if ($signatureChoice === 'schools') {
+                        $oicAssistant = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
+                        if ($oicAssistant) {
+                            $sheet->setCellValue('L53', $oicAssistant->full_name);
+                        }
+                    }
+                    // For 'assistant' choice or no choice, don't populate L53
+                } elseif (in_array($user->role, ['teacher', 'non_teaching'])) {
+                    // If current user is a teacher or non_teaching and signature choice is 'schools', populate with OIC Assistant Schools Division Superintendent
+                    if ($signatureChoice === 'schools') {
+                        $oicAssistant = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
+                        if ($oicAssistant) {
+                            $sheet->setCellValue('L53', $oicAssistant->full_name);
+                        }
+                    } else {
+                        // For 'assistant' choice or no choice, populate with school head normally
+                        $schoolHeadUser = User::where('role', 'school_head')
+                            ->whereHas('personnel', function ($query) use ($personnel) {
+                                $query->where('school_id', $personnel->school_id);
+                            })
+                            ->with('personnel')
+                            ->first();
 
-                if ($schoolHeadUser && $schoolHeadUser->personnel) {
-                    // Found a user with school_head role for this school
-                    $schoolHeadFullName = trim($schoolHeadUser->personnel->first_name . ' ' .
-                        ($schoolHeadUser->personnel->middle_name ? $schoolHeadUser->personnel->middle_name . ' ' : '') .
-                        $schoolHeadUser->personnel->last_name);
-                    $sheet->setCellValue('L53', $schoolHeadFullName);
+                        if ($schoolHeadUser && $schoolHeadUser->personnel) {
+                            $schoolHeadFullName = trim($schoolHeadUser->personnel->first_name . ' ' .
+                                ($schoolHeadUser->personnel->middle_name ? $schoolHeadUser->personnel->middle_name . ' ' : '') .
+                                $schoolHeadUser->personnel->last_name);
+                            $sheet->setCellValue('L53', $schoolHeadFullName);
+                        } else {
+                            $schoolHead = Personnel::where('school_id', $personnel->school_id)
+                                ->where('category', 'School Head')
+                                ->first();
+
+                            if ($schoolHead) {
+                                $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
+                                    ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
+                                    $schoolHead->last_name);
+                                $sheet->setCellValue('L53', $schoolHeadFullName);
+                            }
+                        }
+                    }
                 } else {
-                    // Fallback: find personnel with School Head category
-                    $schoolHead = Personnel::where('school_id', $personnel->school_id)
-                        ->where('category', 'School Head')
+                    // For other roles, populate normally with school head
+                    $schoolHeadUser = User::where('role', 'school_head')
+                        ->whereHas('personnel', function ($query) use ($personnel) {
+                            $query->where('school_id', $personnel->school_id);
+                        })
+                        ->with('personnel')
                         ->first();
 
-                    if ($schoolHead) {
-                        $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
-                            ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
-                            $schoolHead->last_name);
+                    if ($schoolHeadUser && $schoolHeadUser->personnel) {
+                        // Found a user with school_head role for this school
+                        $schoolHeadFullName = trim($schoolHeadUser->personnel->first_name . ' ' .
+                            ($schoolHeadUser->personnel->middle_name ? $schoolHeadUser->personnel->middle_name . ' ' : '') .
+                            $schoolHeadUser->personnel->last_name);
                         $sheet->setCellValue('L53', $schoolHeadFullName);
                     } else {
-                        // No school head found, set N/A
-                        $sheet->setCellValue('L53', 'N/A');
+                        // Fallback: find personnel with School Head category
+                        $schoolHead = Personnel::where('school_id', $personnel->school_id)
+                            ->where('category', 'School Head')
+                            ->first();
+
+                        if ($schoolHead) {
+                            $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
+                                ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
+                                $schoolHead->last_name);
+                            $sheet->setCellValue('L53', $schoolHeadFullName);
+                        } else {
+                            // No school head found, set N/A
+                            $sheet->setCellValue('L53', '');
+                        }
                     }
                 }
             }

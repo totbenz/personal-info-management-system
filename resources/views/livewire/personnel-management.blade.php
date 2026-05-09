@@ -180,7 +180,7 @@
                         </th>
                         <th wire:click="sortBy('school_id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center space-x-1">
-                                <span>School</span>
+                                <span>School/Office</span>
                                 @if($sortColumn == 'school_id')
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
