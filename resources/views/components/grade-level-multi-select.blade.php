@@ -31,7 +31,7 @@
         @endif
     </div>
 
-    <input id="options" wire:model="curricular_classification" type="hidden" name="curricular_classification" :value="options" required>
+    <input id="options" wire:model="curricular_classification" type="hidden" name="curricular_classification" :value="JSON.stringify(options)" required>
     <div x-show="open" x-trap="open"
          @click.outside="open = false"
          @keydown.escape.window="open = false"

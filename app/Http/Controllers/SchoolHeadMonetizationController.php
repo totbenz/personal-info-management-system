@@ -245,4 +245,50 @@ class SchoolHeadMonetizationController extends Controller
 
         return view('school_head.monetization.history', compact('monetizationRequests', 'leaveBalances'));
     }
+
+    /**
+     * Delete monetization request
+     */
+    public function destroy($id)
+    {
+        try {
+            $user = Auth::user();
+
+            $schoolHeadMonetization = SchoolHeadMonetization::find($id);
+
+            if (!$schoolHeadMonetization) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Monetization request not found.'
+                ], 404);
+            }
+
+            // Check authorization: school head can delete their own request, or admin can delete any
+            if ($schoolHeadMonetization->school_head_id !== $user->id && $user->role !== 'admin') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to delete this monetization request.'
+                ], 403);
+            }
+
+            $schoolHeadMonetization->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Monetization request deleted successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting school head monetization request', [
+                'id' => $id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the monetization request.'
+            ], 500);
+        }
+    }
 }

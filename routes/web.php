@@ -427,6 +427,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/non-teaching/monetization/create', [LeaveMonetizationController::class, 'create'])->name('non_teaching.monetization.create');
         Route::post('/non-teaching/monetization', [LeaveMonetizationController::class, 'store'])->name('non_teaching.monetization.store');
         Route::get('/non-teaching/monetization/history', [LeaveMonetizationController::class, 'history'])->name('non_teaching.monetization.history');
+        Route::delete('/non-teaching/monetization/{id}', [LeaveMonetizationController::class, 'destroy'])->name('non_teaching.monetization.destroy');
 
         // Monetization Download
         Route::get('/non-teaching/monetization-application/download/{monetizationId}/{signatureChoice?}', [MonetizationDownloadController::class, 'downloadExcel'])->name('non_teaching.monetization.download');
@@ -471,6 +472,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/school-head/monetization/create', [SchoolHeadMonetizationController::class, 'create'])->name('school_head.monetization.create');
         Route::post('/school-head/monetization', [SchoolHeadMonetizationController::class, 'store'])->name('school_head.monetization.store');
         Route::get('/school-head/monetization/history', [SchoolHeadMonetizationController::class, 'history'])->name('school_head.monetization.history');
+        Route::delete('/school-head/monetization/{id}', [SchoolHeadMonetizationController::class, 'destroy'])->name('school_head.monetization.destroy');
 
         // Monetization Download
         Route::get('/school-head/monetization-application/download/{monetizationId}/{signatureChoice?}', [MonetizationDownloadController::class, 'downloadExcel'])->name('school_head.monetization.download');

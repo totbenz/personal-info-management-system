@@ -157,16 +157,12 @@ class DLAppForLeaveController extends Controller
 
             // Get School Head based on logged-in user's school
             if ($personnel->school_id) {
-                // If current user is a school head
+                // If current user is a school head, use Assistant School Division Superintendent in L53
                 if ($user->role === 'school_head') {
-                    // If signature choice is 'schools', populate with OIC Assistant Schools Division Superintendent
-                    if ($signatureChoice === 'schools') {
-                        $oicAssistant = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
-                        if ($oicAssistant) {
-                            $sheet->setCellValue('L53', $oicAssistant->full_name);
-                        }
+                    $assistantSchoolDivisionSuperintendent = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
+                    if ($assistantSchoolDivisionSuperintendent) {
+                        $sheet->setCellValue('L53', $assistantSchoolDivisionSuperintendent->full_name);
                     }
-                    // For 'assistant' choice or no choice, don't populate L53
                 } elseif (in_array($user->role, ['teacher', 'non_teaching'])) {
                     // If current user is a teacher or non_teaching and signature choice is 'schools', populate with OIC Assistant Schools Division Superintendent
                     if ($signatureChoice === 'schools') {
@@ -188,17 +184,6 @@ class DLAppForLeaveController extends Controller
                                 ($schoolHeadUser->personnel->middle_name ? $schoolHeadUser->personnel->middle_name . ' ' : '') .
                                 $schoolHeadUser->personnel->last_name);
                             $sheet->setCellValue('L53', $schoolHeadFullName);
-                        } else {
-                            $schoolHead = Personnel::where('school_id', $personnel->school_id)
-                                ->where('category', 'School Head')
-                                ->first();
-
-                            if ($schoolHead) {
-                                $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
-                                    ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
-                                    $schoolHead->last_name);
-                                $sheet->setCellValue('L53', $schoolHeadFullName);
-                            }
                         }
                     }
                 } else {
@@ -217,27 +202,15 @@ class DLAppForLeaveController extends Controller
                             $schoolHeadUser->personnel->last_name);
                         $sheet->setCellValue('L53', $schoolHeadFullName);
                     } else {
-                        // Fallback: find personnel with School Head category
-                        $schoolHead = Personnel::where('school_id', $personnel->school_id)
-                            ->where('category', 'School Head')
-                            ->first();
-
-                        if ($schoolHead) {
-                            $schoolHeadFullName = trim($schoolHead->first_name . ' ' .
-                                ($schoolHead->middle_name ? $schoolHead->middle_name . ' ' : '') .
-                                $schoolHead->last_name);
-                            $sheet->setCellValue('L53', $schoolHeadFullName);
-                        } else {
-                            // No school head found, set N/A
-                            $sheet->setCellValue('L53', '');
-                        }
+                        // No school head found, leave blank
+                        $sheet->setCellValue('L53', '');
                     }
                 }
             }
 
             // Get Division Superintendent signature based on user choice
             if ($signatureChoice === 'assistant') {
-                $divisionSuperintendent = Signature::where('position', 'Assistant School Division Superintendent')->first();
+                $divisionSuperintendent = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
                 if ($divisionSuperintendent) {
                     $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
                     $sheet->setCellValue('G62', $divisionSuperintendent->position_name);
@@ -250,7 +223,7 @@ class DLAppForLeaveController extends Controller
                 }
             } else {
                 // Default to Assistant School Division Superintendent if no choice specified
-                $divisionSuperintendent = Signature::where('position', 'Assistant School Division Superintendent')->first();
+                $divisionSuperintendent = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
                 if ($divisionSuperintendent) {
                     $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
                     $sheet->setCellValue('G62', $divisionSuperintendent->position_name);

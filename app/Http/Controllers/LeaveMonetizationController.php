@@ -550,4 +550,72 @@ class LeaveMonetizationController extends Controller
         // If neither found
         return redirect()->back()->with('error', 'Monetization request not found.');
     }
+
+    /**
+     * Delete monetization request
+     */
+    public function destroy($id)
+    {
+        try {
+            $user = Auth::user();
+
+            // First check if this is a regular teacher/non-teaching monetization
+            $monetization = LeaveMonetization::find($id);
+
+            if ($monetization) {
+                // Check authorization: user can delete their own request, or admin can delete any
+                if ($monetization->user_id !== $user->id && $user->role !== 'admin') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You are not authorized to delete this monetization request.'
+                    ], 403);
+                }
+
+                $monetization->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Monetization request deleted successfully.'
+                ]);
+            }
+
+            // Then check if this is a school head monetization
+            $schoolHeadMonetization = SchoolHeadMonetization::find($id);
+
+            if ($schoolHeadMonetization) {
+                // Check authorization: school head can delete their own request, or admin can delete any
+                if ($schoolHeadMonetization->school_head_id !== $user->id && $user->role !== 'admin') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You are not authorized to delete this monetization request.'
+                    ], 403);
+                }
+
+                $schoolHeadMonetization->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Monetization request deleted successfully.'
+                ]);
+            }
+
+            // If neither found
+            return response()->json([
+                'success' => false,
+                'message' => 'Monetization request not found.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting monetization request', [
+                'id' => $id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the monetization request.'
+            ], 500);
+        }
+    }
 }

@@ -88,16 +88,22 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    @if($request->status == 'approved')
-                                        <button onclick="openDownloadModal({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-orange-600 text-orange-700 text-xs font-semibold rounded-full hover:bg-orange-50 transition">
+                                    <div class="flex justify-center space-x-2">
+                                        @if($request->status == 'approved')
+                                            <button onclick="openDownloadModal({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-orange-600 text-orange-700 text-xs font-semibold rounded-full hover:bg-orange-50 transition">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                                </svg>
+                                                <span class="ml-1">Download</span>
+                                            </button>
+                                        @endif
+                                        <button onclick="deleteMonetization({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-red-600 text-red-700 text-xs font-semibold rounded-full hover:bg-red-50 transition">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4m0 0l4-4m-4 4V4" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
-                                            <span class="ml-1">Download</span>
+                                            <span class="ml-1">Delete</span>
                                         </button>
-                                    @else
-                                        <span class="text-xs text-gray-400">N/A</span>
-                                    @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -165,6 +171,61 @@ function closeDownloadModal() {
     const modal = document.getElementById('downloadModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+}
+
+function deleteMonetization(monetizationId) {
+    Swal.fire({
+        title: 'Delete Monetization Request?',
+        text: 'This will permanently remove the monetization request. This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        showLoaderOnConfirm: true,
+        preConfirm: function() {
+            return fetch(`/school-head/monetization/${monetizationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Request failed');
+                    });
+                }
+                return response.json();
+            }).catch(error => {
+                Swal.showValidationMessage('Request failed: ' + error.message);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value && result.value.success) {
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: result.value.message,
+                    icon: 'success',
+                    timer: 1800,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: result.value?.message || 'Unable to delete monetization request.',
+                    confirmButtonColor: '#dc2626',
+                    confirmButtonText: 'Okay'
+                });
+            }
+        }
+    });
 }
 </script>
 </x-app-layout>

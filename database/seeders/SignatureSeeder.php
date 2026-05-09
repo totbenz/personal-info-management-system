@@ -31,8 +31,8 @@ class SignatureSeeder extends Seeder
             ],
             [
                 'position' => 'Assistant School Division Superintendent',
-                'position_name' => 'Assistant School Division Superintendent',
-                'full_name' => 'JOSEMILO P. RUIZ EdD, CESE'
+                'position_name' => 'Curriculum Implementation Division Chief',
+                'full_name' => 'JOAN C. RAPADA, EDD., CID CHIEF'
             ]
         ]);
     }

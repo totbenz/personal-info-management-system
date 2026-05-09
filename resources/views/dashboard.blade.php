@@ -1169,6 +1169,9 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day Debt</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
+                                @if(Auth::user()->role === 'admin')
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -1253,6 +1256,16 @@
                                     {{ $request->updated_at->format('M d, Y') }}
                                     <div class="text-xs text-gray-500">{{ $request->updated_at->format('g:i A') }}</div>
                                 </td>
+                                @if(Auth::user()->role === 'admin')
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <button onclick="deleteApprovedLeaveRequest({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-red-600 text-red-700 text-xs font-semibold rounded-full hover:bg-red-50 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <span class="ml-1">Delete</span>
+                                    </button>
+                                </td>
+                                @endif
                             </tr>
                             @endforeach
                         </tbody>
@@ -1871,5 +1884,62 @@
                 });
             }
         </script>
+
+    <script>
+    function deleteApprovedLeaveRequest(leaveId) {
+        Swal.fire({
+            title: 'Delete Approved Leave Request?',
+            text: "This will permanently remove the approved leave entry.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                return fetch(`/leave-request/${leaveId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Request failed');
+                        });
+                    }
+                    return response.json();
+                }).catch(error => {
+                    Swal.showValidationMessage('Request failed: ' + error.message);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (result.value && result.value.success) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: result.value.message,
+                        icon: 'success',
+                        timer: 1800,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.value?.message || 'Unable to delete leave request.',
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Okay'
+                    });
+                }
+            }
+        });
+    }
+    </script>
 
 </x-app-layout>

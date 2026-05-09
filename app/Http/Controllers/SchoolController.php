@@ -60,7 +60,7 @@ class SchoolController extends Controller
     {
         try {
             $request->validate([
-                'school_id' => 'required',
+                'school_id' => 'required|unique:schools,school_id',
                 'school_name' => 'required',
                 'address' => 'required',
                 'division' => 'required',
@@ -74,7 +74,12 @@ class SchoolController extends Controller
             session()->flash('flash.banner', 'School Created Successfully');
             session()->flash('flash.bannerStyle', 'success');
         } catch (ValidationException $e) {
-            session()->flash('flash.banner', 'Failed to create School');
+            $errors = $e->errors();
+            if (isset($errors['school_id'])) {
+                session()->flash('flash.banner', 'School ID already exists. Please use a different School ID.');
+            } else {
+                session()->flash('flash.banner', 'Failed to create School');
+            }
             session()->flash('flash.bannerStyle', 'danger');
         }
         return redirect()->back();

@@ -90,10 +90,13 @@
                         </label>
                         <x-native-select wire:model="curricular_classification" class="form-control" required>
                             <option value="" disabled selected>Select Curricular Classification</option>
-                            <option value="grade 1-6">Kindergarten to Grade 1-6</option>
-                            <option value="grade 7-10">Grade 7-10</option>
-                            <option value="grade 11-12">Grade 11-12</option>
-                            <option value="office">Office</option>
+                            <option value="Kindergarten to Grade 6">Kindergarten to Grade 6</option>
+                            <option value="Grade 7 - 10">Grade 7 - 10</option>
+                            <option value="Grade 11 - 12">Grade 11 - 12</option>
+                            <option value="Integrated School (K - 10)">Integrated School (K - 10)</option>
+                            <option value="Integrated School (K - 12)">Integrated School (K - 12)</option>
+                            <option value="Junior High School and Senior High School">Junior High School and Senior High School</option>
+                            <option value="Office">Office</option>
                         </x-native-select>
                     </div>
                 </div>

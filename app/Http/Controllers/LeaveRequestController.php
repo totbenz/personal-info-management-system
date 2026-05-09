@@ -1191,20 +1191,29 @@ class LeaveRequestController extends Controller
         try {
             $leaveRequest = LeaveRequest::findOrFail($id);
             
-            // Check if the leave request belongs to the current user
-            if ($leaveRequest->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You can only delete your own leave requests.'
-                ], 403);
-            }
+            // Allow admins to delete approved leave requests.
+            if (Auth::user()->role === 'admin') {
+                if ($leaveRequest->status !== 'approved') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Admins can only delete approved leave requests from this page.'
+                    ], 422);
+                }
+            } else {
+                // Regular users can only delete their own pending requests.
+                if ($leaveRequest->user_id !== Auth::id()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You can only delete your own leave requests.'
+                    ], 403);
+                }
 
-            // Check if the leave request can be deleted (only pending requests can be deleted)
-            if ($leaveRequest->status !== 'pending') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Only pending leave requests can be deleted.'
-                ], 422);
+                if ($leaveRequest->status !== 'pending') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Only pending leave requests can be deleted.'
+                    ], 422);
+                }
             }
 
             // Delete the leave request

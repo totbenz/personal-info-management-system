@@ -15,18 +15,12 @@
                         <x-input id="division" wire:model="division" type="text" label="Division"  name="division" required/>
                     </span>
                     <span class="w-1/4">
-                        {{-- <x-select
-                        wire:model="district_id"
-                        id="district_id"
-                        name="district_id"
-                        placeholder="Select a District"
-                        :async-data="route('api.disctricts.index')"
-                        option-label="name"
-                        option-value="id"
-                        label="District"
-                        class="form-control"
-                    /> --}}
-                        <x-input id="district_id" wire:model="district_id" type="text" label="District"  name="district_id" required/>
+                        <x-native-select wire:model="district_id" id="district_id" label="District" name="district_id" required>
+                            <option value="" disabled selected>Select District</option>
+                            @foreach (\App\Models\District::all() as $district)
+                            <option value="{{ $district->id }}">{{ $district->name }}</option>
+                            @endforeach
+                        </x-native-select>
                     </span>
                 </div>
                 <div class="mb-4 flex space-x-3 justify-between">
@@ -49,12 +43,16 @@
                 </div>
                 <div class="flex space-x-4">
                     <div class="w-full">
-                        {{-- <label for="curricular_classification" class="mb-2 block font-medium text-sm text-gray-700">Curricular Classifications</label>
-                        <x-grade-level-multi-select :curricular_classification="$curricular_classification"/> --}}
-                        <x-native-select wire:model="curricular_classification" class="form-control" label="Curricular Classifications">
-                            <option value="grade 1-6">Grade 1-6</option>
-                            <option value="grade 7-10">Grade 7-10</option>
-                            <option value="grade 11-12">Grade 11-12</option>
+                        <label for="curricular_classification" class="mb-2 block font-medium text-sm text-gray-700">Curricular Classifications</label>
+                        <x-native-select wire:model="curricular_classification" class="form-control" required>
+                            <option value="" disabled selected>Select Curricular Classification</option>
+                            <option value="Kindergarten to Grade 6">Kindergarten to Grade 6</option>
+                            <option value="Grade 7 - 10">Grade 7 - 10</option>
+                            <option value="Grade 11 - 12">Grade 11 - 12</option>
+                            <option value="Integrated School (K - 10)">Integrated School (K - 10)</option>
+                            <option value="Integrated School (K - 12)">Integrated School (K - 12)</option>
+                            <option value="Junior High School and Senior High School">Junior High School and Senior High School</option>
+                            <option value="Office">Office</option>
                         </x-native-select>
                     </div>
                 </div>
@@ -89,7 +87,7 @@
                         <x-input id="division" wire:model="division" type="text" label="Division" class="bg-gray-50 border-gray-300" name="division" readonly/>
                     </span>
                     <span class="w-1/4">
-                        <x-input id="district_id" wire:model="district_id" type="text" label="District" class="bg-gray-50 border-gray-300" name="district"  readonly/>
+                        <x-input value="{{ $school->district->name ?? '' }}" label="District" class="bg-gray-50 border-gray-300" readonly/>
                     </span>
                 </div>
                 <div class="mb-4 flex space-x-3 justify-between">
@@ -112,13 +110,8 @@
                 </div>
                 <div class="flex space-x-4">
                     <div class="w-full">
-                        {{-- <label for="curricular_classification" class="mb-2 block font-medium text-sm text-gray-700">Curricular Classifications</label> --}}
-                        {{-- <x-grade-level-multi-select :curricular_classification="$curricular_classification"/> --}}
-                        <x-native-select wire:model="curricular_classification" class="form-control" label="Curricular Classifications">
-                            <option value="grade 1-6">Grade 1-6</option>
-                            <option value="grade 7-10">Grade 7-10</option>
-                            <option value="grade 11-12">Grade 11-12</option>
-                        </x-native-select>
+                        <label class="block font-medium text-sm text-gray-700">Curricular Classifications</label>
+                        <p>{{ is_array($school->curricular_classification) ? implode(', ', array_map('ucfirst', $school->curricular_classification)) : $school->curricular_classification }}</p>
                     </div>
                 </div>
             </div>

@@ -123,7 +123,7 @@ class MonetizationDownloadController extends Controller
 
             // Get Division Superintendent signature based on user choice
             if ($signatureChoice === 'assistant') {
-                $divisionSuperintendent = Signature::where('position', 'Assistant School Division Superintendent')->first();
+                $divisionSuperintendent = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
                 if ($divisionSuperintendent) {
                     $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
                     $sheet->setCellValue('G62', $divisionSuperintendent->position_name);
@@ -136,7 +136,7 @@ class MonetizationDownloadController extends Controller
                 }
             } else {
                 // Default to Assistant School Division Superintendent if no choice specified
-                $divisionSuperintendent = Signature::where('position', 'Assistant School Division Superintendent')->first();
+                $divisionSuperintendent = Signature::where('position', 'OIC Assistant Schools Division Superintendent')->first();
                 if ($divisionSuperintendent) {
                     $sheet->setCellValue('G61', $divisionSuperintendent->full_name);
                     $sheet->setCellValue('G62', $divisionSuperintendent->position_name);

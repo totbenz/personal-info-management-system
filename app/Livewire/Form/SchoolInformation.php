@@ -39,7 +39,7 @@ class SchoolInformation extends Component
                 $this->address = $this->school->address;
                 $this->email = $this->school->email;
                 $this->phone = $this->school->phone;
-                $this->curricular_classification = json_encode($this->school->curricular_classification);
+                $this->curricular_classification = is_array($this->school->curricular_classification) ? ($this->school->curricular_classification[0] ?? '') : $this->school->curricular_classification;
             }
         }
     }
@@ -87,7 +87,7 @@ class SchoolInformation extends Component
             'address' => $this->address,
             'email' => $this->email,
             'phone' => $this->phone,
-            'curricular_classification' => $this->curricular_classification
+            'curricular_classification' => [$this->curricular_classification]
         ]);
 
         $this->storeMode = false;

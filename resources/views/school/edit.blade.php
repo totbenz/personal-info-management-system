@@ -90,8 +90,15 @@
                                             <x-input id="division" type="text" name="division" :value="$school->division ?? ''" required/>
                                         </span>
                                         <span class="w-1/4">
-                                            <x-label for="district" value="{{ __('District') }}" />
-                                            <x-input id="district" type="text" name="district" :value="$school->district ?? ''" required/>
+                                            <label for="district_id" class="block font-medium text-sm text-gray-700">
+                                                District <span class="text-red-500">*</span>
+                                            </label>
+                                            <x-native-select id="district_id" name="district_id" required>
+                                                <option value="" disabled selected>Select District</option>
+                                                @foreach (\App\Models\District::all() as $district)
+                                                <option value="{{ $district->id }}" {{ $school->district_id == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                                                @endforeach
+                                            </x-native-select>
                                         </span>
                                     </div>
                                     <div class="mb-4 flex space-x-3 justify-between">
@@ -118,16 +125,19 @@
                                     </div>
                                     <div class="flex space-x-4">
                                         <div class="w-full">
-                                            <x-label for="curricular_classification" value="{{ __('Curricular Classifications') }}" />
-                                            {{-- <p>{{ is_string($school->curricular_classification) ? 'uwu' : 'poo'}}</p>
-                                            <p>{{ json_encode($school->curricular_classification) }}</p> --}}
-                                            <x-native-select wire:model="curricular_classification" class="form-control" label="Curricular Classifications">
-                                                <option value="grade 1-6">Grade 1-6</option>
-                                                <option value="grade 7-10">Grade 7-10</option>
-                                                <option value="grade 11-12">Grade 11-12</option>
-                                            </x-native-select>
-                                            {{-- <x-grade-level-multi-select :curricular_classification="{{ json_encode($school->curricular_classification) }}"/> --}}
-                                            {{-- <x-grade-level-multi-select :curricular_classification="$school->curricular_classification" /> --}}
+                                            <label for="curricular_classification" class="block font-medium text-sm text-gray-700">
+                                                Curricular Classifications <span class="text-red-500">*</span>
+                                            </label>
+                                            <select name="curricular_classification" class="form-control" required>
+                                                <option value="" disabled>Select Curricular Classification</option>
+                                                <option value="Kindergarten to Grade 6" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Kindergarten to Grade 6' ? 'selected' : '' }}>Kindergarten to Grade 6</option>
+                                                <option value="Grade 7 - 10" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Grade 7 - 10' ? 'selected' : '' }}>Grade 7 - 10</option>
+                                                <option value="Grade 11 - 12" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Grade 11 - 12' ? 'selected' : '' }}>Grade 11 - 12</option>
+                                                <option value="Integrated School (K - 10)" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Integrated School (K - 10)' ? 'selected' : '' }}>Integrated School (K - 10)</option>
+                                                <option value="Integrated School (K - 12)" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Integrated School (K - 12)' ? 'selected' : '' }}>Integrated School (K - 12)</option>
+                                                <option value="Junior High School and Senior High School" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Junior High School and Senior High School' ? 'selected' : '' }}>Junior High School and Senior High School</option>
+                                                <option value="Office" {{ (is_array($school->curricular_classification) ? $school->curricular_classification[0] : $school->curricular_classification) == 'Office' ? 'selected' : '' }}>Office</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
