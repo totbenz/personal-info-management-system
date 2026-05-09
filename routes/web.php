@@ -495,6 +495,9 @@ Route::middleware(['auth'])->group(function () {
 
     // CTO Request Download (PDF)
     Route::get('/cto-request/download/{ctoRequestId}', [\App\Http\Controllers\CTORequestController::class, 'download'])->name('cto-request.download');
+
+    // CTO Request Delete (only pending requests)
+    Route::delete('/cto-request/{ctoRequest}', [\App\Http\Controllers\CTORequestController::class, 'destroy'])->name('cto-request.destroy');
     // SERVICE RECORD
     Route::get('/personnels/{personnelId}/download-service-record', [ServiceRecordController::class, 'download'])->name('service-record.download');
     Route::get('/service-records/{personnelId}/preview', [ServiceRecordController::class, 'preview'])->name('service-records.preview');

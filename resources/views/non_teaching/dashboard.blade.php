@@ -338,6 +338,7 @@
                                     <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Total Hours Worked</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Days Gained</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-teal-700 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-teal-100">
@@ -372,10 +373,20 @@
                                             <span class="text-xs text-gray-400">-</span>
                                         @endif
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if($request->status === 'pending')
+                                        <button onclick="deleteCTORequest({{ $request->id }})" type="button" class="inline-flex items-center px-3 py-1 border border-red-600 text-red-700 text-xs font-semibold rounded-full hover:bg-red-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            <span class="ml-1">Delete</span>
+                                        </button>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No CTO requests found.</td>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No CTO requests found.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -679,6 +690,63 @@
                         showConfirmButton: false
                     }).then(() => {
                         // Reload the page to refresh the leave history
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.value.message,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Okay'
+                    });
+                }
+            }
+        });
+    }
+    </script>
+
+    <!-- Delete CTO Request Script -->
+    <script>
+    function deleteCTORequest(ctoRequestId) {
+        Swal.fire({
+            title: 'Delete CTO Request?',
+            text: "Are you sure you want to delete this CTO request? This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                return fetch(`/cto-request/${ctoRequestId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                }).catch(error => {
+                    Swal.showValidationMessage('Request failed: ' + error.message);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (result.value.success) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: result.value.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page to refresh the CTO history
                         window.location.reload();
                     });
                 } else {

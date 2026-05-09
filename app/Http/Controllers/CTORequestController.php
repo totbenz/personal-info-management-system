@@ -401,4 +401,41 @@ class CTORequestController extends Controller
             ->take($limit)
             ->get();
     }
+
+    /**
+     * Delete a CTO request (only if pending)
+     */
+    public function destroy(CTORequest $ctoRequest)
+    {
+        $user = Auth::user();
+
+        // Authorization: only the owner can delete their own request
+        if ($ctoRequest->school_head_id !== $user->personnel_id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        // Only allow deletion of pending requests
+        if ($ctoRequest->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Cannot delete ' . $ctoRequest->status . ' requests. Only pending requests can be deleted.'], 400);
+        }
+
+        try {
+            $ctoRequest->delete();
+
+            Log::info('CTO request deleted', [
+                'cto_request_id' => $ctoRequest->id,
+                'school_head_id' => $ctoRequest->school_head_id,
+                'deleted_by' => $user->id
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'CTO request deleted successfully.']);
+        } catch (\Exception $e) {
+            Log::error('CTO request deletion failed', [
+                'cto_request_id' => $ctoRequest->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['success' => false, 'message' => 'Failed to delete CTO request. Please try again.'], 500);
+        }
+    }
 }
